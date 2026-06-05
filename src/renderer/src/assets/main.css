@@ -1,0 +1,198 @@
+@import './base.css';
+
+/* RESET */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* MAIN CONTAINER */
+.tracking-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  padding: 6px 10px;
+
+  /* ✅ Semi-transparent slate-charcoal profile tint */
+  background: rgba(15, 16, 21, 0.75) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  user-select: none;
+  width: 240px;
+}
+/* STAT ROW (GRID = FIXED ALIGNMENT) */
+.stat {
+  display: grid;
+
+  /* fixed columns = no shifting */
+  grid-template-columns: 15px 64px 70px 18px 1fr;
+
+  align-items: center;
+  column-gap: 6px;
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+
+  height: 20px;
+}
+
+/* LABEL */
+.label {
+  color: #9aa7b2;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* VALUE (IMPORTANT: tabular numbers prevent jitter) */
+.value {
+  color: #d7e0e7;
+
+  text-align: right;
+
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+
+  white-space: nowrap;
+}
+
+/* DIFFERENCE */
+.diff {
+  color: #7f8c8d;
+  font-size: 11px;
+
+  text-align: right;
+
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+
+  white-space: nowrap;
+}
+
+/* ICON */
+.icon {
+  font-size: 12px;
+  font-weight: 900;
+
+  width: 18px;
+  text-align: center;
+}
+
+/* TREND COLORS */
+.up {
+  color: #2ecc71;
+  text-shadow: 0 0 6px rgba(46, 204, 113, 0.5);
+}
+
+.down {
+  color: #e74c3c;
+  text-shadow: 0 0 6px rgba(231, 76, 60, 0.5);
+}
+
+/* BADGE */
+.badge {
+  font-size: 10px;
+
+  padding: 2px 6px;
+  border-radius: 6px;
+
+  background: rgba(255, 255, 255, 0.08);
+  color: #cfd8dc;
+
+  justify-self: end;
+
+  white-space: nowrap;
+}
+.panel {
+  padding: 16px;
+  font-family: sans-serif;
+  background: #0f1115;
+  color: white;
+  height: 100%;
+}
+
+.card {
+  background: #1a1d24;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+}
+
+h1 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 13px;
+  color: #9aa7b2;
+}
+
+button {
+  background: #2d6cdf;
+  border: none;
+  padding: 6px 10px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.panel {
+  padding: 16px;
+  font-family: sans-serif;
+  background: #0b0f14;
+  color: white;
+  height: 100%;
+}
+
+h1 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.card {
+  background: #151a22;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+h2 {
+  font-size: 13px;
+  color: #9aa7b2;
+  margin-bottom: 8px;
+}
+
+label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 6px 0;
+  font-size: 12px;
+}
+
+input[type='range'] {
+  width: 140px;
+}
+
+select {
+  background: #222;
+  color: white;
+  border: none;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+button {
+  background: #2d6cdf;
+  border: none;
+  padding: 6px 10px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
