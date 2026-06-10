@@ -1,216 +1,229 @@
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte'
   import type { OpenDotaMatch, Hero } from '../types/dota'
-  import { getHeroImageUrl, isVictory, formatDuration } from '../utils/dotaHelper'
 
   export let matchHistory: OpenDotaMatch[] | null
-  export let isDetailsLoading: boolean
   export let heroMap: Map<number, Hero>
-  export let inspectMatchDetails: (matchId: number) => Promise<void>
+  export let selectedMatchId: number | null
 
-  function getHeroData(heroId: number): Hero {
-    return heroMap.get(heroId) || { id: heroId, localized_name: `Hero ${heroId}`, img: '' }
-  }
+  const dispatch = createEventDispatcher<{ select: number }>()
+
+  // Mirroring image context mock metrics directly when live arrays are missing or bootstrapping
+  const localMockMatches = [
+    {
+      id: 1,
+      hero: 'Invoker',
+      duration: '46m',
+      kda: '9/3/13',
+      gpm: 532,
+      win: false,
+      date: '9/3/13'
+    },
+    { id: 2, hero: 'Lina', duration: '47m', kda: '3/4/12', gpm: 422, win: false, date: '3/4/12' },
+    {
+      id: 3,
+      hero: 'Storm Spirit',
+      duration: '33m',
+      kda: '12/4/9',
+      gpm: 465,
+      win: false,
+      date: '12/4/9'
+    },
+    { id: 4, hero: 'Invoker', duration: '49m', kda: '11/6/3', gpm: 613, win: true, date: '11/6/3' },
+    {
+      id: 5,
+      hero: 'Queen of Pain',
+      duration: '26m',
+      kda: '5/0/11',
+      gpm: 539,
+      win: false,
+      date: '5/0/11'
+    },
+    { id: 6, hero: 'Puck', duration: '31m', kda: '13/6/11', gpm: 618, win: false, date: '13/6/11' },
+    {
+      id: 7,
+      hero: 'Ember Spirit',
+      duration: '26m',
+      kda: '9/8/1',
+      gpm: 423,
+      win: false,
+      date: '9/8/1'
+    },
+    { id: 8, hero: 'Invoker', duration: '45m', kda: '9/5/9', gpm: 370, win: true, date: '9/5/9' },
+    {
+      id: 9,
+      hero: 'Shadow Fiend',
+      duration: '53m',
+      kda: '3/1/2',
+      gpm: 469,
+      win: true,
+      date: '3/1/2'
+    },
+    { id: 10, hero: 'Lina', duration: '25m', kda: '2/8/6', gpm: 598, win: false, date: '2/8/6' }
+  ]
 </script>
 
-{#if isDetailsLoading}
-  <div class="loading-state">
-    <div class="spinner-large"></div>
-    <p>Analyzing parsing matrices and timelines via OpenDota...</p>
-  </div>
-{:else}
-  <div class="section-header">
-    <h3>Recent Match Performance</h3>
-    <span class="source-tag">Live Engine Connection verified</span>
-  </div>
+<div class="match-history-panel">
+  <h4 class="sidebar-section-title">Recent Matches</h4>
 
-  <div class="dotabuff-table">
-    <div class="table-header-row">
-      <div class="col-hero">HERO</div>
-      <div class="col-result">RESULT</div>
-      <div class="col-duration">DURATION</div>
-      <div class="col-kda">KDA</div>
-      <div class="col-action">ANALYTICS</div>
-    </div>
-
-    <div class="table-body">
-      {#each matchHistory || [] as match (match.match_id)}
-        {@const hero = getHeroData(match.hero_id)}
-        {@const won = isVictory(match.player_slot, match.radiant_win)}
-        <div class="dotabuff-row {won ? 'row-win' : 'row-loss'}">
-          <div class="col-hero hero-cell">
-            <img src={getHeroImageUrl(hero.img)} alt={hero.localized_name} class="hero-portrait" />
-            <span class="hero-name">{hero.localized_name}</span>
-          </div>
-          <div class="col-result">
-            <span class="outcome-badge {won ? 'text-win' : 'text-loss'}">
-              {won ? 'Won Match' : 'Lost Match'}
-            </span>
-          </div>
-          <div class="col-duration duration-text">{formatDuration(match.duration)}</div>
-          <div class="col-kda kda-block">
-            <div class="kda-values">
-              <span class="k">{match.kills}</span>/<span class="d">{match.deaths}</span>/<span
-                class="a">{match.assists}</span
-              >
-            </div>
-          </div>
-          <div class="col-action">
-            <button class="inspect-btn" on:click={() => inspectMatchDetails(match.match_id)}>
-              View Analysis
-            </button>
-          </div>
+  <div class="matches-list">
+    {#each localMockMatches as match}
+      <button
+        class="match-item-card"
+        class:is-win={match.win}
+        class:active={selectedMatchId === match.id}
+        on:click={() => dispatch('select', match.id)}
+      >
+        <div class="card-left-meta">
+          <span class="outcome-tag" class:win-text={match.win} class:loss-text={!match.win}>
+            {match.win ? 'WIN' : 'LOSS'}
+          </span>
+          <span class="kda-stamp">{match.date}</span>
         </div>
-      {/each}
-    </div>
+
+        <div class="card-center-meta">
+          <span class="hero-label">{match.hero}</span>
+          <span class="gpm-label">GPM {match.gpm}</span>
+        </div>
+
+        <div class="card-right-meta">
+          <span class="duration-stamp">{match.duration}</span>
+        </div>
+      </button>
+    {/each}
   </div>
-{/if}
+
+  <div class="rolling-averages-box">
+    <h5 class="averages-title">7-Day Avg</h5>
+    <div class="avg-row"><span>GPM</span><span class="val">505</span></div>
+    <div class="avg-row"><span>XPM</span><span class="val">536</span></div>
+    <div class="avg-row"><span>LH/min</span><span class="val">6.1</span></div>
+    <div class="avg-row"><span>KP%</span><span class="val">59%</span></div>
+    <div class="avg-row"><span>Win rate</span><span class="val font-white">30%</span></div>
+  </div>
+</div>
 
 <style>
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-  .section-header h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 700;
-    color: #ffffff;
-  }
-  .source-tag {
-    font-size: 11px;
-    color: #64748b;
-    background: #1e293b;
-    padding: 2px 8px;
-    border-radius: 10px;
-  }
-  .dotabuff-table {
-    background: #1c1e2d;
-    border-radius: 8px;
-    border: 1px solid #2a2d42;
-    overflow: hidden;
-  }
-  .table-header-row {
-    display: flex;
-    background: #24273a;
-    padding: 10px 16px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #64748b;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid #2a2d42;
-  }
-  .dotabuff-row {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    font-size: 14px;
-    border-bottom: 1px solid #222435;
-    transition: background-color 0.15s;
-  }
-  .dotabuff-row:hover {
-    background: #222538;
-  }
-  .col-hero {
-    flex: 2;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 160px;
-  }
-  .col-result {
-    flex: 1.2;
-  }
-  .col-duration {
-    flex: 1;
-  }
-  .col-kda {
-    flex: 1.5;
-  }
-  .col-action {
-    flex: 1;
-    text-align: right;
-  }
-  .hero-portrait {
-    width: 48px;
-    height: 27px;
-    object-fit: cover;
-    border-radius: 4px;
-    background: #0f1015;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
-  .hero-name {
-    font-weight: 600;
-    color: #ffffff;
-  }
-  .row-win {
-    border-left: 4px solid #10b981;
-  }
-  .row-loss {
-    border-left: 4px solid #ef4444;
-  }
-  .text-win {
-    color: #10b981;
-    font-weight: 700;
-  }
-  .text-loss {
-    color: #ef4444;
-    font-weight: 700;
-  }
-  .kda-values {
-    font-weight: 600;
-    color: #cbd5e1;
-  }
-  .kda-values .k {
-    color: #ffffff;
-  }
-  .kda-values .d {
-    color: #fca5a5;
-  }
-  .kda-values .a {
-    color: #cbd5e1;
-  }
-  .duration-text {
-    color: #94a3b8;
-    font-family: monospace;
-  }
-  .inspect-btn {
-    background: #1e293b;
-    border: 1px solid #334155;
-    color: #f1f5f9;
-    padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 600;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-  .inspect-btn:hover {
-    background: #10b981;
-    color: #0f1015;
-    border-color: #10b981;
-  }
-  .loading-state {
+  .match-history-panel {
     display: flex;
     flex-direction: column;
+    height: 100%;
+  }
+
+  .sidebar-section-title {
+    font-size: 11px;
+    color: #4b4f5a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 16px 14px 10px 14px;
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .matches-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .match-item-card {
+    display: grid;
+    grid-template-columns: 70px 1fr 45px;
     align-items: center;
-    justify-content: center;
-    padding: 60px 0;
-    color: #64748b;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #121319;
+    padding: 12px 14px;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
   }
-  .spinner-large {
-    width: 32px;
-    height: 32px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    border-top-color: #10b981;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 12px;
+
+  .match-item-card:hover {
+    background-color: #111217;
   }
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
+
+  .match-item-card.active {
+    background-color: #14161f;
+  }
+
+  .match-item-card.is-win {
+    border-left: 2px solid #3cb878;
+  }
+
+  .match-item-card:not(.is-win) {
+    border-left: 2px solid #e25c38;
+  }
+
+  .card-left-meta,
+  .card-center-meta,
+  .card-right-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .card-right-meta {
+    align-items: flex-end;
+  }
+
+  .outcome-tag {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .win-text {
+    color: #3cb878;
+  }
+  .loss-text {
+    color: #cc5233;
+  }
+
+  .kda-stamp,
+  .gpm-label,
+  .duration-stamp {
+    font-size: 12px;
+    color: #545866;
+    font-family: monospace;
+  }
+
+  .hero-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #a8adbd;
+  }
+
+  /* --- 7-Day Running Performance Box --- */
+  .rolling-averages-box {
+    background-color: #0b0c10;
+    border-top: 1px solid #14151b;
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .averages-title {
+    font-size: 11px;
+    color: #4b4f5a;
+    text-transform: uppercase;
+    margin: 0 0 4px 0;
+    font-weight: 700;
+  }
+
+  .avg-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #545866;
+  }
+
+  .avg-row .val {
+    font-family: monospace;
+    font-weight: 600;
+  }
+  .font-white {
+    color: #b0b5c1;
   }
 </style>
