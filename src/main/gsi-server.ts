@@ -7,6 +7,12 @@ const AUTH_TOKEN = '@@@!!!aBcasdc'
 let roshanStatus = 'Alive'
 let roshanDeathTime: number | null = null
 
+// Helper to sanitize item names cleanly
+function sanitizeItemName(name: string | unknown): string {
+  if (typeof name !== 'string' || !name || name === 'empty') return 'empty'
+  return name.replace('item_', '').replace(/_/g, ' ')
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function processGSI(data: Record<string, any>): Record<string, any> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,7 +67,6 @@ function processGSI(data: Record<string, any>): Record<string, any> {
   if (data.hero) {
     const h = data.hero
 
-    // ← use heroMap from benchmarkCache, not the duplicate local map
     const heroId = heroMap.get(h.name)
     const benchmark = heroId ? benchmarkCache[heroId] : null
     const result = benchmark?.result
@@ -98,6 +103,27 @@ function processGSI(data: Record<string, any>): Record<string, any> {
     }
   }
 
+  // New section: Safely extract and format items data
+  if (data.items) {
+    const mainInventory: string[] = []
+    const backpack: string[] = []
+
+    // Loop through standard slots (slot0 to slot5 are main inventory, slot6 to slot8 are backpack)
+    for (let i = 0; i < 6; i++) {
+      mainInventory.push(sanitizeItemName(data.items[`slot${i}`]?.name))
+    }
+    for (let i = 6; i < 9; i++) {
+      backpack.push(sanitizeItemName(data.items[`slot${i}`]?.name))
+    }
+
+    ui.items = {
+      inventory: mainInventory,
+      backpack: backpack,
+      teleport: sanitizeItemName(data.items.slot9?.name),
+      neutral: sanitizeItemName(data.items.neutral0?.name)
+    }
+  }
+
   return ui
 }
 
@@ -115,9 +141,16 @@ export function createGSIServer(onData: (ui: Record<string, unknown>) => void): 
     })
     req.on('end', () => {
       try {
-        const data = JSON.parse(body)
+        if (!body) {
+          res.writeHead(400)
+          res.end('Empty body')
+          return
+        }
 
-        if (data?.auth?.token !== AUTH_TOKEN) {
+        const data = JSON.parse(body)
+        console.log('Received GSI data:', data)
+
+        if (!data.auth || data.auth.token !== AUTH_TOKEN) {
           res.writeHead(403)
           res.end('Unauthorized')
           return
@@ -126,7 +159,7 @@ export function createGSIServer(onData: (ui: Record<string, unknown>) => void): 
         const ui = processGSI(data)
         onData(ui)
 
-        res.writeHead(200)
+        res.writeHead(200, { 'Content-Type': 'text/plain' })
         res.end('OK')
       } catch (err) {
         console.error('GSI parsing error:', err)
