@@ -1,39 +1,54 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { SvelteMap } from 'svelte/reactivity'
-  import type { Hero, OpenDotaMatch, DetailedMatchData } from './types/dota'
-  import { normalizeItems, isVictory } from './utils/dotaHelper'
-
-  import heroesDataRaw from '../../main/data/heroes.json'
-  import itemsDataRaw from '../../main/data/items.json'
-
+  import { HEROES, MATCHES, type MockMatch } from './utils/mockData'
   import LoginScreen from './components/LoginScreen.svelte'
-  import DashboardHeader from './components/DashboardHeader.svelte'
-  import MatchHistoryTable from './components/MatchHistoryTable.svelte'
-  import MetricsSummaryGrid from './components/MetricsSummaryGrid.svelte'
-  import TrendsContainer from './components/TrendsContainer.svelte'
-  import SidebarIntelligencePanel from './components/SidebarIntelligencePanel.svelte'
 
-  type WindowApi = typeof window.api & {
-    fetchMatchDetails: (matchId: number) => Promise<DetailedMatchData | { error: string }>
+  // Views
+  import DashboardView from './components/DashboardView.svelte'
+  import MatchesView from './components/MatchesView.svelte'
+  import CoachView from './components/CoachView.svelte'
+  import HeroesView from './components/HeroesView.svelte'
+  import TrendsView from './components/TrendsView.svelte'
+  import DraftView from './components/DraftView.svelte'
+  import CompareView from './components/CompareView.svelte'
+  import SettingsView from './components/SettingsView.svelte'
+  import RedesignMatchDetailView from './components/RedesignMatchDetailView.svelte'
+
+  type WindowApi = {
+    fetchMatchHistory: (steamId: string) => Promise<any>
     getLocalSteamId: () => Promise<{ steamId: string | null; error?: string }>
   }
-  const api = window.api as WindowApi
+  const api = window.api as unknown as WindowApi
 
-  const heroesData = heroesDataRaw as Hero[]
-  const itemsData = normalizeItems(itemsDataRaw)
-  const heroMap = new SvelteMap<number, Hero>()
-  heroesData.forEach((hero) => heroMap.set(hero.id, hero))
+  // State
+  let steamId = $state<string | null>(null)
+  let isLoading = $state(false)
+  let errorMessage = $state('')
+  let currentView = $state('dashboard')
+  let prevView = $state('dashboard')
+  let selectedMatch = $state<MockMatch | null>(null)
 
-  // Initialized to null so the app correctly defaults to the Login screen
-  let steamId: string | null = null
-  let isLoading = false
-  let isDetailsLoading = false
-  let errorMessage = ''
-  let matchHistory: OpenDotaMatch[] | null = null
-  let selectedMatchId: number | null = null
+  // Toast
+  let toast = $state({ show: false, msg: '', type: '' })
+  let toastTimer: any
 
-  let timelineFilter: 'early' | 'mid' | 'late' = 'early'
+  function showToast(msg: string, type = 'ok') {
+    toast = { show: true, msg, type }
+    clearTimeout(toastTimer)
+    toastTimer = setTimeout(() => {
+      toast.show = false
+    }, 2600)
+  }
+
+  const VIEW_TITLES: Record<string, string> = {
+    dashboard: 'Dashboard',
+    matches: 'Matches',
+    coach: 'AI Coach',
+    heroes: 'Heroes',
+    trends: 'Trends',
+    draft: 'Draft Analyzer',
+    compare: 'Compare',
+    settings: 'Settings'
+  }
 
   async function handleSteamLogin(): Promise<void> {
     try {
@@ -42,7 +57,6 @@
       const response = await api.getLocalSteamId()
       if (response.steamId) {
         steamId = response.steamId
-        await fetchHistory()
       } else {
         errorMessage = response.error || 'Active Steam profile not found.'
       }
@@ -53,337 +67,300 @@
     }
   }
 
-  async function fetchHistory(): Promise<void> {
-    if (!steamId) return
-    const result = await window.api.fetchMatchHistory(steamId)
-    if (result && !('error' in (result as object))) {
-      matchHistory = result as OpenDotaMatch[]
-    } else {
-      errorMessage = (result as { error?: string })?.error || 'Failed to retrieve history.'
-    }
+  function gotoView(view: string) {
+    prevView = currentView
+    currentView = view
+    selectedMatch = null
+  }
+
+  function openMatchDetail(match: MockMatch) {
+    prevView = currentView
+    selectedMatch = match
+    currentView = 'match-detail'
   }
 
   function disconnect(): void {
     steamId = null
-    matchHistory = null
-    selectedMatchId = null
+    currentView = 'dashboard'
     errorMessage = ''
+  }
+
+  function doRefresh(e: MouseEvent) {
+    const btn = e.currentTarget as HTMLButtonElement
+    const orig = btn.textContent
+    btn.textContent = '⏳ Syncing…'
+    btn.disabled = true
+    showToast('Fetching latest matches…', 'ok')
+    setTimeout(() => {
+      btn.textContent = orig
+      btn.disabled = false
+      showToast('All data up to date ✓', 'ok')
+    }, 1800)
   }
 </script>
 
 {#if !steamId}
   <LoginScreen {handleSteamLogin} {isLoading} {errorMessage} />
 {:else}
-  <div class="app-container">
-    <header class="app-top-bar">
-      <div class="left-meta">
-        <div class="hero-dropdown-trigger">
-          <span class="status-dot orange"></span>
-          <span class="hero-name">Invoker</span>
-          <span class="role-text">Mid · Pos 2</span>
+  <div class="flex flex-col h-screen overflow-hidden bg-bg text-tx font-inter">
+    <!-- TITLEBAR -->
+    <div class="titlebar">
+      <div class="titlebar-dots">
+        <div
+          class="tdot red"
+          onclick={() => showToast('Close window', 'ok')}
+          role="button"
+          tabindex="0"
+        ></div>
+        <div
+          class="tdot yellow"
+          onclick={() => showToast('Minimize window', 'ok')}
+          role="button"
+          tabindex="0"
+        ></div>
+        <div
+          class="tdot green"
+          onclick={() => showToast('Maximize window', 'ok')}
+          role="button"
+          tabindex="0"
+        ></div>
+      </div>
+      <div class="titlebar-title">Dota Coach</div>
+      <div class="titlebar-right">
+        <span class="text-[10px] text-tx3">v2.4.1</span>
+      </div>
+    </div>
+
+    <!-- APP SHELL -->
+    <div class="flex flex-1 overflow-hidden">
+      <!-- SIDEBAR -->
+      <aside class="w-[200px] shrink-0 bg-sb border-r border-bd flex flex-col">
+        <div class="flex items-center gap-[10px] p-[14px_14px_12px] border-b border-bd">
+          <div
+            class="w-8 h-8 bg-pu rounded-lg flex items-center justify-center text-base shrink-0 shadow-[0_0_0_3px_rgba(123,92,240,0.22)]"
+          >
+            ⚔️
+          </div>
+          <div>
+            <div class="text-[12.5px] font-extrabold tracking-[0.2px] leading-[1.15]">
+              DOTA COACH
+            </div>
+            <div class="text-[9px] text-tx3 tracking-[0.9px] uppercase mt-0.5">
+              Analyze · Improve · Win
+            </div>
+          </div>
         </div>
 
-        <div class="timeline-filters">
+        <nav class="flex-1 py-2 overflow-y-auto">
+          <div class="text-[9px] font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]">
+            Main
+          </div>
           <button
-            class="filter-tab"
-            class:active={timelineFilter === 'early'}
-            on:click={() => (timelineFilter = 'early')}>Early (0–10)</button
+            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
+            'dashboard'
+              ? 'text-tx bg-pub'
+              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
+            onclick={() => gotoView('dashboard')}
           >
+            {#if currentView === 'dashboard'}<div
+                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
+              ></div>{/if}
+            <span class="w-4 text-center text-[13px] opacity-80">▦</span> Dashboard
+          </button>
           <button
-            class="filter-tab"
-            class:active={timelineFilter === 'mid'}
-            on:click={() => (timelineFilter = 'mid')}>Mid (10–25)</button
+            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
+            'matches'
+              ? 'text-tx bg-pub'
+              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
+            onclick={() => gotoView('matches')}
           >
+            {#if currentView === 'matches'}<div
+                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
+              ></div>{/if}
+            <span class="w-4 text-center text-[13px] opacity-80">🎮</span> Matches
+            <span
+              class="ml-auto bg-pu text-white text-[9px] font-bold px-1.5 py-0.5 rounded-lg min-w-[16px] text-center"
+              >30</span
+            >
+          </button>
           <button
-            class="filter-tab"
-            class:active={timelineFilter === 'late'}
-            on:click={() => (timelineFilter = 'late')}>Late (25+)</button
+            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
+            'coach'
+              ? 'text-tx bg-pub'
+              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
+            onclick={() => gotoView('coach')}
           >
+            {#if currentView === 'coach'}<div
+                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
+              ></div>{/if}
+            <span class="w-4 text-center text-[13px] opacity-80">🤖</span> AI Coach
+          </button>
+          <button
+            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
+            'heroes'
+              ? 'text-tx bg-pub'
+              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
+            onclick={() => gotoView('heroes')}
+          >
+            {#if currentView === 'heroes'}<div
+                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
+              ></div>{/if}
+            <span class="w-4 text-center text-[13px] opacity-80">🛡</span> Heroes
+          </button>
+
+          <div class="text-[9px] font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]">
+            Analysis
+          </div>
+          <button
+            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
+            'trends'
+              ? 'text-tx bg-pub'
+              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
+            onclick={() => gotoView('trends')}
+          >
+            {#if currentView === 'trends'}<div
+                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
+              ></div>{/if}
+            <span class="w-4 text-center text-[13px] opacity-80">📈</span> Trends
+          </button>
+          <button
+            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
+            'draft'
+              ? 'text-tx bg-pub'
+              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
+            onclick={() => gotoView('draft')}
+          >
+            {#if currentView === 'draft'}<div
+                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
+              ></div>{/if}
+            <span class="w-4 text-center text-[13px] opacity-80">⚡</span> Draft Analyzer
+          </button>
+          <button
+            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
+            'compare'
+              ? 'text-tx bg-pub'
+              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
+            onclick={() => gotoView('compare')}
+          >
+            {#if currentView === 'compare'}<div
+                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
+              ></div>{/if}
+            <span class="w-4 text-center text-[13px] opacity-80">⚖</span> Compare
+          </button>
+
+          <div class="text-[9px] font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]">
+            Account
+          </div>
+          <button
+            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
+            'settings'
+              ? 'text-tx bg-pub'
+              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
+            onclick={() => gotoView('settings')}
+          >
+            {#if currentView === 'settings'}<div
+                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
+              ></div>{/if}
+            <span class="w-4 text-center text-[13px] opacity-80">⚙</span> Settings
+          </button>
+        </nav>
+
+        <div class="border-t border-bd p-[10px]">
+          <div
+            class="flex items-center gap-[7px] bg-grb border border-gr/20 rounded-lg px-2.5 py-1.5 mb-2"
+          >
+            <div class="w-1.5 h-1.5 rounded-full bg-gr animate-pulse"></div>
+            <span class="text-[10.5px] text-gr font-bold">Live</span>
+            <span class="text-[10px] text-tx2 ml-auto">Synced 2m ago</span>
+          </div>
+          <div
+            class="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-s2 transition-colors"
+            onclick={() => showToast('Profile settings')}
+          >
+            <div
+              class="w-[30px] h-[30px] rounded-full bg-linear-to-br from-pu to-[#4f46e5] flex items-center justify-center text-[13px] font-extrabold shrink-0"
+            >
+              A
+            </div>
+            <div>
+              <div class="text-[12px] font-bold leading-tight">Anthron Player</div>
+              <div class="text-[10px] text-tx2">2,450 MMR · Archon III</div>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div class="right-meta">
-        <div class="mmr-badge">MMR <span class="value">3,840</span></div>
-        <button class="overlay-indicator active" on:click={disconnect}>
-          <span class="indicator-dot"></span> Overlay: ON
-        </button>
-      </div>
-    </header>
-
-    <div class="dashboard-viewport">
-      <aside class="left-viewport-pane">
-        <MatchHistoryTable
-          {matchHistory}
-          {heroMap}
-          {selectedMatchId}
-          on:select={(e) => (selectedMatchId = e.detail)}
-        />
       </aside>
 
-      <main class="center-viewport-pane">
-        <MetricsSummaryGrid />
-        <TrendsContainer />
-
-        <div class="weakness-section">
-          <h4 class="pane-title">Top weakness patterns</h4>
-          <div class="pattern-card error">
-            <div class="pattern-header">
-              <span class="marker-dot red"></span>
-              <p class="pattern-desc">KP% drops ~30% when behind 500+ net worth</p>
-            </div>
-            <button class="action-link text-orange">Practice catch-up drill</button>
+      <!-- MAIN -->
+      <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+        <!-- TOPBAR -->
+        <div class="flex items-center px-[18px] h-[46px] border-b border-bd gap-2.5 shrink-0 bg-sb">
+          <div class="flex items-center gap-1.5 text-[13px] font-semibold text-tx2">
+            {#if currentView === 'match-detail'}
+              <button
+                class="cursor-pointer hover:text-tx transition-colors bg-transparent border-none p-0 text-inherit"
+                onclick={() => gotoView(prevView)}>{VIEW_TITLES[prevView] || prevView}</button
+              >
+              <span class="text-tx3 text-[11px]">›</span>
+              <span class="text-tx cursor-default">Match — {selectedMatch?.hero}</span>
+            {:else}
+              <span class="text-tx cursor-default">{VIEW_TITLES[currentView]}</span>
+            {/if}
           </div>
-
-          <div class="pattern-card warning">
-            <div class="pattern-header">
-              <span class="marker-dot yellow"></span>
-              <p class="pattern-desc">LH/min drops in late game (avg 6.1 → ~4.8)</p>
+          <div class="flex-1"></div>
+          {#if currentView !== 'match-detail'}
+            <div class="flex items-center gap-2">
+              <select class="sel"
+                ><option>All Pick</option><option>Ranked</option><option>Turbo</option><option
+                  >Captain's Mode</option
+                ></select
+              >
+              <select class="sel"
+                ><option>Last 30 Matches</option><option>Last 7 Days</option><option
+                  >Last 60 Days</option
+                ><option>All Time</option></select
+              >
+              <button class="btn-pri" onclick={doRefresh}>↻ Refresh</button>
             </div>
-            <button class="action-link text-orange">Practice siege timing</button>
-          </div>
-
-          <div class="pattern-card error">
-            <div class="pattern-header">
-              <span class="marker-dot red"></span>
-              <p class="pattern-desc">Death spikes when enemy has Blink (4/5 games)</p>
-            </div>
-            <button class="action-link text-orange">TP + positioning drill</button>
-          </div>
+          {/if}
         </div>
-      </main>
 
-      <aside class="right-viewport-pane">
-        <SidebarIntelligencePanel />
-      </aside>
+        <!-- VIEW CONTAINER -->
+        <div class="flex-1 overflow-hidden flex flex-col bg-bg">
+          {#if currentView === 'dashboard'}
+            <DashboardView {openMatchDetail} {gotoView} />
+          {:else if currentView === 'matches'}
+            <MatchesView {openMatchDetail} />
+          {:else if currentView === 'coach'}
+            <CoachView />
+          {:else if currentView === 'heroes'}
+            <HeroesView />
+          {:else if currentView === 'trends'}
+            <TrendsView />
+          {:else if currentView === 'draft'}
+            <DraftView />
+          {:else if currentView === 'compare'}
+            <CompareView />
+          {:else if currentView === 'settings'}
+            <SettingsView />
+          {:else if currentView === 'match-detail' && selectedMatch}
+            <RedesignMatchDetailView match={selectedMatch} />
+          {/if}
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div
+      id="toast"
+      class="fixed bottom-5 right-5 bg-s4 border border-bd2 rounded-lg px-[15px] py-[9px] text-[12.5px] font-semibold text-tx z-[9999] transition-all duration-200 pointer-events-none min-w-[160px] {toast.show
+        ? 'opacity-100 translate-y-0'
+        : 'opacity-0 translate-y-2'} {toast.type === 'ok'
+        ? 'border-gr text-gr'
+        : toast.type === 'err'
+          ? 'border-rd text-rd'
+          : ''}"
+    >
+      {toast.msg}
     </div>
   </div>
 {/if}
-
-<style>
-  :global(body) {
-    background-color: #0b0c10;
-    color: #9499a6;
-    font-family:
-      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    user-select: none;
-  }
-
-  .app-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    box-sizing: border-box;
-    background-color: #0b0c10;
-  }
-
-  /* --- Top Nav Custom Menu Bars --- */
-  .app-top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #111217;
-    padding: 10px 16px;
-    border-bottom: 1px solid #1a1c24;
-    height: 54px;
-    box-sizing: border-box;
-  }
-
-  .left-meta,
-  .right-meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .hero-dropdown-trigger {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #181922;
-    border: 1px solid #262936;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 13px;
-  }
-
-  .hero-name {
-    color: #ffffff;
-    font-weight: 600;
-  }
-
-  .role-text {
-    color: #626673;
-  }
-
-  .status-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-  }
-  .status-dot.orange {
-    background: #e25c38;
-    box-shadow: 0 0 6px #e25c38;
-  }
-
-  .timeline-filters {
-    display: flex;
-    background: #15161d;
-    padding: 2px;
-    border-radius: 4px;
-    border: 1px solid #20222e;
-  }
-
-  .filter-tab {
-    background: transparent;
-    border: none;
-    color: #626673;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 6px 14px;
-    border-radius: 3px;
-    cursor: pointer;
-  }
-
-  .filter-tab.active {
-    background: #231b1d;
-    color: #e25c38;
-    border: 1px solid #4a231f;
-  }
-
-  .mmr-badge {
-    font-size: 13px;
-    color: #626673;
-    font-weight: 500;
-  }
-
-  .mmr-badge .value {
-    color: #dfa43b;
-    font-weight: 700;
-    margin-left: 4px;
-  }
-
-  .overlay-indicator {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: #14231f;
-    border: 1px solid #1f3a2b;
-    color: #3cb878;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .indicator-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #3cb878;
-  }
-
-  /* --- Dashboard Columns Structural Systems --- */
-  .dashboard-viewport {
-    display: grid;
-    grid-template-columns: 240px 1fr 280px;
-    flex: 1;
-    overflow: hidden;
-  }
-
-  .left-viewport-pane {
-    border-right: 1px solid #14151b;
-    background-color: #0b0c10;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-  }
-
-  .center-viewport-pane {
-    background-color: #0e0f14;
-    padding: 20px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .right-viewport-pane {
-    border-left: 1px solid #14151b;
-    background-color: #0b0c10;
-    padding: 16px;
-    overflow-y: auto;
-  }
-
-  /* --- Top Weakness Diagnostics Architecture --- */
-  .pane-title {
-    font-size: 12px;
-    color: #535763;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 0 0 12px 0;
-    font-weight: 700;
-  }
-
-  .weakness-section {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .pattern-card {
-    background: #111217;
-    border: 1px solid #1a1c24;
-    border-radius: 4px;
-    padding: 14px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .pattern-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .marker-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    margin-top: 5px;
-    flex-shrink: 0;
-  }
-  .marker-dot.red {
-    background: #e25c38;
-  }
-  .marker-dot.yellow {
-    background: #dfa43b;
-  }
-
-  .pattern-desc {
-    margin: 0;
-    font-size: 13px;
-    color: #b0b5c1;
-    line-height: 1.4;
-  }
-
-  .action-link {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: 12px;
-    font-weight: 600;
-    text-align: left;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-  .text-orange {
-    color: #cc5233;
-  }
-  .action-link:hover {
-    color: #e25c38;
-  }
-</style>

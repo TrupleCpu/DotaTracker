@@ -11,8 +11,8 @@ import { exec } from 'child_process'
 
 const WIDGET_WIDTH = 250
 const WIDGET_HEIGHT = 90
-const CONTROL_WIDTH = 900
-const CONTROL_HEIGHT = 600
+const CONTROL_WIDTH = 1200
+const CONTROL_HEIGHT = 900
 
 let mainWindow: BrowserWindow | null = null
 let controlWindow: BrowserWindow | null = null
@@ -71,6 +71,7 @@ function createControlWindow(): void {
     width: CONTROL_WIDTH,
     height: CONTROL_HEIGHT,
     autoHideMenuBar: true,
+    frame: false,
     show: false,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
