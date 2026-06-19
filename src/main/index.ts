@@ -2,12 +2,9 @@ import { app, BrowserWindow, ipcMain, nativeImage, Tray, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { windowManager } from 'node-window-manager'
-import { createGSIServer } from './gsi-server' // ← add this
+import { createGSIServer } from './gsi-server'
 import { loadConfig, saveConfig } from './config'
-import os from 'os'
-import fs from 'fs'
 import http from 'http'
-import { exec } from 'child_process'
 
 const WIDGET_WIDTH = 250
 const WIDGET_HEIGHT = 90
@@ -54,11 +51,6 @@ function createOverlayWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
-}
-
-function accountIdToSteam64(accountId: number | string): string {
-  const BASE_ID = 76561197960265728n
-  return (BigInt(accountId) + BASE_ID).toString()
 }
 
 function createControlWindow(): void {
@@ -323,7 +315,7 @@ function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('steam-login', async () => {
-    return new Promise<string | null>(async (resolve) => {
+    return new Promise<string | null>((resolve) => {
       const authWindow = new BrowserWindow({
         width: 800,
         height: 600,

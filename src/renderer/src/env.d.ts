@@ -2,8 +2,6 @@
 /// <reference types="vite/client" />
 export {}
 
-import type { OpenDotaMatch, DetailedMatchData } from './src/renderer/types/dota'
-
 declare global {
   interface Window {
     api: {
@@ -15,8 +13,8 @@ declare global {
 
       steamLogin: () => Promise<string | null>
 
-      fetchMatchHistory: (steamId: string) => Promise<OpenDotaMatch[] | { error: string }>
-      fetchMatchDetails: (matchId: number) => Promise<DetailedMatchData | { error: string }>
+      fetchMatchHistory: (steamId: string) => Promise<unknown | { error: string }>
+      fetchMatchDetails: (matchId: number) => Promise<unknown | { error: string }>
 
       toggleOverlay: () => void
       setOverlayState: (enabled: boolean) => Promise<boolean>

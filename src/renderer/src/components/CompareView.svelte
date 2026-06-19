@@ -6,12 +6,20 @@
   <!-- HEADERS -->
   <div class="grid grid-cols-2 gap-4 mb-4">
     <div class="bg-s1 border border-bd rounded-lg p-4 text-center">
-      <div class="w-12 h-12 rounded-full mx-auto mb-2.25 flex items-center justify-center text-[22px] bg-linear-to-br from-pu to-[#4f46e5]">A</div>
+      <div
+        class="w-12 h-12 rounded-full mx-auto mb-2.25 flex items-center justify-center text-[22px] bg-linear-to-br from-pu to-[#4f46e5]"
+      >
+        A
+      </div>
       <div class="text-[14px] font-extrabold">Anthron Player</div>
       <div class="text-[11.5px] text-tx2 mt-0.75">MMR 2,450 · Archon III</div>
     </div>
     <div class="bg-s1 border border-bd rounded-lg p-4 text-center">
-      <div class="w-12 h-12 rounded-full mx-auto mb-2.25 flex items-center justify-center text-[22px] bg-linear-to-br from-[#dc2626] to-[#4f46e5]">R</div>
+      <div
+        class="w-12 h-12 rounded-full mx-auto mb-2.25 flex items-center justify-center text-[22px] bg-linear-to-br from-[#dc2626] to-[#4f46e5]"
+      >
+        R
+      </div>
       <div class="text-[14px] font-extrabold">Rival_X9</div>
       <div class="text-[11.5px] text-tx2 mt-0.75">MMR 2,520 · Archon IV</div>
     </div>

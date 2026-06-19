@@ -12,6 +12,41 @@
   import CompareView from './components/CompareView.svelte'
   import SettingsView from './components/SettingsView.svelte'
   import RedesignMatchDetailView from './components/RedesignMatchDetailView.svelte'
+  import AppLogo from './assets/logo/AppLogo.png'
+  import {
+    LayoutDashboard,
+    Gamepad2,
+    Bot,
+    Shield,
+    ChartNoAxesCombined,
+    Zap,
+    Scale,
+    Settings
+  } from '@lucide/svelte'
+  import type { AnyMxRecord } from 'node:dns'
+
+  const navSections = [
+    {
+      items: [
+        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { id: 'matches', label: 'Matches', icon: Gamepad2, badge: 30 },
+        { id: 'coach', label: 'AI Coach', icon: Bot },
+        { id: 'heroes', label: 'Heroes', icon: Shield }
+      ]
+    },
+    {
+      heading: 'Analysis',
+      items: [
+        { id: 'trends', label: 'Trends', icon: ChartNoAxesCombined },
+        { id: 'draft', label: 'Draft Analyzer', icon: Zap },
+        { id: 'compare', label: 'Compare', icon: Scale }
+      ]
+    },
+    {
+      heading: 'Account',
+      items: [{ id: 'settings', label: 'Settings', icon: Settings }]
+    }
+  ]
 
   type WindowApi = {
     fetchMatchHistory: (steamId: string) => Promise<any>
@@ -29,9 +64,9 @@
 
   // Toast
   let toast = $state({ show: false, msg: '', type: '' })
-  let toastTimer: any
+  let toastTimer: AnyMxRecord
 
-  function showToast(msg: string, type = 'ok') {
+  function showToast(msg: string, type = 'ok'): void {
     toast = { show: true, msg, type }
     clearTimeout(toastTimer)
     toastTimer = setTimeout(() => {
@@ -67,25 +102,25 @@
     }
   }
 
-  function gotoView(view: string) {
+  function gotoView(view: string): void {
     prevView = currentView
     currentView = view
     selectedMatch = null
   }
 
-  function openMatchDetail(match: MockMatch) {
+  function openMatchDetail(match: MockMatch): void {
     prevView = currentView
     selectedMatch = match
     currentView = 'match-detail'
   }
 
-  function disconnect(): void {
-    steamId = null
-    currentView = 'dashboard'
-    errorMessage = ''
-  }
+  // function disconnect(): void {
+  //   steamId = null
+  //   currentView = 'dashboard'
+  //   errorMessage = ''
+  // }
 
-  function doRefresh(e: MouseEvent) {
+  function doRefresh(e: MouseEvent): void {
     const btn = e.currentTarget as HTMLButtonElement
     const orig = btn.textContent
     btn.textContent = '⏳ Syncing…'
@@ -125,7 +160,7 @@
           tabindex="0"
         ></div>
       </div>
-      <div class="titlebar-title">Dota Coach</div>
+      <div class="titlebar-title">Ancient Eye</div>
       <div class="titlebar-right">
         <span class="text-[10px] text-tx3">v2.4.1</span>
       </div>
@@ -134,19 +169,15 @@
     <!-- APP SHELL -->
     <div class="flex flex-1 overflow-hidden">
       <!-- SIDEBAR -->
-      <aside class="w-[200px] shrink-0 bg-sb border-r border-bd flex flex-col">
-        <div class="flex items-center gap-[10px] p-[14px_14px_12px] border-b border-bd">
-          <div
-            class="w-8 h-8 bg-pu rounded-lg flex items-center justify-center text-base shrink-0 shadow-[0_0_0_3px_rgba(123,92,240,0.22)]"
-          >
-            ⚔️
+      <aside class="w-50 shrink-0 bg-sb border-r border-bd flex flex-col">
+        <div class="flex items-center gap-2.5 p-[14px_14px_12px] border-b border-bd">
+          <div class="w-14 h-14 rounded-lg flex items-center justify-center text-base shrink-0">
+            <img src={AppLogo} alt="Logo" class="w-14 h-14" />
           </div>
           <div>
-            <div class="text-[12.5px] font-extrabold tracking-[0.2px] leading-[1.15]">
-              DOTA COACH
-            </div>
-            <div class="text-[9px] text-tx3 tracking-[0.9px] uppercase mt-0.5">
-              Analyze · Improve · Win
+            <div class="text-[10px] font-extrabold tracking-[0.2px] leading-[1.15]">ANCIENTEYE</div>
+            <div class="text-[6px] text-tx3 tracking-[0.9px] uppercase mt-0.5">
+              Analyze &middot; Improve &middot; Win
             </div>
           </div>
         </div>
@@ -155,114 +186,30 @@
           <div class="text-[9px] font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]">
             Main
           </div>
-          <button
-            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
-            'dashboard'
-              ? 'text-tx bg-pub'
-              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
-            onclick={() => gotoView('dashboard')}
-          >
-            {#if currentView === 'dashboard'}<div
-                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
-              ></div>{/if}
-            <span class="w-4 text-center text-[13px] opacity-80">▦</span> Dashboard
-          </button>
-          <button
-            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
-            'matches'
-              ? 'text-tx bg-pub'
-              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
-            onclick={() => gotoView('matches')}
-          >
-            {#if currentView === 'matches'}<div
-                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
-              ></div>{/if}
-            <span class="w-4 text-center text-[13px] opacity-80">🎮</span> Matches
-            <span
-              class="ml-auto bg-pu text-white text-[9px] font-bold px-1.5 py-0.5 rounded-lg min-w-[16px] text-center"
-              >30</span
-            >
-          </button>
-          <button
-            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
-            'coach'
-              ? 'text-tx bg-pub'
-              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
-            onclick={() => gotoView('coach')}
-          >
-            {#if currentView === 'coach'}<div
-                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
-              ></div>{/if}
-            <span class="w-4 text-center text-[13px] opacity-80">🤖</span> AI Coach
-          </button>
-          <button
-            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
-            'heroes'
-              ? 'text-tx bg-pub'
-              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
-            onclick={() => gotoView('heroes')}
-          >
-            {#if currentView === 'heroes'}<div
-                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
-              ></div>{/if}
-            <span class="w-4 text-center text-[13px] opacity-80">🛡</span> Heroes
-          </button>
+          {#each navSections as section (section.heading)}
+            {#if section.heading}
+              <div
+                class="text-[9px] font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]"
+              >
+                {section.heading}
+              </div>
+            {/if}
 
-          <div class="text-[9px] font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]">
-            Analysis
-          </div>
-          <button
-            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
-            'trends'
-              ? 'text-tx bg-pub'
-              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
-            onclick={() => gotoView('trends')}
-          >
-            {#if currentView === 'trends'}<div
-                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
-              ></div>{/if}
-            <span class="w-4 text-center text-[13px] opacity-80">📈</span> Trends
-          </button>
-          <button
-            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
-            'draft'
-              ? 'text-tx bg-pub'
-              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
-            onclick={() => gotoView('draft')}
-          >
-            {#if currentView === 'draft'}<div
-                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
-              ></div>{/if}
-            <span class="w-4 text-center text-[13px] opacity-80">⚡</span> Draft Analyzer
-          </button>
-          <button
-            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
-            'compare'
-              ? 'text-tx bg-pub'
-              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
-            onclick={() => gotoView('compare')}
-          >
-            {#if currentView === 'compare'}<div
-                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
-              ></div>{/if}
-            <span class="w-4 text-center text-[13px] opacity-80">⚖</span> Compare
-          </button>
-
-          <div class="text-[9px] font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]">
-            Account
-          </div>
-          <button
-            class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative {currentView ===
-            'settings'
-              ? 'text-tx bg-pub'
-              : 'text-tx2 hover:text-tx hover:bg-white/5'}"
-            onclick={() => gotoView('settings')}
-          >
-            {#if currentView === 'settings'}<div
-                class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"
-              ></div>{/if}
-            <span class="w-4 text-center text-[13px] opacity-80">⚙</span> Settings
-          </button>
+            {#each section.items as { id, label, icon: Icon } (id)}
+              {@const active = currentView === id}
+              <button
+                class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative
+                  {active ? 'text-tx bg-pub' : 'text-tx2 hover:text-tx hover:bg-white/5'}"
+                onclick={() => gotoView(id)}
+              >
+                {#if active}
+                  <div class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"></div>
+                {/if}
+                <span class="w-4 text-center opacity-80"><Icon size={14} /></span>
+                {label}
+              </button>
+            {/each}
+          {/each}
         </nav>
 
         <div class="border-t border-bd p-[10px]">

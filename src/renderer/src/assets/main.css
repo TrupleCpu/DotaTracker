@@ -1,29 +1,29 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-bg: #0C0F1A;
+  --color-bg: #0c0f1a;
   --color-s1: #131624;
-  --color-s2: #181D2E;
-  --color-s3: #1E2438;
-  --color-s4: #252C42;
-  --color-sb: #090C15;
+  --color-s2: #181d2e;
+  --color-s3: #1e2438;
+  --color-s4: #252c42;
+  --color-sb: #090c15;
   --color-bd: rgba(255, 255, 255, 0.06);
   --color-bd2: rgba(255, 255, 255, 0.12);
-  --color-pu: #7B5CF0;
-  --color-pu2: #A78BFA;
+  --color-pu: #7b5cf0;
+  --color-pu2: #a78bfa;
   --color-pub: rgba(123, 92, 240, 0.13);
   --color-pub2: rgba(123, 92, 240, 0.22);
-  --color-gr: #22C55E;
+  --color-gr: #22c55e;
   --color-grb: rgba(34, 197, 94, 0.11);
-  --color-rd: #F04545;
+  --color-rd: #f04545;
   --color-rdb: rgba(240, 69, 69, 0.11);
-  --color-gd: #F59E0B;
+  --color-gd: #f59e0b;
   --color-gdb: rgba(245, 158, 11, 0.11);
-  --color-bl: #38BDF8;
+  --color-bl: #38bdf8;
   --color-blb: rgba(56, 189, 248, 0.11);
-  --color-tx: #EEF2FF;
-  --color-tx2: #8892AB;
-  --color-tx3: #4A5270;
+  --color-tx: #eef2ff;
+  --color-tx2: #8892ab;
+  --color-tx3: #4a5270;
 
   --font-inter: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
