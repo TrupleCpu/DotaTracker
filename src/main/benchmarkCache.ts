@@ -7,7 +7,6 @@ export const heroMap: Map<string, number> = new Map()
 
 export function loadBenchmarks(): void {
   let filePath = path.join(__dirname, '../../src/main/data/benchmarks.json')
-  let heroPath = path.join(__dirname, '../../src/main/data/heroes.json')
 
   if (app.isPackaged || !fs.existsSync(filePath)) {
     if (!app.isPackaged && !fs.existsSync(filePath)) {
@@ -16,7 +15,6 @@ export function loadBenchmarks(): void {
       )
     }
     filePath = path.join(process.resourcesPath, 'data/benchmarks.json')
-    heroPath = path.join(process.resourcesPath, 'data/heroes.json')
   }
 
   console.log('[BENCHMARK] Loading from:', filePath)

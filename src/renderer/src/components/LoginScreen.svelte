@@ -1,190 +1,79 @@
 <script lang="ts">
+  import AppLogo from '../assets/logo/AppLogo.png'
   export let handleSteamLogin: () => Promise<void>
-  export let isLoading: boolean
   export let errorMessage: string
 </script>
 
-<div
-  class="login-screen"
-  role="main"
-  aria-label="Login to Dota Coach Tracker"
->
-  <div class="login-card">
-    <div class="login-header">
-      <div class="brand-logo">
-        <span class="brand-highlight">DOTA 2</span> COACH
-      </div>
-      <p class="brand-subtitle">
-        Sync your local client instance to audit real-time statistics.
-      </p>
-    </div>
+<div class="flex flex-col items-center justify-center min-h-screen bg-[var(--color-bg)] gap-4">
+  <img src={AppLogo} alt="Ancient Eye Logo" class="w-24 h-24 object-contain" />
 
-    <button
-      onclick={handleSteamLogin}
-      disabled={isLoading}
-      class="steam-login-button"
-      aria-label={isLoading ? 'Syncing with Steam...' : 'Sign in with Steam'}
+  <h1 class="text-2xl font-bold tracking-widest text-[var(--color-tx)] uppercase">Ancient Eye</h1>
+
+  <p
+    class="text-[11px] text-[var(--color-tx2)] text-center leading-relaxed max-w-[220px] tracking-wide"
+  >
+    Sync your Steam client to load real-time statistics and coaching data.
+  </p>
+
+  <button
+    on:click={handleSteamLogin}
+    class="mt-2 flex items-center gap-3 px-6 py-3 rounded-lg
+           bg-transparent border border-white/10
+           text-white/50 text-sm font-semibold tracking-wide
+           transition-all duration-200
+           hover:border-white/20 hover:text-white/80
+           group"
+    aria-label="Sign in through Steam"
+  >
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      class="opacity-60 group-hover:opacity-90 transition-opacity"
     >
-      {#if isLoading}
-        <div
-          class="spinner"
-          role="status"
-          aria-label="Loading"
-        >
-          <span class="sr-only">Syncing with Steam...</span>
-        </div>
-        <span class="button-text">READING LOCAL CONFIGS...</span>
-      {:else}
-        <img
-          src="https://community.akamai.steamstatic.com/public/images/signinthroughsteam/sits_01.png"
-          alt="Sign in with Steam"
-          class="steam-button-image"
-        />
-      {/if}
-    </button>
+      <path
+        d="M12 2C6.477 2 2 6.477 2 12c0 4.236 2.636 7.855 6.356 9.312L10 15.657A3.001 3.001 0 0 1 12 10a3 3 0 0 1 2.99 2.804l3.522-1.457C17.864 7.182 15.19 2 12 2z"
+        fill="currentColor"
+      />
+      <path
+        d="M2 12c0 5.523 4.477 10 10 10a9.958 9.958 0 0 0 3.868-.775l-4.13-1.709A3.001 3.001 0 0 1 9 16.829v-.002l-3.196-1.322A9.978 9.978 0 0 1 2 12z"
+        fill="currentColor"
+        opacity="0.7"
+      />
+      <circle cx="17" cy="9" r="3.5" fill="currentColor" />
+      <circle cx="17" cy="9" r="2" fill="transparent" />
+    </svg>
+    <span>Sign in through Steam</span>
+  </button>
 
-    {#if errorMessage}
-      <div
-        class="error-message"
-        role="alert"
-        aria-live="assertive"
-      >
-        <svg class="error-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-        </svg>
-        {errorMessage}
-      </div>
-    {/if}
-  </div>
+  <p class="text-[10px] text-[var(--color-tx2)] opacity-30 tracking-wide">
+    Not associated with Valve Corp.
+  </p>
+
+  {#if errorMessage}
+    <div
+      class="flex items-center gap-2 px-3 py-2.5 rounded-md text-[11.5px]
+             bg-[var(--color-rdb)] border border-red-500/15 text-[var(--color-rd)]
+             animate-[slideDown_0.25s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+      role="alert"
+    >
+      <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-rd)] shrink-0"></span>
+      <span>{errorMessage}</span>
+    </div>
+  {/if}
 </div>
 
 <style>
-  .login-screen {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: var(--space-6);
-    background: radial-gradient(circle at center, #1b1c24 0%, #0f1015 100%);
-  }
-
-  .login-card {
-    width: 100%;
-    max-width: 380px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-lg);
-    padding: var(--space-10);
-    text-align: center;
-    box-shadow: var(--shadow-lg);
-  }
-
-  .login-header {
-    margin-bottom: var(--space-7);
-  }
-
-  .brand-logo {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-extrabold);
-    letter-spacing: 0.1em;
-    color: var(--text-primary);
-    margin-bottom: var(--space-4);
-    text-transform: uppercase;
-  }
-
-  .brand-highlight {
-    color: var(--accent-success);
-  }
-
-  .brand-subtitle {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  .steam-login-button {
-    background: transparent;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    transition: transform var(--transition-fast);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-  }
-
-  .steam-login-button:not(:disabled):hover {
-    transform: scale(1.02);
-  }
-
-  .steam-login-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-
-  .steam-button-image {
-    max-width: 100%;
-    height: auto;
-  }
-
-  .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-top-color: var(--text-primary);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
     }
-  }
-
-  .button-text {
-    font-size: var(--text-sm);
-    color: var(--text-primary);
-    font-weight: var(--font-semibold);
-    letter-spacing: 0.05em;
-  }
-
-  .error-message {
-    margin-top: var(--space-4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    padding: var(--space-3);
-    background: var(--accent-danger-bg);
-    border: 1px solid var(--accent-danger);
-    border-radius: var(--radius-md);
-  }
-
-  .error-icon {
-    width: 16px;
-    height: 16px;
-    color: var(--accent-danger);
-    flex-shrink: 0;
-  }
-
-  .error-message {
-    font-size: var(--text-xs);
-    color: #fca5a5;
-    text-align: center;
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 </style>

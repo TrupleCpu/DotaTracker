@@ -1,6 +1,37 @@
 <script lang="ts">
   import { HEROES, MATCHES, type MockMatch } from '../utils/mockData'
 
+  // Expanding the assumed data for the detailed view, or using placeholders
+  // I will add some example properties for the detailed view
+  interface ExpandedMockMatch extends MockMatch {
+    roleIcon?: string // URL to role icon (sword/shield)
+    mmrChange?: number // +X or -X
+    impactValue?: number // 0-100 percentage
+    rankBadge?: string // URL to rank badge (e.g., SeasonalRank3-3.png)
+    partyCount?: number // 1, 2, 3
+    timeAgo?: string // e.g., "3 wk. ago", "1 mo. ago"
+  }
+
+  // Slice and augment data for display (for generation only)
+  let detailedMatches = $state(
+    MATCHES.slice(0, 10).map((m: MockMatch, i) => {
+      let outcomeText = m.outcome === 'win' ? 'W' : 'L'
+      let outcomeTextLower = m.outcome === 'win' ? 'w' : 'l'
+      return {
+        ...m,
+        roleIcon:
+          'https://static.wikia.nocookie.net/dota2_gamepedia/images/4/47/Hero_Role_Carry_icon.png', // Assume Carry for all carries
+        mmrChange: m.outcome === 'win' ? i * 5 + 10 : -(i * 3 + 5),
+        impactValue: m.outcome === 'win' ? 85 : 45, // Example impact value
+        rankBadge:
+          'https://static.wikia.nocookie.net/dota2_gamepedia/images/6/6b/SeasonalRank3-3.png', // Use Archon 3 for all
+        partyCount: (i % 3) + 1,
+        timeAgo: `${(i % 4) + 1} wk. ago`,
+        previousOutcome: outcomeTextLower // Just for W/L and L/W example
+      }
+    })
+  )
+
   interface Props {
     openMatchDetail: (match: MockMatch) => void
     gotoView: (view: string) => void
@@ -9,176 +40,206 @@
 </script>
 
 <div class="flex-1 overflow-y-auto p-4 select-none">
-  <!-- KPI ROW -->
-  <div class="grid grid-cols-4 gap-4 mb-4">
-    <div class="kpi">
-      <div class="kpi-lbl">Win Rate</div>
-      <div class="kpi-val text-gr">57.1%</div>
-      <div class="text-[10.5px] text-tx2 flex items-center gap-1">
-        <span class="text-gr">↑ 6.2%</span> vs last 30
+  <!-- KPI ROWS -->
+  <div class="flex flex-col gap-4 mb-4">
+    <!-- ROW 1: Matches & Win Rate -->
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Matches Card -->
+      <div class="card p-4 flex flex-col justify-center gap-3">
+        <div class="flex justify-between items-baseline">
+          <div class="text-[17px]">
+            <span class="text-[#EAB308] font-bold">2,572</span>
+            <span class="text-tx font-semibold ml-1">Matches</span>
+          </div>
+          <div class="text-[11.5px] text-tx2">First Match: Apr 19, 2019</div>
+        </div>
+        <div class="flex gap-[3px] h-[8px] w-full">
+          {#each Array(24) as _}
+            <div class="flex-1 bg-[#EAB308] rounded-[1px]"></div>
+          {/each}
+        </div>
       </div>
-      <svg class="h-[34px] w-full mt-2.5" viewBox="0 0 100 34" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="sg1" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#22C55E" stop-opacity=".3" />
-            <stop offset="100%" stop-color="#22C55E" stop-opacity="0" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M0,26 L14,22 L28,24 L42,17 L56,18 L70,12 L84,8 L100,4"
-          fill="none"
-          stroke="#22C55E"
-          stroke-width="1.8"
-        />
-        <path
-          d="M0,26 L14,22 L28,24 L42,17 L56,18 L70,12 L84,8 L100,4 L100,34 L0,34Z"
-          fill="url(#sg1)"
-        />
-      </svg>
+
+      <!-- Win Rate Card -->
+      <div class="card p-4 flex flex-col justify-center gap-3">
+        <div class="flex justify-between items-baseline">
+          <div class="text-[17px]">
+            <span class="text-gr font-bold">51.44%</span>
+            <span class="text-tx font-semibold ml-1">Win Rate</span>
+          </div>
+          <div class="text-[12.5px]">
+            <span class="text-gr">1,323</span>
+            <span class="text-tx2 mx-1">-</span>
+            <span class="text-rd">1,249</span>
+          </div>
+        </div>
+        <div class="flex h-[8px] w-full bg-black/40 rounded-sm overflow-hidden gap-[2px]">
+          <div class="bg-gr h-full" style="width: 51.44%"></div>
+          <div class="bg-[#333] h-full flex-1"></div>
+        </div>
+      </div>
     </div>
 
-    <div class="kpi">
-      <div class="kpi-lbl">KDA Ratio</div>
-      <div class="kpi-val text-pu2">3.45</div>
-      <div class="text-[10.5px] text-tx2 flex items-center gap-1">
-        <span class="text-gr">↑ 0.31</span> vs last 30
+    <!-- ROW 2: KDA, GPM & Rank -->
+    <div class="grid grid-cols-3 gap-4">
+      <!-- KDA Card -->
+      <div class="card p-4 flex flex-col justify-center gap-2.5">
+        <div class="flex justify-between items-baseline">
+          <div class="text-[15px]">
+            <span class="text-pu2 font-bold">3.45</span>
+            <span class="text-tx2 text-[13px] ml-1">KDA Ratio</span>
+          </div>
+          <div class="text-[12px] font-mono text-tx2">
+            11.2 <span class="text-rd mx-0.5">/ 4.1 /</span> 14.3
+          </div>
+        </div>
+        <div class="flex h-[6px] w-full bg-black/40 rounded-sm overflow-hidden gap-[1px]">
+          <div class="bg-gr h-full" style="width: 38%"></div>
+          <div class="bg-rd h-full" style="width: 14%"></div>
+          <div class="bg-bl h-full flex-1"></div>
+        </div>
       </div>
-      <svg class="h-[34px] w-full mt-2.5" viewBox="0 0 100 34" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="sg2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#A78BFA" stop-opacity=".3" />
-            <stop offset="100%" stop-color="#A78BFA" stop-opacity="0" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M0,20 L14,18 L28,23 L42,16 L56,13 L70,16 L84,10 L100,6"
-          fill="none"
-          stroke="#A78BFA"
-          stroke-width="1.8"
-        />
-        <path
-          d="M0,20 L14,18 L28,23 L42,16 L56,13 L70,16 L84,10 L100,6 L100,34 L0,34Z"
-          fill="url(#sg2)"
-        />
-      </svg>
-    </div>
 
-    <div class="kpi">
-      <div class="kpi-lbl">Avg GPM</div>
-      <div class="kpi-val text-gd">542</div>
-      <div class="text-[10.5px] text-tx2 flex items-center gap-1">
-        <span class="text-gr">↑ 47</span> vs last 30
+      <!-- GPM Card -->
+      <div class="card p-4 flex flex-col justify-center gap-2.5">
+        <div class="flex justify-between items-baseline">
+          <div class="text-[15px]">
+            <span class="text-gd font-bold">542</span>
+            <span class="text-tx2 text-[13px] ml-1">Avg GPM</span>
+          </div>
+          <div class="text-[12px] font-mono text-tx2">
+            <span class="text-bl">590</span> XPM
+          </div>
+        </div>
+        <div class="flex h-[6px] w-full bg-black/40 rounded-sm overflow-hidden gap-[1px]">
+          <div class="bg-gd h-full" style="width: 48%"></div>
+          <div class="bg-bl h-full flex-1"></div>
+        </div>
       </div>
-      <svg class="h-[34px] w-full mt-2.5" viewBox="0 0 100 34" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="sg3" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#F59E0B" stop-opacity=".3" />
-            <stop offset="100%" stop-color="#F59E0B" stop-opacity="0" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M0,24 L14,26 L28,20 L42,22 L56,16 L70,14 L84,11 L100,7"
-          fill="none"
-          stroke="#F59E0B"
-          stroke-width="1.8"
-        />
-        <path
-          d="M0,24 L14,26 L28,20 L42,22 L56,16 L70,14 L84,11 L100,7 L100,34 L0,34Z"
-          fill="url(#sg3)"
-        />
-      </svg>
-    </div>
 
-    <div class="kpi">
-      <div class="kpi-lbl">Hook Accuracy</div>
-      <div class="kpi-val text-bl">38%</div>
-      <div class="text-[10.5px] text-tx2 flex items-center gap-1">
-        <span class="text-gr">↑ 5%</span> vs last 30
+      <!-- Current Rank Image Card -->
+      <div class="card flex items-center justify-center overflow-hidden p-1.5 h-full min-h-[70px]">
+        <img
+          src="https://static.wikia.nocookie.net/dota2_gamepedia/images/6/6b/SeasonalRank3-3.png"
+          alt="Archon 3 Badge"
+          class="h-[65px] object-contain drop-shadow-xl"
+        />
       </div>
-      <svg class="h-[34px] w-full mt-2.5" viewBox="0 0 100 34" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="sg4" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#38BDF8" stop-opacity=".3" />
-            <stop offset="100%" stop-color="#38BDF8" stop-opacity="0" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M0,22 L14,25 L28,20 L42,22 L56,18 L70,14 L84,10 L100,7"
-          fill="none"
-          stroke="#38BDF8"
-          stroke-width="1.8"
-        />
-        <path
-          d="M0,22 L14,25 L28,20 L42,22 L56,18 L70,14 L84,10 L100,7 L100,34 L0,34Z"
-          fill="url(#sg4)"
-        />
-      </svg>
     </div>
   </div>
 
   <!-- MAIN DASHBOARD GRID -->
   <div class="grid grid-cols-[3fr_2fr] gap-4">
-    <!-- LEFT PANEL: TRENDS & COACH -->
+    <!-- LEFT PANEL: TRENDS & COACH (updated with new detailed view) -->
     <div class="flex flex-col gap-4">
-      <div class="card">
+      <!-- DETAILED MATCH HISTORY CARD (Replaces Trend Graph) -->
+      <div class="card overflow-hidden">
         <div class="card-hd">
-          <span class="card-ttl">Performance Trend</span>
-          <div class="flex gap-3">
-            <div class="flex items-center gap-1 text-[11px] text-tx2">
-              <div class="w-[7px] h-[7px] rounded-full bg-gr"></div>
-              Win Rate
-            </div>
-            <div class="flex items-center gap-1 text-[11px] text-tx2">
-              <div class="w-[7px] h-[7px] rounded-full bg-pu2"></div>
-              MMR Est.
-            </div>
-          </div>
+          <span class="card-ttl">Detailed Match History</span>
+          <span class="card-lnk" onclick={() => gotoView('matches')}>View all →</span>
         </div>
-        <svg viewBox="0 0 520 140" class="w-full h-auto">
-          <defs>
-            <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#22C55E" stop-opacity=".2" />
-              <stop offset="100%" stop-color="#22C55E" stop-opacity="0" />
-            </linearGradient>
-          </defs>
-          <line x1="38" y1="18" x2="512" y2="18" stroke="rgba(255,255,255,.04)" stroke-width="1" />
-          <line x1="38" y1="50" x2="512" y2="50" stroke="rgba(255,255,255,.04)" stroke-width="1" />
-          <line x1="38" y1="82" x2="512" y2="82" stroke="rgba(255,255,255,.04)" stroke-width="1" />
-          <line
-            x1="38"
-            y1="114"
-            x2="512"
-            y2="114"
-            stroke="rgba(255,255,255,.04)"
-            stroke-width="1"
-          />
-          <text x="0" y="21" fill="#4A5270" font-size="9">80%</text>
-          <text x="0" y="53" fill="#4A5270" font-size="9">60%</text>
-          <text x="0" y="85" fill="#4A5270" font-size="9">40%</text>
-          <text x="0" y="117" fill="#4A5270" font-size="9">20%</text>
-          <path
-            d="M38,95 C78,88 118,80 158,73 C198,66 238,80 278,67 C318,54 358,46 398,37 C428,30 468,25 512,20"
-            fill="none"
-            stroke="#22C55E"
-            stroke-width="2.2"
-          />
-          <path
-            d="M38,95 C78,88 118,80 158,73 C198,66 238,80 278,67 C318,54 358,46 398,37 C428,30 468,25 512,20 L512,128 L38,128Z"
-            fill="url(#wg)"
-          />
-          <path
-            d="M38,104 C78,99 118,102 158,94 C198,86 238,100 278,90 C318,80 358,71 398,62 C428,55 468,50 512,44"
-            fill="none"
-            stroke="#A78BFA"
-            stroke-width="1.8"
-            stroke-dasharray="5,3"
-          />
-          <text x="38" y="138" fill="#4A5270" font-size="8.5" text-anchor="middle">Apr 13</text>
-          <text x="158" y="138" fill="#4A5270" font-size="8.5" text-anchor="middle">Apr 20</text>
-          <text x="278" y="138" fill="#4A5270" font-size="8.5" text-anchor="middle">Apr 27</text>
-          <text x="398" y="138" fill="#4A5270" font-size="8.5" text-anchor="middle">May 4</text>
-          <text x="512" y="138" fill="#4A5270" font-size="8.5" text-anchor="end">May 11</text>
-        </svg>
+        <div class="flex flex-col">
+          {#each detailedMatches as m}
+            <div
+              class="flex items-center gap-4 py-2 px-3 border-b border-bd last:border-b-0 cursor-pointer hover:bg-black/10 transition-colors"
+              onclick={() => openMatchDetail(m)}
+            >
+              <!-- 1. Hero Portrait: Large rectangular -->
+              <div
+                class="w-[55px] h-[31px] rounded-[4px] flex items-center justify-center text-[22px] bg-s4 shrink-0 overflow-hidden"
+              >
+                {m.icon}
+                <!-- Use simplified icon for portrait for now -->
+                <!-- <img src={m.portraitUrl} alt={m.hero} class="w-full h-full object-cover" /> -->
+              </div>
+
+              <!-- 2. Role Icon: Sword/Shield placeholder -->
+              <div class="w-[24px] h-[24px] shrink-0 flex items-center justify-center text-[18px]">
+                ⚔️
+                <!-- <img src={m.roleIcon} alt="Role" class="w-full h-full object-contain" /> -->
+              </div>
+
+              <!-- 3. Outcome Bubbles & Text: W L, Arrows, Mode -->
+              <div class="flex-1 flex flex-col min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <div
+                    class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-extrabold {m.outcome ===
+                    'win'
+                      ? 'bg-gr text-black'
+                      : 'bg-rd text-black'}"
+                  >
+                    {m.outcome === 'win' ? 'W' : 'L'}
+                  </div>
+                  <div
+                    class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-extrabold {m.previousOutcome ===
+                    'win'
+                      ? 'bg-grb text-gr'
+                      : 'bg-rdb text-rd'}"
+                  >
+                    {m.previousOutcome === 'win' ? 'W' : 'L'}
+                  </div>
+                  <!-- Arrow logic can be added here -->
+                  <div class="flex flex-col text-[10px] text-tx2 font-bold uppercase truncate">
+                    {m.mode}
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. KDA Text: Centered -->
+              <div class="text-[12px] text-tx2 font-mono font-medium w-[80px] text-center shrink-0">
+                {m.k} / {m.d} / {m.a}
+              </div>
+
+              <!-- 5. MMR Change: +/- -->
+              <div
+                class="text-[12px] font-bold w-[40px] text-right shrink-0 {m.mmrChange >= 0
+                  ? 'text-gr'
+                  : 'text-rd'}"
+              >
+                {m.mmrChange >= 0 ? '+' : ''}{m.mmrChange}
+              </div>
+
+              <!-- 6. Impact Bar: performance comparison -->
+              <div class="w-[100px] h-[6px] rounded-[3px] bg-black/40 overflow-hidden shrink-0">
+                <div
+                  class="h-full {m.impactValue >= 60 ? 'bg-gr' : 'bg-rd'}"
+                  style="width: {m.impactValue}%"
+                ></div>
+              </div>
+
+              <!-- 7. Match Details (Party, Rank): icons -->
+              <div class="flex items-center gap-1 shrink-0">
+                <div
+                  class="w-[16px] h-[16px] shrink-0 flex items-center justify-center text-[11px]"
+                >
+                  👤
+                </div>
+                <div class="text-[11px] text-tx2 w-[16px] text-center shrink-0">
+                  {m.partyCount}
+                </div>
+                <div
+                  class="w-[20px] h-[20px] rounded-full bg-s3 flex items-center justify-center shrink-0 overflow-hidden"
+                >
+                  🏆 <!-- Rank placeholder -->
+                  <!-- <img src={m.rankBadge} alt="Rank" class="w-full h-full object-contain drop-shadow-sm" /> -->
+                </div>
+              </div>
+
+              <!-- 8. Time/Duration: stacked text -->
+              <div class="text-tx3 text-right flex-col w-[80px] shrink-0 ml-auto">
+                <div class="text-[11.5px] font-medium leading-tight">{m.dur}</div>
+                <div class="text-[10px] text-tx2 leading-tight uppercase font-medium">
+                  {m.timeAgo}
+                </div>
+              </div>
+
+              <!-- View Match details chevron: hover state color change -->
+              <div class="text-tx3 text-[16px] ml-1 transition-colors hover:text-pu2 shrink-0">
+                ›
+              </div>
+            </div>
+          {/each}
+        </div>
       </div>
 
       <!-- AI COACH SUMMARY BOX -->
@@ -219,7 +280,7 @@
       </div>
     </div>
 
-    <!-- RIGHT PANEL: RECENT MATCHES & HEROES -->
+    <!-- RIGHT PANEL: RECENT MATCHES & HEROES (Icons enlarged) -->
     <div class="flex flex-col gap-4">
       <div class="card">
         <div class="card-hd">
@@ -234,8 +295,9 @@
                 : 'border-l-rd'}"
               onclick={() => openMatchDetail(m)}
             >
+              <!-- Enlarged Icon (was 34x34) -->
               <div
-                class="w-[34px] h-[34px] rounded-[7px] flex items-center justify-center text-[17px] bg-s4 shrink-0"
+                class="w-[44px] h-[44px] rounded-[7px] flex items-center justify-center text-[20px] bg-s4 shrink-0"
               >
                 {m.icon}
               </div>
@@ -248,7 +310,7 @@
               </div>
               <div class="flex-1 min-w-0">
                 <div class="text-[12.5px] font-bold truncate">{m.hero}</div>
-                <div class="text-[10px] text-tx2 mt-0.5">{m.mode}</div>
+                <div class="text-[10px] text-tx2 mt-0.5 uppercase font-medium">{m.mode}</div>
               </div>
               <div class="text-[12px] text-tx2 font-mono font-medium w-[70px] text-center">
                 {m.k}/{m.d}/{m.a}
@@ -271,8 +333,9 @@
               class="flex items-center gap-2.5 py-1.75 border-b border-bd last:border-b-0 cursor-pointer hover:pl-1 transition-all"
               onclick={() => gotoView('heroes')}
             >
+              <!-- Enlarged Icon (was 28x28) -->
               <div
-                class="w-[28px] h-[28px] rounded-sm bg-s2 flex items-center justify-center text-[14px] shrink-0"
+                class="w-[40px] h-[40px] rounded-sm bg-s2 flex items-center justify-center text-[18px] shrink-0"
               >
                 {h.icon}
               </div>
