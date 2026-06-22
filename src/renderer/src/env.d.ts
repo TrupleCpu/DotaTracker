@@ -20,6 +20,10 @@ declare global {
       setOverlayState: (enabled: boolean) => Promise<boolean>
       getOverlayStatus: () => Promise<boolean>
       onOverlayStatus: (cb: (visible: boolean) => void) => void
+      
+      minimizeWindow(): void
+      maximizeWindow(): void
+      closeWindow(): void
     }
 
     electron: {

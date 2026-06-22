@@ -2,7 +2,6 @@
   import { HEROES, MATCHES, type MockMatch } from '../utils/mockData'
 
   // Expanding the assumed data for the detailed view, or using placeholders
-  // I will add some example properties for the detailed view
   interface ExpandedMockMatch extends MockMatch {
     roleIcon?: string // URL to role icon (sword/shield)
     mmrChange?: number // +X or -X
@@ -40,11 +39,8 @@
 </script>
 
 <div class="flex-1 overflow-y-auto p-4 select-none">
-  <!-- KPI ROWS -->
   <div class="flex flex-col gap-4 mb-4">
-    <!-- ROW 1: Matches & Win Rate -->
     <div class="grid grid-cols-2 gap-4">
-      <!-- Matches Card -->
       <div class="card p-4 flex flex-col justify-center gap-3">
         <div class="flex justify-between items-baseline">
           <div class="text-[17px]">
@@ -60,7 +56,6 @@
         </div>
       </div>
 
-      <!-- Win Rate Card -->
       <div class="card p-4 flex flex-col justify-center gap-3">
         <div class="flex justify-between items-baseline">
           <div class="text-[17px]">
@@ -80,9 +75,7 @@
       </div>
     </div>
 
-    <!-- ROW 2: KDA, GPM & Rank -->
     <div class="grid grid-cols-3 gap-4">
-      <!-- KDA Card -->
       <div class="card p-4 flex flex-col justify-center gap-2.5">
         <div class="flex justify-between items-baseline">
           <div class="text-[15px]">
@@ -100,7 +93,6 @@
         </div>
       </div>
 
-      <!-- GPM Card -->
       <div class="card p-4 flex flex-col justify-center gap-2.5">
         <div class="flex justify-between items-baseline">
           <div class="text-[15px]">
@@ -117,7 +109,6 @@
         </div>
       </div>
 
-      <!-- Current Rank Image Card -->
       <div class="card flex items-center justify-center overflow-hidden p-1.5 h-full min-h-[70px]">
         <img
           src="https://static.wikia.nocookie.net/dota2_gamepedia/images/6/6b/SeasonalRank3-3.png"
@@ -128,11 +119,8 @@
     </div>
   </div>
 
-  <!-- MAIN DASHBOARD GRID -->
   <div class="grid grid-cols-[3fr_2fr] gap-4">
-    <!-- LEFT PANEL: TRENDS & COACH (updated with new detailed view) -->
     <div class="flex flex-col gap-4">
-      <!-- DETAILED MATCH HISTORY CARD (Replaces Trend Graph) -->
       <div class="card overflow-hidden">
         <div class="card-hd">
           <span class="card-ttl">Detailed Match History</span>
@@ -141,25 +129,19 @@
         <div class="flex flex-col">
           {#each detailedMatches as m}
             <div
-              class="flex items-center gap-4 py-2 px-3 border-b border-bd last:border-b-0 cursor-pointer hover:bg-black/10 transition-colors"
+              class="flex items-center gap-4 py-2 px-3 border-b border-bd last:border-b-0 cursor-pointer hover:bg-white/5 transition-colors"
               onclick={() => openMatchDetail(m)}
             >
-              <!-- 1. Hero Portrait: Large rectangular -->
               <div
                 class="w-[55px] h-[31px] rounded-[4px] flex items-center justify-center text-[22px] bg-s4 shrink-0 overflow-hidden"
               >
                 {m.icon}
-                <!-- Use simplified icon for portrait for now -->
-                <!-- <img src={m.portraitUrl} alt={m.hero} class="w-full h-full object-cover" /> -->
               </div>
 
-              <!-- 2. Role Icon: Sword/Shield placeholder -->
               <div class="w-[24px] h-[24px] shrink-0 flex items-center justify-center text-[18px]">
                 ⚔️
-                <!-- <img src={m.roleIcon} alt="Role" class="w-full h-full object-contain" /> -->
               </div>
 
-              <!-- 3. Outcome Bubbles & Text: W L, Arrows, Mode -->
               <div class="flex-1 flex flex-col min-w-0">
                 <div class="flex items-center gap-1.5">
                   <div
@@ -178,19 +160,16 @@
                   >
                     {m.previousOutcome === 'win' ? 'W' : 'L'}
                   </div>
-                  <!-- Arrow logic can be added here -->
                   <div class="flex flex-col text-[10px] text-tx2 font-bold uppercase truncate">
                     {m.mode}
                   </div>
                 </div>
               </div>
 
-              <!-- 4. KDA Text: Centered -->
               <div class="text-[12px] text-tx2 font-mono font-medium w-[80px] text-center shrink-0">
                 {m.k} / {m.d} / {m.a}
               </div>
 
-              <!-- 5. MMR Change: +/- -->
               <div
                 class="text-[12px] font-bold w-[40px] text-right shrink-0 {m.mmrChange >= 0
                   ? 'text-gr'
@@ -199,7 +178,6 @@
                 {m.mmrChange >= 0 ? '+' : ''}{m.mmrChange}
               </div>
 
-              <!-- 6. Impact Bar: performance comparison -->
               <div class="w-[100px] h-[6px] rounded-[3px] bg-black/40 overflow-hidden shrink-0">
                 <div
                   class="h-full {m.impactValue >= 60 ? 'bg-gr' : 'bg-rd'}"
@@ -207,7 +185,6 @@
                 ></div>
               </div>
 
-              <!-- 7. Match Details (Party, Rank): icons -->
               <div class="flex items-center gap-1 shrink-0">
                 <div
                   class="w-[16px] h-[16px] shrink-0 flex items-center justify-center text-[11px]"
@@ -220,20 +197,17 @@
                 <div
                   class="w-[20px] h-[20px] rounded-full bg-s3 flex items-center justify-center shrink-0 overflow-hidden"
                 >
-                  🏆 <!-- Rank placeholder -->
-                  <!-- <img src={m.rankBadge} alt="Rank" class="w-full h-full object-contain drop-shadow-sm" /> -->
+                  🏆
                 </div>
               </div>
 
-              <!-- 8. Time/Duration: stacked text -->
-              <div class="text-tx3 text-right flex-col w-[80px] shrink-0 ml-auto">
+              <div class="text-tx3 text-right flex flex-col w-[80px] shrink-0 ml-auto">
                 <div class="text-[11.5px] font-medium leading-tight">{m.dur}</div>
                 <div class="text-[10px] text-tx2 leading-tight uppercase font-medium">
                   {m.timeAgo}
                 </div>
               </div>
 
-              <!-- View Match details chevron: hover state color change -->
               <div class="text-tx3 text-[16px] ml-1 transition-colors hover:text-pu2 shrink-0">
                 ›
               </div>
@@ -242,7 +216,6 @@
         </div>
       </div>
 
-      <!-- AI COACH SUMMARY BOX -->
       <div
         class="bg-linear-to-r from-[rgba(123,92,240,0.14)] to-[rgba(56,189,248,0.05)] border border-[#7B5CF0]/30 rounded-xl p-4"
       >
@@ -280,69 +253,89 @@
       </div>
     </div>
 
-    <!-- RIGHT PANEL: RECENT MATCHES & HEROES (Icons enlarged) -->
     <div class="flex flex-col gap-4">
-      <div class="card">
-        <div class="card-hd">
-          <span class="card-ttl">Recent Matches</span>
-          <span class="card-lnk" onclick={() => gotoView('matches')}>View all →</span>
+      <div class="card p-4">
+        <div class="flex items-center justify-between pb-3 border-b border-bd/40 mb-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-tx3">Recent Matches</span>
+          <span
+            class="text-[11px] text-pu hover:underline cursor-pointer"
+            onclick={() => gotoView('matches')}>View all →</span
+          >
         </div>
-        <div class="flex flex-col gap-1.5">
+        <div class="flex flex-col gap-2">
           {#each MATCHES.slice(0, 5) as m}
             <div
-              class="match-row border-l-[2.5px] {m.outcome === 'win'
-                ? 'border-l-gr'
-                : 'border-l-rd'}"
+              class="flex items-center gap-3 p-2 bg-s2/40 hover:bg-s2/80 rounded-lg border-l-2 transition-all cursor-pointer min-w-0
+                {m.outcome === 'win' ? 'border-l-gr' : 'border-l-rd'}"
               onclick={() => openMatchDetail(m)}
             >
-              <!-- Enlarged Icon (was 34x34) -->
               <div
-                class="w-[44px] h-[44px] rounded-[7px] flex items-center justify-center text-[20px] bg-s4 shrink-0"
+                class="w-11 h-11 rounded-md bg-s4 border border-bd flex items-center justify-center text-xl shrink-0"
               >
                 {m.icon}
               </div>
+
               <div
-                class="text-[12.5px] font-extrabold w-[38px] {m.outcome === 'win'
+                class="text-[11px] font-extrabold uppercase tracking-wider w-9 shrink-0 {m.outcome ===
+                'win'
                   ? 'text-gr'
                   : 'text-rd'}"
               >
                 {m.outcome === 'win' ? 'Win' : 'Loss'}
               </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-[12.5px] font-bold truncate">{m.hero}</div>
-                <div class="text-[10px] text-tx2 mt-0.5 uppercase font-medium">{m.mode}</div>
+
+              <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+                <div class="text-xs font-bold text-tx truncate">{m.hero}</div>
+                <div class="text-[10px] text-tx3 font-semibold uppercase tracking-wide truncate">
+                  {m.mode}
+                </div>
               </div>
-              <div class="text-[12px] text-tx2 font-mono font-medium w-[70px] text-center">
+
+              <div class="text-xs text-tx2 font-mono font-medium w-16 text-center shrink-0">
                 {m.k}/{m.d}/{m.a}
               </div>
-              <div class="text-[11px] text-tx3 w-[46px] text-right">{m.dur}</div>
-              <div class="text-tx3 text-[14px] ml-1 transition-colors hover:text-pu2">›</div>
+
+              <div class="text-[11px] text-tx3 w-12 text-right shrink-0 font-medium">
+                {m.dur}
+              </div>
+
+              <div
+                class="text-tx3 text-sm font-semibold pl-1 transition-colors hover:text-pu2 shrink-0"
+              >
+                ›
+              </div>
             </div>
           {/each}
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-hd">
-          <span class="card-ttl">Most Played Heroes</span>
-          <span class="card-lnk" onclick={() => gotoView('heroes')}>View all →</span>
+      <div class="card p-4">
+        <div class="flex items-center justify-between pb-3 border-b border-bd/40 mb-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-tx3">Most Played Heroes</span
+          >
+          <span
+            class="text-[11px] text-pu hover:underline cursor-pointer"
+            onclick={() => gotoView('heroes')}>View all →</span
+          >
         </div>
-        <div class="flex flex-col">
+        <div class="flex flex-col gap-2">
           {#each HEROES.slice(0, 5) as h}
             <div
-              class="flex items-center gap-2.5 py-1.75 border-b border-bd last:border-b-0 cursor-pointer hover:pl-1 transition-all"
+              class="flex items-center gap-3 p-1.5 hover:bg-s2/40 rounded-lg border border-transparent hover:border-bd/30 transition-all cursor-pointer"
               onclick={() => gotoView('heroes')}
             >
-              <!-- Enlarged Icon (was 28x28) -->
               <div
-                class="w-[40px] h-[40px] rounded-sm bg-s2 flex items-center justify-center text-[18px] shrink-0"
+                class="w-10 h-10 rounded bg-s2 border border-bd/40 flex items-center justify-center text-lg shrink-0"
               >
                 {h.icon}
               </div>
-              <div class="text-[12.5px] font-medium flex-1 truncate">{h.name}</div>
-              <div class="text-[11px] text-tx3 w-10 text-right">{h.matches}g</div>
+              <div class="text-xs font-bold text-tx flex-1 truncate">{h.name}</div>
+              <div class="text-[11px] text-tx3 font-mono font-medium w-10 text-right">
+                {h.matches}g
+              </div>
               <span
-                class="text-[11px] font-bold px-2 py-0.5 rounded-[10px] shrink-0 {h.winrate >= 60
+                class="text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0 {h.winrate >=
+                60
                   ? 'bg-grb text-gr'
                   : h.winrate >= 50
                     ? 'bg-gdb text-gd'

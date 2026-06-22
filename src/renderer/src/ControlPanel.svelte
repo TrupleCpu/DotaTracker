@@ -21,7 +21,10 @@
     ChartNoAxesCombined,
     Zap,
     Scale,
-    Settings
+    Settings,
+    Minus,
+    Square,
+    X
   } from '@lucide/svelte'
   import type { AnyMxRecord } from 'node:dns'
 
@@ -47,12 +50,6 @@
       items: [{ id: 'settings', label: 'Settings', icon: Settings }]
     }
   ]
-
-  type WindowApi = {
-    fetchMatchHistory: (steamId: string) => Promise<any>
-    getLocalSteamId: () => Promise<{ steamId: string | null; error?: string }>
-  }
-  const api = window.api as unknown as WindowApi
 
   // State
   let steamId = $state<string | null>(null)
@@ -84,12 +81,12 @@
     compare: 'Compare',
     settings: 'Settings'
   }
-
   async function handleSteamLogin(): Promise<void> {
     try {
       isLoading = true
       errorMessage = ''
-      const response = await api.getLocalSteamId()
+      // ✅ FIXED: Look directly at the safe window.api global wrapper
+      const response = await window.api.getLocalSteamId()
       if (response.steamId) {
         steamId = response.steamId
       } else {
@@ -114,12 +111,6 @@
     currentView = 'match-detail'
   }
 
-  // function disconnect(): void {
-  //   steamId = null
-  //   currentView = 'dashboard'
-  //   errorMessage = ''
-  // }
-
   function doRefresh(e: MouseEvent): void {
     const btn = e.currentTarget as HTMLButtonElement
     const orig = btn.textContent
@@ -138,37 +129,37 @@
   <LoginScreen {handleSteamLogin} {isLoading} {errorMessage} />
 {:else}
   <div class="flex flex-col h-screen overflow-hidden bg-bg text-tx font-inter">
-    <!-- TITLEBAR -->
     <div class="titlebar">
-      <div class="titlebar-dots">
-        <div
-          class="tdot red"
-          onclick={() => showToast('Close window', 'ok')}
-          role="button"
-          tabindex="0"
-        ></div>
-        <div
-          class="tdot yellow"
-          onclick={() => showToast('Minimize window', 'ok')}
-          role="button"
-          tabindex="0"
-        ></div>
-        <div
-          class="tdot green"
-          onclick={() => showToast('Maximize window', 'ok')}
-          role="button"
-          tabindex="0"
-        ></div>
+      <div class="flex items-center gap-2.5">
+        <div class="w-6 h-6 rounded flex items-center justify-center shrink-0">
+          <img src={AppLogo} alt="Logo" class="w-5 h-5" />
+        </div>
+        <div class="titlebar-title">Ancient Eye</div>
       </div>
-      <div class="titlebar-title">Ancient Eye</div>
+      <div class="flex-1"></div>
       <div class="titlebar-right">
-        <span class="text-[10px] text-tx3">v2.4.1</span>
+        <span class="text-[10px] text-tx3 mr-2">v2.4.1</span>
+        <div class="win-controls">
+          <button class="win-btn" onclick={() => window.api.minimizeWindow()} aria-label="Minimize">
+            <Minus size={13} strokeWidth={1.5} />
+          </button>
+
+          <button class="win-btn" onclick={() => window.api.maximizeWindow()} aria-label="Maximize">
+            <Square size={11} strokeWidth={2} />
+          </button>
+
+          <button
+            class="win-btn win-close"
+            onclick={() => window.api.closeWindow()}
+            aria-label="Close"
+          >
+            <X size={14} strokeWidth={1.5} />
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- APP SHELL -->
     <div class="flex flex-1 overflow-hidden">
-      <!-- SIDEBAR -->
       <aside class="w-50 shrink-0 bg-sb border-r border-bd flex flex-col">
         <div class="flex items-center gap-2.5 p-[14px_14px_12px] border-b border-bd">
           <div class="w-14 h-14 rounded-lg flex items-center justify-center text-base shrink-0">
@@ -237,9 +228,7 @@
         </div>
       </aside>
 
-      <!-- MAIN -->
       <div class="flex-1 flex flex-col overflow-hidden min-w-0">
-        <!-- TOPBAR -->
         <div class="flex items-center px-[18px] h-[46px] border-b border-bd gap-2.5 shrink-0 bg-sb">
           <div class="flex items-center gap-1.5 text-[13px] font-semibold text-tx2">
             {#if currentView === 'match-detail'}
@@ -256,22 +245,23 @@
           <div class="flex-1"></div>
           {#if currentView !== 'match-detail'}
             <div class="flex items-center gap-2">
-              <select class="sel"
-                ><option>All Pick</option><option>Ranked</option><option>Turbo</option><option
-                  >Captain's Mode</option
-                ></select
-              >
-              <select class="sel"
-                ><option>Last 30 Matches</option><option>Last 7 Days</option><option
-                  >Last 60 Days</option
-                ><option>All Time</option></select
-              >
+              <select class="sel">
+                <option>All Pick</option>
+                <option>Ranked</option>
+                <option>Turbo</option>
+                <option>Captain's Mode</option>
+              </select>
+              <select class="sel">
+                <option>Last 30 Matches</option>
+                <option>Last 7 Days</option>
+                <option>Last 60 Days</option>
+                <option>All Time</option>
+              </select>
               <button class="btn-pri" onclick={doRefresh}>↻ Refresh</button>
             </div>
           {/if}
         </div>
 
-        <!-- VIEW CONTAINER -->
         <div class="flex-1 overflow-hidden flex flex-col bg-bg">
           {#if currentView === 'dashboard'}
             <DashboardView {openMatchDetail} {gotoView} />
@@ -296,7 +286,6 @@
       </div>
     </div>
 
-    <!-- TOAST -->
     <div
       id="toast"
       class="fixed bottom-5 right-5 bg-s4 border border-bd2 rounded-lg px-[15px] py-[9px] text-[12.5px] font-semibold text-tx z-[9999] transition-all duration-200 pointer-events-none min-w-[160px] {toast.show
@@ -311,3 +300,112 @@
     </div>
   </div>
 {/if}
+
+<style>
+  /* Titlebar framework rules */
+  .titlebar {
+    height: 38px;
+    background: var(--color-sb);
+    border-bottom: 1px solid var(--color-bd);
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    flex-shrink: 0;
+    -webkit-app-region: drag;
+    user-select: none;
+  }
+
+  .titlebar-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-tx2);
+    letter-spacing: 0.2px;
+  }
+
+  .titlebar-right {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    -webkit-app-region: no-drag;
+  }
+
+  /* Custom Form & Interactive Elements */
+  .sel {
+    background: var(--color-s2);
+    border: 1px solid var(--color-bd);
+    color: var(--color-tx2);
+    padding: 5px 24px 5px 10px;
+    border-radius: 7px;
+    font-size: 11.5px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0l4.5 5L9 0z' fill='%23a1a1aa'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    transition: border-color 0.1s;
+    cursor: pointer;
+  }
+  .sel:hover {
+    border-color: var(--color-bd2);
+  }
+
+  .btn-pri {
+    background: var(--color-pu);
+    color: var(--color-bg);
+    border: none;
+    border-radius: 7px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: opacity 0.1s;
+    letter-spacing: 0.1px;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .btn-pri:hover {
+    opacity: 0.85;
+  }
+  .btn-pri:active {
+    opacity: 0.7;
+  }
+
+  /* Desktop Windows Frame System Controls */
+  .win-controls {
+    display: flex;
+    height: 100%;
+  }
+
+  .win-btn {
+    width: 46px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--color-tx2);
+    cursor: pointer;
+    transition:
+      background 0.1s,
+      color 0.1s;
+    font-size: 11px;
+  }
+  .win-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-tx);
+  }
+
+  .win-close:hover {
+    background: #c42b1c;
+    color: #fff;
+  }
+  .win-close:active {
+    background: #b22318;
+  }
+
+  .win-icon {
+    pointer-events: none;
+  }
+</style>

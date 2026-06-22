@@ -38,7 +38,11 @@ const api = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onConfigUpdate: (cb: (config: any) => void): void => {
     ipcRenderer.on('config-updated', (_e, data) => cb(data))
-  }
+  },
+
+  minimizeWindow: (): void => ipcRenderer.send('win-minimize'),
+  maximizeWindow: (): void => ipcRenderer.send('win-maximize'),
+  closeWindow: (): void => ipcRenderer.send('win-close')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
