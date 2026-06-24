@@ -1,10 +1,14 @@
 import { app, BrowserWindow, ipcMain, nativeImage, Tray, Menu } from 'electron'
-import { join } from 'path'
+import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { windowManager } from 'node-window-manager'
 import { createGSIServer } from './gsi-server'
 import { loadConfig, saveConfig } from './config'
 import http from 'http'
+import { getPlayerData } from './services/stratzService'
+import { exec } from 'child_process'
+import fs from 'fs'
+import os from 'os'
 
 const WIDGET_WIDTH = 250
 const WIDGET_HEIGHT = 90
@@ -222,60 +226,59 @@ function registerIpcHandlers(): void {
   })
 
   ipcMain.handle('get-local-steam-id', async () => {
-    // const platform = os.platform()
+    const platform = os.platform()
 
-    // if (platform === 'win32') {
-    //   return new Promise((resolve) => {
-    //     exec(
-    //       'reg query "HKCU\\Software\\Valve\\Steam\\ActiveProcess" /v ActiveUser',
-    //       (err, stdout) => {
-    //         if (err) return resolve({ error: 'Steam registry branch missing.' })
-    //         const match = stdout.match(/ActiveUser\s+REG_DWORD\s+(0x[0-9a-fA-F]+)/)
+    if (platform === 'win32') {
+      return new Promise((resolve) => {
+        exec(
+          'reg query "HKCU\\Software\\Valve\\Steam\\ActiveProcess" /v ActiveUser',
+          (err, stdout) => {
+            if (err) return resolve({ error: 'Steam registry branch missing.' })
+            const match = stdout.match(/ActiveUser\s+REG_DWORD\s+(0x[0-9a-fA-F]+)/)
 
-    //         if (match && match[1]) {
-    //           const accountId = parseInt(match[1], 16)
-    //           if (accountId === 0) return resolve({ error: 'Steam is open but no user is active.' })
-    //           resolve({ steamId: accountId.toString() })
-    //         } else {
-    //           resolve({ error: 'Failed to read registry output.' })
-    //         }
-    //       }
-    //     )
-    //   })
-    // }
+            if (match && match[1]) {
+              const accountId = parseInt(match[1], 16)
+              if (accountId === 0) return resolve({ error: 'Steam is open but no user is active.' })
+              resolve({ steamId: accountId.toString() })
+            } else {
+              resolve({ error: 'Failed to read registry output.' })
+            }
+          }
+        )
+      })
+    }
 
-    // if (platform === 'linux') {
-    //   try {
-    //     const home = os.homedir()
-    //     const paths = [
-    //       join(home, '.steam/steam/config/loginusers.vdf'),
-    //       join(home, '.local/share/Steam/config/loginusers.vdf')
-    //     ]
+    if (platform === 'linux') {
+      try {
+        const home = os.homedir()
+        const paths = [
+          join(home, '.steam/steam/config/loginusers.vdf'),
+          join(home, '.local/share/Steam/config/loginusers.vdf')
+        ]
 
-    //     let vdfContent = ''
-    //     for (const p of paths) {
-    //       if (fs.existsSync(p)) {
-    //         vdfContent = fs.readFileSync(p, 'utf-8')
-    //         break
-    //       }
-    //     }
+        let vdfContent = ''
+        for (const p of paths) {
+          if (fs.existsSync(p)) {
+            vdfContent = fs.readFileSync(p, 'utf-8')
+            break
+          }
+        }
 
-    //     if (!vdfContent) return { error: 'Steam config files unreachable' }
-    //     const userBlocks = vdfContent.match(/"\d{17}"\s*\{[^}]+\}/g)
-    //     if (userBlocks) {
-    //       for (const block of userBlocks) {
-    //         if (block.includes('"MostRecent"') && block.includes('"1"')) {
-    //           const idMatch = block.match(/"(\d{17})"/)
-    //           if (idMatch) return { steamId: idMatch[1].toString() }
-    //         }
-    //       }
-    //     }
-    //     return { error: 'No recent active session detected' }
-    //   } catch (err) {
-    //     return { error: 'Failed to crawl local config architecture.' }
-    //   }
-    // }
-    return { steamId: '1125517482' }
+        if (!vdfContent) return { error: 'Steam config files unreachable' }
+        const userBlocks = vdfContent.match(/"\d{17}"\s*\{[^}]+\}/g)
+        if (userBlocks) {
+          for (const block of userBlocks) {
+            if (block.includes('"MostRecent"') && block.includes('"1"')) {
+              const idMatch = block.match(/"(\d{17})"/)
+              if (idMatch) return { steamId: idMatch[1].toString() }
+            }
+          }
+        }
+        return { error: 'No recent active session detected' }
+      } catch (err) {
+        return { error: 'Failed to crawl local config architecture.' }
+      }
+    }
   })
 
   ipcMain.handle('fetch-match-history', async (_event, steamId32: string) => {
@@ -313,6 +316,17 @@ function registerIpcHandlers(): void {
       return { error: err instanceof Error ? err.message : String(err) }
     }
   })
+
+  ipcMain.handle('fetch-player-data', async (_event, steamId32: string | number) => {
+    try {
+      return await getPlayerData(steamId32)
+    } catch (err) {
+      console.error('Stratz recent fetch history failed: ', err)
+      return { error: err instanceof Error ? err.message : String(err) }
+    }
+  })
+
+  
 
   ipcMain.handle('steam-login', async () => {
     return new Promise<string | null>((resolve) => {
@@ -368,7 +382,7 @@ function registerIpcHandlers(): void {
   ipcMain.on('win-close', (event) => {
     const webContents = event.sender
     const win = BrowserWindow.fromWebContents(webContents)
-    win?.close() 
+    win?.close()
   })
 }
 

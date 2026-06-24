@@ -28,6 +28,9 @@ const api = {
   fetchMatchDetails: (matchId: string): Promise<unknown> =>
     ipcRenderer.invoke('fetch-match-details', matchId),
 
+  fetchPlayerData: (steamId: string): Promise<unknown> =>
+    ipcRenderer.invoke('fetch-player-data', steamId),
+
   // ✅ NEW: CONFIG SYSTEM
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getConfig: (): Promise<any> => ipcRenderer.invoke('get-config'),

@@ -1,41 +1,217 @@
 <script lang="ts">
-  import { HEROES, MATCHES, type MockMatch } from '../utils/mockData'
+  import { onMount } from 'svelte'
+  import { HEROES } from '../utils/mockData'
+  import MidIcon from '../assets/role-icons/mid.svg'
+  import CarryIcon from '../assets/role-icons/carry.svg'
+  import OfflaneIcon from '../assets/role-icons/offlane.svg'
+  import SoftSuppIcon from '../assets/role-icons/soft_support.svg'
+  import HardSuppIcon from '../assets/role-icons/hard_support.svg'
+  import TopCoreIcon from '../assets/award/topCore.svg'
+  import TopSuppIcon from '../assets/award/topSupp.svg'
+  import MvpIcon from '../assets/award/mvp.svg'
 
-  // Expanding the assumed data for the detailed view, or using placeholders
-  interface ExpandedMockMatch extends MockMatch {
-    roleIcon?: string // URL to role icon (sword/shield)
-    mmrChange?: number // +X or -X
-    impactValue?: number // 0-100 percentage
-    rankBadge?: string // URL to rank badge (e.g., SeasonalRank3-3.png)
-    partyCount?: number // 1, 2, 3
-    timeAgo?: string // e.g., "3 wk. ago", "1 mo. ago"
+  import heroesData from '../../../main/data/heroes.json'
+  const rankImages = import.meta.glob('../assets/ranks/*.png', {
+    eager: true,
+    import: 'default'
+  })
+
+  function getRankImage(rank: number): string {
+    if (
+      rank === 10 ||
+      rank === 20 ||
+      rank === 30 ||
+      rank === 40 ||
+      rank === 50 ||
+      rank === 60 ||
+      rank === 70
+    ) {
+      rank += 1
+    }
+    return rankImages[`../assets/ranks/${rank}.png`] as string
+  }
+  interface HeroData {
+    id: number
+    localized_name: string
+    img: string
+    icon: string
+    primary_attr: string
+    roles: string[]
   }
 
-  // Slice and augment data for display (for generation only)
-  let detailedMatches = $state(
-    MATCHES.slice(0, 10).map((m: MockMatch, i) => {
-      let outcomeText = m.outcome === 'win' ? 'W' : 'L'
-      let outcomeTextLower = m.outcome === 'win' ? 'w' : 'l'
-      return {
-        ...m,
-        roleIcon:
-          'https://static.wikia.nocookie.net/dota2_gamepedia/images/4/47/Hero_Role_Carry_icon.png', // Assume Carry for all carries
-        mmrChange: m.outcome === 'win' ? i * 5 + 10 : -(i * 3 + 5),
-        impactValue: m.outcome === 'win' ? 85 : 45, // Example impact value
-        rankBadge:
-          'https://static.wikia.nocookie.net/dota2_gamepedia/images/6/6b/SeasonalRank3-3.png', // Use Archon 3 for all
-        partyCount: (i % 3) + 1,
-        timeAgo: `${(i % 4) + 1} wk. ago`,
-        previousOutcome: outcomeTextLower // Just for W/L and L/W example
-      }
-    })
-  )
+  interface StratzMatch {
+    id: number
+    heroId: number
+    heroName: string
+    heroImg: string
+    outcome: 'win' | 'loss'
+    previousOutcome: 'win' | 'loss'
+    k: number
+    d: number
+    a: number
+    mode: string
+    dur: string
+    timeAgo: string
+    mmrChange: number
+    impactValue: number
+    partyCount: number
+    lane: string
+    rank: number
+  }
 
   interface Props {
-    openMatchDetail: (match: MockMatch) => void
+    openMatchDetail: (match: any) => void
     gotoView: (view: string) => void
   }
   let { openMatchDetail, gotoView }: Props = $props()
+
+  const heroMap = new Map<number, HeroData>((heroesData as HeroData[]).map((h) => [h.id, h]))
+
+  function getHeroImgUrl(path: string): string {
+    return `https://cdn.cloudflare.steamstatic.com${path}`
+  }
+
+  function formatDuration(seconds: number): string {
+    const m = Math.floor(seconds / 60)
+    const s = seconds % 60
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
+
+  function formatTimeAgo(unixSeconds: number | null): string {
+    if (!unixSeconds) return 'Unknown'
+    const diff = Math.floor(Date.now() / 1000) - unixSeconds
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`
+    return `${Math.floor(diff / 604800)}wk ago`
+  }
+
+  function formatGameMode(mode: string): string {
+    const map: Record<string, string> = {
+      ALL_PICK_RANKED: 'Ranked',
+      TURBO: 'Turbo',
+      ALL_PICK: 'Normal',
+      CAPTAINS_MODE: 'CM',
+      RANDOM_DRAFT: 'Random',
+      SINGLE_DRAFT: 'Single'
+    }
+    return map[mode] ?? mode
+  }
+
+  let detailedMatches = $state<StratzMatch[]>([])
+  let isLoadingMatches = $state(true)
+  let matchError = $state('')
+  let playerStats = $state<{
+    matchCount: number
+    winCount: number
+    killsAverage: number
+    deathsAverage: number
+    assistsAverage: number
+    gpmAverage: number
+    xpmAverage: number
+    rank: number
+  } | null>(null)
+
+  let recentTeammates = $state([
+    { name: 'Dendi_Fanboy', icon: '🐱', matches: 18, winrate: 66.7 },
+    { name: 'Maelk_Enjoyer', icon: '🐼', matches: 12, winrate: 58.3 },
+    { name: 'PuppeyWhacker', icon: '🦊', matches: 9, winrate: 77.8 },
+    { name: 'ArteezyCliff', icon: '🐨', matches: 7, winrate: 42.8 },
+    { name: 'Singsing_Alt', icon: '🐸', matches: 5, winrate: 80.0 }
+  ])
+
+  onMount(async () => {
+    try {
+      const res = await window.api.getLocalSteamId()
+      if (!res?.steamId) {
+        matchError = 'Could not resolve Steam ID.'
+        return
+      }
+
+      const data = await window.api.fetchPlayerData(res.steamId)
+
+      if (data?.error) {
+        matchError = data.error
+        return
+      }
+
+      const perf = data.player.performance
+      playerStats = {
+        matchCount: data.player.matchCount,
+        winCount: data.player.winCount,
+        killsAverage: perf.killsAverage,
+        deathsAverage: perf.deathsAverage,
+        assistsAverage: perf.assistsAverage,
+        gpmAverage: perf.gpmAverage,
+        xpmAverage: perf.xpmAverage,
+        rank: data.player.steamAccount?.seasonRank ?? 0
+      }
+
+      detailedMatches = data.player.matches.map((m: any, i: number) => {
+        const player = m.players?.[0]
+        const hero = heroMap.get(player?.heroId)
+        const isWin = player?.isVictory ?? false
+        const imp = player?.imp
+        const award = player?.award
+
+        return {
+          id: m.id,
+          heroId: player?.heroId,
+          heroName: hero?.localized_name ?? `Hero #${player?.heroId}`,
+          heroImg: hero ? getHeroImgUrl(hero.img) : null,
+          outcome: isWin ? 'win' : 'loss',
+          previousOutcome: i % 2 === 0 ? 'win' : 'loss',
+          k: player?.kills ?? 0,
+          d: player?.deaths ?? 0,
+          a: player?.assists ?? 0,
+          mode: formatGameMode(m.gameMode),
+          dur: formatDuration(m.durationSeconds),
+          timeAgo: formatTimeAgo(m.statsDateTime ?? m.endDateTime),
+          lane: player?.lane ?? 'Unknown',
+          rank: m.rank ?? 0,
+          mmrChange: isWin ? 25 : -25,
+          impactValue: imp != null ? Math.min(100, Math.max(0, imp + 50)) : isWin ? 55 : 35,
+          partyCount: 1,
+          award: award
+        }
+      })
+    } catch (err) {
+      console.error('Failed to load match history:', err)
+      matchError = 'Failed to load matches.'
+    } finally {
+      isLoadingMatches = false
+    }
+  })
+
+  function toLaneIcon(lane: string): string | null {
+    switch (lane) {
+      case 'SAFE_LANE':
+        return CarryIcon
+      case 'MID_LANE':
+        return MidIcon
+      case 'OFF_LANE':
+        return OfflaneIcon
+      case 'SOFT_SUPPORT':
+        return SoftSuppIcon
+      case 'HARD_SUPPORT':
+        return HardSuppIcon
+      default:
+        return null
+    }
+  }
+
+  function toAwardIcon(award: string): string | null {
+    switch (award) {
+      case 'TOP_CORE':
+        return TopCoreIcon
+      case 'TOP_SUPPORT':
+        return TopSuppIcon
+      case 'MVP':
+        return MvpIcon
+      default:
+        return null
+    }
+  }
 </script>
 
 <div class="flex-1 overflow-y-auto p-4 select-none">
@@ -44,7 +220,7 @@
       <div class="card p-4 flex flex-col justify-center gap-3">
         <div class="flex justify-between items-baseline">
           <div class="text-[17px]">
-            <span class="text-[#EAB308] font-bold">2,572</span>
+            <span class="text-[#EAB308] font-bold">{playerStats?.matchCount}</span>
             <span class="text-tx font-semibold ml-1">Matches</span>
           </div>
           <div class="text-[11.5px] text-tx2">First Match: Apr 19, 2019</div>
@@ -59,17 +235,28 @@
       <div class="card p-4 flex flex-col justify-center gap-3">
         <div class="flex justify-between items-baseline">
           <div class="text-[17px]">
-            <span class="text-gr font-bold">51.44%</span>
+            <span class="text-gr font-bold"
+              >{playerStats
+                ? ((playerStats.winCount / playerStats.matchCount) * 100).toFixed(2) + '%'
+                : '—'}
+            </span>
             <span class="text-tx font-semibold ml-1">Win Rate</span>
           </div>
           <div class="text-[12.5px]">
-            <span class="text-gr">1,323</span>
+            <span class="text-gr">{playerStats?.winCount}</span>
             <span class="text-tx2 mx-1">-</span>
-            <span class="text-rd">1,249</span>
+            <span class="text-rd"
+              >{playerStats ? playerStats.matchCount - playerStats.winCount : '-'}</span
+            >
           </div>
         </div>
         <div class="flex h-[8px] w-full bg-black/40 rounded-sm overflow-hidden gap-[2px]">
-          <div class="bg-gr h-full" style="width: 51.44%"></div>
+          <div
+            class="bg-gr h-full"
+            style="width: {playerStats
+              ? (playerStats.winCount / playerStats.matchCount) * 100
+              : 0}%"
+          ></div>
           <div class="bg-[#333] h-full flex-1"></div>
         </div>
       </div>
@@ -79,42 +266,71 @@
       <div class="card p-4 flex flex-col justify-center gap-2.5">
         <div class="flex justify-between items-baseline">
           <div class="text-[15px]">
-            <span class="text-pu2 font-bold">3.45</span>
+            <span class="text-pu2 font-bold">
+              {playerStats
+                ? (
+                    (playerStats.killsAverage + playerStats.assistsAverage) /
+                    Math.max(1, playerStats.deathsAverage)
+                  ).toFixed(2)
+                : '—'}</span
+            >
             <span class="text-tx2 text-[13px] ml-1">KDA Ratio</span>
           </div>
           <div class="text-[12px] font-mono text-tx2">
-            11.2 <span class="text-rd mx-0.5">/ 4.1 /</span> 14.3
+            {playerStats?.killsAverage}
+            <span class="text-rd mx-0.5">/ {playerStats?.deathsAverage}/</span>
+            {playerStats?.assistsAverage}
           </div>
         </div>
         <div class="flex h-[6px] w-full bg-black/40 rounded-sm overflow-hidden gap-[1px]">
-          <div class="bg-gr h-full" style="width: 38%"></div>
-          <div class="bg-rd h-full" style="width: 14%"></div>
-          <div class="bg-bl h-full flex-1"></div>
+          {#if playerStats}
+            {@const total =
+              playerStats.killsAverage + playerStats.deathsAverage + playerStats.assistsAverage}
+            <div
+              class="bg-gr h-full"
+              style="width: {(playerStats.killsAverage / total) * 100}%"
+            ></div>
+            <div
+              class="bg-rd h-full"
+              style="width: {(playerStats.deathsAverage / total) * 100}%"
+            ></div>
+            <div class="bg-bl h-full flex-1"></div>
+          {/if}
         </div>
       </div>
 
       <div class="card p-4 flex flex-col justify-center gap-2.5">
         <div class="flex justify-between items-baseline">
           <div class="text-[15px]">
-            <span class="text-gd font-bold">542</span>
+            <span class="text-gd font-bold">{playerStats?.gpmAverage}</span>
             <span class="text-tx2 text-[13px] ml-1">Avg GPM</span>
           </div>
           <div class="text-[12px] font-mono text-tx2">
-            <span class="text-bl">590</span> XPM
+            <span class="text-bl">{playerStats?.xpmAverage}</span> XPM
           </div>
         </div>
         <div class="flex h-[6px] w-full bg-black/40 rounded-sm overflow-hidden gap-[1px]">
-          <div class="bg-gd h-full" style="width: 48%"></div>
-          <div class="bg-bl h-full flex-1"></div>
+          {#if playerStats}
+            {@const total = playerStats.gpmAverage + playerStats.xpmAverage}
+            <div
+              class="bg-gd h-full"
+              style="width: {(playerStats.gpmAverage / total) * 100}%"
+            ></div>
+            <div class="bg-bl h-full flex-1"></div>
+          {/if}
         </div>
       </div>
 
       <div class="card flex items-center justify-center overflow-hidden p-1.5 h-full min-h-[70px]">
-        <img
-          src="https://static.wikia.nocookie.net/dota2_gamepedia/images/6/6b/SeasonalRank3-3.png"
-          alt="Archon 3 Badge"
-          class="h-[65px] object-contain drop-shadow-xl"
-        />
+        {#if playerStats?.rank}
+          <img
+            src={getRankImage(playerStats.rank)}
+            alt="Rank badge"
+            class="h-[65px] object-contain drop-shadow-xl"
+          />
+        {:else}
+          <div class="text-tx3 text-[11px]">Unranked</div>
+        {/if}
       </div>
     </div>
   </div>
@@ -126,96 +342,134 @@
           <span class="card-ttl">Detailed Match History</span>
           <span class="card-lnk" onclick={() => gotoView('matches')}>View all →</span>
         </div>
+
         <div class="flex flex-col">
-          {#each detailedMatches as m}
-            <div
-              class="flex items-center gap-4 py-2 px-3 border-b border-bd last:border-b-0 cursor-pointer hover:bg-white/5 transition-colors"
-              onclick={() => openMatchDetail(m)}
-            >
-              <div
-                class="w-[55px] h-[31px] rounded-[4px] flex items-center justify-center text-[22px] bg-s4 shrink-0 overflow-hidden"
-              >
-                {m.icon}
-              </div>
-
-              <div class="w-[24px] h-[24px] shrink-0 flex items-center justify-center text-[18px]">
-                ⚔️
-              </div>
-
-              <div class="flex-1 flex flex-col min-w-0">
-                <div class="flex items-center gap-1.5">
-                  <div
-                    class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-extrabold {m.outcome ===
-                    'win'
-                      ? 'bg-gr text-black'
-                      : 'bg-rd text-black'}"
-                  >
-                    {m.outcome === 'win' ? 'W' : 'L'}
-                  </div>
-                  <div
-                    class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-extrabold {m.previousOutcome ===
-                    'win'
-                      ? 'bg-grb text-gr'
-                      : 'bg-rdb text-rd'}"
-                  >
-                    {m.previousOutcome === 'win' ? 'W' : 'L'}
-                  </div>
-                  <div class="flex flex-col text-[10px] text-tx2 font-bold uppercase truncate">
-                    {m.mode}
-                  </div>
-                </div>
-              </div>
-
-              <div class="text-[12px] text-tx2 font-mono font-medium w-[80px] text-center shrink-0">
-                {m.k} / {m.d} / {m.a}
-              </div>
-
-              <div
-                class="text-[12px] font-bold w-[40px] text-right shrink-0 {m.mmrChange >= 0
-                  ? 'text-gr'
-                  : 'text-rd'}"
-              >
-                {m.mmrChange >= 0 ? '+' : ''}{m.mmrChange}
-              </div>
-
-              <div class="w-[100px] h-[6px] rounded-[3px] bg-black/40 overflow-hidden shrink-0">
-                <div
-                  class="h-full {m.impactValue >= 60 ? 'bg-gr' : 'bg-rd'}"
-                  style="width: {m.impactValue}%"
-                ></div>
-              </div>
-
-              <div class="flex items-center gap-1 shrink-0">
-                <div
-                  class="w-[16px] h-[16px] shrink-0 flex items-center justify-center text-[11px]"
-                >
-                  👤
-                </div>
-                <div class="text-[11px] text-tx2 w-[16px] text-center shrink-0">
-                  {m.partyCount}
-                </div>
-                <div
-                  class="w-[20px] h-[20px] rounded-full bg-s3 flex items-center justify-center shrink-0 overflow-hidden"
-                >
-                  🏆
-                </div>
-              </div>
-
-              <div class="text-tx3 text-right flex flex-col w-[80px] shrink-0 ml-auto">
-                <div class="text-[11.5px] font-medium leading-tight">{m.dur}</div>
-                <div class="text-[10px] text-tx2 leading-tight uppercase font-medium">
-                  {m.timeAgo}
-                </div>
-              </div>
-
-              <div class="text-tx3 text-[16px] ml-1 transition-colors hover:text-pu2 shrink-0">
-                ›
-              </div>
+          {#if isLoadingMatches}
+            <div class="flex items-center justify-center py-10">
+              <span class="text-[12px] text-tx3 animate-pulse">Loading matches…</span>
             </div>
-          {/each}
+          {:else if matchError}
+            <div class="flex items-center justify-center py-10">
+              <span class="text-[12px] text-rd">{matchError}</span>
+            </div>
+          {:else if detailedMatches.length === 0}
+            <div class="flex items-center justify-center py-10">
+              <span class="text-[12px] text-tx3">No matches found.</span>
+            </div>
+          {:else}
+            {#each detailedMatches as m (m.id)}
+              <div
+                class="flex items-center gap-4 py-2 px-3 border-b border-bd last:border-b-0 cursor-pointer hover:bg-white/5 transition-colors"
+                onclick={() => openMatchDetail(m)}
+              >
+                <!-- Hero portrait -->
+                <div class="w-[55px] h-[31px] rounded-[4px] bg-s4 shrink-0 overflow-hidden">
+                  {#if m.heroImg}
+                    <img
+                      src={m.heroImg}
+                      alt={m.heroName}
+                      class="w-full h-full object-cover object-top"
+                    />
+                  {:else}
+                    <div
+                      class="w-full h-full flex items-center justify-center text-[11px] text-tx3"
+                    >
+                      ?
+                    </div>
+                  {/if}
+                </div>
+
+                <!-- Lane icon -->
+                <div
+                  class="w-[24px] h-[24px] shrink-0 flex items-center justify-center text-[11px] text-tx3 font-bold"
+                >
+                  <img src={toLaneIcon(m.lane)} alt={m.lane} class="w-5 h-5 opacity-70" />
+                </div>
+
+                <!-- W/L badges + mode -->
+                <div class="flex-1 flex flex-col min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <div
+                      class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-extrabold
+                        {m.outcome === 'win' ? 'bg-gr text-black' : 'bg-rd text-black'}"
+                    >
+                      {m.outcome === 'win' ? 'W' : 'L'}
+                    </div>
+                    <div
+                      class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-extrabold
+                        {m.previousOutcome === 'win' ? 'bg-grb text-gr' : 'bg-rdb text-rd'}"
+                    >
+                      {m.previousOutcome === 'win' ? 'W' : 'L'}
+                    </div>
+                    <div class="text-[10px] text-tx2 font-bold uppercase truncate">
+                      {m.mode}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- KDA -->
+                <div
+                  class="text-[12px] text-tx2 font-mono font-medium w-[80px] text-center shrink-0"
+                >
+                  {m.k} / {m.d} / {m.a}
+                </div>
+
+                <!-- MMR delta -->
+                <div
+                  class="text-[12px] font-bold w-[40px] text-right shrink-0
+                    {m.mmrChange >= 0 ? 'text-gr' : 'text-rd'}"
+                >
+                  {m.mmrChange >= 0 ? '+' : ''}{m.mmrChange}
+                </div>
+
+                <!-- Impact bar -->
+                <div class="w-[100px] h-[6px] rounded-[3px] bg-black/40 overflow-hidden shrink-0">
+                  <div
+                    class="h-full {m.impactValue >= 60 ? 'bg-gr' : 'bg-rd'}"
+                    style="width: {m.impactValue}%"
+                  ></div>
+                </div>
+                <div class="w-[20px] h-[20px] shrink-0 flex items-center justify-center">
+                  {#if m.award && toAwardIcon(m.award)}
+                    <img src={toAwardIcon(m.award)} alt={m.award} class="w-5 h-5 opacity-70" />
+                  {/if}
+                </div>
+
+                <!-- Party count -->
+                <div class="flex items-center gap-1 shrink-0">
+                  <div
+                    class="w-[16px] h-[16px] shrink-0 flex items-center justify-center text-[11px]"
+                  >
+                    👤
+                  </div>
+                  <div class="text-[11px] text-tx2 w-[16px] text-center shrink-0">
+                    {m.partyCount}
+                  </div>
+                  <div
+                    class="w-[20px] h-[20px] rounded-full bg-s3 flex items-center justify-center shrink-0 overflow-hidden"
+                  >
+                    <img src={getRankImage(m.rank)} alt={m.rank} />
+                  </div>
+                </div>
+
+                <!-- Duration + time ago -->
+                <div class="text-tx3 text-right flex flex-col w-[80px] shrink-0 ml-auto">
+                  <div class="text-[11.5px] font-medium leading-tight">{m.dur}</div>
+                  <div class="text-[10px] text-tx2 leading-tight uppercase font-medium">
+                    {m.timeAgo}
+                  </div>
+                </div>
+
+                <div class="text-tx3 text-[16px] ml-1 transition-colors hover:text-pu2 shrink-0">
+                  ›
+                </div>
+              </div>
+            {/each}
+          {/if}
         </div>
       </div>
 
+      <!-- AI Coach card (unchanged) -->
       <div
         class="bg-linear-to-r from-[rgba(123,92,240,0.14)] to-[rgba(56,189,248,0.05)] border border-[#7B5CF0]/30 rounded-xl p-4"
       >
@@ -254,51 +508,44 @@
     </div>
 
     <div class="flex flex-col gap-4">
+      <!-- Recent Teammates (unchanged) -->
       <div class="card p-4">
         <div class="flex items-center justify-between pb-3 border-b border-bd/40 mb-3">
-          <span class="text-xs font-bold uppercase tracking-wider text-tx3">Recent Matches</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-tx3">Recent Teammates</span>
           <span
             class="text-[11px] text-pu hover:underline cursor-pointer"
-            onclick={() => gotoView('matches')}>View all →</span
+            onclick={() => gotoView('teammates')}
           >
+            View all →
+          </span>
         </div>
         <div class="flex flex-col gap-2">
-          {#each MATCHES.slice(0, 5) as m}
+          {#each recentTeammates as t (t.name)}
             <div
-              class="flex items-center gap-3 p-2 bg-s2/40 hover:bg-s2/80 rounded-lg border-l-2 transition-all cursor-pointer min-w-0
-                {m.outcome === 'win' ? 'border-l-gr' : 'border-l-rd'}"
-              onclick={() => openMatchDetail(m)}
+              class="flex items-center gap-3 p-2 bg-s2/40 hover:bg-s2/80 rounded-lg border-l-2 border-l-bd/40 transition-all cursor-pointer min-w-0"
+              onclick={() => gotoView('teammates')}
             >
               <div
                 class="w-11 h-11 rounded-md bg-s4 border border-bd flex items-center justify-center text-xl shrink-0"
               >
-                {m.icon}
+                {t.icon}
               </div>
-
-              <div
-                class="text-[11px] font-extrabold uppercase tracking-wider w-9 shrink-0 {m.outcome ===
-                'win'
-                  ? 'text-gr'
-                  : 'text-rd'}"
-              >
-                {m.outcome === 'win' ? 'Win' : 'Loss'}
-              </div>
-
               <div class="flex-1 min-w-0 flex flex-col gap-0.5">
-                <div class="text-xs font-bold text-tx truncate">{m.hero}</div>
+                <div class="text-xs font-bold text-tx truncate">{t.name}</div>
                 <div class="text-[10px] text-tx3 font-semibold uppercase tracking-wide truncate">
-                  {m.mode}
+                  {t.matches} matches together
                 </div>
               </div>
-
-              <div class="text-xs text-tx2 font-mono font-medium w-16 text-center shrink-0">
-                {m.k}/{m.d}/{m.a}
-              </div>
-
-              <div class="text-[11px] text-tx3 w-12 text-right shrink-0 font-medium">
-                {m.dur}
-              </div>
-
+              <span
+                class="text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0
+                  {t.winrate >= 60
+                  ? 'bg-grb text-gr'
+                  : t.winrate >= 50
+                    ? 'bg-gdb text-gd'
+                    : 'bg-rdb text-rd'}"
+              >
+                {t.winrate}%
+              </span>
               <div
                 class="text-tx3 text-sm font-semibold pl-1 transition-colors hover:text-pu2 shrink-0"
               >
@@ -309,17 +556,20 @@
         </div>
       </div>
 
+      <!-- Most Played Heroes (unchanged) -->
       <div class="card p-4">
         <div class="flex items-center justify-between pb-3 border-b border-bd/40 mb-3">
           <span class="text-xs font-bold uppercase tracking-wider text-tx3">Most Played Heroes</span
           >
           <span
             class="text-[11px] text-pu hover:underline cursor-pointer"
-            onclick={() => gotoView('heroes')}>View all →</span
+            onclick={() => gotoView('heroes')}
           >
+            View all →
+          </span>
         </div>
         <div class="flex flex-col gap-2">
-          {#each HEROES.slice(0, 5) as h}
+          {#each HEROES.slice(0, 5) as h (h.id)}
             <div
               class="flex items-center gap-3 p-1.5 hover:bg-s2/40 rounded-lg border border-transparent hover:border-bd/30 transition-all cursor-pointer"
               onclick={() => gotoView('heroes')}
@@ -334,8 +584,8 @@
                 {h.matches}g
               </div>
               <span
-                class="text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0 {h.winrate >=
-                60
+                class="text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0
+                  {h.winrate >= 60
                   ? 'bg-grb text-gr'
                   : h.winrate >= 50
                     ? 'bg-gdb text-gd'
