@@ -112,13 +112,15 @@
     rank: number
   } | null>(null)
 
-  let recentTeammates = $state([
-    { name: 'Dendi_Fanboy', icon: '🐱', matches: 18, winrate: 66.7 },
-    { name: 'Maelk_Enjoyer', icon: '🐼', matches: 12, winrate: 58.3 },
-    { name: 'PuppeyWhacker', icon: '🦊', matches: 9, winrate: 77.8 },
-    { name: 'ArteezyCliff', icon: '🐨', matches: 7, winrate: 42.8 },
-    { name: 'Singsing_Alt', icon: '🐸', matches: 5, winrate: 80.0 }
-  ])
+  let recentTeammates = $state<
+    {
+      steamAccountId: number
+      name: string
+      avatar: string | null // will be null for now
+      matches: number
+      winrate: number
+    }[]
+  >([])
 
   onMount(async () => {
     try {
@@ -147,12 +149,17 @@
         rank: data.player.steamAccount?.seasonRank ?? 0
       }
 
-      detailedMatches = data.player.matches.map((m: any, i: number) => {
-        const player = m.players?.[0]
+      // Build detailed matches from recentMatches
+      detailedMatches = data.player.recentMatches.map((m: any, i: number) => {
+        const player = m.targetPlayer?.[0]
         const hero = heroMap.get(player?.heroId)
         const isWin = player?.isVictory ?? false
         const imp = player?.imp
         const award = player?.award
+
+        const partyCount = player?.partyId
+          ? m.allPlayers.filter((p: any) => p.partyId === player.partyId).length
+          : 0
 
         return {
           id: m.id,
@@ -171,10 +178,52 @@
           rank: m.rank ?? 0,
           mmrChange: isWin ? 25 : -25,
           impactValue: imp != null ? Math.min(100, Math.max(0, imp + 50)) : isWin ? 55 : 35,
-          partyCount: 1,
-          award: award
+          partyCount,
+          award
         }
       })
+
+      // Build teammates from allMatches
+      const teammateMap = new Map<
+        number,
+        { name: string; avatar: string | null; wins: number; matches: number }
+      >()
+
+      for (const match of data.player.allMatches) {
+        const me = match.players?.find((p: any) => p.steamAccountId === Number(res.steamId))
+        if (!me) continue
+
+        for (const p of match.players) {
+          if (p.steamAccountId === Number(res.steamId)) continue
+
+          const existing = teammateMap.get(p.steamAccountId)
+          if (existing) {
+            existing.matches++
+            if (me.isVictory != null && p.isVictory === me.isVictory) existing.wins++
+          } else {
+            teammateMap.set(p.steamAccountId, {
+              name: p.steamAccount?.name ?? 'Unknown',
+              avatar: p.steamAccount?.avatar ?? null,
+              matches: 1,
+              wins: p.isVictory === me.isVictory ? 1 : 0
+            })
+          }
+        }
+      }
+
+      recentTeammates = Array.from(teammateMap.values())
+        .sort((a, b) => b.matches - a.matches)
+        .slice(0, 5)
+        .map((t) => ({
+          steamAccountId: t.steamAccountId ?? 0,
+          name: t.name,
+          avatar: t.avatar,
+          matches: t.matches,
+          winrate: parseFloat(((t.wins / t.matches) * 100).toFixed(1))
+        }))
+
+      console.log('✅ recentMatches:', detailedMatches.length)
+      console.log('✅ recentTeammates:', JSON.stringify(recentTeammates, null, 2))
     } catch (err) {
       console.error('Failed to load match history:', err)
       matchError = 'Failed to load matches.'
@@ -191,7 +240,7 @@
         return MidIcon
       case 'OFF_LANE':
         return OfflaneIcon
-      case 'SOFT_SUPPORT':
+      case 'LIGHT_SUPPORT':
         return SoftSuppIcon
       case 'HARD_SUPPORT':
         return HardSuppIcon
@@ -526,9 +575,13 @@
               onclick={() => gotoView('teammates')}
             >
               <div
-                class="w-11 h-11 rounded-md bg-s4 border border-bd flex items-center justify-center text-xl shrink-0"
+                class="w-11 h-11 rounded-md bg-s4 border border-bd flex items-center justify-center text-xl shrink-0 overflow-hidden"
               >
-                {t.icon}
+                {#if t.avatar}
+                  <img src={t.avatar} alt={t.name} class="w-full h-full object-cover" />
+                {:else}
+                  <span class="text-tx3 text-xs font-bold">{t.name.slice(0, 2).toUpperCase()}</span>
+                {/if}
               </div>
               <div class="flex-1 min-w-0 flex flex-col gap-0.5">
                 <div class="text-xs font-bold text-tx truncate">{t.name}</div>

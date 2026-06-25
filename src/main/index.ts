@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain, nativeImage, Tray, Menu } from 'electron'
-import path, { join } from 'path'
+import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { windowManager } from 'node-window-manager'
 import { createGSIServer } from './gsi-server'
@@ -279,6 +279,8 @@ function registerIpcHandlers(): void {
         return { error: 'Failed to crawl local config architecture.' }
       }
     }
+
+    return { error: 'Unsupported platform' }
   })
 
   ipcMain.handle('fetch-match-history', async (_event, steamId32: string) => {

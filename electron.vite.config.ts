@@ -4,7 +4,8 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    envPrefix: ['MAIN_VITE_', 'STRATZ_']
   },
   preload: {
     plugins: [externalizeDepsPlugin()]
