@@ -5,7 +5,7 @@ import { windowManager } from 'node-window-manager'
 import { createGSIServer } from './gsi-server'
 import { loadConfig, saveConfig } from './config'
 import http from 'http'
-import { getPlayerData } from './services/stratzService'
+import { getPlayerData } from './stratz/services/playerService'
 import { exec } from 'child_process'
 import fs from 'fs'
 import os from 'os'
@@ -239,7 +239,7 @@ function registerIpcHandlers(): void {
             if (match && match[1]) {
               const accountId = parseInt(match[1], 16)
               if (accountId === 0) return resolve({ error: 'Steam is open but no user is active.' })
-              resolve({ steamId: accountId.toString() })
+              resolve({ steamId: accountId })
             } else {
               resolve({ error: 'Failed to read registry output.' })
             }
@@ -319,16 +319,17 @@ function registerIpcHandlers(): void {
     }
   })
 
-  ipcMain.handle('fetch-player-data', async (_event, steamId32: string | number) => {
+  ipcMain.handle('fetch-player-data', async (_event, steamId: string | number) => {
     try {
-      return await getPlayerData(steamId32)
+      return await getPlayerData(steamId)
     } catch (err) {
-      console.error('Stratz recent fetch history failed: ', err)
-      return { error: err instanceof Error ? err.message : String(err) }
+      console.error('STRATZ fetch player data failed:', err)
+
+      return {
+        error: err instanceof Error ? err.message : String(err)
+      }
     }
   })
-
-  
 
   ipcMain.handle('steam-login', async () => {
     return new Promise<string | null>((resolve) => {

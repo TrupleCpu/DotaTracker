@@ -122,43 +122,46 @@
     }[]
   >([])
 
+ 
   onMount(async () => {
     try {
       const res = await window.api.getLocalSteamId()
+
       if (!res?.steamId) {
         matchError = 'Could not resolve Steam ID.'
         return
       }
 
-      const data = await window.api.fetchPlayerData(res.steamId)
+      // 'raw' contains { player: {...}, stratz: {...} }
+      const raw = await window.api.fetchPlayerData(res.steamId)
 
-      if (data?.error) {
-        matchError = data.error
+      if (raw?.error) {
+        matchError = raw.error
         return
       }
 
-      const perf = data.player.performance
+      // 1. Map Player Profile & Recent Matches
+      const perf = raw.player.performance
       playerStats = {
-        matchCount: data.player.matchCount,
-        winCount: data.player.winCount,
+        matchCount: raw.player.matchCount,
+        winCount: raw.player.winCount,
         killsAverage: perf.killsAverage,
         deathsAverage: perf.deathsAverage,
         assistsAverage: perf.assistsAverage,
         gpmAverage: perf.gpmAverage,
         xpmAverage: perf.xpmAverage,
-        rank: data.player.steamAccount?.seasonRank ?? 0
+        rank: raw.player.steamAccount?.seasonRank ?? 0
       }
 
-      // Build detailed matches from recentMatches
-      detailedMatches = data.player.recentMatches.map((m: any, i: number) => {
+      // 2. Map Recent Matches Array Safely
+      detailedMatches = (raw.player.recentMatches ?? []).map((m: any, i: number) => {
         const player = m.targetPlayer?.[0]
         const hero = heroMap.get(player?.heroId)
         const isWin = player?.isVictory ?? false
-        const imp = player?.imp
-        const award = player?.award
+        const imp = player?.imp ?? 0
 
         const partyCount = player?.partyId
-          ? m.allPlayers.filter((p: any) => p.partyId === player.partyId).length
+          ? m.allPlayers?.filter((p: any) => p.partyId === player.partyId).length
           : 0
 
         return {
@@ -172,58 +175,37 @@
           d: player?.deaths ?? 0,
           a: player?.assists ?? 0,
           mode: formatGameMode(m.gameMode),
-          dur: formatDuration(m.durationSeconds),
+          dur: formatDuration(m.durationSeconds ?? 0),
           timeAgo: formatTimeAgo(m.statsDateTime ?? m.endDateTime),
           lane: player?.lane ?? 'Unknown',
           rank: m.rank ?? 0,
           mmrChange: isWin ? 25 : -25,
-          impactValue: imp != null ? Math.min(100, Math.max(0, imp + 50)) : isWin ? 55 : 35,
+          impactValue: imp,
           partyCount,
-          award
+          award: player?.award ?? null
         }
       })
 
-      // Build teammates from allMatches
-      const teammateMap = new Map<
-        number,
-        { name: string; avatar: string | null; wins: number; matches: number }
-      >()
+      // 3. Map Teammates From the 'stratz' Nested Payload
+      // This completely replaces your old manual "allMatches" loop!
+      const rawPeers = raw.stratz?.page?.player?.peers ?? []
 
-      for (const match of data.player.allMatches) {
-        const me = match.players?.find((p: any) => p.steamAccountId === Number(res.steamId))
-        if (!me) continue
-
-        for (const p of match.players) {
-          if (p.steamAccountId === Number(res.steamId)) continue
-
-          const existing = teammateMap.get(p.steamAccountId)
-          if (existing) {
-            existing.matches++
-            if (me.isVictory != null && p.isVictory === me.isVictory) existing.wins++
-          } else {
-            teammateMap.set(p.steamAccountId, {
-              name: p.steamAccount?.name ?? 'Unknown',
-              avatar: p.steamAccount?.avatar ?? null,
-              matches: 1,
-              wins: p.isVictory === me.isVictory ? 1 : 0
-            })
+      recentTeammates = rawPeers
+        .map((p: any) => {
+          const totalGames = p.matchCount ?? 1
+          const totalWins = p.winCount ?? 0
+          return {
+            steamAccountId: p.steamAccount?.id,
+            name: p.steamAccount?.name ?? 'Unknown',
+            avatar: p.steamAccount?.avatar ?? null, // Stratz provides an avatar field here if requested
+            matches: totalGames,
+            winrate: parseFloat(((totalWins / totalGames) * 100).toFixed(1))
           }
-        }
-      }
-
-      recentTeammates = Array.from(teammateMap.values())
+        })
         .sort((a, b) => b.matches - a.matches)
-        .slice(0, 5)
-        .map((t) => ({
-          steamAccountId: t.steamAccountId ?? 0,
-          name: t.name,
-          avatar: t.avatar,
-          matches: t.matches,
-          winrate: parseFloat(((t.wins / t.matches) * 100).toFixed(1))
-        }))
+        .slice(1, 6)
 
-      console.log('✅ recentMatches:', detailedMatches.length)
-      console.log('✅ recentTeammates:', JSON.stringify(recentTeammates, null, 2))
+      console.log('✅ loaded matches:', detailedMatches.length)
     } catch (err) {
       console.error('Failed to load match history:', err)
       matchError = 'Failed to load matches.'
@@ -260,6 +242,16 @@
       default:
         return null
     }
+  }
+
+  function impactColor(value: number): string {
+    if (value >= 50) return 'bg-purple-500'
+    if (value >= 20) return 'bg-purple-400'
+    if (value >= 0) return 'bg-purple-300'
+
+    if (value <= -50) return 'bg-gray-400/60'
+    if (value <= -20) return 'bg-gray-400/40'
+    return 'bg-gray-400/25'
   }
 </script>
 
@@ -468,15 +460,26 @@
                   class="text-[12px] font-bold w-[40px] text-right shrink-0
                     {m.mmrChange >= 0 ? 'text-gr' : 'text-rd'}"
                 >
-                  {m.mmrChange >= 0 ? '+' : ''}{m.mmrChange}
+                  {m.impactValue}
                 </div>
 
                 <!-- Impact bar -->
-                <div class="w-[100px] h-[6px] rounded-[3px] bg-black/40 overflow-hidden shrink-0">
-                  <div
-                    class="h-full {m.impactValue >= 60 ? 'bg-gr' : 'bg-rd'}"
-                    style="width: {m.impactValue}%"
-                  ></div>
+                <div
+                  class="relative w-[100px] h-[6px] rounded-[3px] bg-black-500/20 overflow-hidden shrink-0"
+                >
+                  <div class="absolute left-1/2 top-0 h-full w-[1px] bg-gray-400"></div>
+
+                  {#if m.impactValue >= 0}
+                    <div
+                      class={`absolute left-1/2 top-0 h-full ${impactColor(m.impactValue)}`}
+                      style="width: {m.impactValue / 2}%"
+                    ></div>
+                  {:else}
+                    <div
+                      class={`absolute right-1/2 top-0 h-full ${impactColor(m.impactValue)}`}
+                      style="width: {Math.abs(m.impactValue) / 2}%"
+                    ></div>
+                  {/if}
                 </div>
                 <div class="w-[20px] h-[20px] shrink-0 flex items-center justify-center">
                   {#if m.award && toAwardIcon(m.award)}
