@@ -205,13 +205,6 @@
 
         <div class="border-t border-bd p-[10px]">
           <div
-            class="flex items-center gap-[7px] bg-grb border border-gr/20 rounded-lg px-2.5 py-1.5 mb-2"
-          >
-            <div class="w-1.5 h-1.5 rounded-full bg-gr animate-pulse"></div>
-            <span class="text-[10.5px] text-gr font-bold">Live</span>
-            <span class="text-[10px] text-tx2 ml-auto">Synced 2m ago</span>
-          </div>
-          <div
             class="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-s2 transition-colors"
             onclick={() => showToast('Profile settings')}
           >

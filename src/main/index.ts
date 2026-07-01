@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeImage, Tray, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeImage, Tray, Menu, protocol, net } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { windowManager } from 'node-window-manager'
@@ -9,6 +9,18 @@ import { getPlayerData } from './stratz/services/playerService'
 import { exec } from 'child_process'
 import fs from 'fs'
 import os from 'os'
+import { pathToFileURL } from 'url'
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'hero-asset',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true
+    }
+  }
+])
 
 const WIDGET_WIDTH = 250
 const WIDGET_HEIGHT = 90
@@ -391,6 +403,24 @@ function registerIpcHandlers(): void {
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
+
+  protocol.handle('hero-asset', (request) => {
+    const relPath = decodeURIComponent(request.url.replace('hero-asset://', ''))
+
+    const basePath = app.isPackaged
+      ? join(app.getAppPath().replace('app.asar', 'app.asar.unpacked'), 'src/main/data/hero-assets')
+      : join(app.getAppPath(), 'src/main/data/hero-assets')
+
+    const filePath = join(basePath, relPath)
+
+    console.log('[hero-asset] url:', request.url)
+    console.log('[hero-asset] relPath:', relPath)
+    console.log('[hero-asset] basePath:', basePath)
+    console.log('[hero-asset] filePath:', filePath)
+    console.log('[hero-asset] exists:', fs.existsSync(filePath))
+
+    return net.fetch(pathToFileURL(filePath).toString())
+  })
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)

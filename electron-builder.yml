@@ -12,6 +12,7 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
 asarUnpack:
   - resources/**
+  - src/main/data/hero-assets/**
 win:
   executableName: dotatrack
 nsis:

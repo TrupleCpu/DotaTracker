@@ -68,7 +68,7 @@
   const heroMap = new Map<number, HeroData>((heroesData as HeroData[]).map((h) => [h.id, h]))
 
   function getHeroImgUrl(path: string): string {
-    return `https://cdn.cloudflare.steamstatic.com${path}`
+    return `hero-asset://${path.replace(/^hero-assets\//, '')}`
   }
 
   function formatDuration(seconds: number): string {
@@ -121,8 +121,14 @@
       winrate: number
     }[]
   >([])
+  let topHeroes = $state<
+    {
+      heroId: number
+      matchCount: number
+      winCount: number
+    }[]
+  >([])
 
- 
   onMount(async () => {
     try {
       const res = await window.api.getLocalSteamId()
@@ -142,6 +148,7 @@
 
       // 1. Map Player Profile & Recent Matches
       const perf = raw.player.performance
+      // Top Heroes
       playerStats = {
         matchCount: raw.player.matchCount,
         winCount: raw.player.winCount,
@@ -178,7 +185,7 @@
           dur: formatDuration(m.durationSeconds ?? 0),
           timeAgo: formatTimeAgo(m.statsDateTime ?? m.endDateTime),
           lane: player?.lane ?? 'Unknown',
-          rank: m.rank ?? 0,
+          rank: m.actualRank ?? 0,
           mmrChange: isWin ? 25 : -25,
           impactValue: imp,
           partyCount,
@@ -189,6 +196,7 @@
       // 3. Map Teammates From the 'stratz' Nested Payload
       // This completely replaces your old manual "allMatches" loop!
       const rawPeers = raw.stratz?.page?.player?.peers ?? []
+      const rawTopHeroes = raw.player.heroesGroupBy
 
       recentTeammates = rawPeers
         .map((p: any) => {
@@ -205,7 +213,10 @@
         .sort((a, b) => b.matches - a.matches)
         .slice(1, 6)
 
-      console.log('✅ loaded matches:', detailedMatches.length)
+      topHeroes = rawTopHeroes
+        .filter((h: any) => h.matchCount > 0)
+        .sort((a: any, b: any) => b.matchCount - a.matchCount)
+        .slice(0, 5)
     } catch (err) {
       console.error('Failed to load match history:', err)
       matchError = 'Failed to load matches.'
@@ -625,29 +636,38 @@
           </span>
         </div>
         <div class="flex flex-col gap-2">
-          {#each HEROES.slice(0, 5) as h (h.id)}
+          {#each topHeroes as h (h.heroId)}
+            {@const hero = heroMap.get(h.heroId)}
+            {@const winrate =
+              h.matchCount > 0 ? parseFloat(((h.winCount / h.matchCount) * 100).toFixed(1)) : 0}
             <div
               class="flex items-center gap-3 p-1.5 hover:bg-s2/40 rounded-lg border border-transparent hover:border-bd/30 transition-all cursor-pointer"
               onclick={() => gotoView('heroes')}
             >
               <div
-                class="w-10 h-10 rounded bg-s2 border border-bd/40 flex items-center justify-center text-lg shrink-0"
+                class="w-10 h-10 rounded bg-s2 border border-bd/40 flex items-center justify-center text-lg shrink-0 overflow-hidden"
               >
-                {h.icon}
+                {#if hero}
+                  <img
+                    src={getHeroImgUrl(hero.icon)}
+                    alt={hero.localized_name}
+                    class="w-full h-full object-cover"
+                  />
+                {:else}
+                  ?
+                {/if}
               </div>
-              <div class="text-xs font-bold text-tx flex-1 truncate">{h.name}</div>
+              <div class="text-xs font-bold text-tx flex-1 truncate">
+                {hero?.localized_name ?? `Hero #${h.heroId}`}
+              </div>
               <div class="text-[11px] text-tx3 font-mono font-medium w-10 text-right">
-                {h.matches}g
+                {h.matchCount}g
               </div>
               <span
                 class="text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0
-                  {h.winrate >= 60
-                  ? 'bg-grb text-gr'
-                  : h.winrate >= 50
-                    ? 'bg-gdb text-gd'
-                    : 'bg-rdb text-rd'}"
+          {winrate >= 60 ? 'bg-grb text-gr' : winrate >= 50 ? 'bg-gdb text-gd' : 'bg-rdb text-rd'}"
               >
-                {h.winrate}%
+                {winrate}%
               </span>
             </div>
           {/each}
