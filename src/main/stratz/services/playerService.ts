@@ -1,7 +1,7 @@
 import { fetchFromStratz } from '../client'
 import { PLAYER_DASHBOARD_QUERY } from '../graphql/queries/playerDashboard'
 
-export async function getPlayerData(steamId: number) {
+export async function getPlayerData(steamId: number | string) {
   const data = await fetchFromStratz(PLAYER_DASHBOARD_QUERY, {
     steamId,
     peersRequest: {
@@ -27,6 +27,6 @@ export async function getPlayerData(steamId: number) {
     skipPlayedHeroes: false,
     skipDotaPlus: false
   })
-  console.log(JSON.stringify(data.player.recentMatches, null, 2))
+  console.log(JSON.stringify(data.player.name, null, 2))
   return data
 }

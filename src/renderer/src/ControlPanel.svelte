@@ -1,7 +1,8 @@
 <script lang="ts">
   import { HEROES, MATCHES, type MockMatch } from './utils/mockData'
   import LoginScreen from './components/LoginScreen.svelte'
-
+  import { playerStore } from './lib/playStore.svelte'
+  import { rankToString } from './utils/rankMap'
   // Views
   import DashboardView from './components/DashboardView.svelte'
   import MatchesView from './components/MatchesView.svelte'
@@ -27,6 +28,7 @@
     X
   } from '@lucide/svelte'
   import type { AnyMxRecord } from 'node:dns'
+  import { onMount } from 'svelte'
 
   const navSections = [
     {
@@ -203,22 +205,34 @@
           {/each}
         </nav>
 
-        <div class="border-t border-bd p-[10px]">
-          <div
-            class="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-s2 transition-colors"
-            onclick={() => showToast('Profile settings')}
-          >
+        {#if playerStore.playerStats}
+          <div class="border-t border-bd p-[10px]">
             <div
-              class="w-[30px] h-[30px] rounded-full bg-linear-to-br from-pu to-[#4f46e5] flex items-center justify-center text-[13px] font-extrabold shrink-0"
+              class="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-s2 transition-colors"
+              onclick={() => showToast('Profile settings')}
             >
-              A
-            </div>
-            <div>
-              <div class="text-[12px] font-bold leading-tight">Anthron Player</div>
-              <div class="text-[10px] text-tx2">2,450 MMR · Archon III</div>
+              <div
+                class="w-[30px] h-[30px] flex items-center justify-center text-[13px] font-extrabold shrink-0"
+              >
+                <img
+                  class="rounded-full"
+                  src={playerStore.playerStats?.avatar}
+                  alt={playerStore.playerStats?.name}
+                />
+              </div>
+              <div>
+                <div class="text-[12px] font-bold leading-tight">
+                  {playerStore.playerStats?.name}
+                </div>
+                <div class="text-[10px] text-tx2">
+                  {playerStore.playerStats && rankToString(playerStore.playerStats?.rank)}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        {:else}
+          <div class="text-[12px] text-tx3">Loading profile...</div>
+        {/if}
       </aside>
 
       <div class="flex-1 flex flex-col overflow-hidden min-w-0">

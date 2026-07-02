@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { HEROES } from '../utils/mockData'
+  import { playerStore, heroMap } from '../lib/playStore.svelte'
+
   import MidIcon from '../assets/role-icons/mid.svg'
   import CarryIcon from '../assets/role-icons/carry.svg'
   import OfflaneIcon from '../assets/role-icons/offlane.svg'
@@ -10,54 +11,7 @@
   import TopSuppIcon from '../assets/award/topSupp.svg'
   import MvpIcon from '../assets/award/mvp.svg'
 
-  import heroesData from '../../../main/data/heroes.json'
-  const rankImages = import.meta.glob('../assets/ranks/*.png', {
-    eager: true,
-    import: 'default'
-  })
-
-  function getRankImage(rank: number): string {
-    if (
-      rank === 10 ||
-      rank === 20 ||
-      rank === 30 ||
-      rank === 40 ||
-      rank === 50 ||
-      rank === 60 ||
-      rank === 70
-    ) {
-      rank += 1
-    }
-    return rankImages[`../assets/ranks/${rank}.png`] as string
-  }
-  interface HeroData {
-    id: number
-    localized_name: string
-    img: string
-    icon: string
-    primary_attr: string
-    roles: string[]
-  }
-
-  interface StratzMatch {
-    id: number
-    heroId: number
-    heroName: string
-    heroImg: string
-    outcome: 'win' | 'loss'
-    previousOutcome: 'win' | 'loss'
-    k: number
-    d: number
-    a: number
-    mode: string
-    dur: string
-    timeAgo: string
-    mmrChange: number
-    impactValue: number
-    partyCount: number
-    lane: string
-    rank: number
-  }
+  const rankImages = import.meta.glob('../assets/ranks/*.png', { eager: true, import: 'default' })
 
   interface Props {
     openMatchDetail: (match: any) => void
@@ -65,204 +19,59 @@
   }
   let { openMatchDetail, gotoView }: Props = $props()
 
-  const heroMap = new Map<number, HeroData>((heroesData as HeroData[]).map((h) => [h.id, h]))
-
-  function getHeroImgUrl(path: string): string {
-    return `hero-asset://${path.replace(/^hero-assets\//, '')}`
-  }
-
-  function formatDuration(seconds: number): string {
-    const m = Math.floor(seconds / 60)
-    const s = seconds % 60
-    return `${m}:${s.toString().padStart(2, '0')}`
-  }
-
-  function formatTimeAgo(unixSeconds: number | null): string {
-    if (!unixSeconds) return 'Unknown'
-    const diff = Math.floor(Date.now() / 1000) - unixSeconds
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
-    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`
-    return `${Math.floor(diff / 604800)}wk ago`
-  }
-
-  function formatGameMode(mode: string): string {
-    const map: Record<string, string> = {
-      ALL_PICK_RANKED: 'Ranked',
-      TURBO: 'Turbo',
-      ALL_PICK: 'Normal',
-      CAPTAINS_MODE: 'CM',
-      RANDOM_DRAFT: 'Random',
-      SINGLE_DRAFT: 'Single'
-    }
-    return map[mode] ?? mode
-  }
-
-  let detailedMatches = $state<StratzMatch[]>([])
-  let isLoadingMatches = $state(true)
-  let matchError = $state('')
-  let playerStats = $state<{
-    matchCount: number
-    winCount: number
-    killsAverage: number
-    deathsAverage: number
-    assistsAverage: number
-    gpmAverage: number
-    xpmAverage: number
-    rank: number
-  } | null>(null)
-
-  let recentTeammates = $state<
-    {
-      steamAccountId: number
-      name: string
-      avatar: string | null // will be null for now
-      matches: number
-      winrate: number
-    }[]
-  >([])
-  let topHeroes = $state<
-    {
-      heroId: number
-      matchCount: number
-      winCount: number
-    }[]
-  >([])
-
-  onMount(async () => {
-    try {
-      const res = await window.api.getLocalSteamId()
-
-      if (!res?.steamId) {
-        matchError = 'Could not resolve Steam ID.'
-        return
-      }
-
-      // 'raw' contains { player: {...}, stratz: {...} }
-      const raw = await window.api.fetchPlayerData(res.steamId)
-
-      if (raw?.error) {
-        matchError = raw.error
-        return
-      }
-
-      // 1. Map Player Profile & Recent Matches
-      const perf = raw.player.performance
-      // Top Heroes
-      playerStats = {
-        matchCount: raw.player.matchCount,
-        winCount: raw.player.winCount,
-        killsAverage: perf.killsAverage,
-        deathsAverage: perf.deathsAverage,
-        assistsAverage: perf.assistsAverage,
-        gpmAverage: perf.gpmAverage,
-        xpmAverage: perf.xpmAverage,
-        rank: raw.player.steamAccount?.seasonRank ?? 0
-      }
-
-      // 2. Map Recent Matches Array Safely
-      detailedMatches = (raw.player.recentMatches ?? []).map((m: any, i: number) => {
-        const player = m.targetPlayer?.[0]
-        const hero = heroMap.get(player?.heroId)
-        const isWin = player?.isVictory ?? false
-        const imp = player?.imp ?? 0
-
-        const partyCount = player?.partyId
-          ? m.allPlayers?.filter((p: any) => p.partyId === player.partyId).length
-          : 0
-
-        return {
-          id: m.id,
-          heroId: player?.heroId,
-          heroName: hero?.localized_name ?? `Hero #${player?.heroId}`,
-          heroImg: hero ? getHeroImgUrl(hero.img) : null,
-          outcome: isWin ? 'win' : 'loss',
-          previousOutcome: i % 2 === 0 ? 'win' : 'loss',
-          k: player?.kills ?? 0,
-          d: player?.deaths ?? 0,
-          a: player?.assists ?? 0,
-          mode: formatGameMode(m.gameMode),
-          dur: formatDuration(m.durationSeconds ?? 0),
-          timeAgo: formatTimeAgo(m.statsDateTime ?? m.endDateTime),
-          lane: player?.lane ?? 'Unknown',
-          rank: m.actualRank ?? 0,
-          mmrChange: isWin ? 25 : -25,
-          impactValue: imp,
-          partyCount,
-          award: player?.award ?? null
-        }
-      })
-
-      // 3. Map Teammates From the 'stratz' Nested Payload
-      // This completely replaces your old manual "allMatches" loop!
-      const rawPeers = raw.stratz?.page?.player?.peers ?? []
-      const rawTopHeroes = raw.player.heroesGroupBy
-
-      recentTeammates = rawPeers
-        .map((p: any) => {
-          const totalGames = p.matchCount ?? 1
-          const totalWins = p.winCount ?? 0
-          return {
-            steamAccountId: p.steamAccount?.id,
-            name: p.steamAccount?.name ?? 'Unknown',
-            avatar: p.steamAccount?.avatar ?? null, // Stratz provides an avatar field here if requested
-            matches: totalGames,
-            winrate: parseFloat(((totalWins / totalGames) * 100).toFixed(1))
-          }
-        })
-        .sort((a, b) => b.matches - a.matches)
-        .slice(1, 6)
-
-      topHeroes = rawTopHeroes
-        .filter((h: any) => h.matchCount > 0)
-        .sort((a: any, b: any) => b.matchCount - a.matchCount)
-        .slice(0, 5)
-    } catch (err) {
-      console.error('Failed to load match history:', err)
-      matchError = 'Failed to load matches.'
-    } finally {
-      isLoadingMatches = false
-    }
+  onMount(() => {
+    playerStore.loadProfile()
   })
+  function getHeroImgUrl(img: string): string {
+    return `hero-asset://${img.replace(/^hero-assets\//, '')}`
+  }
+  function getRankImage(rank: number): string {
+    let r =
+      rank === 10 ||
+      rank === 20 ||
+      rank === 30 ||
+      rank === 40 ||
+      rank === 50 ||
+      rank === 60 ||
+      rank === 70
+        ? rank + 1
+        : rank
+    return rankImages[`../assets/ranks/${r}.png`] as string
+  }
 
   function toLaneIcon(lane: string): string | null {
-    switch (lane) {
-      case 'SAFE_LANE':
-        return CarryIcon
-      case 'MID_LANE':
-        return MidIcon
-      case 'OFF_LANE':
-        return OfflaneIcon
-      case 'LIGHT_SUPPORT':
-        return SoftSuppIcon
-      case 'HARD_SUPPORT':
-        return HardSuppIcon
-      default:
-        return null
-    }
+    return (
+      {
+        SAFE_LANE: CarryIcon,
+        MID_LANE: MidIcon,
+        OFF_LANE: OfflaneIcon,
+        LIGHT_SUPPORT: SoftSuppIcon,
+        HARD_SUPPORT: HardSuppIcon
+      }[lane] ?? null
+    )
   }
 
   function toAwardIcon(award: string): string | null {
-    switch (award) {
-      case 'TOP_CORE':
-        return TopCoreIcon
-      case 'TOP_SUPPORT':
-        return TopSuppIcon
-      case 'MVP':
-        return MvpIcon
-      default:
-        return null
-    }
+    return { TOP_CORE: TopCoreIcon, TOP_SUPPORT: TopSuppIcon, MVP: MvpIcon }[award] ?? null
   }
 
   function impactColor(value: number): string {
     if (value >= 50) return 'bg-purple-500'
     if (value >= 20) return 'bg-purple-400'
     if (value >= 0) return 'bg-purple-300'
+    return value <= -50 ? 'bg-gray-400/60' : value <= -20 ? 'bg-gray-400/40' : 'bg-gray-400/25'
+  }
 
-    if (value <= -50) return 'bg-gray-400/60'
-    if (value <= -20) return 'bg-gray-400/40'
-    return 'bg-gray-400/25'
+  function laneLabel(lane: string): string {
+    return (
+      {
+        SAFE_LANE: 'Safe Lane (Carry)',
+        MID_LANE: 'Mid Lane',
+        OFF_LANE: 'Off Lane',
+        LIGHT_SUPPORT: 'Soft Support',
+        HARD_SUPPORT: 'Hard Support'
+      }[lane] ?? lane
+    )
   }
 </script>
 
@@ -272,7 +81,11 @@
       <div class="card p-4 flex flex-col justify-center gap-3">
         <div class="flex justify-between items-baseline">
           <div class="text-[17px]">
-            <span class="text-[#EAB308] font-bold">{playerStats?.matchCount}</span>
+            <span class="text-[#EAB308] font-bold"
+              >{playerStore.playerStats
+                ? playerStore.playerStats.matchCount.toLocaleString()
+                : '—'}</span
+            >
             <span class="text-tx font-semibold ml-1">Matches</span>
           </div>
           <div class="text-[11.5px] text-tx2">First Match: Apr 19, 2019</div>
@@ -288,25 +101,30 @@
         <div class="flex justify-between items-baseline">
           <div class="text-[17px]">
             <span class="text-gr font-bold"
-              >{playerStats
-                ? ((playerStats.winCount / playerStats.matchCount) * 100).toFixed(2) + '%'
+              >{playerStore?.playerStats
+                ? (
+                    (playerStore?.playerStats.winCount / playerStore?.playerStats.matchCount) *
+                    100
+                  ).toFixed(2) + '%'
                 : '—'}
             </span>
             <span class="text-tx font-semibold ml-1">Win Rate</span>
           </div>
           <div class="text-[12.5px]">
-            <span class="text-gr">{playerStats?.winCount}</span>
+            <span class="text-gr">{playerStore.playerStats?.winCount}</span>
             <span class="text-tx2 mx-1">-</span>
             <span class="text-rd"
-              >{playerStats ? playerStats.matchCount - playerStats.winCount : '-'}</span
+              >{playerStore.playerStats
+                ? playerStore.playerStats.matchCount - playerStore.playerStats.winCount
+                : '-'}</span
             >
           </div>
         </div>
         <div class="flex h-[8px] w-full bg-black/40 rounded-sm overflow-hidden gap-[2px]">
           <div
             class="bg-gr h-full"
-            style="width: {playerStats
-              ? (playerStats.winCount / playerStats.matchCount) * 100
+            style="width: {playerStore.playerStats
+              ? (playerStore.playerStats.winCount / playerStore.playerStats.matchCount) * 100
               : 0}%"
           ></div>
           <div class="bg-[#333] h-full flex-1"></div>
@@ -319,32 +137,35 @@
         <div class="flex justify-between items-baseline">
           <div class="text-[15px]">
             <span class="text-pu2 font-bold">
-              {playerStats
+              {playerStore.playerStats
                 ? (
-                    (playerStats.killsAverage + playerStats.assistsAverage) /
-                    Math.max(1, playerStats.deathsAverage)
+                    (playerStore.playerStats.killsAverage +
+                      playerStore.playerStats.assistsAverage) /
+                    Math.max(1, playerStore.playerStats.deathsAverage)
                   ).toFixed(2)
                 : '—'}</span
             >
             <span class="text-tx2 text-[13px] ml-1">KDA Ratio</span>
           </div>
           <div class="text-[12px] font-mono text-tx2">
-            {playerStats?.killsAverage}
-            <span class="text-rd mx-0.5">/ {playerStats?.deathsAverage}/</span>
-            {playerStats?.assistsAverage}
+            {playerStore.playerStats?.killsAverage}
+            <span class="text-rd mx-0.5">/ {playerStore.playerStats?.deathsAverage}/</span>
+            {playerStore.playerStats?.assistsAverage}
           </div>
         </div>
         <div class="flex h-[6px] w-full bg-black/40 rounded-sm overflow-hidden gap-[1px]">
-          {#if playerStats}
+          {#if playerStore.playerStats}
             {@const total =
-              playerStats.killsAverage + playerStats.deathsAverage + playerStats.assistsAverage}
+              playerStore.playerStats.killsAverage +
+              playerStore.playerStats.deathsAverage +
+              playerStore.playerStats.assistsAverage}
             <div
               class="bg-gr h-full"
-              style="width: {(playerStats.killsAverage / total) * 100}%"
+              style="width: {(playerStore.playerStats.killsAverage / total) * 100}%"
             ></div>
             <div
               class="bg-rd h-full"
-              style="width: {(playerStats.deathsAverage / total) * 100}%"
+              style="width: {(playerStore.playerStats.deathsAverage / total) * 100}%"
             ></div>
             <div class="bg-bl h-full flex-1"></div>
           {/if}
@@ -354,19 +175,19 @@
       <div class="card p-4 flex flex-col justify-center gap-2.5">
         <div class="flex justify-between items-baseline">
           <div class="text-[15px]">
-            <span class="text-gd font-bold">{playerStats?.gpmAverage}</span>
+            <span class="text-gd font-bold">{playerStore.playerStats?.gpmAverage}</span>
             <span class="text-tx2 text-[13px] ml-1">Avg GPM</span>
           </div>
           <div class="text-[12px] font-mono text-tx2">
-            <span class="text-bl">{playerStats?.xpmAverage}</span> XPM
+            <span class="text-bl">{playerStore.playerStats?.xpmAverage}</span> XPM
           </div>
         </div>
         <div class="flex h-[6px] w-full bg-black/40 rounded-sm overflow-hidden gap-[1px]">
-          {#if playerStats}
-            {@const total = playerStats.gpmAverage + playerStats.xpmAverage}
+          {#if playerStore.playerStats}
+            {@const total = playerStore.playerStats.gpmAverage + playerStore.playerStats.xpmAverage}
             <div
               class="bg-gd h-full"
-              style="width: {(playerStats.gpmAverage / total) * 100}%"
+              style="width: {(playerStore.playerStats.gpmAverage / total) * 100}%"
             ></div>
             <div class="bg-bl h-full flex-1"></div>
           {/if}
@@ -374,9 +195,9 @@
       </div>
 
       <div class="card flex items-center justify-center overflow-hidden p-1.5 h-full min-h-[70px]">
-        {#if playerStats?.rank}
+        {#if playerStore.playerStats?.rank}
           <img
-            src={getRankImage(playerStats.rank)}
+            src={getRankImage(playerStore.playerStats.rank)}
             alt="Rank badge"
             class="h-[65px] object-contain drop-shadow-xl"
           />
@@ -396,25 +217,24 @@
         </div>
 
         <div class="flex flex-col">
-          {#if isLoadingMatches}
+          {#if playerStore.isLoading}
             <div class="flex items-center justify-center py-10">
               <span class="text-[12px] text-tx3 animate-pulse">Loading matches…</span>
             </div>
-          {:else if matchError}
+          {:else if playerStore.error}
             <div class="flex items-center justify-center py-10">
-              <span class="text-[12px] text-rd">{matchError}</span>
+              <span class="text-[12px] text-rd">{playerStore.error}</span>
             </div>
-          {:else if detailedMatches.length === 0}
+          {:else if playerStore.detailedMatches.length === 0}
             <div class="flex items-center justify-center py-10">
               <span class="text-[12px] text-tx3">No matches found.</span>
             </div>
           {:else}
-            {#each detailedMatches as m (m.id)}
+            {#each playerStore.detailedMatches as m (m.id)}
               <div
                 class="flex items-center gap-4 py-2 px-3 border-b border-bd last:border-b-0 cursor-pointer hover:bg-white/5 transition-colors"
                 onclick={() => openMatchDetail(m)}
               >
-                <!-- Hero portrait -->
                 <div class="w-[55px] h-[31px] rounded-[4px] bg-s4 shrink-0 overflow-hidden">
                   {#if m.heroImg}
                     <img
@@ -431,14 +251,24 @@
                   {/if}
                 </div>
 
-                <!-- Lane icon -->
                 <div
-                  class="w-[24px] h-[24px] shrink-0 flex items-center justify-center text-[11px] text-tx3 font-bold"
+                  class="relative group w-[24px] h-[24px] shrink-0 flex items-center justify-center text-[11px] text-tx3 font-bold"
                 >
                   <img src={toLaneIcon(m.lane)} alt={m.lane} class="w-5 h-5 opacity-70" />
+
+                  <div
+                    class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5
+      whitespace-nowrap rounded-md bg-s4 border border-bd2 px-2 py-1 text-[10px] font-semibold text-tx
+      opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100
+      transition-all duration-100 ease-out z-50 shadow-lg"
+                  >
+                    {laneLabel(m.lane)}
+                    <div
+                      class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-bd2"
+                    ></div>
+                  </div>
                 </div>
 
-                <!-- W/L badges + mode -->
                 <div class="flex-1 flex flex-col min-w-0">
                   <div class="flex items-center gap-1.5">
                     <div
@@ -459,14 +289,12 @@
                   </div>
                 </div>
 
-                <!-- KDA -->
                 <div
                   class="text-[12px] text-tx2 font-mono font-medium w-[80px] text-center shrink-0"
                 >
                   {m.k} / {m.d} / {m.a}
                 </div>
 
-                <!-- MMR delta -->
                 <div
                   class="text-[12px] font-bold w-[40px] text-right shrink-0
                     {m.mmrChange >= 0 ? 'text-gr' : 'text-rd'}"
@@ -474,7 +302,6 @@
                   {m.impactValue}
                 </div>
 
-                <!-- Impact bar -->
                 <div
                   class="relative w-[100px] h-[6px] rounded-[3px] bg-black-500/20 overflow-hidden shrink-0"
                 >
@@ -498,7 +325,6 @@
                   {/if}
                 </div>
 
-                <!-- Party count -->
                 <div class="flex items-center gap-1 shrink-0">
                   <div
                     class="w-[16px] h-[16px] shrink-0 flex items-center justify-center text-[11px]"
@@ -515,7 +341,6 @@
                   </div>
                 </div>
 
-                <!-- Duration + time ago -->
                 <div class="text-tx3 text-right flex flex-col w-[80px] shrink-0 ml-auto">
                   <div class="text-[11.5px] font-medium leading-tight">{m.dur}</div>
                   <div class="text-[10px] text-tx2 leading-tight uppercase font-medium">
@@ -532,7 +357,6 @@
         </div>
       </div>
 
-      <!-- AI Coach card (unchanged) -->
       <div
         class="bg-linear-to-r from-[rgba(123,92,240,0.14)] to-[rgba(56,189,248,0.05)] border border-[#7B5CF0]/30 rounded-xl p-4"
       >
@@ -571,7 +395,6 @@
     </div>
 
     <div class="flex flex-col gap-4">
-      <!-- Recent Teammates (unchanged) -->
       <div class="card p-4">
         <div class="flex items-center justify-between pb-3 border-b border-bd/40 mb-3">
           <span class="text-xs font-bold uppercase tracking-wider text-tx3">Recent Teammates</span>
@@ -583,7 +406,7 @@
           </span>
         </div>
         <div class="flex flex-col gap-2">
-          {#each recentTeammates as t (t.name)}
+          {#each playerStore.recentTeammates as t (t.name)}
             <div
               class="flex items-center gap-3 p-2 bg-s2/40 hover:bg-s2/80 rounded-lg border-l-2 border-l-bd/40 transition-all cursor-pointer min-w-0"
               onclick={() => gotoView('teammates')}
@@ -623,7 +446,6 @@
         </div>
       </div>
 
-      <!-- Most Played Heroes (unchanged) -->
       <div class="card p-4">
         <div class="flex items-center justify-between pb-3 border-b border-bd/40 mb-3">
           <span class="text-xs font-bold uppercase tracking-wider text-tx3">Most Played Heroes</span
@@ -636,7 +458,7 @@
           </span>
         </div>
         <div class="flex flex-col gap-2">
-          {#each topHeroes as h (h.heroId)}
+          {#each playerStore.topHeroes as h (h.heroId)}
             {@const hero = heroMap.get(h.heroId)}
             {@const winrate =
               h.matchCount > 0 ? parseFloat(((h.winCount / h.matchCount) * 100).toFixed(1)) : 0}
@@ -665,7 +487,11 @@
               </div>
               <span
                 class="text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0
-          {winrate >= 60 ? 'bg-grb text-gr' : winrate >= 50 ? 'bg-gdb text-gd' : 'bg-rdb text-rd'}"
+          {winrate >= 60
+                  ? 'bg-grb text-gr'
+                  : winrate >= 50
+                    ? 'bg-gdb text-gd'
+                    : 'bg-rdb text-rd'}"
               >
                 {winrate}%
               </span>

@@ -14,6 +14,7 @@ declare global {
       steamLogin: () => Promise<string | null>
 
       fetchMatchHistory: (steamId: string) => Promise<unknown | { error: string }>
+      fetchPlayerData: (steamId: number | string) => Promise<unknown | { error: string } >
       fetchMatchDetails: (matchId: number) => Promise<unknown | { error: string }>
 
       toggleOverlay: () => void

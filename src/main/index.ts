@@ -331,7 +331,7 @@ function registerIpcHandlers(): void {
     }
   })
 
-  ipcMain.handle('fetch-player-data', async (_event, steamId: string | number) => {
+  ipcMain.handle('fetch-player-data', async (_event, steamId: number | string) => {
     try {
       return await getPlayerData(steamId)
     } catch (err) {
@@ -412,12 +412,6 @@ app.whenReady().then(() => {
       : join(app.getAppPath(), 'src/main/data/hero-assets')
 
     const filePath = join(basePath, relPath)
-
-    console.log('[hero-asset] url:', request.url)
-    console.log('[hero-asset] relPath:', relPath)
-    console.log('[hero-asset] basePath:', basePath)
-    console.log('[hero-asset] filePath:', filePath)
-    console.log('[hero-asset] exists:', fs.existsSync(filePath))
 
     return net.fetch(pathToFileURL(filePath).toString())
   })
