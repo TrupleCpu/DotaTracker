@@ -59,7 +59,7 @@
   let errorMessage = $state('')
   let currentView = $state('dashboard')
   let prevView = $state('dashboard')
-  let selectedMatch = $state<MockMatch | null>(null)
+  let selectedMatch = $state<any>(null)
 
   // Toast
   let toast = $state({ show: false, msg: '', type: '' })
@@ -107,7 +107,7 @@
     selectedMatch = null
   }
 
-  function openMatchDetail(match: MockMatch): void {
+  function openMatchDetail(match: any): void {
     prevView = currentView
     selectedMatch = match
     currentView = 'match-detail'
@@ -244,7 +244,7 @@
                 onclick={() => gotoView(prevView)}>{VIEW_TITLES[prevView] || prevView}</button
               >
               <span class="text-tx3 text-[11px]">›</span>
-              <span class="text-tx cursor-default">Match — {selectedMatch?.hero}</span>
+              <span class="text-tx cursor-default">Match — {selectedMatch?.hero || selectedMatch?.heroName}</span>
             {:else}
               <span class="text-tx cursor-default">{VIEW_TITLES[currentView]}</span>
             {/if}

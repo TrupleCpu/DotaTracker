@@ -1,0 +1,4550 @@
+{
+  "data": {
+    "match": {
+      "players": [
+        {
+          "steamAccountId": 1189030345,
+          "heroId": 84,
+          "isVictory": true,
+          "imp": 7,
+          "kills": 4,
+          "deaths": 8,
+          "assists": 24,
+          "experiencePerMinute": 758,
+          "level": 24,
+          "position": "POSITION_4",
+          "lane": "OFF_LANE",
+          "item0Id": 112,
+          "item1Id": 90,
+          "item3Id": 214,
+          "item4Id": 65,
+          "item5Id": 43,
+          "backpack0Id": 244,
+          "backpack1Id": null,
+          "backpack2Id": null,
+          "neutral0Id": 2190,
+          "goldPerMinute": 502,
+          "networth": 18662,
+          "stats": {
+            "itemPurchases": [
+              {
+                "itemId": 13,
+                "time": -79
+              },
+              {
+                "itemId": 12,
+                "time": -78
+              },
+              {
+                "itemId": 43,
+                "time": -77
+              },
+              {
+                "itemId": 1123,
+                "time": -76
+              },
+              {
+                "itemId": 178,
+                "time": 163
+              },
+              {
+                "itemId": 43,
+                "time": 168
+              },
+              {
+                "itemId": 43,
+                "time": 194
+              },
+              {
+                "itemId": 42,
+                "time": 195
+              },
+              {
+                "itemId": 1123,
+                "time": 316
+              },
+              {
+                "itemId": 43,
+                "time": 317
+              },
+              {
+                "itemId": 43,
+                "time": 317
+              },
+              {
+                "itemId": 42,
+                "time": 317
+              },
+              {
+                "itemId": 1123,
+                "time": 319
+              },
+              {
+                "itemId": 44,
+                "time": 320
+              },
+              {
+                "itemId": 27,
+                "time": 327
+              },
+              {
+                "itemId": 43,
+                "time": 394
+              },
+              {
+                "itemId": 43,
+                "time": 407
+              },
+              {
+                "itemId": 29,
+                "time": 468
+              },
+              {
+                "itemId": 244,
+                "time": 679
+              },
+              {
+                "itemId": 244,
+                "time": 681
+              },
+              {
+                "itemId": 25,
+                "time": 684
+              },
+              {
+                "itemId": 43,
+                "time": 686
+              },
+              {
+                "itemId": 43,
+                "time": 686
+              },
+              {
+                "itemId": 1123,
+                "time": 686
+              },
+              {
+                "itemId": 214,
+                "time": 727
+              },
+              {
+                "itemId": 43,
+                "time": 769
+              },
+              {
+                "itemId": 42,
+                "time": 770
+              },
+              {
+                "itemId": 1123,
+                "time": 770
+              },
+              {
+                "itemId": 43,
+                "time": 948
+              },
+              {
+                "itemId": 1123,
+                "time": 948
+              },
+              {
+                "itemId": 40,
+                "time": 949
+              },
+              {
+                "itemId": 43,
+                "time": 1127
+              },
+              {
+                "itemId": 42,
+                "time": 1127
+              },
+              {
+                "itemId": 65,
+                "time": 1148
+              },
+              {
+                "itemId": 216,
+                "time": 1164
+              },
+              {
+                "itemId": 40,
+                "time": 1209
+              },
+              {
+                "itemId": 43,
+                "time": 1245
+              },
+              {
+                "itemId": 609,
+                "time": 1340
+              },
+              {
+                "itemId": 42,
+                "time": 1341
+              },
+              {
+                "itemId": 46,
+                "time": 1401
+              },
+              {
+                "itemId": 43,
+                "time": 1401
+              },
+              {
+                "itemId": 42,
+                "time": 1402
+              },
+              {
+                "itemId": 38,
+                "time": 1402
+              },
+              {
+                "itemId": 216,
+                "time": 1403
+              },
+              {
+                "itemId": 40,
+                "time": 1429
+              },
+              {
+                "itemId": 40,
+                "time": 1429
+              },
+              {
+                "itemId": 40,
+                "time": 1497
+              },
+              {
+                "itemId": 40,
+                "time": 1498
+              },
+              {
+                "itemId": 43,
+                "time": 1526
+              },
+              {
+                "itemId": 43,
+                "time": 1526
+              },
+              {
+                "itemId": 42,
+                "time": 1582
+              },
+              {
+                "itemId": 188,
+                "time": 1583
+              },
+              {
+                "itemId": 9,
+                "time": 1763
+              },
+              {
+                "itemId": 42,
+                "time": 2005
+              },
+              {
+                "itemId": 43,
+                "time": 2005
+              },
+              {
+                "itemId": 43,
+                "time": 2005
+              },
+              {
+                "itemId": 38,
+                "time": 2006
+              },
+              {
+                "itemId": 86,
+                "time": 2022
+              },
+              {
+                "itemId": 112,
+                "time": 2114
+              },
+              {
+                "itemId": 46,
+                "time": 2117
+              },
+              {
+                "itemId": 46,
+                "time": 2124
+              },
+              {
+                "itemId": 90,
+                "time": 2371
+              },
+              {
+                "itemId": 42,
+                "time": 2414
+              },
+              {
+                "itemId": 42,
+                "time": 2414
+              },
+              {
+                "itemId": 43,
+                "time": 2414
+              },
+              {
+                "itemId": 43,
+                "time": 2414
+              },
+              {
+                "itemId": 43,
+                "time": 2415
+              },
+              {
+                "itemId": 46,
+                "time": 2530
+              },
+              {
+                "itemId": 42,
+                "time": 2542
+              },
+              {
+                "itemId": 43,
+                "time": 2542
+              },
+              {
+                "itemId": 43,
+                "time": 2542
+              }
+            ],
+            "farmDistributionReport": {
+              "creepLocation": [
+                {
+                  "id": 7,
+                  "count": 21,
+                  "xp": 1048
+                },
+                {
+                  "id": 1,
+                  "count": 20,
+                  "xp": 1192
+                },
+                {
+                  "id": 2,
+                  "count": 16,
+                  "xp": 757
+                },
+                {
+                  "id": 5,
+                  "count": 1,
+                  "xp": 57
+                },
+                {
+                  "id": 10,
+                  "count": 2,
+                  "xp": 114
+                },
+                {
+                  "id": 6,
+                  "count": 3,
+                  "xp": 190
+                },
+                {
+                  "id": 4,
+                  "count": 3,
+                  "xp": 171
+                }
+              ]
+            },
+            "networthPerMinute": [
+              596, 757, 847, 937, 1136, 1263, 1368, 1391, 1724, 1838, 2024, 2475, 2653, 2921, 3097,
+              3296, 3544, 3883, 4111, 4253, 4518, 4777, 5276, 5810, 6364, 6469, 6464, 6845, 7387,
+              8061, 8317, 8567, 9051, 10128, 10453, 11828, 13086, 13378, 13567, 14172, 15278, 16464,
+              17406, 18069
+            ],
+            "killEvents": [
+              {
+                "time": 1286,
+                "positionX": 114,
+                "positionY": 168
+              },
+              {
+                "time": 1967,
+                "positionX": 120,
+                "positionY": 116
+              },
+              {
+                "time": 2079,
+                "positionX": 144,
+                "positionY": 132
+              },
+              {
+                "time": 2087,
+                "positionX": 152,
+                "positionY": 126
+              }
+            ],
+            "deathEvents": [
+              {
+                "time": 313,
+                "positionX": 78,
+                "positionY": 172
+              },
+              {
+                "time": 383,
+                "positionX": 78,
+                "positionY": 158
+              },
+              {
+                "time": 757,
+                "positionX": 112,
+                "positionY": 152
+              },
+              {
+                "time": 1205,
+                "positionX": 134,
+                "positionY": 132
+              },
+              {
+                "time": 1477,
+                "positionX": 114,
+                "positionY": 112
+              },
+              {
+                "time": 1602,
+                "positionX": 178,
+                "positionY": 102
+              },
+              {
+                "time": 1801,
+                "positionX": 174,
+                "positionY": 110
+              },
+              {
+                "time": 2250,
+                "positionX": 158,
+                "positionY": 118
+              }
+            ],
+            "heroDamagePerMinute": [
+              234, 912, 248, 206, 462, 606, 205, 0, 1336, 0, 0, 0, 882, 37, 791, 476, 0, 39, 14,
+              363, 350, 1756, 0, 215, 18, 0, 1448, 234, 1060, 908, 467, 0, 1192, 0, 4965, 0, 1496,
+              4169, 0, 1055, 472, 408, 1576
+            ],
+            "heroDamageReceivedPerMinute": [
+              80, 971, 1033, 1363, 1510, 2042, 2995, 3015, 3982, 3982, 3982, 3982, 4902, 5108, 5108,
+              5543, 5543, 5788, 5788, 6116, 7585, 7672, 7672, 8234, 10202, 10202, 12355, 12355,
+              13419, 14839, 15934, 15934, 17645, 17645, 20080, 20080, 20718, 24186, 24186, 25420,
+              25540, 26481, 28494
+            ],
+            "campStack": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+            ],
+            "wards": [
+              {
+                "time": 14,
+                "type": 1,
+                "positionX": 94,
+                "positionY": 164
+              },
+              {
+                "time": 230,
+                "type": 1,
+                "positionX": 84,
+                "positionY": 152
+              },
+              {
+                "time": 241,
+                "type": 1,
+                "positionX": 94,
+                "positionY": 164
+              },
+              {
+                "time": 247,
+                "type": 0,
+                "positionX": 84,
+                "positionY": 164
+              },
+              {
+                "time": 363,
+                "type": 1,
+                "positionX": 80,
+                "positionY": 166
+              },
+              {
+                "time": 432,
+                "type": 1,
+                "positionX": 98,
+                "positionY": 160
+              },
+              {
+                "time": 448,
+                "type": 0,
+                "positionX": 78,
+                "positionY": 174
+              },
+              {
+                "time": 539,
+                "type": 1,
+                "positionX": 80,
+                "positionY": 166
+              },
+              {
+                "time": 665,
+                "type": 1,
+                "positionX": 84,
+                "positionY": 150
+              },
+              {
+                "time": 741,
+                "type": 1,
+                "positionX": 108,
+                "positionY": 162
+              },
+              {
+                "time": 822,
+                "type": 1,
+                "positionX": 84,
+                "positionY": 152
+              },
+              {
+                "time": 849,
+                "type": 1,
+                "positionX": 120,
+                "positionY": 152
+              },
+              {
+                "time": 853,
+                "type": 0,
+                "positionX": 114,
+                "positionY": 158
+              },
+              {
+                "time": 986,
+                "type": 1,
+                "positionX": 114,
+                "positionY": 158
+              },
+              {
+                "time": 1200,
+                "type": 1,
+                "positionX": 132,
+                "positionY": 130
+              },
+              {
+                "time": 1299,
+                "type": 0,
+                "positionX": 92,
+                "positionY": 156
+              },
+              {
+                "time": 1300,
+                "type": 1,
+                "positionX": 92,
+                "positionY": 154
+              },
+              {
+                "time": 1381,
+                "type": 0,
+                "positionX": 124,
+                "positionY": 146
+              },
+              {
+                "time": 1468,
+                "type": 1,
+                "positionX": 128,
+                "positionY": 120
+              },
+              {
+                "time": 1542,
+                "type": 1,
+                "positionX": 132,
+                "positionY": 100
+              },
+              {
+                "time": 1549,
+                "type": 1,
+                "positionX": 144,
+                "positionY": 90
+              },
+              {
+                "time": 1557,
+                "type": 0,
+                "positionX": 134,
+                "positionY": 104
+              },
+              {
+                "time": 1661,
+                "type": 0,
+                "positionX": 116,
+                "positionY": 94
+              },
+              {
+                "time": 2230,
+                "type": 1,
+                "positionX": 150,
+                "positionY": 122
+              },
+              {
+                "time": 2240,
+                "type": 0,
+                "positionX": 150,
+                "positionY": 124
+              },
+              {
+                "time": 2354,
+                "type": 1,
+                "positionX": 106,
+                "positionY": 116
+              },
+              {
+                "time": 2450,
+                "type": 1,
+                "positionX": 166,
+                "positionY": 150
+              },
+              {
+                "time": 2458,
+                "type": 0,
+                "positionX": 162,
+                "positionY": 170
+              },
+              {
+                "time": 2460,
+                "type": 1,
+                "positionX": 152,
+                "positionY": 166
+              },
+              {
+                "time": 2474,
+                "type": 1,
+                "positionX": 174,
+                "positionY": 158
+              },
+              {
+                "time": 2475,
+                "type": 0,
+                "positionX": 174,
+                "positionY": 158
+              },
+              {
+                "time": 2594,
+                "type": 1,
+                "positionX": 136,
+                "positionY": 154
+              },
+              {
+                "time": 2596,
+                "type": 0,
+                "positionX": 136,
+                "positionY": 154
+              }
+            ],
+            "healPerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "towerDamagePerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 238, 324, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1405, 2252, 0
+            ],
+            "runes": [
+              {
+                "time": 0,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 116,
+                "positionY": 162
+              },
+              {
+                "time": 486,
+                "rune": "WISDOM",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 64,
+                "positionY": 134
+              },
+              {
+                "time": 1317,
+                "rune": "WISDOM",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 64,
+                "positionY": 132
+              },
+              {
+                "time": 1721,
+                "rune": "WISDOM",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 66,
+                "positionY": 132
+              },
+              {
+                "time": 1859,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 132,
+                "positionY": 90
+              },
+              {
+                "time": 2165,
+                "rune": "WISDOM",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 66,
+                "positionY": 134
+              },
+              {
+                "time": 2564,
+                "rune": "WISDOM",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 64,
+                "positionY": 134
+              }
+            ]
+          }
+        },
+        {
+          "steamAccountId": 249512949,
+          "heroId": 60,
+          "isVictory": true,
+          "imp": -24,
+          "kills": 12,
+          "deaths": 12,
+          "assists": 17,
+          "experiencePerMinute": 726,
+          "level": 24,
+          "position": "POSITION_3",
+          "lane": "OFF_LANE",
+          "item0Id": 116,
+          "item1Id": 225,
+          "item3Id": 50,
+          "item4Id": 252,
+          "item5Id": 40,
+          "backpack0Id": null,
+          "backpack1Id": null,
+          "backpack2Id": null,
+          "neutral0Id": 1643,
+          "goldPerMinute": 494,
+          "networth": 19144,
+          "stats": {
+            "itemPurchases": [
+              {
+                "itemId": 20,
+                "time": -80
+              },
+              {
+                "itemId": 13,
+                "time": -80
+              },
+              {
+                "itemId": 11,
+                "time": -79
+              },
+              {
+                "itemId": 16,
+                "time": -79
+              },
+              {
+                "itemId": 237,
+                "time": -73
+              },
+              {
+                "itemId": 73,
+                "time": 85
+              },
+              {
+                "itemId": 39,
+                "time": 114
+              },
+              {
+                "itemId": 42,
+                "time": 115
+              },
+              {
+                "itemId": 44,
+                "time": 116
+              },
+              {
+                "itemId": 244,
+                "time": 397
+              },
+              {
+                "itemId": 50,
+                "time": 548
+              },
+              {
+                "itemId": 252,
+                "time": 917
+              },
+              {
+                "itemId": 1,
+                "time": 1066
+              },
+              {
+                "itemId": 40,
+                "time": 1106
+              },
+              {
+                "itemId": 116,
+                "time": 1835
+              },
+              {
+                "itemId": 46,
+                "time": 1857
+              },
+              {
+                "itemId": 40,
+                "time": 2046
+              },
+              {
+                "itemId": 40,
+                "time": 2164
+              },
+              {
+                "itemId": 40,
+                "time": 2293
+              },
+              {
+                "itemId": 225,
+                "time": 2311
+              }
+            ],
+            "farmDistributionReport": {
+              "creepLocation": [
+                {
+                  "id": 7,
+                  "count": 51,
+                  "xp": 1709
+                },
+                {
+                  "id": 3,
+                  "count": 13,
+                  "xp": 775
+                },
+                {
+                  "id": 1,
+                  "count": 3,
+                  "xp": 170
+                },
+                {
+                  "id": 6,
+                  "count": 19,
+                  "xp": 592
+                },
+                {
+                  "id": 2,
+                  "count": 12,
+                  "xp": 575
+                },
+                {
+                  "id": 5,
+                  "count": 8,
+                  "xp": 278
+                },
+                {
+                  "id": 4,
+                  "count": 1,
+                  "xp": 14
+                }
+              ]
+            },
+            "networthPerMinute": [
+              582, 908, 984, 1202, 1612, 1744, 1968, 2125, 2250, 2755, 2854, 3037, 3498, 4358, 4677,
+              5162, 5901, 6960, 7342, 7437, 7587, 7755, 8032, 8102, 8491, 8739, 9485, 9504, 9971,
+              10779, 10969, 12065, 12627, 13240, 14083, 14133, 14233, 14499, 15267, 15883, 17158,
+              18291, 19201, 18821
+            ],
+            "killEvents": [
+              {
+                "time": 309,
+                "positionX": 88,
+                "positionY": 176
+              },
+              {
+                "time": 532,
+                "positionX": 84,
+                "positionY": 158
+              },
+              {
+                "time": 723,
+                "positionX": 124,
+                "positionY": 182
+              },
+              {
+                "time": 730,
+                "positionX": 124,
+                "positionY": 174
+              },
+              {
+                "time": 900,
+                "positionX": 138,
+                "positionY": 154
+              },
+              {
+                "time": 962,
+                "positionX": 122,
+                "positionY": 124
+              },
+              {
+                "time": 1674,
+                "positionX": 106,
+                "positionY": 116
+              },
+              {
+                "time": 1802,
+                "positionX": 162,
+                "positionY": 118
+              },
+              {
+                "time": 1813,
+                "positionX": 174,
+                "positionY": 118
+              },
+              {
+                "time": 2220,
+                "positionX": 148,
+                "positionY": 112
+              },
+              {
+                "time": 2382,
+                "positionX": 130,
+                "positionY": 150
+              },
+              {
+                "time": 2391,
+                "positionX": 124,
+                "positionY": 146
+              }
+            ],
+            "deathEvents": [
+              {
+                "time": 109,
+                "positionX": 84,
+                "positionY": 150
+              },
+              {
+                "time": 373,
+                "positionX": 80,
+                "positionY": 166
+              },
+              {
+                "time": 454,
+                "positionX": 116,
+                "positionY": 164
+              },
+              {
+                "time": 534,
+                "positionX": 84,
+                "positionY": 156
+              },
+              {
+                "time": 595,
+                "positionX": 174,
+                "positionY": 90
+              },
+              {
+                "time": 1073,
+                "positionX": 124,
+                "positionY": 172
+              },
+              {
+                "time": 1134,
+                "positionX": 146,
+                "positionY": 138
+              },
+              {
+                "time": 1202,
+                "positionX": 122,
+                "positionY": 126
+              },
+              {
+                "time": 1330,
+                "positionX": 74,
+                "positionY": 138
+              },
+              {
+                "time": 1619,
+                "positionX": 182,
+                "positionY": 114
+              },
+              {
+                "time": 2091,
+                "positionX": 138,
+                "positionY": 128
+              },
+              {
+                "time": 2523,
+                "positionX": 158,
+                "positionY": 158
+              }
+            ],
+            "heroDamagePerMinute": [
+              118, 59, 58, 118, 363, 372, 234, 328, 728, 268, 0, 642, 700, 238, 700, 1675, 251, 111,
+              723, 499, 0, 1237, 87, 0, 0, 388, 2028, 1134, 1863, 371, 2567, 0, 965, 155, 1284, 0,
+              1277, 1040, 0, 1800, 1139, 894, 6
+            ],
+            "heroDamageReceivedPerMinute": [
+              445, 1267, 1326, 1745, 2228, 3074, 3549, 4641, 6208, 7488, 7488, 7488, 8199, 8395,
+              8534, 10377, 10500, 12005, 14100, 15831, 15920, 17601, 18419, 19808, 19808, 21114,
+              23519, 23817, 25411, 25778, 27777, 27777, 29400, 29400, 32392, 32392, 32461, 33092,
+              33202, 33932, 33932, 36874, 38205
+            ],
+            "campStack": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "wards": [
+              {
+                "time": 709,
+                "type": 0,
+                "positionX": 108,
+                "positionY": 182
+              }
+            ],
+            "healPerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "towerDamagePerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 131, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              897, 0, 0, 0, 0, 60, 0, 0, 0, 0, 0, 0, 1216, 2447, 0
+            ],
+            "runes": [
+              {
+                "time": 0,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 114,
+                "positionY": 134
+              },
+              {
+                "time": 454,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 116,
+                "positionY": 164
+              },
+              {
+                "time": 1881,
+                "rune": "HASTE",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 116,
+                "positionY": 134
+              },
+              {
+                "time": 2052,
+                "rune": "INVISIBILITY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 138,
+                "positionY": 116
+              }
+            ]
+          }
+        },
+        {
+          "steamAccountId": 1127108210,
+          "heroId": 86,
+          "isVictory": true,
+          "imp": -16,
+          "kills": 4,
+          "deaths": 7,
+          "assists": 18,
+          "experiencePerMinute": 688,
+          "level": 23,
+          "position": "POSITION_2",
+          "lane": "MID_LANE",
+          "item0Id": 1,
+          "item1Id": 108,
+          "item3Id": 48,
+          "item4Id": 232,
+          "item5Id": 244,
+          "backpack0Id": null,
+          "backpack1Id": null,
+          "backpack2Id": 41,
+          "neutral0Id": 1604,
+          "goldPerMinute": 518,
+          "networth": 20621,
+          "stats": {
+            "itemPurchases": [
+              {
+                "itemId": 44,
+                "time": -89
+              },
+              {
+                "itemId": 16,
+                "time": -89
+              },
+              {
+                "itemId": 237,
+                "time": -89
+              },
+              {
+                "itemId": 16,
+                "time": -82
+              },
+              {
+                "itemId": 42,
+                "time": -77
+              },
+              {
+                "itemId": 36,
+                "time": 220
+              },
+              {
+                "itemId": 38,
+                "time": 398
+              },
+              {
+                "itemId": 46,
+                "time": 545
+              },
+              {
+                "itemId": 232,
+                "time": 667
+              },
+              {
+                "itemId": 69,
+                "time": 816
+              },
+              {
+                "itemId": 46,
+                "time": 883
+              },
+              {
+                "itemId": 38,
+                "time": 886
+              },
+              {
+                "itemId": 1107,
+                "time": 987
+              },
+              {
+                "itemId": 4205,
+                "time": 1290
+              },
+              {
+                "itemId": 48,
+                "time": 1316
+              },
+              {
+                "itemId": 1,
+                "time": 1595
+              },
+              {
+                "itemId": 108,
+                "time": 2179
+              }
+            ],
+            "farmDistributionReport": {
+              "creepLocation": [
+                {
+                  "id": 2,
+                  "count": 110,
+                  "xp": 5686
+                },
+                {
+                  "id": 6,
+                  "count": 7,
+                  "xp": 363
+                },
+                {
+                  "id": 7,
+                  "count": 3,
+                  "xp": 19
+                },
+                {
+                  "id": 3,
+                  "count": 18,
+                  "xp": 867
+                },
+                {
+                  "id": 1,
+                  "count": 4,
+                  "xp": 272
+                },
+                {
+                  "id": 4,
+                  "count": 5,
+                  "xp": 153
+                }
+              ]
+            },
+            "networthPerMinute": [
+              580, 943, 1111, 1383, 1629, 1996, 2380, 2629, 3106, 3623, 4095, 4415, 4963, 5510,
+              6002, 6307, 7001, 7393, 7649, 7596, 8519, 8475, 9003, 9328, 9346, 9634, 10500, 11164,
+              11561, 12536, 12776, 12976, 13225, 13690, 14115, 14946, 14773, 15254, 15970, 16603,
+              17034, 17860, 19620, 19984
+            ],
+            "killEvents": [
+              {
+                "time": 517,
+                "positionX": 86,
+                "positionY": 166
+              },
+              {
+                "time": 956,
+                "positionX": 126,
+                "positionY": 124
+              },
+              {
+                "time": 1688,
+                "positionX": 108,
+                "positionY": 124
+              },
+              {
+                "time": 2514,
+                "positionX": 166,
+                "positionY": 162
+              }
+            ],
+            "deathEvents": [
+              {
+                "time": 607,
+                "positionX": 126,
+                "positionY": 122
+              },
+              {
+                "time": 1086,
+                "positionX": 114,
+                "positionY": 166
+              },
+              {
+                "time": 1223,
+                "positionX": 110,
+                "positionY": 134
+              },
+              {
+                "time": 1419,
+                "positionX": 116,
+                "positionY": 120
+              },
+              {
+                "time": 1810,
+                "positionX": 172,
+                "positionY": 112
+              },
+              {
+                "time": 1949,
+                "positionX": 108,
+                "positionY": 114
+              },
+              {
+                "time": 2103,
+                "positionX": 130,
+                "positionY": 120
+              }
+            ],
+            "heroDamagePerMinute": [
+              257, 414, 669, 837, 940, 433, 352, 215, 755, 540, 70, 0, 0, 0, 910, 1006, 358, 358,
+              167, 356, 1133, 0, 0, 169, 412, 768, 479, 959, 690, 622, 1253, 0, 1296, 0, 2624, 212,
+              0, 999, 0, 917, 635, 1327, 1241
+            ],
+            "heroDamageReceivedPerMinute": [
+              0, 187, 561, 1043, 1645, 2008, 2245, 2259, 2698, 3079, 3880, 3880, 3880, 3895, 4347,
+              4702, 4851, 4917, 6461, 6461, 8109, 8109, 8109, 9670, 9670, 9670, 9762, 11618, 12538,
+              12684, 14934, 14934, 16976, 16976, 18282, 19246, 19246, 19544, 19544, 20689, 20689,
+              21522, 22648
+            ],
+            "campStack": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "wards": [
+              {
+                "time": 0,
+                "type": 0,
+                "positionX": 118,
+                "positionY": 124
+              },
+              {
+                "time": 670,
+                "type": 0,
+                "positionX": 132,
+                "positionY": 114
+              }
+            ],
+            "healPerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 330, 0, 0, 0, 0, 0, 130, 164, 0, 0, 260, 0, 0, 0, 0, 0, 0,
+              400, 130, 130, 417, 260, 130, 0, 0, 0, 0, 0, 0, 390, 0, 260, 171, 260, 390
+            ],
+            "towerDamagePerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 206, 0, 0, 0, 225, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 103, 0, 0, 0, 0, 98, 0, 0, 0, 0, 0, 0, 616, 1472, 0
+            ],
+            "runes": [
+              {
+                "time": 137,
+                "rune": "WATER",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 136,
+                "positionY": 118
+              },
+              {
+                "time": 257,
+                "rune": "WATER",
+                "action": "BOTTLE",
+                "gold": null,
+                "positionX": 134,
+                "positionY": 118
+              },
+              {
+                "time": 282,
+                "rune": "WATER",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 128,
+                "positionY": 126
+              },
+              {
+                "time": 411,
+                "rune": "BOUNTY",
+                "action": "BOTTLE",
+                "gold": null,
+                "positionX": 128,
+                "positionY": 90
+              },
+              {
+                "time": 412,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 130,
+                "positionY": 90
+              },
+              {
+                "time": 488,
+                "rune": "INVISIBILITY",
+                "action": "BOTTLE",
+                "gold": null,
+                "positionX": 134,
+                "positionY": 118
+              },
+              {
+                "time": 498,
+                "rune": "INVISIBILITY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 84,
+                "positionY": 142
+              },
+              {
+                "time": 739,
+                "rune": "BOUNTY",
+                "action": "BOTTLE",
+                "gold": null,
+                "positionX": 130,
+                "positionY": 92
+              },
+              {
+                "time": 739,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 130,
+                "positionY": 92
+              },
+              {
+                "time": 742,
+                "rune": "BOUNTY",
+                "action": "BOTTLE",
+                "gold": null,
+                "positionX": 130,
+                "positionY": 92
+              },
+              {
+                "time": 754,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 122,
+                "positionY": 116
+              },
+              {
+                "time": 973,
+                "rune": "ILLUSION",
+                "action": "BOTTLE",
+                "gold": null,
+                "positionX": 134,
+                "positionY": 118
+              },
+              {
+                "time": 1030,
+                "rune": "ILLUSION",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 116,
+                "positionY": 130
+              },
+              {
+                "time": 1303,
+                "rune": "WISDOM",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 192,
+                "positionY": 116
+              },
+              {
+                "time": 1336,
+                "rune": "BOUNTY",
+                "action": "BOTTLE",
+                "gold": null,
+                "positionX": 134,
+                "positionY": 90
+              },
+              {
+                "time": 1368,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 94,
+                "positionY": 130
+              },
+              {
+                "time": 2409,
+                "rune": "ARCANE",
+                "action": "BOTTLE",
+                "gold": null,
+                "positionX": 138,
+                "positionY": 120
+              },
+              {
+                "time": 2433,
+                "rune": "ARCANE",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 152,
+                "positionY": 152
+              }
+            ]
+          }
+        },
+        {
+          "steamAccountId": 1125517482,
+          "heroId": 1,
+          "isVictory": true,
+          "imp": -8,
+          "kills": 17,
+          "deaths": 5,
+          "assists": 10,
+          "experiencePerMinute": 1257,
+          "level": 28,
+          "position": "POSITION_1",
+          "lane": "SAFE_LANE",
+          "item0Id": 63,
+          "item1Id": 147,
+          "item3Id": 160,
+          "item4Id": 145,
+          "item5Id": 208,
+          "backpack0Id": null,
+          "backpack1Id": null,
+          "backpack2Id": null,
+          "neutral0Id": 2190,
+          "goldPerMinute": 840,
+          "networth": 34412,
+          "stats": {
+            "itemPurchases": [
+              {
+                "itemId": 44,
+                "time": -89
+              },
+              {
+                "itemId": 16,
+                "time": -89
+              },
+              {
+                "itemId": 34,
+                "time": -89
+              },
+              {
+                "itemId": 11,
+                "time": -89
+              },
+              {
+                "itemId": 36,
+                "time": 45
+              },
+              {
+                "itemId": 69,
+                "time": 325
+              },
+              {
+                "itemId": 63,
+                "time": 484
+              },
+              {
+                "itemId": 46,
+                "time": 699
+              },
+              {
+                "itemId": 145,
+                "time": 859
+              },
+              {
+                "itemId": 46,
+                "time": 869
+              },
+              {
+                "itemId": 46,
+                "time": 869
+              },
+              {
+                "itemId": 170,
+                "time": 1102
+              },
+              {
+                "itemId": 46,
+                "time": 1170
+              },
+              {
+                "itemId": 147,
+                "time": 1374
+              },
+              {
+                "itemId": 40,
+                "time": 1412
+              },
+              {
+                "itemId": 40,
+                "time": 1412
+              },
+              {
+                "itemId": 46,
+                "time": 1557
+              },
+              {
+                "itemId": 143,
+                "time": 1557
+              },
+              {
+                "itemId": 46,
+                "time": 1563
+              },
+              {
+                "itemId": 67,
+                "time": 1751
+              },
+              {
+                "itemId": 46,
+                "time": 1762
+              },
+              {
+                "itemId": 98,
+                "time": 1762
+              },
+              {
+                "itemId": 40,
+                "time": 1767
+              },
+              {
+                "itemId": 67,
+                "time": 1874
+              },
+              {
+                "itemId": 250,
+                "time": 1913
+              },
+              {
+                "itemId": 160,
+                "time": 2346
+              },
+              {
+                "itemId": 162,
+                "time": 2426
+              },
+              {
+                "itemId": 208,
+                "time": 2480
+              }
+            ],
+            "farmDistributionReport": {
+              "creepLocation": [
+                {
+                  "id": 3,
+                  "count": 86,
+                  "xp": 4376
+                },
+                {
+                  "id": 5,
+                  "count": 41,
+                  "xp": 2090
+                },
+                {
+                  "id": 10,
+                  "count": 2,
+                  "xp": 71
+                },
+                {
+                  "id": 7,
+                  "count": 66,
+                  "xp": 4217
+                },
+                {
+                  "id": 1,
+                  "count": 33,
+                  "xp": 1937
+                },
+                {
+                  "id": 2,
+                  "count": 10,
+                  "xp": 671
+                },
+                {
+                  "id": 6,
+                  "count": 25,
+                  "xp": 1228
+                },
+                {
+                  "id": 4,
+                  "count": 21,
+                  "xp": 675
+                }
+              ]
+            },
+            "networthPerMinute": [
+              596, 927, 1177, 1470, 1691, 2116, 2611, 3000, 3407, 3913, 4400, 4609, 4896, 5710,
+              5883, 6380, 7004, 7528, 8124, 9122, 9913, 10479, 10430, 11029, 11407, 12188, 13611,
+              14501, 15262, 16543, 17090, 18457, 19616, 20464, 22072, 22382, 22482, 23355, 24160,
+              25164, 27161, 29150, 30984, 34089
+            ],
+            "killEvents": [
+              {
+                "time": 358,
+                "positionX": 164,
+                "positionY": 92
+              },
+              {
+                "time": 546,
+                "positionX": 180,
+                "positionY": 118
+              },
+              {
+                "time": 1127,
+                "positionX": 140,
+                "positionY": 132
+              },
+              {
+                "time": 1393,
+                "positionX": 146,
+                "positionY": 142
+              },
+              {
+                "time": 1512,
+                "positionX": 128,
+                "positionY": 108
+              },
+              {
+                "time": 1516,
+                "positionX": 132,
+                "positionY": 112
+              },
+              {
+                "time": 1609,
+                "positionX": 180,
+                "positionY": 120
+              },
+              {
+                "time": 1694,
+                "positionX": 118,
+                "positionY": 132
+              },
+              {
+                "time": 1810,
+                "positionX": 176,
+                "positionY": 108
+              },
+              {
+                "time": 1958,
+                "positionX": 102,
+                "positionY": 118
+              },
+              {
+                "time": 1988,
+                "positionX": 148,
+                "positionY": 112
+              },
+              {
+                "time": 2387,
+                "positionX": 140,
+                "positionY": 146
+              },
+              {
+                "time": 2439,
+                "positionX": 166,
+                "positionY": 156
+              },
+              {
+                "time": 2539,
+                "positionX": 150,
+                "positionY": 174
+              },
+              {
+                "time": 2554,
+                "positionX": 154,
+                "positionY": 172
+              },
+              {
+                "time": 2560,
+                "positionX": 156,
+                "positionY": 174
+              },
+              {
+                "time": 2573,
+                "positionX": 156,
+                "positionY": 166
+              }
+            ],
+            "deathEvents": [
+              {
+                "time": 687,
+                "positionX": 178,
+                "positionY": 116
+              },
+              {
+                "time": 1004,
+                "positionX": 164,
+                "positionY": 96
+              },
+              {
+                "time": 1263,
+                "positionX": 124,
+                "positionY": 176
+              },
+              {
+                "time": 1396,
+                "positionX": 144,
+                "positionY": 142
+              },
+              {
+                "time": 2083,
+                "positionX": 142,
+                "positionY": 138
+              }
+            ],
+            "heroDamagePerMinute": [
+              63, 0, 381, 634, 296, 489, 78, 0, 358, 1209, 0, 688, 0, 239, 0, 245, 128, 0, 1199, 84,
+              0, 722, 245, 1797, 0, 2457, 2888, 1381, 1293, 0, 4883, 0, 3072, 581, 4042, 0, 1562,
+              2015, 0, 7875, 2108, 3806, 8944
+            ],
+            "heroDamageReceivedPerMinute": [
+              268, 502, 963, 1357, 2279, 2667, 2761, 2870, 2921, 3700, 3980, 5088, 5229, 5229, 5229,
+              5540, 6541, 6541, 7848, 7848, 8179, 9214, 9273, 10908, 10908, 11639, 13684, 13988,
+              14962, 14962, 16580, 16706, 17192, 17192, 20226, 20226, 20905, 22439, 22690, 24215,
+              24215, 27128, 28473
+            ],
+            "campStack": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "wards": [],
+            "healPerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "towerDamagePerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 122, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0,
+              1381, 0, 0, 0, 0, 1288, 0, 0, 0, 0, 0, 0, 4440, 4193, 0
+            ],
+            "runes": [
+              {
+                "time": 0,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 132,
+                "positionY": 90
+              },
+              {
+                "time": 1323,
+                "rune": "INVISIBILITY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 116,
+                "positionY": 134
+              },
+              {
+                "time": 1478,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 118,
+                "positionY": 162
+              },
+              {
+                "time": 1682,
+                "rune": "REGEN",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 110,
+                "positionY": 128
+              },
+              {
+                "time": 1928,
+                "rune": "ILLUSION",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 118,
+                "positionY": 136
+              },
+              {
+                "time": 2067,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 124,
+                "positionY": 162
+              }
+            ]
+          }
+        },
+        {
+          "steamAccountId": 350081274,
+          "heroId": 20,
+          "isVictory": true,
+          "imp": -23,
+          "kills": 7,
+          "deaths": 12,
+          "assists": 17,
+          "experiencePerMinute": 698,
+          "level": 23,
+          "position": "POSITION_5",
+          "lane": "SAFE_LANE",
+          "item0Id": 36,
+          "item1Id": 108,
+          "item3Id": 180,
+          "item4Id": null,
+          "item5Id": null,
+          "backpack0Id": null,
+          "backpack1Id": null,
+          "backpack2Id": null,
+          "neutral0Id": 1862,
+          "goldPerMinute": 396,
+          "networth": 14874,
+          "stats": {
+            "itemPurchases": [
+              {
+                "itemId": 42,
+                "time": -89
+              },
+              {
+                "itemId": 43,
+                "time": -89
+              },
+              {
+                "itemId": 44,
+                "time": -89
+              },
+              {
+                "itemId": 1123,
+                "time": -89
+              },
+              {
+                "itemId": 34,
+                "time": -81
+              },
+              {
+                "itemId": 28,
+                "time": -78
+              },
+              {
+                "itemId": 43,
+                "time": 64
+              },
+              {
+                "itemId": 87,
+                "time": 159
+              },
+              {
+                "itemId": 16,
+                "time": 163
+              },
+              {
+                "itemId": 88,
+                "time": 199
+              },
+              {
+                "itemId": 35,
+                "time": 238
+              },
+              {
+                "itemId": 36,
+                "time": 271
+              },
+              {
+                "itemId": 38,
+                "time": 307
+              },
+              {
+                "itemId": 43,
+                "time": 307
+              },
+              {
+                "itemId": 29,
+                "time": 395
+              },
+              {
+                "itemId": 42,
+                "time": 464
+              },
+              {
+                "itemId": 43,
+                "time": 470
+              },
+              {
+                "itemId": 180,
+                "time": 576
+              },
+              {
+                "itemId": 265,
+                "time": 644
+              },
+              {
+                "itemId": 46,
+                "time": 647
+              },
+              {
+                "itemId": 43,
+                "time": 648
+              },
+              {
+                "itemId": 43,
+                "time": 858
+              },
+              {
+                "itemId": 42,
+                "time": 859
+              },
+              {
+                "itemId": 21,
+                "time": 951
+              },
+              {
+                "itemId": 43,
+                "time": 975
+              },
+              {
+                "itemId": 42,
+                "time": 1035
+              },
+              {
+                "itemId": 43,
+                "time": 1035
+              },
+              {
+                "itemId": 43,
+                "time": 1186
+              },
+              {
+                "itemId": 23,
+                "time": 1312
+              },
+              {
+                "itemId": 43,
+                "time": 1356
+              },
+              {
+                "itemId": 43,
+                "time": 1646
+              },
+              {
+                "itemId": 42,
+                "time": 1744
+              },
+              {
+                "itemId": 43,
+                "time": 1744
+              },
+              {
+                "itemId": 43,
+                "time": 1744
+              },
+              {
+                "itemId": 108,
+                "time": 1846
+              },
+              {
+                "itemId": 43,
+                "time": 1863
+              },
+              {
+                "itemId": 42,
+                "time": 1863
+              },
+              {
+                "itemId": 188,
+                "time": 1891
+              },
+              {
+                "itemId": 265,
+                "time": 1891
+              },
+              {
+                "itemId": 609,
+                "time": 2104
+              },
+              {
+                "itemId": 42,
+                "time": 2152
+              },
+              {
+                "itemId": 43,
+                "time": 2152
+              },
+              {
+                "itemId": 43,
+                "time": 2152
+              },
+              {
+                "itemId": 43,
+                "time": 2152
+              },
+              {
+                "itemId": 170,
+                "time": 2400
+              },
+              {
+                "itemId": 1122,
+                "time": 2436
+              },
+              {
+                "itemId": 146,
+                "time": 2476
+              },
+              {
+                "itemId": 147,
+                "time": 2516
+              }
+            ],
+            "farmDistributionReport": {
+              "creepLocation": [
+                {
+                  "id": 7,
+                  "count": 9,
+                  "xp": 392
+                },
+                {
+                  "id": 10,
+                  "count": 1,
+                  "xp": 38
+                },
+                {
+                  "id": 1,
+                  "count": 7,
+                  "xp": 315
+                },
+                {
+                  "id": 2,
+                  "count": 11,
+                  "xp": 580
+                },
+                {
+                  "id": 3,
+                  "count": 7,
+                  "xp": 408
+                },
+                {
+                  "id": 5,
+                  "count": 7,
+                  "xp": 376
+                },
+                {
+                  "id": 6,
+                  "count": 19,
+                  "xp": 804
+                },
+                {
+                  "id": 4,
+                  "count": 5,
+                  "xp": 114
+                }
+              ]
+            },
+            "networthPerMinute": [
+              600, 761, 801, 909, 999, 1266, 1456, 1543, 1775, 2067, 2344, 2420, 2680, 2884, 3273,
+              3294, 3264, 3449, 3599, 3870, 4022, 4037, 4143, 4392, 4603, 4784, 5089, 5436, 5506,
+              6061, 6201, 6469, 6721, 6821, 7463, 8213, 8354, 8717, 9365, 9781, 10552, 12331, 13418,
+              14425
+            ],
+            "killEvents": [
+              {
+                "time": 291,
+                "positionX": 172,
+                "positionY": 94
+              },
+              {
+                "time": 535,
+                "positionX": 82,
+                "positionY": 156
+              },
+              {
+                "time": 689,
+                "positionX": 178,
+                "positionY": 116
+              },
+              {
+                "time": 827,
+                "positionX": 86,
+                "positionY": 164
+              },
+              {
+                "time": 2088,
+                "positionX": 142,
+                "positionY": 140
+              },
+              {
+                "time": 2263,
+                "positionX": 150,
+                "positionY": 124
+              },
+              {
+                "time": 2433,
+                "positionX": 154,
+                "positionY": 152
+              }
+            ],
+            "deathEvents": [
+              {
+                "time": 625,
+                "positionX": 130,
+                "positionY": 80
+              },
+              {
+                "time": 691,
+                "positionX": 182,
+                "positionY": 118
+              },
+              {
+                "time": 874,
+                "positionX": 128,
+                "positionY": 130
+              },
+              {
+                "time": 946,
+                "positionX": 124,
+                "positionY": 128
+              },
+              {
+                "time": 1135,
+                "positionX": 146,
+                "positionY": 134
+              },
+              {
+                "time": 1300,
+                "positionX": 94,
+                "positionY": 162
+              },
+              {
+                "time": 1481,
+                "positionX": 114,
+                "positionY": 122
+              },
+              {
+                "time": 1598,
+                "positionX": 174,
+                "positionY": 114
+              },
+              {
+                "time": 1808,
+                "positionX": 170,
+                "positionY": 112
+              },
+              {
+                "time": 1921,
+                "positionX": 120,
+                "positionY": 118
+              },
+              {
+                "time": 2096,
+                "positionX": 132,
+                "positionY": 142
+              },
+              {
+                "time": 2516,
+                "positionX": 164,
+                "positionY": 156
+              }
+            ],
+            "heroDamagePerMinute": [
+              323, 231, 410, 362, 964, 326, 116, 0, 143, 247, 279, 781, 0, 308, 315, 0, 0, 0, 631,
+              0, 67, 434, 0, 251, 53, 0, 751, 0, 802, 613, 443, 182, 238, 0, 1502, 367, 974, 781, 0,
+              859, 1098, 1061, 2561
+            ],
+            "heroDamageReceivedPerMinute": [
+              96, 284, 630, 630, 684, 962, 974, 974, 974, 1137, 2085, 3034, 3034, 3034, 4066, 5182,
+              5182, 5255, 6816, 6816, 7396, 8787, 8787, 8807, 10291, 10291, 12012, 12012, 13338,
+              13557, 15424, 16300, 17288, 17288, 19552, 19552, 21762, 21840, 22225, 22255, 23478,
+              25047, 25047
+            ],
+            "campStack": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+            ],
+            "wards": [
+              {
+                "time": 1,
+                "type": 1,
+                "positionX": 122,
+                "positionY": 126
+              },
+              {
+                "time": 80,
+                "type": 0,
+                "positionX": 178,
+                "positionY": 94
+              },
+              {
+                "time": 106,
+                "type": 1,
+                "positionX": 160,
+                "positionY": 92
+              },
+              {
+                "time": 365,
+                "type": 1,
+                "positionX": 172,
+                "positionY": 94
+              },
+              {
+                "time": 513,
+                "type": 1,
+                "positionX": 156,
+                "positionY": 92
+              },
+              {
+                "time": 523,
+                "type": 0,
+                "positionX": 180,
+                "positionY": 102
+              },
+              {
+                "time": 808,
+                "type": 1,
+                "positionX": 76,
+                "positionY": 182
+              },
+              {
+                "time": 921,
+                "type": 1,
+                "positionX": 128,
+                "positionY": 126
+              },
+              {
+                "time": 922,
+                "type": 0,
+                "positionX": 128,
+                "positionY": 126
+              },
+              {
+                "time": 1023,
+                "type": 1,
+                "positionX": 122,
+                "positionY": 148
+              },
+              {
+                "time": 1074,
+                "type": 1,
+                "positionX": 120,
+                "positionY": 172
+              },
+              {
+                "time": 1258,
+                "type": 1,
+                "positionX": 114,
+                "positionY": 128
+              },
+              {
+                "time": 1260,
+                "type": 0,
+                "positionX": 112,
+                "positionY": 128
+              },
+              {
+                "time": 1406,
+                "type": 1,
+                "positionX": 110,
+                "positionY": 160
+              },
+              {
+                "time": 1653,
+                "type": 1,
+                "positionX": 96,
+                "positionY": 128
+              },
+              {
+                "time": 1877,
+                "type": 1,
+                "positionX": 126,
+                "positionY": 134
+              },
+              {
+                "time": 1902,
+                "type": 0,
+                "positionX": 116,
+                "positionY": 124
+              },
+              {
+                "time": 2006,
+                "type": 1,
+                "positionX": 162,
+                "positionY": 134
+              },
+              {
+                "time": 2014,
+                "type": 1,
+                "positionX": 172,
+                "positionY": 144
+              },
+              {
+                "time": 2028,
+                "type": 0,
+                "positionX": 166,
+                "positionY": 124
+              },
+              {
+                "time": 2170,
+                "type": 0,
+                "positionX": 94,
+                "positionY": 118
+              },
+              {
+                "time": 2173,
+                "type": 1,
+                "positionX": 96,
+                "positionY": 128
+              },
+              {
+                "time": 2197,
+                "type": 1,
+                "positionX": 130,
+                "positionY": 116
+              },
+              {
+                "time": 2402,
+                "type": 1,
+                "positionX": 154,
+                "positionY": 152
+              }
+            ],
+            "healPerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "towerDamagePerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 185, 0, 43, 0, 0, 0, 154, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 345, 0, 0, 0, 0, 155, 0, 0, 0, 0, 0, 0, 830, 2206, 63
+            ],
+            "runes": [
+              {
+                "time": 1000,
+                "rune": "WISDOM",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 64,
+                "positionY": 134
+              }
+            ]
+          }
+        },
+        {
+          "steamAccountId": 436426351,
+          "heroId": 6,
+          "isVictory": false,
+          "imp": -11,
+          "kills": 3,
+          "deaths": 10,
+          "assists": 17,
+          "experiencePerMinute": 628,
+          "level": 22,
+          "position": "POSITION_1",
+          "lane": "SAFE_LANE",
+          "item0Id": 596,
+          "item1Id": 60,
+          "item3Id": 263,
+          "item4Id": 147,
+          "item5Id": 139,
+          "backpack0Id": 22,
+          "backpack1Id": 23,
+          "backpack2Id": null,
+          "neutral0Id": 1168,
+          "goldPerMinute": 531,
+          "networth": 20836,
+          "stats": {
+            "itemPurchases": [
+              {
+                "itemId": 34,
+                "time": -89
+              },
+              {
+                "itemId": 16,
+                "time": -89
+              },
+              {
+                "itemId": 35,
+                "time": -89
+              },
+              {
+                "itemId": 44,
+                "time": 219
+              },
+              {
+                "itemId": 596,
+                "time": 328
+              },
+              {
+                "itemId": 44,
+                "time": 409
+              },
+              {
+                "itemId": 63,
+                "time": 666
+              },
+              {
+                "itemId": 170,
+                "time": 971
+              },
+              {
+                "itemId": 236,
+                "time": 1133
+              },
+              {
+                "itemId": 102,
+                "time": 1271
+              },
+              {
+                "itemId": 46,
+                "time": 1300
+              },
+              {
+                "itemId": 263,
+                "time": 1344
+              },
+              {
+                "itemId": 46,
+                "time": 1451
+              },
+              {
+                "itemId": 147,
+                "time": 1668
+              },
+              {
+                "itemId": 139,
+                "time": 2226
+              }
+            ],
+            "farmDistributionReport": {
+              "creepLocation": [
+                {
+                  "id": 7,
+                  "count": 101,
+                  "xp": 5129
+                },
+                {
+                  "id": 3,
+                  "count": 18,
+                  "xp": 854
+                },
+                {
+                  "id": 6,
+                  "count": 17,
+                  "xp": 407
+                },
+                {
+                  "id": 2,
+                  "count": 7,
+                  "xp": 230
+                },
+                {
+                  "id": 1,
+                  "count": 10,
+                  "xp": 642
+                },
+                {
+                  "id": 10,
+                  "count": 8,
+                  "xp": 183
+                },
+                {
+                  "id": 4,
+                  "count": 15,
+                  "xp": 1055
+                },
+                {
+                  "id": 5,
+                  "count": 8,
+                  "xp": 414
+                }
+              ]
+            },
+            "networthPerMinute": [
+              592, 830, 938, 1202, 1450, 1649, 1744, 2327, 2512, 2727, 2943, 3431, 3659, 4023, 4234,
+              4726, 5114, 5710, 6455, 7469, 7983, 8911, 9660, 10176, 10559, 11416, 11226, 12210,
+              13108, 12876, 13515, 14824, 15729, 15613, 15713, 16352, 16746, 17878, 19026, 19637,
+              19805, 19905, 20703, 20803
+            ],
+            "killEvents": [
+              {
+                "time": 373,
+                "positionX": 80,
+                "positionY": 166
+              },
+              {
+                "time": 1086,
+                "positionX": 114,
+                "positionY": 166
+              },
+              {
+                "time": 1205,
+                "positionX": 134,
+                "positionY": 132
+              }
+            ],
+            "deathEvents": [
+              {
+                "time": 309,
+                "positionX": 88,
+                "positionY": 176
+              },
+              {
+                "time": 532,
+                "positionX": 84,
+                "positionY": 158
+              },
+              {
+                "time": 723,
+                "positionX": 124,
+                "positionY": 182
+              },
+              {
+                "time": 827,
+                "positionX": 86,
+                "positionY": 164
+              },
+              {
+                "time": 1512,
+                "positionX": 128,
+                "positionY": 108
+              },
+              {
+                "time": 1694,
+                "positionX": 118,
+                "positionY": 132
+              },
+              {
+                "time": 1958,
+                "positionX": 102,
+                "positionY": 118
+              },
+              {
+                "time": 2088,
+                "positionX": 142,
+                "positionY": 140
+              },
+              {
+                "time": 2391,
+                "positionX": 124,
+                "positionY": 146
+              },
+              {
+                "time": 2514,
+                "positionX": 166,
+                "positionY": 162
+              }
+            ],
+            "heroDamagePerMinute": [
+              525, 927, 59, 518, 382, 532, 583, 173, 1301, 894, 186, 0, 125, 402, 0, 0, 0, 391, 210,
+              1023, 1128, 616, 0, 1389, 193, 1400, 0, 0, 1544, 0, 0, 126, 3303, 0, 3693, 0, 0, 987,
+              0, 1892, 0, 1400, 0
+            ],
+            "heroDamageReceivedPerMinute": [
+              352, 908, 998, 1322, 2018, 2776, 3215, 3519, 4581, 4898, 4898, 5540, 5781, 6603, 6603,
+              6603, 6603, 6603, 6608, 7826, 8176, 8399, 8644, 8644, 8662, 10765, 10765, 10765,
+              13276, 13276, 13276, 13276, 15754, 15754, 18805, 18805, 18805, 20579, 20579, 23090,
+              23090, 26228, 26228
+            ],
+            "campStack": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "wards": [],
+            "healPerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "towerDamagePerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 158, 0, 0, 0, 0, 0, 0, 0, 0, 247, 0, 0, 0, 0, 667, 138,
+              1771, 1617, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 90, 0, 0, 0
+            ],
+            "runes": [
+              {
+                "time": 1793,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 122,
+                "positionY": 160
+              }
+            ]
+          }
+        },
+        {
+          "steamAccountId": 196201491,
+          "heroId": 36,
+          "isVictory": false,
+          "imp": 42,
+          "kills": 18,
+          "deaths": 4,
+          "assists": 15,
+          "experiencePerMinute": 1078,
+          "level": 27,
+          "position": "POSITION_2",
+          "lane": "MID_LANE",
+          "item0Id": 48,
+          "item1Id": 116,
+          "item3Id": 114,
+          "item4Id": 273,
+          "item5Id": 137,
+          "backpack0Id": null,
+          "backpack1Id": null,
+          "backpack2Id": null,
+          "neutral0Id": 1862,
+          "goldPerMinute": 699,
+          "networth": 28639,
+          "stats": {
+            "itemPurchases": [
+              {
+                "itemId": 44,
+                "time": -89
+              },
+              {
+                "itemId": 20,
+                "time": -89
+              },
+              {
+                "itemId": 16,
+                "time": -89
+              },
+              {
+                "itemId": 15,
+                "time": -89
+              },
+              {
+                "itemId": 34,
+                "time": -89
+              },
+              {
+                "itemId": 44,
+                "time": -64
+              },
+              {
+                "itemId": 77,
+                "time": 169
+              },
+              {
+                "itemId": 36,
+                "time": 169
+              },
+              {
+                "itemId": 42,
+                "time": 268
+              },
+              {
+                "itemId": 43,
+                "time": 268
+              },
+              {
+                "itemId": 244,
+                "time": 406
+              },
+              {
+                "itemId": 46,
+                "time": 501
+              },
+              {
+                "itemId": 32,
+                "time": 697
+              },
+              {
+                "itemId": 46,
+                "time": 698
+              },
+              {
+                "itemId": 137,
+                "time": 957
+              },
+              {
+                "itemId": 46,
+                "time": 971
+              },
+              {
+                "itemId": 48,
+                "time": 1273
+              },
+              {
+                "itemId": 114,
+                "time": 1581
+              },
+              {
+                "itemId": 60,
+                "time": 1627
+              },
+              {
+                "itemId": 108,
+                "time": 1881
+              },
+              {
+                "itemId": 116,
+                "time": 2112
+              },
+              {
+                "itemId": 21,
+                "time": 2138
+              },
+              {
+                "itemId": 17,
+                "time": 2138
+              },
+              {
+                "itemId": 161,
+                "time": 2138
+              },
+              {
+                "itemId": 162,
+                "time": 2138
+              },
+              {
+                "itemId": 259,
+                "time": 2290
+              },
+              {
+                "itemId": 273,
+                "time": 2311
+              },
+              {
+                "itemId": 271,
+                "time": 2560
+              }
+            ],
+            "farmDistributionReport": {
+              "creepLocation": [
+                {
+                  "id": 6,
+                  "count": 88,
+                  "xp": 4583
+                },
+                {
+                  "id": 2,
+                  "count": 57,
+                  "xp": 2899
+                },
+                {
+                  "id": 7,
+                  "count": 40,
+                  "xp": 2227
+                },
+                {
+                  "id": 5,
+                  "count": 46,
+                  "xp": 2921
+                },
+                {
+                  "id": 3,
+                  "count": 14,
+                  "xp": 682
+                },
+                {
+                  "id": 10,
+                  "count": 10,
+                  "xp": 180
+                },
+                {
+                  "id": 4,
+                  "count": 11,
+                  "xp": 179
+                }
+              ]
+            },
+            "networthPerMinute": [
+              592, 761, 979, 1273, 1496, 1931, 2293, 2745, 2973, 3349, 3704, 4364, 4923, 5421, 5817,
+              6663, 6954, 8158, 8574, 9073, 9542, 10437, 11202, 12107, 13298, 14552, 15334, 17299,
+              17602, 17521, 17872, 19357, 20292, 21404, 22304, 24656, 25729, 26270, 26558, 27595,
+              27255, 27355, 27942, 28606
+            ],
+            "killEvents": [
+              {
+                "time": 607,
+                "positionX": 126,
+                "positionY": 122
+              },
+              {
+                "time": 757,
+                "positionX": 112,
+                "positionY": 152
+              },
+              {
+                "time": 874,
+                "positionX": 128,
+                "positionY": 130
+              },
+              {
+                "time": 1004,
+                "positionX": 164,
+                "positionY": 96
+              },
+              {
+                "time": 1223,
+                "positionX": 110,
+                "positionY": 134
+              },
+              {
+                "time": 1330,
+                "positionX": 74,
+                "positionY": 138
+              },
+              {
+                "time": 1477,
+                "positionX": 114,
+                "positionY": 112
+              },
+              {
+                "time": 1481,
+                "positionX": 114,
+                "positionY": 122
+              },
+              {
+                "time": 1598,
+                "positionX": 174,
+                "positionY": 114
+              },
+              {
+                "time": 1602,
+                "positionX": 178,
+                "positionY": 102
+              },
+              {
+                "time": 1801,
+                "positionX": 174,
+                "positionY": 110
+              },
+              {
+                "time": 1808,
+                "positionX": 170,
+                "positionY": 112
+              },
+              {
+                "time": 1921,
+                "positionX": 120,
+                "positionY": 118
+              },
+              {
+                "time": 1949,
+                "positionX": 108,
+                "positionY": 114
+              },
+              {
+                "time": 2083,
+                "positionX": 142,
+                "positionY": 138
+              },
+              {
+                "time": 2091,
+                "positionX": 138,
+                "positionY": 128
+              },
+              {
+                "time": 2096,
+                "positionX": 132,
+                "positionY": 142
+              },
+              {
+                "time": 2103,
+                "positionX": 130,
+                "positionY": 120
+              }
+            ],
+            "deathEvents": [
+              {
+                "time": 1127,
+                "positionX": 140,
+                "positionY": 132
+              },
+              {
+                "time": 1688,
+                "positionX": 108,
+                "positionY": 124
+              },
+              {
+                "time": 2387,
+                "positionX": 140,
+                "positionY": 146
+              },
+              {
+                "time": 2560,
+                "positionX": 156,
+                "positionY": 174
+              }
+            ],
+            "heroDamagePerMinute": [
+              0, 187, 374, 482, 602, 363, 237, 385, 0, 381, 201, 413, 330, 15, 660, 1068, 1001, 384,
+              2712, 0, 997, 1544, 640, 1258, 1433, 0, 4728, 2174, 3708, 1486, 5444, 0, 806, 0, 6669,
+              964, 165, 3694, 746, 2483, 0, 6365, 4004
+            ],
+            "heroDamageReceivedPerMinute": [
+              257, 671, 1340, 2177, 3117, 3550, 3902, 3902, 3902, 4442, 4512, 4512, 4600, 4600,
+              5752, 6671, 6799, 7196, 9062, 9062, 9129, 9196, 9196, 9616, 10081, 10081, 13347,
+              15579, 18776, 19805, 24721, 24794, 24880, 24880, 29027, 29606, 29606, 31852, 31852,
+              38624, 38624, 42403, 48335
+            ],
+            "campStack": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+            ],
+            "wards": [
+              {
+                "time": 339,
+                "type": 0,
+                "positionX": 122,
+                "positionY": 136
+              },
+              {
+                "time": 346,
+                "type": 1,
+                "positionX": 128,
+                "positionY": 120
+              }
+            ],
+            "healPerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 78, 0, 0, 260, 0, 16, 0, 0, 0, 0, 148, 0, 239, 980, 0, 0, 119,
+              0, 570, 0, 0, 0, 459, 0, 250, 0, 1231, 0, 0, 190, 0, 0, 0, 95, 546
+            ],
+            "towerDamagePerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 93, 201, 96, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "runes": [
+              {
+                "time": 201,
+                "rune": "WATER",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 116,
+                "positionY": 136
+              },
+              {
+                "time": 265,
+                "rune": "WATER",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 116,
+                "positionY": 136
+              },
+              {
+                "time": 726,
+                "rune": "ARCANE",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 136,
+                "positionY": 120
+              },
+              {
+                "time": 1113,
+                "rune": "SHIELD",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 136,
+                "positionY": 120
+              },
+              {
+                "time": 2185,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 118,
+                "positionY": 162
+              },
+              {
+                "time": 2209,
+                "rune": "SHIELD",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 116,
+                "positionY": 136
+              },
+              {
+                "time": 2307,
+                "rune": "ILLUSION",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 116,
+                "positionY": 132
+              }
+            ]
+          }
+        },
+        {
+          "steamAccountId": 869319989,
+          "heroId": 97,
+          "isVictory": false,
+          "imp": 26,
+          "kills": 3,
+          "deaths": 9,
+          "assists": 25,
+          "experiencePerMinute": 552,
+          "level": 21,
+          "position": "POSITION_4",
+          "lane": "OFF_LANE",
+          "item0Id": 36,
+          "item1Id": 102,
+          "item3Id": 1,
+          "item4Id": 180,
+          "item5Id": 152,
+          "backpack0Id": null,
+          "backpack1Id": null,
+          "backpack2Id": null,
+          "neutral0Id": 585,
+          "goldPerMinute": 352,
+          "networth": 12234,
+          "stats": {
+            "itemPurchases": [
+              {
+                "itemId": 44,
+                "time": -89
+              },
+              {
+                "itemId": 11,
+                "time": -89
+              },
+              {
+                "itemId": 34,
+                "time": -89
+              },
+              {
+                "itemId": 42,
+                "time": -89
+              },
+              {
+                "itemId": 43,
+                "time": -89
+              },
+              {
+                "itemId": 28,
+                "time": -89
+              },
+              {
+                "itemId": 1123,
+                "time": -89
+              },
+              {
+                "itemId": 43,
+                "time": 116
+              },
+              {
+                "itemId": 36,
+                "time": 197
+              },
+              {
+                "itemId": 29,
+                "time": 299
+              },
+              {
+                "itemId": 42,
+                "time": 332
+              },
+              {
+                "itemId": 43,
+                "time": 332
+              },
+              {
+                "itemId": 88,
+                "time": 473
+              },
+              {
+                "itemId": 180,
+                "time": 625
+              },
+              {
+                "itemId": 46,
+                "time": 742
+              },
+              {
+                "itemId": 1123,
+                "time": 743
+              },
+              {
+                "itemId": 42,
+                "time": 743
+              },
+              {
+                "itemId": 42,
+                "time": 744
+              },
+              {
+                "itemId": 43,
+                "time": 744
+              },
+              {
+                "itemId": 43,
+                "time": 744
+              },
+              {
+                "itemId": 42,
+                "time": 1006
+              },
+              {
+                "itemId": 1,
+                "time": 1027
+              },
+              {
+                "itemId": 46,
+                "time": 1096
+              },
+              {
+                "itemId": 46,
+                "time": 1096
+              },
+              {
+                "itemId": 102,
+                "time": 1394
+              },
+              {
+                "itemId": 46,
+                "time": 1437
+              },
+              {
+                "itemId": 46,
+                "time": 1437
+              },
+              {
+                "itemId": 46,
+                "time": 1506
+              },
+              {
+                "itemId": 46,
+                "time": 1506
+              },
+              {
+                "itemId": 152,
+                "time": 1921
+              },
+              {
+                "itemId": 4206,
+                "time": 2291
+              }
+            ],
+            "farmDistributionReport": {
+              "creepLocation": [
+                {
+                  "id": 3,
+                  "count": 12,
+                  "xp": 634
+                },
+                {
+                  "id": 10,
+                  "count": 2,
+                  "xp": 85
+                },
+                {
+                  "id": 6,
+                  "count": 27,
+                  "xp": 1368
+                },
+                {
+                  "id": 5,
+                  "count": 5,
+                  "xp": 172
+                },
+                {
+                  "id": 1,
+                  "count": 3,
+                  "xp": 171
+                },
+                {
+                  "id": 7,
+                  "count": 5,
+                  "xp": 148
+                },
+                {
+                  "id": 2,
+                  "count": 6,
+                  "xp": 199
+                }
+              ]
+            },
+            "networthPerMinute": [
+              592, 643, 733, 867, 964, 1170, 1260, 1398, 1646, 1934, 2089, 2590, 3169, 3395, 3390,
+              3548, 3914, 4167, 4650, 4976, 5328, 5785, 6094, 6500, 7172, 7802, 8153, 8582, 8819,
+              8990, 9343, 9617, 9940, 10408, 10608, 11059, 11259, 11735, 10706, 11345, 11750, 11768,
+              11968, 12168
+            ],
+            "killEvents": [
+              {
+                "time": 625,
+                "positionX": 130,
+                "positionY": 80
+              },
+              {
+                "time": 946,
+                "positionX": 124,
+                "positionY": 128
+              },
+              {
+                "time": 1396,
+                "positionX": 144,
+                "positionY": 142
+              }
+            ],
+            "deathEvents": [
+              {
+                "time": 546,
+                "positionX": 180,
+                "positionY": 118
+              },
+              {
+                "time": 956,
+                "positionX": 126,
+                "positionY": 124
+              },
+              {
+                "time": 1674,
+                "positionX": 106,
+                "positionY": 116
+              },
+              {
+                "time": 1813,
+                "positionX": 174,
+                "positionY": 118
+              },
+              {
+                "time": 1967,
+                "positionX": 120,
+                "positionY": 116
+              },
+              {
+                "time": 2087,
+                "positionX": 152,
+                "positionY": 126
+              },
+              {
+                "time": 2220,
+                "positionX": 148,
+                "positionY": 112
+              },
+              {
+                "time": 2433,
+                "positionX": 154,
+                "positionY": 152
+              },
+              {
+                "time": 2573,
+                "positionX": 156,
+                "positionY": 166
+              }
+            ],
+            "heroDamagePerMinute": [
+              96, 104, 287, 41, 404, 275, 94, 0, 51, 464, 680, 622, 141, 0, 531, 531, 0, 353, 2169,
+              281, 1161, 707, 237, 740, 0, 0, 869, 284, 0, 0, 1847, 191, 1624, 0, 170, 0, 1156, 474,
+              0, 145, 39, 0, 34
+            ],
+            "heroDamageReceivedPerMinute": [
+              323, 554, 813, 1191, 1784, 1917, 2053, 2268, 2626, 3441, 3720, 4114, 4114, 4114, 4187,
+              5712, 5712, 5823, 6646, 6730, 7863, 9076, 9163, 9647, 9647, 9647, 10488, 11964, 11964,
+              12128, 14409, 14437, 16999, 16999, 20107, 20107, 23263, 25274, 25274, 26377, 29362,
+              29362, 32175
+            ],
+            "campStack": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "wards": [
+              {
+                "time": 48,
+                "type": 1,
+                "positionX": 156,
+                "positionY": 88
+              },
+              {
+                "time": 87,
+                "type": 0,
+                "positionX": 184,
+                "positionY": 90
+              },
+              {
+                "time": 257,
+                "type": 1,
+                "positionX": 172,
+                "positionY": 94
+              },
+              {
+                "time": 512,
+                "type": 1,
+                "positionX": 120,
+                "positionY": 128
+              },
+              {
+                "time": 513,
+                "type": 0,
+                "positionX": 118,
+                "positionY": 124
+              },
+              {
+                "time": 773,
+                "type": 1,
+                "positionX": 126,
+                "positionY": 120
+              },
+              {
+                "time": 793,
+                "type": 0,
+                "positionX": 136,
+                "positionY": 104
+              },
+              {
+                "time": 840,
+                "type": 0,
+                "positionX": 116,
+                "positionY": 150
+              },
+              {
+                "time": 952,
+                "type": 1,
+                "positionX": 122,
+                "positionY": 124
+              },
+              {
+                "time": 1043,
+                "type": 0,
+                "positionX": 134,
+                "positionY": 124
+              }
+            ],
+            "healPerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "towerDamagePerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "runes": [
+              {
+                "time": 1157,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 134,
+                "positionY": 90
+              },
+              {
+                "time": 1231,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 120,
+                "positionY": 160
+              },
+              {
+                "time": 1459,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 134,
+                "positionY": 90
+              },
+              {
+                "time": 1567,
+                "rune": "ARCANE",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 116,
+                "positionY": 136
+              }
+            ]
+          }
+        },
+        {
+          "steamAccountId": 272541576,
+          "heroId": 9,
+          "isVictory": false,
+          "imp": 33,
+          "kills": 9,
+          "deaths": 6,
+          "assists": 22,
+          "experiencePerMinute": 551,
+          "level": 21,
+          "position": "POSITION_5",
+          "lane": "SAFE_LANE",
+          "item0Id": 102,
+          "item1Id": 1466,
+          "item3Id": 231,
+          "item4Id": 218,
+          "item5Id": 244,
+          "backpack0Id": 188,
+          "backpack1Id": null,
+          "backpack2Id": null,
+          "neutral0Id": 1643,
+          "goldPerMinute": 387,
+          "networth": 14561,
+          "stats": {
+            "itemPurchases": [
+              {
+                "itemId": 42,
+                "time": -89
+              },
+              {
+                "itemId": 43,
+                "time": -89
+              },
+              {
+                "itemId": 34,
+                "time": -89
+              },
+              {
+                "itemId": 44,
+                "time": -89
+              },
+              {
+                "itemId": 16,
+                "time": -89
+              },
+              {
+                "itemId": 38,
+                "time": -89
+              },
+              {
+                "itemId": 43,
+                "time": -89
+              },
+              {
+                "itemId": 35,
+                "time": 27
+              },
+              {
+                "itemId": 43,
+                "time": 40
+              },
+              {
+                "itemId": 42,
+                "time": 45
+              },
+              {
+                "itemId": 36,
+                "time": 81
+              },
+              {
+                "itemId": 28,
+                "time": 147
+              },
+              {
+                "itemId": 87,
+                "time": 149
+              },
+              {
+                "itemId": 88,
+                "time": 149
+              },
+              {
+                "itemId": 38,
+                "time": 151
+              },
+              {
+                "itemId": 43,
+                "time": 214
+              },
+              {
+                "itemId": 44,
+                "time": 215
+              },
+              {
+                "itemId": 29,
+                "time": 327
+              },
+              {
+                "itemId": 179,
+                "time": 392
+              },
+              {
+                "itemId": 44,
+                "time": 394
+              },
+              {
+                "itemId": 180,
+                "time": 423
+              },
+              {
+                "itemId": 43,
+                "time": 471
+              },
+              {
+                "itemId": 43,
+                "time": 472
+              },
+              {
+                "itemId": 42,
+                "time": 472
+              },
+              {
+                "itemId": 46,
+                "time": 695
+              },
+              {
+                "itemId": 61,
+                "time": 699
+              },
+              {
+                "itemId": 43,
+                "time": 761
+              },
+              {
+                "itemId": 43,
+                "time": 838
+              },
+              {
+                "itemId": 188,
+                "time": 840
+              },
+              {
+                "itemId": 43,
+                "time": 920
+              },
+              {
+                "itemId": 42,
+                "time": 921
+              },
+              {
+                "itemId": 23,
+                "time": 990
+              },
+              {
+                "itemId": 205,
+                "time": 990
+              },
+              {
+                "itemId": 206,
+                "time": 1006
+              },
+              {
+                "itemId": 43,
+                "time": 1014
+              },
+              {
+                "itemId": 42,
+                "time": 1176
+              },
+              {
+                "itemId": 43,
+                "time": 1176
+              },
+              {
+                "itemId": 43,
+                "time": 1176
+              },
+              {
+                "itemId": 188,
+                "time": 1179
+              },
+              {
+                "itemId": 609,
+                "time": 1269
+              },
+              {
+                "itemId": 244,
+                "time": 1272
+              },
+              {
+                "itemId": 42,
+                "time": 1305
+              },
+              {
+                "itemId": 43,
+                "time": 1306
+              },
+              {
+                "itemId": 188,
+                "time": 1306
+              },
+              {
+                "itemId": 188,
+                "time": 1436
+              },
+              {
+                "itemId": 43,
+                "time": 1461
+              },
+              {
+                "itemId": 23,
+                "time": 1462
+              },
+              {
+                "itemId": 593,
+                "time": 1463
+              },
+              {
+                "itemId": 42,
+                "time": 1554
+              },
+              {
+                "itemId": 43,
+                "time": 1554
+              },
+              {
+                "itemId": 101,
+                "time": 1631
+              },
+              {
+                "itemId": 43,
+                "time": 1632
+              },
+              {
+                "itemId": 102,
+                "time": 1647
+              },
+              {
+                "itemId": 188,
+                "time": 1745
+              },
+              {
+                "itemId": 42,
+                "time": 1746
+              },
+              {
+                "itemId": 43,
+                "time": 1746
+              },
+              {
+                "itemId": 43,
+                "time": 1746
+              },
+              {
+                "itemId": 43,
+                "time": 1856
+              },
+              {
+                "itemId": 42,
+                "time": 1857
+              },
+              {
+                "itemId": 43,
+                "time": 1888
+              },
+              {
+                "itemId": 27,
+                "time": 2003
+              },
+              {
+                "itemId": 93,
+                "time": 2003
+              },
+              {
+                "itemId": 4,
+                "time": 2003
+              },
+              {
+                "itemId": 78,
+                "time": 2003
+              },
+              {
+                "itemId": 94,
+                "time": 2003
+              },
+              {
+                "itemId": 79,
+                "time": 2003
+              },
+              {
+                "itemId": 42,
+                "time": 2039
+              },
+              {
+                "itemId": 43,
+                "time": 2039
+              },
+              {
+                "itemId": 43,
+                "time": 2039
+              },
+              {
+                "itemId": 230,
+                "time": 2110
+              },
+              {
+                "itemId": 231,
+                "time": 2110
+              },
+              {
+                "itemId": 43,
+                "time": 2111
+              },
+              {
+                "itemId": 42,
+                "time": 2111
+              },
+              {
+                "itemId": 188,
+                "time": 2112
+              },
+              {
+                "itemId": 60,
+                "time": 2158
+              },
+              {
+                "itemId": 1565,
+                "time": 2300
+              },
+              {
+                "itemId": 42,
+                "time": 2300
+              },
+              {
+                "itemId": 43,
+                "time": 2301
+              },
+              {
+                "itemId": 43,
+                "time": 2301
+              },
+              {
+                "itemId": 43,
+                "time": 2301
+              },
+              {
+                "itemId": 1466,
+                "time": 2320
+              },
+              {
+                "itemId": 46,
+                "time": 2405
+              },
+              {
+                "itemId": 43,
+                "time": 2407
+              },
+              {
+                "itemId": 42,
+                "time": 2407
+              }
+            ],
+            "farmDistributionReport": {
+              "creepLocation": [
+                {
+                  "id": 8,
+                  "count": 1,
+                  "xp": 28
+                },
+                {
+                  "id": 7,
+                  "count": 10,
+                  "xp": 469
+                },
+                {
+                  "id": 5,
+                  "count": 14,
+                  "xp": 872
+                },
+                {
+                  "id": 10,
+                  "count": 2,
+                  "xp": 38
+                },
+                {
+                  "id": 2,
+                  "count": 7,
+                  "xp": 526
+                },
+                {
+                  "id": 6,
+                  "count": 26,
+                  "xp": 880
+                },
+                {
+                  "id": 4,
+                  "count": 3,
+                  "xp": 171
+                }
+              ]
+            },
+            "networthPerMinute": [
+              600, 769, 1135, 1219, 1357, 1402, 1817, 2210, 2490, 2468, 2544, 2848, 3166, 3528,
+              3777, 4037, 4146, 4499, 5081, 5381, 5489, 6123, 6242, 6469, 7194, 7645, 8045, 8583,
+              9065, 9236, 9502, 9551, 10091, 10817, 11291, 12198, 12757, 13267, 13405, 13984, 13934,
+              14020, 14120, 14528
+            ],
+            "killEvents": [
+              {
+                "time": 109,
+                "positionX": 84,
+                "positionY": 150
+              },
+              {
+                "time": 313,
+                "positionX": 78,
+                "positionY": 172
+              },
+              {
+                "time": 383,
+                "positionX": 78,
+                "positionY": 158
+              },
+              {
+                "time": 454,
+                "positionX": 116,
+                "positionY": 164
+              },
+              {
+                "time": 691,
+                "positionX": 182,
+                "positionY": 118
+              },
+              {
+                "time": 1073,
+                "positionX": 124,
+                "positionY": 172
+              },
+              {
+                "time": 1202,
+                "positionX": 122,
+                "positionY": 126
+              },
+              {
+                "time": 1619,
+                "positionX": 182,
+                "positionY": 114
+              },
+              {
+                "time": 2523,
+                "positionX": 158,
+                "positionY": 158
+              }
+            ],
+            "deathEvents": [
+              {
+                "time": 517,
+                "positionX": 86,
+                "positionY": 166
+              },
+              {
+                "time": 900,
+                "positionX": 138,
+                "positionY": 154
+              },
+              {
+                "time": 1286,
+                "positionX": 114,
+                "positionY": 168
+              },
+              {
+                "time": 1802,
+                "positionX": 162,
+                "positionY": 118
+              },
+              {
+                "time": 2439,
+                "positionX": 166,
+                "positionY": 156
+              },
+              {
+                "time": 2539,
+                "positionX": 150,
+                "positionY": 174
+              }
+            ],
+            "heroDamagePerMinute": [
+              0, 786, 62, 231, 248, 846, 845, 568, 684, 779, 600, 256, 590, 0, 432, 1146, 0, 761,
+              1088, 755, 831, 0, 0, 1315, 1028, 518, 765, 0, 626, 389, 0, 685, 1117, 0, 1069, 0,
+              1205, 0, 0, 144, 1304, 0, 1594
+            ],
+            "heroDamageReceivedPerMinute": [
+              0, 415, 631, 631, 760, 980, 980, 1004, 2178, 2770, 2770, 2770, 2770, 2770, 4261, 4565,
+              4565, 4565, 4605, 4605, 4605, 6457, 6457, 6475, 6475, 6475, 8203, 8203, 8203, 8656,
+              10010, 10091, 10863, 10863, 12850, 12850, 14866, 15802, 15802, 15908, 18375, 18375,
+              21864
+            ],
+            "campStack": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "wards": [
+              {
+                "time": -41,
+                "type": 0,
+                "positionX": 122,
+                "positionY": 114
+              },
+              {
+                "time": 10,
+                "type": 1,
+                "positionX": 120,
+                "positionY": 128
+              },
+              {
+                "time": 50,
+                "type": 1,
+                "positionX": 92,
+                "positionY": 162
+              },
+              {
+                "time": 86,
+                "type": 1,
+                "positionX": 92,
+                "positionY": 160
+              },
+              {
+                "time": 112,
+                "type": 0,
+                "positionX": 82,
+                "positionY": 148
+              },
+              {
+                "time": 275,
+                "type": 1,
+                "positionX": 84,
+                "positionY": 164
+              },
+              {
+                "time": 509,
+                "type": 1,
+                "positionX": 82,
+                "positionY": 166
+              },
+              {
+                "time": 632,
+                "type": 1,
+                "positionX": 104,
+                "positionY": 164
+              },
+              {
+                "time": 806,
+                "type": 1,
+                "positionX": 80,
+                "positionY": 150
+              },
+              {
+                "time": 955,
+                "type": 1,
+                "positionX": 118,
+                "positionY": 152
+              },
+              {
+                "time": 966,
+                "type": 1,
+                "positionX": 106,
+                "positionY": 162
+              },
+              {
+                "time": 972,
+                "type": 0,
+                "positionX": 102,
+                "positionY": 160
+              },
+              {
+                "time": 1019,
+                "type": 0,
+                "positionX": 134,
+                "positionY": 154
+              },
+              {
+                "time": 1111,
+                "type": 1,
+                "positionX": 118,
+                "positionY": 152
+              },
+              {
+                "time": 1209,
+                "type": 1,
+                "positionX": 124,
+                "positionY": 124
+              },
+              {
+                "time": 1226,
+                "type": 1,
+                "positionX": 108,
+                "positionY": 126
+              },
+              {
+                "time": 1230,
+                "type": 0,
+                "positionX": 104,
+                "positionY": 118
+              },
+              {
+                "time": 1406,
+                "type": 1,
+                "positionX": 134,
+                "positionY": 134
+              },
+              {
+                "time": 1446,
+                "type": 0,
+                "positionX": 124,
+                "positionY": 134
+              },
+              {
+                "time": 1568,
+                "type": 1,
+                "positionX": 118,
+                "positionY": 134
+              },
+              {
+                "time": 1576,
+                "type": 1,
+                "positionX": 118,
+                "positionY": 152
+              },
+              {
+                "time": 1765,
+                "type": 1,
+                "positionX": 164,
+                "positionY": 134
+              },
+              {
+                "time": 1766,
+                "type": 0,
+                "positionX": 164,
+                "positionY": 134
+              },
+              {
+                "time": 1861,
+                "type": 1,
+                "positionX": 176,
+                "positionY": 116
+              },
+              {
+                "time": 1870,
+                "type": 1,
+                "positionX": 152,
+                "positionY": 120
+              },
+              {
+                "time": 1925,
+                "type": 1,
+                "positionX": 120,
+                "positionY": 126
+              },
+              {
+                "time": 1937,
+                "type": 0,
+                "positionX": 104,
+                "positionY": 118
+              },
+              {
+                "time": 1962,
+                "type": 0,
+                "positionX": 120,
+                "positionY": 122
+              },
+              {
+                "time": 2135,
+                "type": 1,
+                "positionX": 164,
+                "positionY": 132
+              },
+              {
+                "time": 2185,
+                "type": 1,
+                "positionX": 136,
+                "positionY": 102
+              },
+              {
+                "time": 2188,
+                "type": 0,
+                "positionX": 130,
+                "positionY": 96
+              },
+              {
+                "time": 2246,
+                "type": 1,
+                "positionX": 136,
+                "positionY": 134
+              },
+              {
+                "time": 2279,
+                "type": 1,
+                "positionX": 154,
+                "positionY": 128
+              },
+              {
+                "time": 2314,
+                "type": 0,
+                "positionX": 120,
+                "positionY": 122
+              },
+              {
+                "time": 2321,
+                "type": 1,
+                "positionX": 132,
+                "positionY": 120
+              },
+              {
+                "time": 2338,
+                "type": 1,
+                "positionX": 108,
+                "positionY": 116
+              },
+              {
+                "time": 2341,
+                "type": 0,
+                "positionX": 104,
+                "positionY": 118
+              },
+              {
+                "time": 2384,
+                "type": 1,
+                "positionX": 118,
+                "positionY": 150
+              }
+            ],
+            "healPerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 521, 0, 650, 0, 0, 470, 325, 0, 192
+            ],
+            "towerDamagePerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 37, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "runes": [
+              {
+                "time": 601,
+                "rune": "HASTE",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 136,
+                "positionY": 116
+              },
+              {
+                "time": 620,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 118,
+                "positionY": 162
+              },
+              {
+                "time": 736,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 120,
+                "positionY": 158
+              },
+              {
+                "time": 983,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 120,
+                "positionY": 158
+              },
+              {
+                "time": 1451,
+                "rune": "SHIELD",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 116,
+                "positionY": 136
+              },
+              {
+                "time": 2191,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 132,
+                "positionY": 94
+              },
+              {
+                "time": 2192,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 132,
+                "positionY": 92
+              }
+            ]
+          }
+        },
+        {
+          "steamAccountId": 1267332647,
+          "heroId": 75,
+          "isVictory": false,
+          "imp": -2,
+          "kills": 8,
+          "deaths": 15,
+          "assists": 20,
+          "experiencePerMinute": 539,
+          "level": 20,
+          "position": "POSITION_3",
+          "lane": "OFF_LANE",
+          "item0Id": 63,
+          "item1Id": 534,
+          "item3Id": 102,
+          "item4Id": 152,
+          "item5Id": 77,
+          "backpack0Id": 95,
+          "backpack1Id": null,
+          "backpack2Id": null,
+          "neutral0Id": 1864,
+          "goldPerMinute": 342,
+          "networth": 12843,
+          "stats": {
+            "itemPurchases": [
+              {
+                "itemId": 11,
+                "time": -89
+              },
+              {
+                "itemId": 15,
+                "time": -89
+              },
+              {
+                "itemId": 20,
+                "time": -89
+              },
+              {
+                "itemId": 44,
+                "time": -89
+              },
+              {
+                "itemId": 38,
+                "time": -89
+              },
+              {
+                "itemId": 77,
+                "time": 92
+              },
+              {
+                "itemId": 44,
+                "time": 255
+              },
+              {
+                "itemId": 43,
+                "time": 257
+              },
+              {
+                "itemId": 46,
+                "time": 270
+              },
+              {
+                "itemId": 63,
+                "time": 637
+              },
+              {
+                "itemId": 43,
+                "time": 717
+              },
+              {
+                "itemId": 43,
+                "time": 1110
+              },
+              {
+                "itemId": 152,
+                "time": 1212
+              },
+              {
+                "itemId": 43,
+                "time": 1336
+              },
+              {
+                "itemId": 43,
+                "time": 1402
+              },
+              {
+                "itemId": 42,
+                "time": 1438
+              },
+              {
+                "itemId": 102,
+                "time": 1511
+              },
+              {
+                "itemId": 67,
+                "time": 2212
+              },
+              {
+                "itemId": 534,
+                "time": 2212
+              },
+              {
+                "itemId": 43,
+                "time": 2485
+              },
+              {
+                "itemId": 43,
+                "time": 2566
+              }
+            ],
+            "farmDistributionReport": {
+              "creepLocation": [
+                {
+                  "id": 3,
+                  "count": 9,
+                  "xp": 328
+                },
+                {
+                  "id": 5,
+                  "count": 35,
+                  "xp": 2027
+                },
+                {
+                  "id": 2,
+                  "count": 1,
+                  "xp": 0
+                },
+                {
+                  "id": 7,
+                  "count": 1,
+                  "xp": 42
+                },
+                {
+                  "id": 6,
+                  "count": 5,
+                  "xp": 278
+                },
+                {
+                  "id": 4,
+                  "count": 5,
+                  "xp": 44
+                }
+              ]
+            },
+            "networthPerMinute": [
+              592, 795, 1014, 1177, 1265, 1390, 1409, 1611, 1821, 2122, 2453, 2667, 3020, 3097,
+              3473, 4058, 4180, 4398, 4962, 5648, 5886, 6305, 6959, 7274, 7397, 7671, 7715, 8112,
+              8318, 8644, 8859, 9360, 9590, 9939, 10039, 10322, 10492, 11121, 11426, 11526, 11623,
+              11723, 12570, 12810
+            ],
+            "killEvents": [
+              {
+                "time": 534,
+                "positionX": 84,
+                "positionY": 156
+              },
+              {
+                "time": 595,
+                "positionX": 174,
+                "positionY": 90
+              },
+              {
+                "time": 1134,
+                "positionX": 146,
+                "positionY": 138
+              },
+              {
+                "time": 1135,
+                "positionX": 146,
+                "positionY": 134
+              },
+              {
+                "time": 1300,
+                "positionX": 94,
+                "positionY": 162
+              },
+              {
+                "time": 1810,
+                "positionX": 172,
+                "positionY": 112
+              },
+              {
+                "time": 2250,
+                "positionX": 158,
+                "positionY": 118
+              },
+              {
+                "time": 2516,
+                "positionX": 164,
+                "positionY": 156
+              }
+            ],
+            "deathEvents": [
+              {
+                "time": 291,
+                "positionX": 172,
+                "positionY": 94
+              },
+              {
+                "time": 358,
+                "positionX": 164,
+                "positionY": 92
+              },
+              {
+                "time": 535,
+                "positionX": 82,
+                "positionY": 156
+              },
+              {
+                "time": 689,
+                "positionX": 178,
+                "positionY": 116
+              },
+              {
+                "time": 730,
+                "positionX": 124,
+                "positionY": 174
+              },
+              {
+                "time": 962,
+                "positionX": 122,
+                "positionY": 124
+              },
+              {
+                "time": 1393,
+                "positionX": 146,
+                "positionY": 142
+              },
+              {
+                "time": 1516,
+                "positionX": 132,
+                "positionY": 112
+              },
+              {
+                "time": 1609,
+                "positionX": 180,
+                "positionY": 120
+              },
+              {
+                "time": 1810,
+                "positionX": 176,
+                "positionY": 108
+              },
+              {
+                "time": 1988,
+                "positionX": 148,
+                "positionY": 112
+              },
+              {
+                "time": 2079,
+                "positionX": 144,
+                "positionY": 132
+              },
+              {
+                "time": 2263,
+                "positionX": 150,
+                "positionY": 124
+              },
+              {
+                "time": 2382,
+                "positionX": 130,
+                "positionY": 150
+              },
+              {
+                "time": 2554,
+                "positionX": 154,
+                "positionY": 172
+              }
+            ],
+            "heroDamagePerMinute": [
+              268, 318, 520, 353, 572, 391, 12, 109, 988, 85, 362, 766, 586, 0, 0, 1315, 272, 0,
+              328, 0, 0, 1327, 0, 465, 798, 119, 2054, 0, 0, 277, 1538, 0, 0, 0, 430, 0, 1070, 854,
+              0, 0, 0, 1433, 183
+            ],
+            "heroDamageReceivedPerMinute": [
+              63, 63, 595, 1213, 1880, 2562, 2620, 2620, 3346, 3346, 3346, 4421, 5674, 5674, 5674,
+              6328, 6937, 6937, 6937, 6937, 6937, 7731, 7731, 9241, 9241, 10751, 12510, 12510,
+              12510, 13378, 14440, 14440, 15305, 16041, 18165, 18165, 18302, 20339, 20339, 22353,
+              22353, 22932, 25026
+            ],
+            "campStack": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+              1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2
+            ],
+            "wards": [
+              {
+                "time": 347,
+                "type": 1,
+                "positionX": 160,
+                "positionY": 90
+              },
+              {
+                "time": 905,
+                "type": 1,
+                "positionX": 136,
+                "positionY": 154
+              },
+              {
+                "time": 1125,
+                "type": 1,
+                "positionX": 164,
+                "positionY": 134
+              },
+              {
+                "time": 1443,
+                "type": 1,
+                "positionX": 152,
+                "positionY": 122
+              },
+              {
+                "time": 1454,
+                "type": 1,
+                "positionX": 132,
+                "positionY": 100
+              },
+              {
+                "time": 1463,
+                "type": 0,
+                "positionX": 120,
+                "positionY": 102
+              },
+              {
+                "time": 2504,
+                "type": 1,
+                "positionX": 172,
+                "positionY": 154
+              }
+            ],
+            "healPerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "towerDamagePerMinute": [
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+            ],
+            "runes": [
+              {
+                "time": 0,
+                "rune": "BOUNTY",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 136,
+                "positionY": 118
+              },
+              {
+                "time": 422,
+                "rune": "WISDOM",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 190,
+                "positionY": 118
+              },
+              {
+                "time": 854,
+                "rune": "WISDOM",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 190,
+                "positionY": 118
+              },
+              {
+                "time": 1712,
+                "rune": "WISDOM",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 190,
+                "positionY": 118
+              },
+              {
+                "time": 2162,
+                "rune": "WISDOM",
+                "action": "PICKUP",
+                "gold": null,
+                "positionX": 192,
+                "positionY": 118
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

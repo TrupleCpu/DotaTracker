@@ -19,6 +19,14 @@ protocol.registerSchemesAsPrivileged([
       secure: true,
       supportFetchAPI: true
     }
+  },
+  {
+    scheme: 'item-asset',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true
+    }
   }
 ])
 
@@ -410,6 +418,18 @@ app.whenReady().then(() => {
     const basePath = app.isPackaged
       ? join(app.getAppPath().replace('app.asar', 'app.asar.unpacked'), 'src/main/data/hero-assets')
       : join(app.getAppPath(), 'src/main/data/hero-assets')
+
+    const filePath = join(basePath, relPath)
+
+    return net.fetch(pathToFileURL(filePath).toString())
+  })
+
+  protocol.handle('item-asset', (request) => {
+    const relPath = decodeURIComponent(request.url.replace('item-asset://', ''))
+
+    const basePath = app.isPackaged
+      ? join(app.getAppPath().replace('app.asar', 'app.asar.unpacked'), 'src/main/data/item-assets')
+      : join(app.getAppPath(), 'src/main/data/item-assets')
 
     const filePath = join(basePath, relPath)
 
