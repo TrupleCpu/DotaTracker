@@ -140,7 +140,7 @@
       </div>
       <div class="flex-1"></div>
       <div class="titlebar-right">
-        <span class="text-[10px] text-tx3 mr-2">v2.4.1</span>
+        <span class="text-xs text-tx3 mr-2">v2.4.1</span>
         <div class="win-controls">
           <button class="win-btn" onclick={() => window.api.minimizeWindow()} aria-label="Minimize">
             <Minus size={13} strokeWidth={1.5} />
@@ -168,7 +168,7 @@
             <img src={AppLogo} alt="Logo" class="w-14 h-14" />
           </div>
           <div>
-            <div class="text-[10px] font-extrabold tracking-[0.2px] leading-[1.15]">ANCIENTEYE</div>
+            <div class="text-xs font-extrabold tracking-[0.2px] leading-[1.15]">ANCIENTEYE</div>
             <div class="text-[6px] text-tx3 tracking-[0.9px] uppercase mt-0.5">
               Analyze &middot; Improve &middot; Win
             </div>
@@ -176,13 +176,13 @@
         </div>
 
         <nav class="flex-1 py-2 overflow-y-auto">
-          <div class="text-[9px] font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]">
+          <div class="text-xxs font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]">
             Main
           </div>
           {#each navSections as section (section.heading)}
             {#if section.heading}
               <div
-                class="text-[9px] font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]"
+                class="text-xxs font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]"
               >
                 {section.heading}
               </div>
@@ -191,7 +191,7 @@
             {#each section.items as { id, label, icon: Icon } (id)}
               {@const active = currentView === id}
               <button
-                class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-[12.5px] font-medium transition-all cursor-pointer relative
+                class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-base font-medium transition-all cursor-pointer relative
                   {active ? 'text-tx bg-pub' : 'text-tx2 hover:text-tx hover:bg-white/5'}"
                 onclick={() => gotoView(id)}
               >
@@ -212,7 +212,7 @@
               onclick={() => showToast('Profile settings')}
             >
               <div
-                class="w-[30px] h-[30px] flex items-center justify-center text-[13px] font-extrabold shrink-0"
+                class="w-[30px] h-[30px] flex items-center justify-center text-base font-extrabold shrink-0"
               >
                 <img
                   class="rounded-full"
@@ -221,29 +221,29 @@
                 />
               </div>
               <div>
-                <div class="text-[12px] font-bold leading-tight">
+                <div class="text-sm font-bold leading-tight">
                   {playerStore.playerStats?.name}
                 </div>
-                <div class="text-[10px] text-tx2">
+                <div class="text-xs text-tx2">
                   {playerStore.playerStats && rankToString(playerStore.playerStats?.rank)}
                 </div>
               </div>
             </div>
           </div>
         {:else}
-          <div class="text-[12px] text-tx3">Loading profile...</div>
+          <div class="text-sm text-tx3">Loading profile...</div>
         {/if}
       </aside>
 
       <div class="flex-1 flex flex-col overflow-hidden min-w-0">
         <div class="flex items-center px-[18px] h-[46px] border-b border-bd gap-2.5 shrink-0 bg-sb">
-          <div class="flex items-center gap-1.5 text-[13px] font-semibold text-tx2">
+          <div class="flex items-center gap-1.5 text-base font-semibold text-tx2">
             {#if currentView === 'match-detail'}
               <button
                 class="cursor-pointer hover:text-tx transition-colors bg-transparent border-none p-0 text-inherit"
                 onclick={() => gotoView(prevView)}>{VIEW_TITLES[prevView] || prevView}</button
               >
-              <span class="text-tx3 text-[11px]">›</span>
+              <span class="text-tx3 text-xs">›</span>
               <span class="text-tx cursor-default">Match — {selectedMatch?.hero || selectedMatch?.heroName}</span>
             {:else}
               <span class="text-tx cursor-default">{VIEW_TITLES[currentView]}</span>
@@ -295,7 +295,7 @@
 
     <div
       id="toast"
-      class="fixed bottom-5 right-5 bg-s4 border border-bd2 rounded-lg px-[15px] py-[9px] text-[12.5px] font-semibold text-tx z-[9999] transition-all duration-200 pointer-events-none min-w-[160px] {toast.show
+      class="fixed bottom-5 right-5 bg-s4 border border-bd2 rounded-lg px-[15px] py-[9px] text-base font-semibold text-tx z-[9999] transition-all duration-200 pointer-events-none min-w-[160px] {toast.show
         ? 'opacity-100 translate-y-0'
         : 'opacity-0 translate-y-2'} {toast.type === 'ok'
         ? 'border-gr text-gr'
@@ -323,7 +323,7 @@
   }
 
   .titlebar-title {
-    font-size: 12px;
+    font-size: var(--text-sm);
     font-weight: 600;
     color: var(--color-tx2);
     letter-spacing: 0.2px;
@@ -343,7 +343,7 @@
     color: var(--color-tx2);
     padding: 5px 24px 5px 10px;
     border-radius: 7px;
-    font-size: 11.5px;
+    font-size: var(--text-sm);
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0l4.5 5L9 0z' fill='%23a1a1aa'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -361,7 +361,7 @@
     border: none;
     border-radius: 7px;
     padding: 6px 14px;
-    font-size: 12px;
+    font-size: var(--text-sm);
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -397,7 +397,7 @@
     transition:
       background 0.1s,
       color 0.1s;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .win-btn:hover {
     background: rgba(255, 255, 255, 0.08);

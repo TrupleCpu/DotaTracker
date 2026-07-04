@@ -80,7 +80,7 @@
     <div class="grid grid-cols-2 gap-4">
       <div class="card p-4 flex flex-col justify-center gap-3">
         <div class="flex justify-between items-baseline">
-          <div class="text-[17px]">
+          <div class="text-xl">
             <span class="text-[#EAB308] font-bold"
               >{playerStore.playerStats
                 ? playerStore.playerStats.matchCount.toLocaleString()
@@ -88,7 +88,7 @@
             >
             <span class="text-tx font-semibold ml-1">Matches</span>
           </div>
-          <div class="text-[11.5px] text-tx2">First Match: Apr 19, 2019</div>
+          <div class="text-sm text-tx2">First Match: Apr 19, 2019</div>
         </div>
         <div class="flex gap-[3px] h-[8px] w-full">
           {#each Array(24) as _}
@@ -99,7 +99,7 @@
 
       <div class="card p-4 flex flex-col justify-center gap-3">
         <div class="flex justify-between items-baseline">
-          <div class="text-[17px]">
+          <div class="text-xl">
             <span class="text-gr font-bold"
               >{playerStore?.playerStats
                 ? (
@@ -110,7 +110,7 @@
             </span>
             <span class="text-tx font-semibold ml-1">Win Rate</span>
           </div>
-          <div class="text-[12.5px]">
+          <div class="text-base">
             <span class="text-gr">{playerStore.playerStats?.winCount}</span>
             <span class="text-tx2 mx-1">-</span>
             <span class="text-rd"
@@ -135,7 +135,7 @@
     <div class="grid grid-cols-3 gap-4">
       <div class="card p-4 flex flex-col justify-center gap-2.5">
         <div class="flex justify-between items-baseline">
-          <div class="text-[15px]">
+          <div class="text-lg">
             <span class="text-pu2 font-bold">
               {playerStore.playerStats
                 ? (
@@ -145,9 +145,9 @@
                   ).toFixed(2)
                 : '—'}</span
             >
-            <span class="text-tx2 text-[13px] ml-1">KDA Ratio</span>
+            <span class="text-tx2 text-base ml-1">KDA Ratio</span>
           </div>
-          <div class="text-[12px] font-mono text-tx2">
+          <div class="text-sm font-mono text-tx2 font-tabular">
             {playerStore.playerStats?.killsAverage}
             <span class="text-rd mx-0.5">/ {playerStore.playerStats?.deathsAverage}/</span>
             {playerStore.playerStats?.assistsAverage}
@@ -174,11 +174,11 @@
 
       <div class="card p-4 flex flex-col justify-center gap-2.5">
         <div class="flex justify-between items-baseline">
-          <div class="text-[15px]">
+          <div class="text-lg">
             <span class="text-gd font-bold">{playerStore.playerStats?.gpmAverage}</span>
-            <span class="text-tx2 text-[13px] ml-1">Avg GPM</span>
+            <span class="text-tx2 text-base ml-1">Avg GPM</span>
           </div>
-          <div class="text-[12px] font-mono text-tx2">
+          <div class="text-sm font-mono text-tx2 font-tabular">
             <span class="text-bl">{playerStore.playerStats?.xpmAverage}</span> XPM
           </div>
         </div>
@@ -202,7 +202,7 @@
             class="h-[65px] object-contain drop-shadow-xl"
           />
         {:else}
-          <div class="text-tx3 text-[11px]">Unranked</div>
+          <div class="text-tx3 text-xs">Unranked</div>
         {/if}
       </div>
     </div>
@@ -219,15 +219,15 @@
         <div class="flex flex-col">
           {#if playerStore.isLoading}
             <div class="flex items-center justify-center py-10">
-              <span class="text-[12px] text-tx3 animate-pulse">Loading matches…</span>
+              <span class="text-sm text-tx3 animate-pulse">Loading matches…</span>
             </div>
           {:else if playerStore.error}
             <div class="flex items-center justify-center py-10">
-              <span class="text-[12px] text-rd">{playerStore.error}</span>
+              <span class="text-sm text-rd">{playerStore.error}</span>
             </div>
           {:else if playerStore.detailedMatches.length === 0}
             <div class="flex items-center justify-center py-10">
-              <span class="text-[12px] text-tx3">No matches found.</span>
+              <span class="text-sm text-tx3">No matches found.</span>
             </div>
           {:else}
             {#each playerStore.detailedMatches as m (m.id)}
@@ -244,7 +244,7 @@
                     />
                   {:else}
                     <div
-                      class="w-full h-full flex items-center justify-center text-[11px] text-tx3"
+                      class="w-full h-full flex items-center justify-center text-xs text-tx3"
                     >
                       ?
                     </div>
@@ -252,13 +252,13 @@
                 </div>
 
                 <div
-                  class="relative group w-[24px] h-[24px] shrink-0 flex items-center justify-center text-[11px] text-tx3 font-bold"
+                  class="relative group w-[24px] h-[24px] shrink-0 flex items-center justify-center text-xs text-tx3 font-bold"
                 >
                   <img src={toLaneIcon(m.lane)} alt={m.lane} class="w-5 h-5 opacity-70" />
 
                   <div
                     class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5
-      whitespace-nowrap rounded-md bg-s4 border border-bd2 px-2 py-1 text-[10px] font-semibold text-tx
+      whitespace-nowrap rounded-md bg-s4 border border-bd2 px-2 py-1 text-xs font-semibold text-tx
       opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100
       transition-all duration-100 ease-out z-50 shadow-lg"
                   >
@@ -272,31 +272,31 @@
                 <div class="flex-1 flex flex-col min-w-0">
                   <div class="flex items-center gap-1.5">
                     <div
-                      class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-extrabold
+                      class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-xs font-extrabold
                         {m.outcome === 'win' ? 'bg-gr text-black' : 'bg-rd text-black'}"
                     >
                       {m.outcome === 'win' ? 'W' : 'L'}
                     </div>
                     <div
-                      class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-extrabold
+                      class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-xs font-extrabold
                         {m.previousOutcome === 'win' ? 'bg-grb text-gr' : 'bg-rdb text-rd'}"
                     >
                       {m.previousOutcome === 'win' ? 'W' : 'L'}
                     </div>
-                    <div class="text-[10px] text-tx2 font-bold uppercase truncate">
+                    <div class="text-xs text-tx2 font-bold uppercase truncate">
                       {m.mode}
                     </div>
                   </div>
                 </div>
 
                 <div
-                  class="text-[12px] text-tx2 font-mono font-medium w-[80px] text-center shrink-0"
+                  class="text-sm text-tx2 font-mono font-medium font-tabular w-[80px] text-center shrink-0"
                 >
                   {m.k} / {m.d} / {m.a}
                 </div>
 
                 <div
-                  class="text-[12px] font-bold w-[40px] text-right shrink-0
+                  class="text-sm font-bold font-mono font-tabular w-[40px] text-right shrink-0
                     {m.mmrChange >= 0 ? 'text-gr' : 'text-rd'}"
                 >
                   {m.impactValue}
@@ -327,11 +327,11 @@
 
                 <div class="flex items-center gap-1 shrink-0">
                   <div
-                    class="w-[16px] h-[16px] shrink-0 flex items-center justify-center text-[11px]"
+                    class="w-[16px] h-[16px] shrink-0 flex items-center justify-center text-xs"
                   >
                     👤
                   </div>
-                  <div class="text-[11px] text-tx2 w-[16px] text-center shrink-0">
+                  <div class="text-xs text-tx2 w-[16px] text-center shrink-0">
                     {m.partyCount}
                   </div>
                   <div
@@ -342,13 +342,13 @@
                 </div>
 
                 <div class="text-tx3 text-right flex flex-col w-[80px] shrink-0 ml-auto">
-                  <div class="text-[11.5px] font-medium leading-tight">{m.dur}</div>
-                  <div class="text-[10px] text-tx2 leading-tight uppercase font-medium">
+                  <div class="text-sm font-medium font-mono font-tabular leading-tight">{m.dur}</div>
+                  <div class="text-xs text-tx2 leading-tight uppercase font-medium">
                     {m.timeAgo}
                   </div>
                 </div>
 
-                <div class="text-tx3 text-[16px] ml-1 transition-colors hover:text-pu2 shrink-0">
+                <div class="text-tx3 text-lg ml-1 transition-colors hover:text-pu2 shrink-0">
                   ›
                 </div>
               </div>
@@ -362,18 +362,18 @@
       >
         <div class="flex items-center gap-[11px] mb-[11px]">
           <div
-            class="w-10 h-10 rounded-full bg-linear-to-br from-pu to-[#4f46e5] flex items-center justify-center text-[19px] border-2 border-pu2 shrink-0"
+            class="w-10 h-10 rounded-full bg-linear-to-br from-pu to-[#4f46e5] flex items-center justify-center text-2xl border-2 border-pu2 shrink-0"
           >
             🤖
           </div>
           <div>
-            <div class="text-[13px] font-bold">AI Coach Summary</div>
-            <div class="text-[10px] text-tx2 mt-0.5">
+            <div class="text-base font-bold">AI Coach Summary</div>
+            <div class="text-xs text-tx2 mt-0.5">
               Based on your last 30 matches · Updated 2m ago
             </div>
           </div>
         </div>
-        <div class="text-[12px] text-tx2 line-height-[1.75]">
+        <div class="text-sm text-tx2 leading-relaxed">
           Your hook accuracy improved to <strong class="text-gr">38%</strong> this week — above
           average for your bracket. You're leaving ~15 CS per game in lane. Teams win
           <strong class="text-gr">72%</strong> of games where you secure Aegis. Prioritize Roshan control
@@ -382,10 +382,10 @@
         <div
           class="flex items-center gap-[14px] bg-black/20 rounded-lg p-[10px_13px] mt-3 border border-bd"
         >
-          <div class="font-mono text-[30px] font-bold text-gr leading-none">7.8</div>
+          <div class="font-mono text-4xl font-bold text-gr leading-none font-tabular">7.8</div>
           <div>
-            <div class="text-[11.5px] font-bold text-tx">Overall Rating</div>
-            <div class="text-gd text-[13px] tracking-[2px] mt-0.5">★★★★☆</div>
+            <div class="text-sm font-bold text-tx">Overall Rating</div>
+            <div class="text-gd text-base tracking-[2px] mt-0.5">★★★★☆</div>
           </div>
           <div class="ml-auto">
             <span class="card-lnk" onclick={() => gotoView('coach')}>Full analysis →</span>
@@ -399,7 +399,7 @@
         <div class="flex items-center justify-between pb-3 border-b border-bd/40 mb-3">
           <span class="text-xs font-bold uppercase tracking-wider text-tx3">Recent Teammates</span>
           <span
-            class="text-[11px] text-pu hover:underline cursor-pointer"
+            class="text-xs text-pu hover:underline cursor-pointer"
             onclick={() => gotoView('teammates')}
           >
             View all →
@@ -422,12 +422,12 @@
               </div>
               <div class="flex-1 min-w-0 flex flex-col gap-0.5">
                 <div class="text-xs font-bold text-tx truncate">{t.name}</div>
-                <div class="text-[10px] text-tx3 font-semibold uppercase tracking-wide truncate">
+                <div class="text-xs text-tx3 font-semibold uppercase tracking-wide truncate">
                   {t.matches} matches together
                 </div>
               </div>
               <span
-                class="text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0
+                class="text-xs font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0
                   {t.winrate >= 60
                   ? 'bg-grb text-gr'
                   : t.winrate >= 50
@@ -451,7 +451,7 @@
           <span class="text-xs font-bold uppercase tracking-wider text-tx3">Most Played Heroes</span
           >
           <span
-            class="text-[11px] text-pu hover:underline cursor-pointer"
+            class="text-xs text-pu hover:underline cursor-pointer"
             onclick={() => gotoView('heroes')}
           >
             View all →
@@ -482,11 +482,11 @@
               <div class="text-xs font-bold text-tx flex-1 truncate">
                 {hero?.localized_name ?? `Hero #${h.heroId}`}
               </div>
-              <div class="text-[11px] text-tx3 font-mono font-medium w-10 text-right">
+              <div class="text-xs text-tx3 font-mono font-medium font-tabular w-10 text-right">
                 {h.matchCount}g
               </div>
               <span
-                class="text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0
+                class="text-xs font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0
           {winrate >= 60
                   ? 'bg-grb text-gr'
                   : winrate >= 50

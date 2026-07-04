@@ -40,6 +40,7 @@ let controlWindow: BrowserWindow | null = null
 let tray: Tray | null = null
 let gsiServer: http.Server | null = null
 let config = loadConfig()
+let isQuitting = false
 
 type DotaBoundsProps = {
   x: number
@@ -79,6 +80,7 @@ function createOverlayWindow(): void {
 
 function createControlWindow(): void {
   if (controlWindow && !controlWindow.isDestroyed()) {
+    controlWindow.show()
     controlWindow.focus()
     return
   }
@@ -97,6 +99,13 @@ function createControlWindow(): void {
 
   controlWindow.once('ready-to-show', () => {
     controlWindow?.show()
+  })
+
+  controlWindow.on('close', (event) => {
+    if(!isQuitting){
+      event.preventDefault()
+      controlWindow?.hide()
+    }
   })
 
   controlWindow.on('closed', () => {
@@ -122,7 +131,10 @@ function createTray(): void {
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Control Panel', click: (): void => createControlWindow() },
     { type: 'separator' },
-    { label: 'Quit', click: (): void => app.quit() }
+    { label: 'Quit', click: (): void => {
+      isQuitting = true
+      app.quit()
+    } }
   ])
 
   tray.setToolTip('Dota 2 Tracker')
@@ -441,6 +453,7 @@ app.whenReady().then(() => {
   })
 
   createOverlayWindow()
+  createControlWindow()
   createTray()
   registerIpcHandlers()
   startTracking()
@@ -457,6 +470,10 @@ app.whenReady().then(() => {
       createOverlayWindow()
     }
   })
+})
+
+app.on('before-quit', () => {
+  isQuitting = true
 })
 
 app.on('will-quit', () => {

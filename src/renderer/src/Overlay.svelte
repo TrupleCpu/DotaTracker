@@ -64,8 +64,8 @@
 >
   <div class="stat" role="group" aria-label="GPM metric">
     <span class="label">GPM</span>
-    <span class="value font-tabular">{gpm}</span>
-    <span class="diff font-tabular">({gpm_diff.toFixed(1)}%)</span>
+    <span class="value font-mono font-tabular">{gpm}</span>
+    <span class="diff font-mono font-tabular">({gpm_diff.toFixed(1)}%)</span>
     <span class="icon {gpm_status}" aria-hidden="true">
       {gpm_status === 'up' ? '▲' : '▼'}
     </span>
@@ -74,8 +74,8 @@
 
   <div class="stat" role="group" aria-label="XPM metric">
     <span class="label">XPM</span>
-    <span class="value font-tabular">{xpm}</span>
-    <span class="diff font-tabular">({xpm_diff.toFixed(1)}%)</span>
+    <span class="value font-mono font-tabular">{xpm}</span>
+    <span class="diff font-mono font-tabular">({xpm_diff.toFixed(1)}%)</span>
     <span class="icon {xpm_status}" aria-hidden="true">
       {xpm_status === 'up' ? '▲' : '▼'}
     </span>
@@ -86,8 +86,8 @@
 
   <div class="stat" role="group" aria-label="KPM metric">
     <span class="label">KPM</span>
-    <span class="value font-tabular">{kpm_calc.toFixed(2)}</span>
-    <span class="diff font-tabular">({kpm_diff.toFixed(1)}%)</span>
+    <span class="value font-mono font-tabular">{kpm_calc.toFixed(2)}</span>
+    <span class="diff font-mono font-tabular">({kpm_diff.toFixed(1)}%)</span>
     <span class="icon {kpm_status}" aria-hidden="true">
       {kpm_status === 'up' ? '▲' : '▼'}
     </span>
@@ -112,6 +112,7 @@
     gap: var(--space-1);
     padding: var(--space-2) var(--space-3);
     box-sizing: border-box;
+    font-family: var(--font-sans);
 
     /* Semi-transparent slate-charcoal profile tint */
     background: rgba(15, 16, 21, 0.85) !important;
@@ -150,7 +151,7 @@
 
   .diff {
     color: #7f8c8d;
-    font-size: 10px;
+    font-size: var(--text-xs);
     text-align: right;
     white-space: nowrap;
   }
@@ -173,7 +174,7 @@
   }
 
   .badge {
-    font-size: 9px;
+    font-size: var(--text-xxs);
     padding: 2px 6px;
     border-radius: var(--radius-sm);
     background: rgba(255, 255, 255, 0.08);

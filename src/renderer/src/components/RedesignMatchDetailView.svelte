@@ -747,11 +747,11 @@
   <div class="bg-black border-b border-zinc-800/60 p-4 flex items-center justify-between shrink-0 gap-4">
     <div class="flex items-center gap-4">
       <div class="flex flex-col gap-1">
-        <label class="text-[9px] text-zinc-500 uppercase tracking-wider font-extrabold" for="player-select">Coaching Focus</label>
+        <label class="text-xxs text-zinc-500 uppercase tracking-wider font-extrabold" for="player-select">Coaching Focus</label>
         <select
           id="player-select"
           bind:value={selectedPlayerIndex}
-          class="sel bg-zinc-950 border border-zinc-800/80 hover:border-zinc-700/80 text-tx font-bold py-1 px-2.5 rounded text-[12.5px] cursor-pointer focus:outline-none focus:border-zinc-500 transition-colors"
+          class="sel bg-zinc-950 border border-zinc-800/80 hover:border-zinc-700/80 text-tx font-bold py-1 px-2.5 rounded text-base cursor-pointer focus:outline-none focus:border-zinc-500 transition-colors"
         >
           {#each players as p, idx}
             {@const hero = getHero(p.heroId)}
@@ -771,16 +771,16 @@
       </div>
 
       <div>
-        <div class="font-extrabold text-[15.5px] flex items-center gap-2">
+        <div class="font-extrabold text-lg flex items-center gap-2">
           <span class="text-white">{heroInfo?.localized_name || 'Solo Carry'}</span>
           {#if isYou(focusedPlayer.heroId)}
-            <span class="text-[9px] bg-white/10 border border-white/20 text-white px-1.5 py-0.25 rounded font-bold uppercase tracking-wider">YOU</span>
+            <span class="text-xxs bg-white/10 border border-white/20 text-white px-1.5 py-0.25 rounded font-bold uppercase tracking-wider">YOU</span>
           {/if}
-          <span class="text-[9px] px-1.5 py-0.25 rounded font-bold uppercase tracking-wider {focusedPlayer.isVictory ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25' : 'bg-rose-500/15 text-rose-400 border border-rose-500/25'}">
+          <span class="text-xxs px-1.5 py-0.25 rounded font-bold uppercase tracking-wider {focusedPlayer.isVictory ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25' : 'bg-rose-500/15 text-rose-400 border border-rose-500/25'}">
             {focusedPlayer.isVictory ? 'Victory' : 'Defeat'}
           </span>
         </div>
-        <div class="text-[10px] text-zinc-400 font-mono uppercase tracking-[0.2px] mt-0.5">
+        <div class="text-xs text-zinc-400 font-mono uppercase tracking-[0.2px] mt-0.5">
           {formatPosition(focusedPlayer.position)}
         </div>
       </div>
@@ -789,39 +789,39 @@
     <div class="flex items-center gap-5">
       <div class="hidden lg:flex gap-3 font-mono text-center">
         <div class="bg-zinc-950 border border-zinc-800/80 rounded-lg px-3 py-1.5">
-          <div class="text-[13px] font-bold text-white">{focusedPlayer.goldPerMinute}</div>
-          <div class="text-[8.5px] text-zinc-500 uppercase tracking-[0.4px]">GPM</div>
+          <div class="text-base font-bold font-tabular text-white">{focusedPlayer.goldPerMinute}</div>
+          <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px]">GPM</div>
         </div>
         <div class="bg-zinc-950 border border-zinc-800/80 rounded-lg px-3 py-1.5">
-          <div class="text-[13px] font-bold text-white">{focusedPlayer.experiencePerMinute}</div>
-          <div class="text-[8.5px] text-zinc-500 uppercase tracking-[0.4px]">XPM</div>
+          <div class="text-base font-bold font-tabular text-white">{focusedPlayer.experiencePerMinute}</div>
+          <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px]">XPM</div>
         </div>
         <div class="bg-zinc-950 border border-zinc-800/80 rounded-lg px-3 py-1.5">
-          <div class="text-[13px] font-bold text-amber-400">{focusedPlayer.networth.toLocaleString()}</div>
-          <div class="text-[8.5px] text-zinc-500 uppercase tracking-[0.4px]">Net Worth</div>
+          <div class="text-base font-bold font-tabular text-amber-400">{focusedPlayer.networth.toLocaleString()}</div>
+          <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px]">Net Worth</div>
         </div>
       </div>
 
       <div class="flex items-center gap-3 bg-zinc-950 border border-zinc-800/80 p-2 px-3 rounded-lg">
         <div class="flex flex-col text-right">
-          <span class="text-[9px] text-zinc-500 font-extrabold uppercase tracking-[0.6px]">Game Grade</span>
-          <span class="text-[10.5px] text-zinc-300 font-semibold truncate max-w-[120px]">{performanceGrade.label}</span>
+          <span class="text-xxs text-zinc-500 font-extrabold uppercase tracking-[0.6px]">Game Grade</span>
+          <span class="text-xs text-zinc-300 font-semibold truncate max-w-[120px]">{performanceGrade.label}</span>
         </div>
-        <div class="text-[28px] font-black leading-none font-mono tracking-tighter {performanceGrade.color} select-none">{performanceGrade.grade}</div>
+        <div class="text-4xl font-black leading-none font-mono tracking-tighter font-tabular {performanceGrade.color} select-none">{performanceGrade.grade}</div>
       </div>
 
       <div class="hidden sm:flex gap-4 font-mono text-center">
         <div>
-          <div class="text-[17px] font-bold text-emerald-400">{focusedPlayer.kills}</div>
-          <div class="text-[9px] text-zinc-500 uppercase tracking-[0.4px] mt-0.5">Kills</div>
+          <div class="text-xl font-bold font-tabular text-emerald-400">{focusedPlayer.kills}</div>
+          <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px] mt-0.5">Kills</div>
         </div>
         <div>
-          <div class="text-[17px] font-bold text-rose-500">{focusedPlayer.deaths}</div>
-          <div class="text-[9px] text-zinc-500 uppercase tracking-[0.4px] mt-0.5">Deaths</div>
+          <div class="text-xl font-bold font-tabular text-rose-500">{focusedPlayer.deaths}</div>
+          <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px] mt-0.5">Deaths</div>
         </div>
         <div>
-          <div class="text-[17px] font-bold text-cyan-400">{focusedPlayer.assists}</div>
-          <div class="text-[9px] text-zinc-500 uppercase tracking-[0.4px] mt-0.5">Assists</div>
+          <div class="text-xl font-bold font-tabular text-cyan-400">{focusedPlayer.assists}</div>
+          <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px] mt-0.5">Assists</div>
         </div>
       </div>
     </div>
@@ -829,7 +829,7 @@
 
   <!-- INVENTORY STRIP -->
   <div class="flex items-center gap-4 px-4 py-2.5 border-b border-zinc-800/60 bg-zinc-950/40 shrink-0 overflow-x-auto">
-    <span class="text-[9px] font-extrabold uppercase tracking-wider text-zinc-500 shrink-0">Loadout</span>
+    <span class="text-xxs font-extrabold uppercase tracking-wider text-zinc-500 shrink-0">Loadout</span>
     <div class="flex gap-1.5 shrink-0">
       {#each inventoryIds as itemId}
         {@const item = getItem(itemId)}
@@ -837,7 +837,7 @@
         <div class="w-11 h-8 rounded bg-zinc-900 border border-zinc-800 overflow-hidden relative group cursor-help transition-all hover:border-zinc-500 hover:-translate-y-0.5">
           {#if item}
             <img src={getItemImgUrl(item.img)} alt={item.dname} class="w-full h-full object-cover" />
-            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:flex flex-col bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-[10px] z-20 whitespace-nowrap shadow-xl">
+            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:flex flex-col bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-xs z-20 whitespace-nowrap shadow-xl">
               <span class="font-bold">{item.dname}</span>
               {#if purchaseTime !== null}
                 <span class="text-zinc-500 font-mono">Purchased {formatTime(purchaseTime)}</span>
@@ -853,7 +853,7 @@
     <div class="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden relative group cursor-help flex items-center justify-center shrink-0">
       {#if neutralItem}
         <img src={getItemImgUrl(neutralItem.img)} alt={neutralItem.dname} class="w-[85%] h-[85%] rounded-full object-cover" />
-        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-[10px] z-20 whitespace-nowrap shadow-xl">{neutralItem.dname}</div>
+        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-xs z-20 whitespace-nowrap shadow-xl">{neutralItem.dname}</div>
       {:else}
         <div class="w-full h-full rounded-full bg-zinc-950/20 border border-dashed border-zinc-800/80"></div>
       {/if}
@@ -864,7 +864,7 @@
         <div class="w-9 h-6 rounded bg-zinc-900 border border-zinc-800 overflow-hidden relative group cursor-help transition-all hover:border-zinc-500">
           {#if item}
             <img src={getItemImgUrl(item.img)} alt={item.dname} class="w-full h-full object-cover grayscale opacity-70" />
-            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-[10px] z-20 whitespace-nowrap shadow-xl">{item.dname}</div>
+            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-xs z-20 whitespace-nowrap shadow-xl">{item.dname}</div>
           {:else}
             <div class="w-full h-full bg-zinc-950/20 border border-dashed border-zinc-800/80"></div>
           {/if}
@@ -883,7 +883,7 @@
       { id: 'insights', label: '🎓 Insights' }
     ] as tab}
       <button
-        class="p-[6px_12px] text-[11.5px] font-bold rounded-md transition-all cursor-pointer border flex items-center gap-1.5 {activeSubTab === tab.id
+        class="p-[6px_12px] text-sm font-bold rounded-md transition-all cursor-pointer border flex items-center gap-1.5 {activeSubTab === tab.id
           ? 'bg-zinc-800 border-zinc-700 text-white shadow-inner shadow-black/30'
           : 'bg-zinc-950/40 border-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'}"
         onclick={() => (activeSubTab = tab.id)}
@@ -900,8 +900,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 items-start">
           <div class="flex flex-col gap-3">
             <div class="flex items-center justify-between">
-              <div class="text-[10px] font-bold text-tx2 uppercase tracking-[0.5px]">Position Telemetry</div>
-              <label class="flex items-center gap-1.5 text-[9.5px] font-semibold text-zinc-400 cursor-pointer hover:text-white">
+              <div class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]">Position Telemetry</div>
+              <label class="flex items-center gap-1.5 text-xxs font-semibold text-zinc-400 cursor-pointer hover:text-white">
                 <input type="checkbox" bind:checked={heatmapMode} class="rounded border-zinc-800 bg-zinc-950" />
                 Heatmap
               </label>
@@ -962,17 +962,17 @@
               </svg>
 
               {#if tooltipEvent}
-                <div class="absolute bg-s4 border border-bd2 text-tx p-[5px_8px] rounded shadow-lg text-[10.5px] pointer-events-none z-50 whitespace-nowrap -translate-x-1/2 flex items-center gap-1.5 font-sans animate-fade-in" style={tooltipStyle}>
+                <div class="absolute bg-s4 border border-bd2 text-tx p-[5px_8px] rounded shadow-lg text-xs pointer-events-none z-50 whitespace-nowrap -translate-x-1/2 flex items-center gap-1.5 font-sans animate-fade-in" style={tooltipStyle}>
                   {#if tooltipEvent.heroIcon}
                     <img src={tooltipEvent.heroIcon} class="w-4 h-4 rounded-full" alt="" />
                   {/if}
                   <div class="flex flex-col">
                     <span class="font-bold">{tooltipEvent.details}</span>
                     {#if tooltipEvent.landmark}
-                      <span class="text-[9px] text-tx2">{tooltipEvent.landmark}</span>
+                      <span class="text-xxs text-tx2">{tooltipEvent.landmark}</span>
                     {/if}
                     {#if tooltipEvent.time > 0}
-                      <span class="text-[9px] text-tx2 font-mono">Time: {formatTime(tooltipEvent.time)}</span>
+                      <span class="text-xxs text-tx2 font-mono">Time: {formatTime(tooltipEvent.time)}</span>
                     {/if}
                   </div>
                 </div>
@@ -981,14 +981,14 @@
 
             <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 flex flex-col gap-2.5 shadow-sm">
               <div class="flex flex-col gap-1">
-                <div class="flex justify-between items-center text-[10px] text-zinc-400 font-semibold">
+                <div class="flex justify-between items-center text-xs text-zinc-400 font-semibold">
                   <span>Playback Scrubber</span>
                   <span class="font-mono text-zinc-200 font-bold">{formatTime(timeSliderValue)} / {formatTime(matchDurationSeconds)}</span>
                 </div>
                 <input type="range" min="0" max={matchDurationSeconds} bind:value={timeSliderValue} class="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-200" />
               </div>
 
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-2 gap-y-1.5 text-[10px] font-semibold text-zinc-400 border-t border-zinc-800/60 pt-2.5">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-2 gap-y-1.5 text-xs font-semibold text-zinc-400 border-t border-zinc-800/60 pt-2.5">
                 <label class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors">
                   <input type="checkbox" bind:checked={showKills} class="rounded border-zinc-800 bg-zinc-950" /><span>🟢 Kills (+)</span>
                 </label>
@@ -1013,30 +1013,30 @@
             <!-- Vision summary (real counts only — no destroyed/lifetime/score) -->
             <div class="grid grid-cols-3 gap-2 text-center">
               <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg p-2">
-                <div class="font-mono text-[15px] font-extrabold text-amber-400">{visionSummary.observers}</div>
-                <div class="text-[8.5px] text-zinc-500 uppercase tracking-wider">Observers</div>
+                <div class="font-mono text-lg font-extrabold text-amber-400">{visionSummary.observers}</div>
+                <div class="text-xxs text-zinc-500 uppercase tracking-wider">Observers</div>
               </div>
               <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg p-2">
-                <div class="font-mono text-[15px] font-extrabold text-sky-400">{visionSummary.sentries}</div>
-                <div class="text-[8.5px] text-zinc-500 uppercase tracking-wider">Sentries</div>
+                <div class="font-mono text-lg font-extrabold text-sky-400">{visionSummary.sentries}</div>
+                <div class="text-xxs text-zinc-500 uppercase tracking-wider">Sentries</div>
               </div>
               <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg p-2">
-                <div class="font-mono text-[15px] font-extrabold text-white">{visionSummary.total}</div>
-                <div class="text-[8.5px] text-zinc-500 uppercase tracking-wider">Total Wards</div>
+                <div class="font-mono text-lg font-extrabold text-white">{visionSummary.total}</div>
+                <div class="text-xxs text-zinc-500 uppercase tracking-wider">Total Wards</div>
               </div>
             </div>
           </div>
 
           <div class="flex flex-col gap-3">
-            <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px]">Farm distribution report</div>
+            <div class="text-xs font-bold text-zinc-400 uppercase tracking-[0.5px]">Farm distribution report</div>
             <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
-              <span class="text-[11px] text-zinc-400 leading-relaxed">
+              <span class="text-sm text-zinc-400 leading-relaxed">
                 As a carry, where you farm determines your safety. Pushing dangerous lanes draws map pressure, while the Main Jungle serves as fallback recovery.
               </span>
               <div class="flex flex-col gap-2.5 mt-2">
                 {#each farmDistributionList as farm, idx}
                   <div class="flex flex-col gap-1">
-                    <div class="flex justify-between text-[11px] font-bold">
+                    <div class="flex justify-between text-sm font-bold">
                       <span class="text-zinc-200">{farm.name}</span>
                       <span class="text-zinc-400">{farm.count} creeps ({farm.percent}%)</span>
                     </div>
@@ -1048,11 +1048,11 @@
               </div>
             </div>
 
-            <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Recent Events</div>
+            <div class="text-xs font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Recent Events</div>
             <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-2 max-h-[260px] overflow-y-auto flex flex-col gap-1">
               {#each visibleEvents.slice(-14).reverse() as ev}
                 <button
-                  class="flex items-center justify-between gap-2 text-left px-2.5 py-1.5 rounded-lg hover:bg-zinc-900 transition-colors text-[11px]"
+                  class="flex items-center justify-between gap-2 text-left px-2.5 py-1.5 rounded-lg hover:bg-zinc-900 transition-colors text-sm"
                   onmouseenter={() => (cursorTime = ev.time)}
                 >
                   <span class="flex items-center gap-2 min-w-0">
@@ -1062,7 +1062,7 @@
                   <span class="font-mono text-zinc-500 shrink-0">{formatTime(ev.time)}</span>
                 </button>
               {:else}
-                <div class="text-center text-zinc-600 text-[11px] py-4">No events in range yet.</div>
+                <div class="text-center text-zinc-600 text-sm py-4">No events in range yet.</div>
               {/each}
             </div>
           </div>
@@ -1073,7 +1073,7 @@
         <div class="flex flex-wrap gap-2">
           {#each Object.entries(metricConfig) as [key, cfg]}
             <button
-              class="px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all {selectedMetric === key
+              class="px-3 py-1.5 rounded-lg text-sm font-bold border transition-all {selectedMetric === key
                 ? 'bg-zinc-800 border-zinc-700 text-white'
                 : 'bg-zinc-950/40 border-zinc-900 text-zinc-400 hover:text-zinc-200'}"
               onclick={() => (selectedMetric = key as EconomyMetric)}
@@ -1086,9 +1086,9 @@
         <div class="flex gap-4 items-stretch">
           <!-- Interactive chart card -->
           <div class="relative flex-1 border border-zinc-800/60 rounded-xl bg-zinc-950/60 p-4 shadow-sm overflow-visible">
-            <div class="flex items-center justify-between text-[11.5px] font-bold text-zinc-400 mb-2">
+            <div class="flex items-center justify-between text-sm font-bold text-zinc-400 mb-2">
               <span>{metricConfig[selectedMetric].label} Over Time</span>
-              <div class="flex items-center gap-3 text-[10.5px]">
+              <div class="flex items-center gap-3 text-xs">
                 <span class="text-emerald-400">🟢 You ({heroInfo?.localized_name}): {focusSeries.at(-1)?.toLocaleString() ?? 0}{metricConfig[selectedMetric].unit}</span>
                 {#if enemyMirrorPlayer && enemyMirrorHero}
                   <span class="text-rose-500">🔴 {enemyMirrorRoleLabel} ({enemyMirrorHero.localized_name}): {enemySeries.at(-1)?.toLocaleString() ?? 0}{metricConfig[selectedMetric].unit}</span>
@@ -1169,10 +1169,10 @@
                 class="absolute z-30 pointer-events-none bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl px-3.5 py-3 min-w-[168px] -translate-x-1/2 animate-fade-in"
                 style="left: {leftPct}%; top: {Math.max(topPct - 6, 4)}%; transform: translate(-50%, -100%);"
               >
-                <div class="text-[11.5px] font-extrabold text-white mb-2">
+                <div class="text-sm font-extrabold text-white mb-2">
                   {metricConfig[selectedMetric].label} @ {formatTime(hoverIdx * 60)}
                 </div>
-                <div class="flex flex-col gap-1.5 text-[10.5px]">
+                <div class="flex flex-col gap-1.5 text-xs">
                   <div class="flex items-center justify-between gap-4">
                     <span class="text-zinc-400">Value</span>
                     <span class="font-mono font-bold" style="color:{metricConfig[selectedMetric].color}">
@@ -1222,8 +1222,8 @@
                 {/if}
               </div>
             </div>
-            <div class="font-mono text-[14px] font-extrabold text-white leading-none">{focusedPlayer.level}</div>
-            <div class="text-[8px] text-zinc-500 uppercase tracking-wider">Level</div>
+            <div class="font-mono text-sm font-extrabold text-white leading-none">{focusedPlayer.level}</div>
+            <div class="text-xxs text-zinc-500 uppercase tracking-wider">Level</div>
           </div>
         </div>
 

@@ -12,7 +12,7 @@
   <h1 class="text-2xl font-bold tracking-widest text-[var(--color-tx)] uppercase">Ancient Eye</h1>
 
   <p
-    class="text-[11px] text-[var(--color-tx2)] text-center leading-relaxed max-w-[220px] tracking-wide"
+    class="text-xs text-[var(--color-tx2)] text-center leading-relaxed max-w-[220px] tracking-wide"
   >
     Sync your Steam client to load real-time statistics and coaching data.
   </p>
@@ -75,13 +75,13 @@
     {/if}
   </button>
 
-  <p class="text-[10px] text-[var(--color-tx2)] opacity-30 tracking-wide">
+  <p class="text-xs text-[var(--color-tx2)] opacity-30 tracking-wide">
     Not associated with Valve Corp.
   </p>
 
   {#if errorMessage}
     <div
-      class="flex items-center gap-2 px-3 py-2.5 rounded-md text-[11.5px]
+      class="flex items-center gap-2 px-3 py-2.5 rounded-md text-sm
              bg-[var(--color-rdb)] border border-red-500/15 text-[var(--color-rd)]
              animate-[slideDown_0.25s_cubic-bezier(0.16,1,0.3,1)_forwards]"
       role="alert"

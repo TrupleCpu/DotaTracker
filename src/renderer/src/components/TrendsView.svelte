@@ -9,15 +9,15 @@
   <!-- HEADER CONTROLS -->
   <div class="flex items-center gap-2.5 mb-4">
     <div class="flex gap-0.5 bg-s2 rounded-lg p-0.75 w-fit">
-      <button class="px-[13px] py-1.25 rounded-md border-none bg-transparent text-tx2 text-[12px] font-medium cursor-pointer transition-all {activeTab === 'tr-perf' ? 'bg-s4 text-tx' : 'hover:text-tx'}" onclick={() => activeTab = 'tr-perf'}>Performance</button>
-      <button class="px-[13px] py-1.25 rounded-md border-none bg-transparent text-tx2 text-[12px] font-medium cursor-pointer transition-all {activeTab === 'tr-heroes' ? 'bg-s4 text-tx' : 'hover:text-tx'}" onclick={() => activeTab = 'tr-heroes'}>Heroes</button>
-      <button class="px-[13px] py-1.25 rounded-md border-none bg-transparent text-tx2 text-[12px] font-medium cursor-pointer transition-all {activeTab === 'tr-roles' ? 'bg-s4 text-tx' : 'hover:text-tx'}" onclick={() => activeTab = 'tr-roles'}>Roles</button>
-      <button class="px-[13px] py-1.25 rounded-md border-none bg-transparent text-tx2 text-[12px] font-medium cursor-pointer transition-all {activeTab === 'tr-ovr' ? 'bg-s4 text-tx' : 'hover:text-tx'}" onclick={() => activeTab = 'tr-ovr'}>Overview</button>
+      <button class="px-[13px] py-1.25 rounded-md border-none bg-transparent text-tx2 text-sm font-medium cursor-pointer transition-all {activeTab === 'tr-perf' ? 'bg-s4 text-tx' : 'hover:text-tx'}" onclick={() => activeTab = 'tr-perf'}>Performance</button>
+      <button class="px-[13px] py-1.25 rounded-md border-none bg-transparent text-tx2 text-sm font-medium cursor-pointer transition-all {activeTab === 'tr-heroes' ? 'bg-s4 text-tx' : 'hover:text-tx'}" onclick={() => activeTab = 'tr-heroes'}>Heroes</button>
+      <button class="px-[13px] py-1.25 rounded-md border-none bg-transparent text-tx2 text-sm font-medium cursor-pointer transition-all {activeTab === 'tr-roles' ? 'bg-s4 text-tx' : 'hover:text-tx'}" onclick={() => activeTab = 'tr-roles'}>Roles</button>
+      <button class="px-[13px] py-1.25 rounded-md border-none bg-transparent text-tx2 text-sm font-medium cursor-pointer transition-all {activeTab === 'tr-ovr' ? 'bg-s4 text-tx' : 'hover:text-tx'}" onclick={() => activeTab = 'tr-ovr'}>Overview</button>
     </div>
     <div class="flex-1"></div>
     <div class="flex gap-1">
       {#each ['7D', '30D', '60D', 'All'] as p}
-        <button class="px-[11px] py-1.25 rounded-lg border text-[11px] font-semibold cursor-pointer transition-all bg-transparent {activePeriod === p ? 'bg-pub border-pu text-pu2' : 'border-bd text-tx2'}" onclick={() => activePeriod = p}>{p}</button>
+        <button class="px-[11px] py-1.25 rounded-lg border text-xs font-semibold cursor-pointer transition-all bg-transparent {activePeriod === p ? 'bg-pub border-pu text-pu2' : 'border-bd text-tx2'}" onclick={() => activePeriod = p}>{p}</button>
       {/each}
     </div>
   </div>
@@ -25,7 +25,7 @@
   {#if activeTab === 'tr-perf'}
     <div class="grid grid-cols-2 gap-4 mb-4">
       <div class="card">
-        <div class="card-hd"><span class="card-ttl">Win Rate Trend</span><span class="text-gr text-[11.5px] font-bold">57.1%</span></div>
+        <div class="card-hd"><span class="card-ttl">Win Rate Trend</span><span class="text-gr text-sm font-bold">57.1%</span></div>
         <svg viewBox="0 0 300 110" class="w-full h-auto">
           <defs>
             <linearGradient id="wrt" x1="0" y1="0" x2="0" y2="1">
@@ -48,7 +48,7 @@
       </div>
 
       <div class="card">
-        <div class="card-hd"><span class="card-ttl">GPM Trend</span><span class="text-gd text-[11.5px] font-bold">542 avg</span></div>
+        <div class="card-hd"><span class="card-ttl">GPM Trend</span><span class="text-gd text-sm font-bold">542 avg</span></div>
         <svg viewBox="0 0 300 110" class="w-full h-auto">
           <defs>
             <linearGradient id="gpt" x1="0" y1="0" x2="0" y2="1">
@@ -76,13 +76,13 @@
         {#each HEROES as h}
           {@const color = h.winrate >= 60 ? 'var(--color-gr)' : h.winrate >= 50 ? 'var(--color-gd)' : 'var(--color-rd)'}
           <div class="flex items-center gap-[11px] py-1.75 border-b border-bd last:border-b-0">
-            <span class="text-[16px] w-[22px] text-center">{h.icon}</span>
-            <span class="text-[12.5px] font-semibold w-[130px] truncate">{h.name}</span>
+            <span class="text-lg w-[22px] text-center">{h.icon}</span>
+            <span class="text-base font-semibold w-[130px] truncate">{h.name}</span>
             <div class="flex-1 bg-s3 rounded-sm h-[7px] overflow-hidden">
               <div class="h-full rounded-sm" style="background: {color}; width: {h.winrate}%"></div>
             </div>
-            <span class="text-[12px] font-bold w-[38px] text-right" style="color: {color}">{h.winrate}%</span>
-            <span class="text-[10.5px] text-tx3 w-[48px] text-right">{h.matches}g</span>
+            <span class="text-sm font-bold w-[38px] text-right" style="color: {color}">{h.winrate}%</span>
+            <span class="text-xs text-tx3 w-[48px] text-right">{h.matches}g</span>
           </div>
         {/each}
       </div>
@@ -93,19 +93,19 @@
         <div class="card-hd"><span class="card-ttl">Win Rate by Role</span></div>
         <div class="flex flex-col gap-[11px] pt-1">
           <div>
-            <div class="flex justify-between text-[12px] mb-1.25"><span>Core (Carry)</span><span class="text-pu2 font-bold">61%</span></div>
+            <div class="flex justify-between text-sm mb-1.25"><span>Core (Carry)</span><span class="text-pu2 font-bold">61%</span></div>
             <div class="h-[7px] bg-s3 rounded-sm overflow-hidden"><div class="h-full bg-pu2 rounded-sm" style="width: 61%"></div></div>
           </div>
           <div>
-            <div class="flex justify-between text-[12px] mb-1.25"><span>Mid Lane</span><span class="text-gr font-bold">54%</span></div>
+            <div class="flex justify-between text-sm mb-1.25"><span>Mid Lane</span><span class="text-gr font-bold">54%</span></div>
             <div class="h-[7px] bg-s3 rounded-sm overflow-hidden"><div class="h-full bg-gr rounded-sm" style="width: 54%"></div></div>
           </div>
           <div>
-            <div class="flex justify-between text-[12px] mb-1.25"><span>Support</span><span class="text-gd font-bold">48%</span></div>
+            <div class="flex justify-between text-sm mb-1.25"><span>Support</span><span class="text-gd font-bold">48%</span></div>
             <div class="h-[7px] bg-s3 rounded-sm overflow-hidden"><div class="h-full bg-gd rounded-sm" style="width: 48%"></div></div>
           </div>
           <div>
-            <div class="flex justify-between text-[12px] mb-1.25"><span>Offlane</span><span class="text-rd font-bold">38%</span></div>
+            <div class="flex justify-between text-sm mb-1.25"><span>Offlane</span><span class="text-rd font-bold">38%</span></div>
             <div class="h-[7px] bg-s3 rounded-sm overflow-hidden"><div class="h-full bg-rd rounded-sm" style="width: 38%"></div></div>
           </div>
         </div>
@@ -113,10 +113,10 @@
       <div class="card">
         <div class="card-hd"><span class="card-ttl">Games by Role</span></div>
         <div class="flex flex-col gap-2 pt-1">
-          <div class="flex items-center gap-[9px] text-[12.5px]"><div class="w-2.5 h-2.5 rounded-xs bg-pu2 shrink-0"></div>Core (Carry)<span class="ml-auto font-bold">45%</span></div>
-          <div class="flex items-center gap-[9px] text-[12.5px]"><div class="w-2.5 h-2.5 rounded-xs bg-gr shrink-0"></div>Mid Lane<span class="ml-auto font-bold">25%</span></div>
-          <div class="flex items-center gap-[9px] text-[12.5px]"><div class="w-2.5 h-2.5 rounded-xs bg-gd shrink-0"></div>Support<span class="ml-auto font-bold">17%</span></div>
-          <div class="flex items-center gap-[9px] text-[12.5px]"><div class="w-2.5 h-2.5 rounded-xs bg-bl shrink-0"></div>Offlane<span class="ml-auto font-bold">13%</span></div>
+          <div class="flex items-center gap-[9px] text-sm"><div class="w-2.5 h-2.5 rounded-xs bg-pu2 shrink-0"></div>Core (Carry)<span class="ml-auto font-bold">45%</span></div>
+          <div class="flex items-center gap-[9px] text-sm"><div class="w-2.5 h-2.5 rounded-xs bg-gr shrink-0"></div>Mid Lane<span class="ml-auto font-bold">25%</span></div>
+          <div class="flex items-center gap-[9px] text-sm"><div class="w-2.5 h-2.5 rounded-xs bg-gd shrink-0"></div>Support<span class="ml-auto font-bold">17%</span></div>
+          <div class="flex items-center gap-[9px] text-sm"><div class="w-2.5 h-2.5 rounded-xs bg-bl shrink-0"></div>Offlane<span class="ml-auto font-bold">13%</span></div>
         </div>
       </div>
     </div>
@@ -125,17 +125,17 @@
       <div class="kpi">
         <div class="kpi-lbl">Total Matches</div>
         <div class="kpi-val text-pu">127</div>
-        <div class="text-[10.5px] text-tx2"><span class="text-gr">↑ 23</span> this month</div>
+        <div class="text-xs text-tx2"><span class="text-gr">↑ 23</span> this month</div>
       </div>
       <div class="kpi">
         <div class="kpi-lbl">Avg Match Length</div>
         <div class="kpi-val text-gd">38:14</div>
-        <div class="text-[10.5px] text-tx2"><span class="text-rd">↓ 2:10</span> vs last month</div>
+        <div class="text-xs text-tx2"><span class="text-rd">↓ 2:10</span> vs last month</div>
       </div>
       <div class="kpi">
         <div class="kpi-lbl">Hero Pool Size</div>
         <div class="kpi-val text-gr">12</div>
-        <div class="text-[10.5px] text-tx2"><span class="text-gr">↑ 2</span> heroes added</div>
+        <div class="text-xs text-tx2"><span class="text-gr">↑ 2</span> heroes added</div>
       </div>
     </div>
   {/if}
