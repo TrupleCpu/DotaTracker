@@ -28,6 +28,8 @@
   --color-gdb: rgba(245, 158, 11, 0.12);
   --color-bl: #06b6d4;
   --color-blb: rgba(6, 182, 212, 0.12);
+  --color-rn: #a855f7;
+  --color-rnb: rgba(168, 85, 247, 0.12);
   --color-tx: #f4f4f5;
   --color-tx2: #a1a1aa;
   --color-tx3: #52525b;
@@ -86,6 +88,12 @@
   }
   ::-webkit-scrollbar-thumb:hover {
     background: var(--color-tx3);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-bl);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 }
 

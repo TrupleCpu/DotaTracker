@@ -21,9 +21,16 @@
   // Roshan/tower-kill/smoke events, no ward-destroy timestamps, and no
   // gold/xp-per-kill or buyback data. Anything that would require those
   // is intentionally left out rather than approximated.
+  //
+  // GOAL: "How can we improve through stats" — the Insights tab is the
+  // primary surface of this component. Every other tab (Map, Economy,
+  // Combat, Timeline) exists to let the person drill into *evidence* for
+  // a finding raised in Insights, not the other way around. Anywhere we
+  // show a number that isn't directly from the data (e.g. estimated gold
+  // lost while dead), it is explicitly labeled as an estimate.
   // ──────────────────────────────────────────────────────────────────────
 
-  let activeSubTab = $state('map')
+  let activeSubTab = $state('insights')
 
   const detailedMatch = detailedMatchData.data.match
   const players = detailedMatch.players
@@ -34,6 +41,54 @@
 
   function getHeroImgUrl(img: string): string {
     return `hero-asset://${img.replace(/^hero-assets\//, '')}`
+  }
+
+  // ── Keyboard shortcuts ───────────────────────────────────────────────
+  const subTabOrder = ['insights', 'map', 'economy', 'combat', 'timeline']
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) return
+
+    if (e.key === 'ArrowLeft') {
+      selectedPlayerIndex = (selectedPlayerIndex - 1 + players.length) % players.length
+    } else if (e.key === 'ArrowRight') {
+      selectedPlayerIndex = (selectedPlayerIndex + 1) % players.length
+    } else if (e.key >= '1' && e.key <= '5') {
+      activeSubTab = subTabOrder[parseInt(e.key) - 1]
+    } else if (e.key === ' ' && activeSubTab === 'map') {
+      e.preventDefault()
+      togglePlayback()
+    }
+  }
+
+  // ── Copy coaching summary ────────────────────────────────────────────
+  let copyFeedback = $state(false)
+
+  function copyCoachingSummary() {
+    const hero = heroInfo?.localized_name || `Hero ${focusedPlayer.heroId}`
+    const lines: string[] = [
+      `DotaTracker Match Review — ${hero} (${roleShortLabel(focusedPlayer.position)}, ${focusedPlayer.isVictory ? 'Win' : 'Loss'})`,
+      `Grade: ${performanceGrade.grade} — ${performanceGrade.label}`,
+      `Stats: ${focusedPlayer.kills}/${focusedPlayer.deaths}/${focusedPlayer.assists} KDA | ${focusedPlayer.goldPerMinute} GPM | ${focusedPlayer.networth.toLocaleString()} Net Worth`,
+      ''
+    ]
+
+    for (const check of coachingChecklist) {
+      lines.push(`  ${check.done ? '✓' : '✗'} ${check.title}: ${check.desc}`)
+    }
+    lines.push('')
+
+    if (biggestGap) {
+      lines.push(`Biggest gap: ${biggestGap.label} — ${Math.round(Math.abs(biggestGap.pct))}% ${biggestGap.pct < 0 ? 'behind' : 'ahead'} vs. ${enemyMirrorHero?.localized_name || 'enemy mirror'}`)
+    }
+    if (deathClusters.length > 0) {
+      lines.push(`Death clusters: ${deathClusters.map((c) => `${c.count}x ${c.landmark}`).join(', ')}`)
+    }
+
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      copyFeedback = true
+      setTimeout(() => (copyFeedback = false), 2000)
+    })
   }
 
   $effect(() => {
@@ -161,6 +216,85 @@
   $effect(() => {
     timeSliderValue = matchDurationSeconds
   })
+
+  // ── Phase filter state (Map tab) ────────────────────────────────────
+  type MatchPhase = 'all' | 'laning' | 'midgame' | 'late'
+  let activePhase = $state<MatchPhase>('all')
+
+  const phaseRanges: Record<MatchPhase, { label: string; min: number; max: number }> = {
+    all: { label: 'All', min: 0, max: Infinity },
+    laning: { label: 'Laning (0-10m)', min: 0, max: 600 },
+    midgame: { label: 'Mid (10-25m)', min: 600, max: 1500 },
+    late: { label: 'Late (25m+)', min: 1500, max: Infinity }
+  }
+
+  function setPhase(phase: MatchPhase) {
+    activePhase = phase
+    const range = phaseRanges[phase]
+    if (phase === 'all') {
+      timeSliderValue = matchDurationSeconds
+    } else {
+      timeSliderValue = range.max === Infinity ? matchDurationSeconds : range.max
+    }
+  }
+
+  // ── Map playback animation ──────────────────────────────────────────
+  let playbackPlaying = $state(false)
+  let playbackSpeed = $state(2)
+  let playbackRafId: number | null = null
+  let lastPlaybackTick = $state(0)
+
+  function togglePlayback() {
+    if (playbackPlaying) {
+      stopPlayback()
+    } else {
+      startPlayback()
+    }
+  }
+
+  function startPlayback() {
+    if (timeSliderValue >= matchDurationSeconds) {
+      timeSliderValue = 0
+    }
+    playbackPlaying = true
+    lastPlaybackTick = performance.now()
+    playbackRafId = requestAnimationFrame(playbackTick)
+  }
+
+  function stopPlayback() {
+    playbackPlaying = false
+    if (playbackRafId !== null) {
+      cancelAnimationFrame(playbackRafId)
+      playbackRafId = null
+    }
+  }
+
+  function playbackTick(now: number) {
+    if (!playbackPlaying) return
+    const elapsed = now - lastPlaybackTick
+    const advanceSec = (elapsed / 1000) * playbackSpeed * 60 // seconds per real second at speed
+    timeSliderValue = Math.min(matchDurationSeconds, timeSliderValue + advanceSec)
+    lastPlaybackTick = now
+
+    if (timeSliderValue >= matchDurationSeconds) {
+      stopPlayback()
+      return
+    }
+    playbackRafId = requestAnimationFrame(playbackTick)
+  }
+
+  function setPlaybackSpeed(speed: number) {
+    playbackSpeed = speed
+  }
+
+  // Stop playback when user manually scrubs
+  function onScrub() {
+    if (playbackPlaying) stopPlayback()
+  }
+
+  function formatSpeedLabel(speed: number): string {
+    return `${speed}×`
+  }
 
   interface MapEvent {
     type: 'kill' | 'death' | 'ward_obs' | 'ward_sent' | 'rune'
@@ -365,6 +499,18 @@
     return { observers, sentries, total: wards.length }
   })
 
+  // Ward timing bucket — when vision is placed matters more than the raw
+  // count. Early game (< 10:00) is when carries are most exposed, so a
+  // support drawing all wards late is a coachable pattern the count alone
+  // hides.
+  const wardTimingSummary = $derived.by(() => {
+    const wards = focusedPlayer.stats.wards || []
+    const early = wards.filter((w: any) => w.time < 600).length
+    const mid = wards.filter((w: any) => w.time >= 600 && w.time < 1500).length
+    const late = wards.filter((w: any) => w.time >= 1500).length
+    return { early, mid, late, total: wards.length }
+  })
+
   let tooltipEvent = $state<MapEvent | null>(null)
   let tooltipStyle = $state('')
 
@@ -446,6 +592,68 @@
     }
   }
 
+  // Expected farm share heuristic per role for jungle vs. lane distribution
+  function expectedFarmShare(farmName: string, position: string): number {
+    const isJungle = farmName.includes('Jungle') || farmName.includes('Triangle') || farmName.includes('Ancients')
+    const isRiver = farmName.includes('River') || farmName.includes('Rosh')
+    const corePositions = ['POSITION_1', 'POSITION_2']
+
+    if (isRiver) return 5
+    if (corePositions.includes(position)) {
+      return isJungle ? 30 : 60
+    }
+    if (position === 'POSITION_3') {
+      return isJungle ? 45 : 40
+    }
+    return isJungle ? 20 : 15 // supports
+  }
+
+  function farmInsightNote(): string {
+    const pos = focusedPlayer.position
+    const list = focusedPlayer.stats.farmDistributionReport?.creepLocation || []
+    const totalXP = list.reduce((sum: number, c: any) => sum + (c.xp || 0), 0)
+    if (totalXP === 0) return 'No creep data recorded.'
+
+    let jungleXP = 0
+    list.forEach((c: any) => {
+      const name = getFarmLocationName(c.id)
+      if (!name.includes('Lane') && !name.includes('River') && !name.includes('Rosh')) {
+        jungleXP += c.xp || 0
+      }
+    })
+    const junglePct = totalXP > 0 ? Math.round((jungleXP / totalXP) * 100) : 0
+    const corePositions = ['POSITION_1', 'POSITION_2']
+
+    if (corePositions.includes(pos)) {
+      if (junglePct > 50) return `Careful: ${junglePct}% jungle farm. Core heroes should prioritize lane creeps (higher gold/xp per creep) over jungle camps when safe. Heavy jungle reliance before 14m often leaves lane pressure open for the enemy.`
+      if (junglePct > 35) return `Solid balance — ${junglePct}% jungle vs. ${100 - junglePct}% lane. Lane creeps give more gold; press lanes before rotating into jungle stacks.`
+      return `Great lane priority — ${100 - junglePct}% lane farm. Lane creeps yield the highest gold/min; keeping lane pressure up is the right call.`
+    }
+    if (pos === 'POSITION_3') {
+      if (junglePct > 70) return `Heavy jungle focus (${junglePct}%). Offlaners should split farm between lane pressure and jungle stacks. Less lane time means less disruption of the enemy carry.`
+      return `Good farm split — ~${100 - junglePct}% lane / ~${junglePct}% jungle. Offlane benefits from both pressure and stacking.`
+    }
+    if (junglePct > 40) return `Support with high jungle share (${junglePct}%). Farm priority should stay with cores — consider spending more time warding, stacking, or roaming for ganks.`
+    return `Support farm looks appropriate — low overall, mostly incidental.`
+  }
+
+  // Rough "expected" farm-source share by role, used only to give the
+  // farm-distribution report a benchmark to compare against instead of a
+  // bare list of locations. These are heuristics, not ground truth, and
+  // are labeled as such in the UI.
+  function expectedFarmNote(position: string): string {
+    switch (position) {
+      case 'POSITION_1':
+        return 'Carries typically want the bulk of early farm from their safe lane and own jungle — heavy time in the enemy jungle before items come online usually means lost safety, not extra value.'
+      case 'POSITION_2':
+        return 'Mid heroes should draw most farm from the mid lane itself plus quick rotations into nearby jungle camps between waves.'
+      case 'POSITION_3':
+        return 'Offlaners typically split farm between their lane and jungle stacks, picking up whatever the safe-lane carry doesn\u2019t need.'
+      default:
+        return 'Supports usually farm far less by design — a large share of creep farm here often means less time spent warding, stacking, or setting up kills for the team.'
+    }
+  }
+
   // ── Reusable per-minute chart builder (Economy tab) ─────────────────
   type EconomyMetric = 'networth' | 'heroDamage' | 'damageTaken' | 'healing' | 'towerDamage'
 
@@ -489,7 +697,10 @@
 
   // Role-mirrored comparison: carry vs carry, mid vs mid, offlane vs
   // offlane, soft support vs soft support, hard support vs hard support —
-  // whichever position the focused player is, on the opposing team.
+  // whichever position the focused player is, on the opposing team. This
+  // is the only fair baseline available (no match history exists), so it
+  // is promoted from "just a chart overlay" to the backbone of the
+  // Insights tab below.
   const enemyMirrorPlayer = $derived.by(() => {
     const isRadiant = selectedPlayerIndex < 5
     const idx = players.findIndex((p, i) => {
@@ -508,6 +719,112 @@
   const focusChartPaths = $derived(buildLinePath(focusSeries, chartMax))
   const enemyChartPaths = $derived(buildLinePath(enemySeries, chartMax))
   const networthLead = $derived(enemyMirrorPlayer ? focusedPlayer.networth - enemyMirrorPlayer.networth : 0)
+
+  // ── Game snapshot — one-glance summary card ──────────────────────────
+  interface GameSnapshot {
+    roleSummary: string
+    outcomeQuality: string
+    topStats: { label: string; value: string; color: string }[]
+    gradeLabel: string
+  }
+
+  const gameSnapshot = $derived.by((): GameSnapshot => {
+    const roleMap: Record<string, string> = {
+      POSITION_1: 'As Carry, your job is to farm efficiently, survive early ganks, and dominate late-game teamfights with item advantage.',
+      POSITION_2: 'As Mid, your job is to win the lane, rotate for ganks, and set the tempo for your team through the mid-game.',
+      POSITION_3: 'As Offlane, your job is to disrupt enemy farm, create space, and initiate key teamfights.',
+      POSITION_4: 'As Soft Support, your job is to roam, set up ganks, stack camps, and secure vision in contested areas.',
+      POSITION_5: 'As Hard Support, your job is to protect your carry in lane, ward defensively, and enable your cores to farm safely.'
+    }
+
+    const outcomeQuality = focusedPlayer.isVictory
+      ? `${heroInfo?.localized_name || 'Your hero'} helped secure victory.`
+      : `Defeat — review survival patterns and farm timing to avoid similar losses.`
+
+    const topStats: { label: string; value: string; color: string }[] = [
+      { label: 'GPM', value: focusedPlayer.goldPerMinute.toString(), color: focusedPlayer.goldPerMinute >= 550 ? 'text-emerald-400' : 'text-amber-400' },
+      { label: 'KDA', value: kdaText, color: kdaVal >= 3 ? 'text-emerald-400' : 'text-rose-400' },
+      { label: 'Deaths', value: focusedPlayer.deaths.toString(), color: focusedPlayer.deaths <= 4 ? 'text-emerald-400' : 'text-rose-400' }
+    ]
+
+    return {
+      roleSummary: roleMap[focusedPlayer.position] || 'Focus on your role-specific responsibilities.',
+      outcomeQuality,
+      topStats,
+      gradeLabel: performanceGrade.label
+    }
+  })
+
+  const kdaVal = $derived((focusedPlayer.kills + focusedPlayer.assists) / Math.max(focusedPlayer.deaths, 1))
+
+  // ── Actionable advice generator per mirror gap ───────────────────────
+  function gapAdvice(gap: MirrorGap, enemyHeroName: string): string {
+    const hero = heroInfo?.localized_name || 'You'
+    switch (gap.key) {
+      case 'goldPerMinute':
+        if (gap.pct < 0) return `${hero} earned ${gap.pct >= 0 ? '+' : ''}${Math.round(gap.pct)}% less gold/min than ${enemyHeroName}. Prioritize lane creeps (higher gold yield) over inefficient jungle rotations, and avoid deaths that pause farm for ~45s each.`
+        return `${hero} out-earned ${enemyHeroName} by ${Math.round(gap.pct)}% in gold/min — strong farm efficiency. Keep hitting lane timings before rotating.`
+      case 'experiencePerMinute':
+        if (gap.pct < 0) return `${hero} trailed ${enemyHeroName} in XPM by ${Math.abs(Math.round(gap.pct))}%. Missing wisdom runes or dying early slows level curve; check rune pickup timestamps in Timeline.`
+        return `${hero} had ${Math.round(gap.pct)}% more XPM than ${enemyHeroName} — good XP acceleration.`
+      case 'networth':
+        if (gap.pct < 0) return `Net worth gap of ${Math.abs(Math.round(gap.pct))}% behind ${enemyHeroName}. Each death costs ~200-400g from lost farm + feed bounty; review your death map to tighten survival.`
+        return `+${Math.round(gap.pct)}% net worth lead over ${enemyHeroName} — your item advantage translated well.`
+      case 'deaths':
+        if (gap.pct < 0) return `${hero} died ${Math.abs(Math.round(gap.pct))}% more than ${enemyHeroName}. Repeated death locations indicate positioning issues — click Map tab to review where you were caught.`
+        return `${hero} died ${Math.abs(Math.round(gap.pct))}% less than ${enemyHeroName} — excellent survival.`
+      case 'kills':
+        if (gap.pct < 0) return `${hero} scored ${Math.abs(Math.round(gap.pct))}% fewer kills than ${enemyHeroName}. Consider earlier item timing to spike your kill potential, or rotate onto vulnerable lanes more aggressively.`
+        return `${hero} secured ${Math.round(gap.pct)}% more kills than ${enemyHeroName} — strong kill pressure.`
+      default:
+        return ''
+    }
+  }
+
+  // ── Ranked mirror-comparison gaps (Insights) ────────────────────────
+  // Every gap is expressed as "you vs. your role counterpart," ranked by
+  // the size of the relative gap so the biggest lever surfaces first
+  // instead of a fixed, arbitrarily-ordered checklist.
+  interface MirrorGap {
+    key: string
+    label: string
+    mine: number
+    theirs: number
+    diff: number
+    pct: number
+    goodIfPositive: boolean
+    format: (n: number) => string
+    advice: string
+  }
+
+  const mirrorGaps = $derived.by((): MirrorGap[] => {
+    if (!enemyMirrorPlayer) return []
+    const defs: { key: string; label: string; goodIfPositive: boolean; format: (n: number) => string }[] = [
+      { key: 'goldPerMinute', label: 'Gold Per Minute', goodIfPositive: true, format: (n) => Math.round(n).toString() },
+      { key: 'experiencePerMinute', label: 'Experience Per Minute', goodIfPositive: true, format: (n) => Math.round(n).toString() },
+      { key: 'networth', label: 'Net Worth', goodIfPositive: true, format: (n) => `${Math.round(n).toLocaleString()}g` },
+      { key: 'deaths', label: 'Deaths', goodIfPositive: false, format: (n) => Math.round(n).toString() },
+      { key: 'kills', label: 'Kills', goodIfPositive: true, format: (n) => Math.round(n).toString() }
+    ]
+
+    const enemyName = enemyMirrorHero?.localized_name || enemyMirrorRoleLabel
+    return defs
+      .map((d) => {
+        const mine = focusedPlayer[d.key] ?? 0
+        const theirs = enemyMirrorPlayer[d.key] ?? 0
+        const rawDiff = mine - theirs
+        const diff = d.goodIfPositive ? rawDiff : -rawDiff
+        const base = Math.abs(theirs) > 0 ? Math.abs(theirs) : Math.abs(mine) || 1
+        const pct = (diff / base) * 100
+        const gap: MirrorGap = { ...d, mine, theirs, diff, pct, advice: '' }
+        gap.advice = gapAdvice(gap, enemyName)
+        return gap
+      })
+      .sort((a, b) => a.pct - b.pct)
+  })
+
+  const biggestGap = $derived(mirrorGaps.length > 0 ? mirrorGaps[0] : null)
+  const strongestEdge = $derived(mirrorGaps.length > 0 ? mirrorGaps[mirrorGaps.length - 1] : null)
 
   // Interactive chart hover state — drives the floating tooltip, the
   // snapped cursor dot, and the shared cursorTime used elsewhere.
@@ -562,6 +879,66 @@
   // Level ring on the side of the Economy chart — Dota hero levels cap at 30.
   const levelRingFraction = $derived(Math.min(1, focusedPlayer.level / 30))
 
+  // ── Item purchase markers for networth chart ────────────────────────
+  // Items costing ≥1000g get a vertical mark so you can see when each
+  // power spike landed relative to the networth curve.
+  interface ItemChartMarker {
+    minuteIdx: number
+    time: number
+    itemId: number
+    name: string
+    cost: number
+    imgUrl: string
+  }
+
+  const itemChartMarkers = $derived.by((): ItemChartMarker[] => {
+    const purchases = (focusedPlayer.stats.itemPurchases || [])
+      .filter((p: any) => {
+        const item = getItem(p.itemId)
+        return item && item.cost >= 1000 && p.time >= 0
+      })
+      .sort((a: any, b: any) => a.time - b.time)
+
+    return purchases.map((p: any) => {
+      const item = getItem(p.itemId)!
+      return {
+        minuteIdx: Math.round(p.time / 60),
+        time: p.time,
+        itemId: p.itemId,
+        name: item.dname,
+        cost: item.cost,
+        imgUrl: getItemImgUrl(item.img)
+      }
+    })
+  })
+
+  // ── Alive/dead GPM ───────────────────────────────────────────────────
+  // Shows how much farm efficiency death downtime costs. Estimated from
+  // deathEvents respawn intervals + 45s walking-back time.
+  const aliveEfficiency = $derived.by(() => {
+    const deathEvents = focusedPlayer.stats.deathEvents || []
+    const networth = focusedPlayer.networth
+
+    let deadSeconds = 0
+    for (const d of deathEvents) {
+      const respawnSec = Math.min(100, 10 + d.time / 30)
+      deadSeconds += respawnSec + 45
+    }
+
+    const matchSec = (focusedPlayer.stats.networthPerMinute || []).length * 60
+    const aliveSec = Math.max(1, matchSec - deadSeconds)
+    const aliveGPM = Math.round((networth / aliveSec) * 60)
+    const totalGPM = focusedPlayer.goldPerMinute
+
+    return {
+      deadSeconds,
+      aliveSec,
+      aliveGPM,
+      totalGPM,
+      efficiencyLoss: totalGPM > 0 ? Math.round(((aliveGPM - totalGPM) / totalGPM) * 100) : 0
+    }
+  })
+
   const farmDistributionList = $derived.by(() => {
     const list = focusedPlayer.stats.farmDistributionReport?.creepLocation || []
     const totalXP = list.reduce((sum: number, c: any) => sum + (c.xp || 0), 0)
@@ -603,46 +980,174 @@
     return { name, time: timing.time, status, statusText, color, itemIcon: getItemImgUrl(`item-assets/images/${itemId}.png`) }
   }
 
+  // Hero-specific power-spike items (only meaningful for a handful of
+  // heroes/positions) plus two role-general milestones — first item back
+  // and boots timing — so every player gets at least one timing data
+  // point instead of an empty state.
   const gameplayMilestones = $derived.by(() => {
-    return [
+    const heroSpecific = [
       buildMilestone(145, 'Battle Fury Timing', [15, 18]),
       buildMilestone(147, 'Manta Style Timing', [22, 26]),
       buildMilestone(208, 'Abyssal Blade Timing', [35, 38])
     ].filter((m): m is GameplayMilestone => m !== null)
+
+    const purchases = (focusedPlayer.stats.itemPurchases || []).slice().sort((a: any, b: any) => a.time - b.time)
+    const general: GameplayMilestone[] = []
+
+    // Boots line (any tier) — first boots purchased, role-agnostic.
+    const bootIds = new Set([1, 63, 64, 65, 68, 145, 617]) // common boot upgrade lines present in most item tables
+    const bootsPurchase = purchases.find((p: any) => bootIds.has(p.itemId))
+    if (bootsPurchase) {
+      const minutes = bootsPurchase.time / 60
+      const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(focusedPlayer.position)
+      const thresholds: [number, number] = isCore ? [7, 10] : [8, 12]
+      const item = getItem(bootsPurchase.itemId)
+      let color = 'text-gr'
+      let statusText = `Excellent (Under ${thresholds[0]}m)`
+      let status: 'ontime' | 'delayed' | 'late' = 'ontime'
+      if (minutes > thresholds[1]) {
+        status = 'late'; statusText = `Late (Over ${thresholds[1]}m)`; color = 'text-rd'
+      } else if (minutes > thresholds[0]) {
+        status = 'delayed'; statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`; color = 'text-gd'
+      }
+      general.push({
+        name: 'First Boots Timing',
+        time: bootsPurchase.time,
+        status,
+        statusText,
+        color,
+        itemIcon: item ? getItemImgUrl(item.img) : ''
+      })
+    }
+
+    // First meaningful item (cost >= 1000) — a role-agnostic proxy for
+    // "how long before your first real power spike."
+    const firstBig = purchases.find((p: any) => {
+      const item = getItem(p.itemId)
+      return item && item.cost >= 1000
+    })
+    if (firstBig) {
+      const minutes = firstBig.time / 60
+      const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(focusedPlayer.position)
+      const thresholds: [number, number] = isCore ? [12, 18] : [15, 22]
+      const item = getItem(firstBig.itemId)
+      let color = 'text-gr'
+      let statusText = `Excellent (Under ${thresholds[0]}m)`
+      let status: 'ontime' | 'delayed' | 'late' = 'ontime'
+      if (minutes > thresholds[1]) {
+        status = 'late'; statusText = `Late (Over ${thresholds[1]}m)`; color = 'text-rd'
+      } else if (minutes > thresholds[0]) {
+        status = 'delayed'; statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`; color = 'text-gd'
+      }
+      general.push({
+        name: 'First Power Item Timing',
+        time: firstBig.time,
+        status,
+        statusText,
+        color,
+        itemIcon: item ? getItemImgUrl(item.img) : ''
+      })
+    }
+
+    return [...heroSpecific, ...general]
+  })
+
+  // ── Death clustering (Insights + Combat) ────────────────────────────
+  // Groups deaths by nearest landmark so a repeated pattern ("died near
+  // the same tower 3 times") surfaces instead of a flat, unclustered log.
+  interface DeathCluster {
+    landmark: string
+    count: number
+    times: number[]
+  }
+
+  const deathClusters = $derived.by((): DeathCluster[] => {
+    const byLandmark = new Map<string, number[]>()
+    for (const ev of focusedPlayerEvents) {
+      if (ev.type !== 'death') continue
+      const list = byLandmark.get(ev.landmark) || []
+      list.push(ev.time)
+      byLandmark.set(ev.landmark, list)
+    }
+    return [...byLandmark.entries()]
+      .map(([landmark, times]) => ({ landmark, count: times.length, times }))
+      .filter((c) => c.count >= 2)
+      .sort((a, b) => b.count - a.count)
   })
 
   const coachingChecklist = $derived.by(() => {
-    const list: { title: string; desc: string; done: boolean; color: string }[] = []
-
+    const list: { title: string; desc: string; target: string; done: boolean; color: string; tabLink?: string }[] = []
+    const pos = focusedPlayer.position
+    const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(pos)
     const gpm = focusedPlayer.goldPerMinute
-    if (gpm >= 700) {
-      list.push({ title: 'Maximize GPM Farm Rate', desc: `Completed! You maintained a massive ${gpm} GPM, capturing lane pressure and securing standard creep patterns.`, done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+    const deaths = focusedPlayer.deaths
+
+    // 1) GPM — role-aware thresholds with graduated targets
+    const gpmTargets = isCore
+      ? { done: 700, target: 550, hint: (t: number) => `Target: 650+ GPM. At ${gpm}, aim for ${t}+ next game by hitting lane creeps more often.` }
+      : { done: 450, target: 300, hint: (t: number) => `Target: 400+ GPM for supports. At ${gpm}, aim for ${t}+ next game through bounties, assists, and tower pushes.` }
+
+    if (gpm >= gpmTargets.done) {
+      list.push({ title: 'Farming Velocity', desc: `Strong — ${gpm} GPM exceeds benchmarks for ${roleShortLabel(pos)}. Maintain lane pressure and stack-clearing pattern.`, target: '', done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
     } else {
-      list.push({ title: 'Farming Velocity stalled', desc: `Your GPM was ${gpm}. As a Carry, aim for at least 650 GPM by pushing waves, stack-clearing, and prioritizing survival.`, done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300' })
+      const nextTarget = Math.max(gpmTargets.target, gpm + 50)
+      list.push({ title: 'Farming Velocity', desc: `At ${gpm} GPM, you're below ${roleShortLabel(pos)} benchmarks. ${gpmTargets.hint(nextTarget)}`, target: `→ ${nextTarget} GPM`, done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300' })
     }
 
-    const bfTiming = focusedPlayer.stats.itemPurchases?.find((p: any) => p.itemId === 145)
-    if (bfTiming) {
-      const bfMin = bfTiming.time / 60
-      if (bfMin <= 15) {
-        list.push({ title: 'Early Core Farming Timing', desc: `Completed! Battle Fury secured at ${formatTime(bfTiming.time)} minutes, laying down strong farming foundations.`, done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+    // 2) Survivability
+    const deathThresholds = isCore ? { done: 3, target: 6 } : { done: 4, target: 7 }
+    if (deaths <= deathThresholds.done) {
+      list.push({ title: 'Survival & Position', desc: `${deaths} deaths — excellent positioning. Keep your current map awareness.`, target: '', done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+    } else {
+      list.push({ title: 'Survival & Position', desc: `${deaths} deaths — each one costs farm time and feeds opponents. Review the Map tab to see repeated danger zones.`, target: `→ ≤${deathThresholds.done} deaths`, done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300', tabLink: 'map' })
+    }
+
+    // 3) Item timing — first meaningful item (≥1000g cost)
+    const purchases = (focusedPlayer.stats.itemPurchases || []).slice().sort((a: any, b: any) => a.time - b.time)
+    const firstBig = purchases.find((p: any) => {
+      const item = getItem(p.itemId)
+      return item && item.cost >= 1000
+    })
+    if (firstBig) {
+      const item = getItem(firstBig.itemId)!
+      const minutes = firstBig.time / 60
+      const timingTargets = isCore && (pos === 'POSITION_1' || pos === 'POSITION_2')
+        ? { done: 12, target: 18 }
+        : { done: 15, target: 22 }
+
+      if (minutes <= timingTargets.done) {
+        list.push({ title: 'First Power Item Timing', desc: `Outstanding — ${item.dname} secured at ${formatTime(firstBig.time)}, ~${Math.round(timingTargets.done - minutes)} min ahead of benchmark.`, target: '', done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+      } else if (minutes <= timingTargets.target) {
+        list.push({ title: 'First Power Item Timing', desc: `${item.dname} at ${formatTime(firstBig.time)} is on-pace. Next game, aim to shave 1-2 min off by avoiding early deaths and securing bounty runes.`, target: `→ ≤${timingTargets.done}m`, done: false, color: 'border-amber-500/25 bg-amber-950/15 text-amber-300' })
       } else {
-        list.push({ title: 'Farming Core was Delayed', desc: `Your Battle Fury timing was ${formatTime(bfTiming.time)}. Try to secure starting components faster by avoiding lane deaths before 10m.`, done: false, color: 'border-amber-500/25 bg-amber-950/15 text-amber-300' })
+        list.push({ title: 'First Power Item Timing', desc: `${item.dname} at ${formatTime(firstBig.time)} is ${Math.round(minutes - timingTargets.target)} min late. Focus on safe CS in lane before 10m; each early death delays your power spike significantly.`, target: `→ ≤${timingTargets.target}m`, done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300' })
       }
     }
 
-    const deaths = focusedPlayer.deaths
-    if (deaths <= 2) {
-      list.push({ title: 'High Survival & Positional Safety', desc: `Completed! You only died ${deaths} times, preserving farm streaks and avoiding gold loss.`, done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+    // 4) Core Checklist — fight participation for carries
+    const totalDamage = (focusedPlayer.stats.heroDamagePerMinute || []).reduce((a: number, b: number) => a + b, 0)
+    if (isCore) {
+      const dmgPerKill = focusedPlayer.kills > 0 ? Math.round(totalDamage / focusedPlayer.kills) : totalDamage
+      const dmgOk = totalDamage >= (focusedPlayer.isVictory ? 18000 : 15000)
+      if (dmgOk) {
+        list.push({ title: 'Teamfight Output', desc: `${totalDamage.toLocaleString()} hero damage (~${dmgPerKill.toLocaleString()} per kill) — you turned net worth into fight impact.`, target: '', done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+      } else {
+        list.push({ title: 'Teamfight Output', desc: `${totalDamage.toLocaleString()} hero damage is low for a ${roleShortLabel(pos)}. With your net worth, consider joining fights when your key item is online.`, target: '→ Join 2+ more teamfights at item spike', done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300' })
+      }
     } else {
-      list.push({ title: 'Caught Out / High Casualties', desc: `You died ${deaths} times. Each death drops net worth, pauses farm for ~45s, and feeds opponents. Review the Map tab to see where you were caught.`, done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300' })
-    }
+      // 4) Support Checklist — vision & utility
+      const wards = focusedPlayer.stats.wards || []
+      const earlyWards = wards.filter((w: any) => w.time < 600).length
+      const totalWards = wards.length
+      const wardsOk = totalWards >= 15 && earlyWards >= 4
 
-    const damageDealt = (focusedPlayer.stats.heroDamagePerMinute || []).reduce((a: number, b: number) => a + b, 0)
-    if (damageDealt >= 20000) {
-      list.push({ title: 'High Teamfight Output Impact', desc: `Completed! You dealt ${damageDealt.toLocaleString()} hero damage, utilizing items to secure kill opportunities.`, done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
-    } else {
-      list.push({ title: 'Low Fight Damage Impact', desc: `Dealt ${damageDealt.toLocaleString()} hero damage. Focus on standard timings and join skirmishes when key abilities are ready.`, done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300' })
+      if (wardsOk) {
+        list.push({ title: 'Vision Coverage', desc: `${totalWards} wards placed (${earlyWards} early) — strong vision game protecting your cores' farm windows.`, target: '', done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+      } else if (totalWards >= 8) {
+        list.push({ title: 'Vision Coverage', desc: `${totalWards} wards total but only ${earlyWards} before 10:00. Early wards protect carries during their most vulnerable farm phase; front-load at least 4.`, target: '→ ≥4 early wards next game', done: false, color: 'border-amber-500/25 bg-amber-950/15 text-amber-300', tabLink: 'map' })
+      } else {
+        list.push({ title: 'Vision Coverage', desc: `Only ${totalWards} wards total (${earlyWards} early). As ${roleShortLabel(pos)}, wards are your primary contribution to map control.`, target: `→ ≥${totalWards >= 6 ? 12 : 8} wards`, done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300', tabLink: 'map' })
+      }
     }
 
     return list
@@ -673,11 +1178,57 @@
     icon: string
   }
 
+  type TimelinePhase = 'early' | 'midgame' | 'late'
+  interface TimelinePhaseGroup {
+    id: TimelinePhase
+    label: string
+    rangeLabel: string
+    min: number
+    max: number
+    entries: TimelineEntry[]
+  }
+
   let tlShowKills = $state(true)
   let tlShowDeaths = $state(true)
   let tlShowWards = $state(true)
   let tlShowRunes = $state(true)
   let tlShowItems = $state(true)
+
+  // Persist timeline filters to localStorage
+  const TL_FILTER_KEY = 'dotatracker_timeline_filters'
+  $effect(() => {
+    const filters = { kills: tlShowKills, deaths: tlShowDeaths, wards: tlShowWards, runes: tlShowRunes, items: tlShowItems }
+    localStorage.setItem(TL_FILTER_KEY, JSON.stringify(filters))
+  })
+  $effect(() => {
+    try {
+      const saved = localStorage.getItem(TL_FILTER_KEY)
+      if (saved) {
+        const filters = JSON.parse(saved)
+        tlShowKills = filters.kills ?? true
+        tlShowDeaths = filters.deaths ?? true
+        tlShowWards = filters.wards ?? true
+        tlShowRunes = filters.runes ?? true
+        tlShowItems = filters.items ?? true
+      }
+    } catch { /* ignore corrupt localStorage */ }
+  })
+
+  const timelinePhaseGroups = $derived.by((): TimelinePhaseGroup[] => {
+    const groups: TimelinePhaseGroup[] = [
+      { id: 'early', label: 'Early Game', rangeLabel: '0–10m', min: 0, max: 600, entries: [] },
+      { id: 'midgame', label: 'Mid Game', rangeLabel: '10–25m', min: 600, max: 1500, entries: [] },
+      { id: 'late', label: 'Late Game', rangeLabel: '25m+', min: 1500, max: Infinity, entries: [] }
+    ]
+
+    const entries = timelineEntries
+    for (const entry of entries) {
+      const group = groups.find((g) => entry.time >= g.min && entry.time < g.max)
+      if (group) group.entries.push(entry)
+    }
+
+    return groups.filter((g) => g.entries.length > 0)
+  })
 
   const timelineEntries = $derived.by(() => {
     const entries: TimelineEntry[] = []
@@ -742,7 +1293,7 @@
   })
 </script>
 
-<div class="flex-1 overflow-hidden flex flex-col select-none bg-black">
+<div class="flex-1 overflow-hidden flex flex-col select-none bg-black" onkeydown={handleKeydown} tabindex="-1">
   <!-- HEADER -->
   <div class="bg-black border-b border-zinc-800/60 p-4 flex items-center justify-between shrink-0 gap-4">
     <div class="flex items-center gap-4">
@@ -755,8 +1306,10 @@
         >
           {#each players as p, idx}
             {@const hero = getHero(p.heroId)}
+            {@const kdaStr = `${p.kills}/${p.deaths}/${p.assists}`}
+            {@const roleLabel = p.position === 'POSITION_1' ? 'P1' : p.position === 'POSITION_2' ? 'P2' : p.position === 'POSITION_3' ? 'P3' : p.position === 'POSITION_4' ? 'P4' : 'P5'}
             <option value={idx}>
-              {hero?.localized_name || `Hero ${p.heroId}`} ({p.position === 'POSITION_1' ? 'Carry' : p.position === 'POSITION_2' ? 'Mid' : p.position === 'POSITION_3' ? 'Offlane' : 'Support'})
+              {hero?.localized_name || `Hero ${p.heroId}`} — {roleLabel} | {kdaStr} | {p.goldPerMinute}GPM
             </option>
           {/each}
         </select>
@@ -786,7 +1339,7 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-5">
+    <div class="flex items-center gap-4">
       <div class="hidden lg:flex gap-3 font-mono text-center">
         <div class="bg-zinc-950 border border-zinc-800/80 rounded-lg px-3 py-1.5">
           <div class="text-base font-bold font-tabular text-white">{focusedPlayer.goldPerMinute}</div>
@@ -809,6 +1362,18 @@
         </div>
         <div class="text-4xl font-black leading-none font-mono tracking-tighter font-tabular {performanceGrade.color} select-none">{performanceGrade.grade}</div>
       </div>
+
+      <button
+        class="flex items-center gap-1.5 bg-zinc-950 border border-zinc-800/80 hover:border-zinc-600/80 text-xs font-bold text-zinc-400 hover:text-white rounded-lg px-3 py-2 cursor-pointer transition-all"
+        onclick={copyCoachingSummary}
+        title="Copy coaching summary to clipboard"
+      >
+        {#if copyFeedback}
+          <span class="text-emerald-400">✓ Copied</span>
+        {:else}
+          <span>📋 Copy Summary</span>
+        {/if}
+      </button>
 
       <div class="hidden sm:flex gap-4 font-mono text-center">
         <div>
@@ -873,14 +1438,15 @@
     </div>
   </div>
 
-  <!-- SUBTABS -->
+  <!-- SUBTABS — Insights first: this is the "how do I improve" answer,
+       everything else is supporting evidence you drill into from here. -->
   <div class="flex gap-2 border-b border-zinc-800/60 p-2.5 shrink-0 bg-black">
     {#each [
+      { id: 'insights', label: '🎓 Insights' },
       { id: 'map', label: '🗺️ Map' },
       { id: 'economy', label: '📈 Economy' },
       { id: 'combat', label: '⚔️ Combat' },
-      { id: 'timeline', label: '🕒 Timeline' },
-      { id: 'insights', label: '🎓 Insights' }
+      { id: 'timeline', label: '🕒 Timeline' }
     ] as tab}
       <button
         class="p-[6px_12px] text-sm font-bold rounded-md transition-all cursor-pointer border flex items-center gap-1.5 {activeSubTab === tab.id
@@ -895,12 +1461,225 @@
 
   <!-- BODY -->
   <div class="flex-1 overflow-y-auto bg-black">
-    {#if activeSubTab === 'map'}
+    {#if activeSubTab === 'insights'}
+      <div class="p-5 flex flex-col gap-5">
+        {#if enemyMirrorPlayer && enemyMirrorHero}
+          <!-- Game Snapshot — one-glance role & outcome summary -->
+          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-1">Game Snapshot</div>
+                <div class="text-sm text-zinc-300 leading-relaxed">{gameSnapshot.roleSummary}</div>
+              </div>
+              <div class="shrink-0 flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2">
+                <div class="flex flex-col text-right">
+                  <span class="text-xxs text-zinc-500 font-extrabold uppercase tracking-[0.6px]">Outcome</span>
+                  <span class="text-xs font-semibold {focusedPlayer.isVictory ? 'text-emerald-400' : 'text-rose-400'}">
+                    {focusedPlayer.isVictory ? 'Victory' : 'Defeat'}
+                  </span>
+                </div>
+                <div class="font-mono text-2xl font-black {performanceGrade.color} w-14 text-center">{performanceGrade.grade}</div>
+              </div>
+            </div>
+            <div class="text-xs text-zinc-500 italic">{gameSnapshot.outcomeQuality}</div>
+            <div class="grid grid-cols-3 gap-2 pt-1">
+              {#each gameSnapshot.topStats as stat}
+                <div class="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-center">
+                  <div class="text-sm font-extrabold font-tabular {stat.color}">{stat.value}</div>
+                  <div class="text-xxs text-zinc-500 uppercase tracking-wider">{stat.label}</div>
+                </div>
+              {/each}
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px]">Biggest Lever — vs. {enemyMirrorRoleLabel}</div>
+            <div class="text-xs text-zinc-500 leading-relaxed">
+              Compared minute-for-minute against the only fair baseline in this match: {enemyMirrorHero.localized_name}, the enemy player at the same role. Ranked by size of gap, worst first.
+            </div>
+          </div>
+
+          {#if biggestGap}
+            <div class="bg-zinc-950/60 border {biggestGap.pct < 0 ? 'border-rose-500/25' : 'border-emerald-500/25'} rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <span class="text-2xl">{biggestGap.pct < 0 ? '⚠️' : '✅'}</span>
+                  <div>
+                    <div class="text-sm font-extrabold text-white">{biggestGap.label}</div>
+                    <div class="text-xs text-zinc-400 mt-0.5">
+                      You: <span class="font-mono font-bold text-zinc-200">{biggestGap.format(biggestGap.mine)}</span>
+                      &nbsp;·&nbsp; {enemyMirrorRoleLabel}: <span class="font-mono font-bold text-zinc-200">{biggestGap.format(biggestGap.theirs)}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-right shrink-0">
+                  <div class="font-mono text-xl font-black {biggestGap.pct < 0 ? 'text-rose-400' : 'text-emerald-400'}">{biggestGap.pct >= 0 ? '+' : ''}{Math.round(biggestGap.pct)}%</div>
+                  <div class="text-xxs text-zinc-500 uppercase tracking-wider">vs. mirror</div>
+                </div>
+              </div>
+              <div class="border-t border-zinc-800/40 pt-2 flex items-start gap-2">
+                <span class="text-xs text-zinc-300 leading-relaxed flex-1">{biggestGap.advice}</span>
+                {#if biggestGap.pct < 0}
+                  <button class="shrink-0 text-[9px] font-bold text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded px-2 py-0.5 cursor-pointer transition-colors"
+                    onclick={() => { activeSubTab = 'map'; cursorTime = null }}>Review Map</button>
+                {/if}
+              </div>
+            </div>
+          {/if}
+
+          <div class="grid grid-cols-1 gap-2">
+            {#each mirrorGaps as gap}
+              <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg px-3.5 py-2.5 flex flex-col gap-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-zinc-300">{gap.label}</span>
+                  <div class="flex items-center gap-2 font-mono text-xs">
+                    <span class="text-zinc-500">{gap.format(gap.mine)} vs {gap.format(gap.theirs)}</span>
+                    <span class="font-extrabold {gap.pct < 0 ? 'text-rose-400' : 'text-emerald-400'}">{gap.pct >= 0 ? '+' : ''}{Math.round(gap.pct)}%</span>
+                  </div>
+                </div>
+                <div class="text-[10.5px] text-zinc-400 leading-relaxed border-t border-zinc-800/40 pt-1.5">{gap.advice}</div>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <div class="bg-zinc-950/40 border border-zinc-800/60 border-dashed rounded-xl p-6 text-center text-zinc-500 font-medium">
+            No opposing player at the same role was found to compare against.
+          </div>
+        {/if}
+
+        {#if farmDistributionList.length > 0}
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Farm Distribution Insight</div>
+          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+            <div class="grid grid-cols-1 gap-2">
+              {#each farmDistributionList.slice(0, 3) as farm}
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-zinc-200 truncate">{farm.name}</span>
+                  <div class="flex items-center gap-2">
+                    <div class="w-16 h-1.5 bg-zinc-900 rounded-full overflow-hidden">
+                      <div class="h-full rounded-full" class:bg-emerald-500={farm.percent >= expectedFarmShare(farm.name, focusedPlayer.position)} class:bg-amber-400={farm.percent < expectedFarmShare(farm.name, focusedPlayer.position)} style="width: {Math.min(farm.percent, 100)}%"></div>
+                    </div>
+                    <span class="font-mono text-xs text-zinc-400">{farm.percent}%</span>
+                  </div>
+                </div>
+              {/each}
+            </div>
+            <div class="text-[10.5px] text-zinc-400 leading-relaxed border-t border-zinc-800/40 pt-2">{farmInsightNote()}</div>
+          </div>
+        {/if}
+
+        {#if deathClusters.length > 0}
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Repeated Death Pattern</div>
+          <div class="flex flex-col gap-2">
+            {#each deathClusters as cluster}
+              <button
+                class="flex items-center justify-between gap-3 bg-zinc-950/60 border border-rose-500/20 rounded-lg px-3.5 py-2.5 text-left hover:bg-zinc-900 transition-colors"
+                onclick={() => { activeSubTab = 'map'; cursorTime = cluster.times[0] }}
+              >
+                <span class="text-xs text-zinc-300">
+                  Died <span class="font-extrabold text-rose-400">{cluster.count} times</span> {cluster.landmark}
+                </span>
+                <span class="font-mono text-xxs text-zinc-500 shrink-0">{cluster.times.map((t) => formatTime(t)).join(', ')}</span>
+              </button>
+            {/each}
+          </div>
+        {/if}
+
+        {#if !['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(focusedPlayer.position) && wardTimingSummary.total > 0}
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Vision Timing</div>
+          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-2 shadow-sm">
+            <div class="text-xs text-zinc-400 leading-relaxed">
+              Early vision (before 10:00) is what protects your team's core farm; late vision mostly just confirms fights already in motion.
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center mt-1">
+              <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-2">
+                <div class="font-mono text-lg font-extrabold {wardTimingSummary.early / wardTimingSummary.total < 0.3 ? 'text-rose-400' : 'text-emerald-400'}">{wardTimingSummary.early}</div>
+                <div class="text-xxs text-zinc-500 uppercase tracking-wider">Early (0–10m)</div>
+              </div>
+              <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-2">
+                <div class="font-mono text-lg font-extrabold text-zinc-300">{wardTimingSummary.mid}</div>
+                <div class="text-xxs text-zinc-500 uppercase tracking-wider">Mid (10–25m)</div>
+              </div>
+              <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-2">
+                <div class="font-mono text-lg font-extrabold text-zinc-300">{wardTimingSummary.late}</div>
+                <div class="text-xxs text-zinc-500 uppercase tracking-wider">Late (25m+)</div>
+              </div>
+            </div>
+            {#if wardTimingSummary.early / wardTimingSummary.total < 0.3}
+              <div class="text-xs text-rose-300 mt-1">Under a third of your wards went down in the first 10 minutes — consider front-loading vision before your laners are exposed.</div>
+            {/if}
+          </div>
+        {/if}
+
+        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Item Timing Milestones</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {#each gameplayMilestones as milestone}
+            <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+              <div class="flex items-center gap-3">
+                <img src={milestone.itemIcon} class="w-11 h-8 rounded border border-zinc-800 object-cover" alt="" />
+                <div>
+                  <div class="text-[12.5px] font-bold text-white">{milestone.name}</div>
+                  <div class="text-[10.5px] font-mono text-tx2">Secured at: {formatTime(milestone.time)}</div>
+                </div>
+              </div>
+              <div class="border-t border-zinc-800/60 pt-2.5 flex items-center justify-between text-[11px]">
+                <span class="text-zinc-500 uppercase tracking-wider font-extrabold">Evaluation</span>
+                <span class="font-bold {milestone.color}">{milestone.statusText}</span>
+              </div>
+            </div>
+          {/each}
+          {#if gameplayMilestones.length === 0}
+            <div class="col-span-3 bg-zinc-950/40 border border-zinc-800/60 border-dashed rounded-xl p-6 text-center text-zinc-500 font-medium">
+              No item purchase timing information logged for this hero.
+            </div>
+          {/if}
+        </div>
+
+        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Coaching Checklist</div>
+        <div class="flex flex-col gap-3">
+          {#each coachingChecklist as check, idx}
+            <div class="flex flex-col border rounded-xl {check.color} transition-all duration-200 cursor-pointer hover:shadow-sm" onclick={() => toggleCheckIndex(idx)}>
+              <div class="flex items-center justify-between p-3.5 select-none font-bold">
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="text-[16px] shrink-0">{check.done ? '✅' : '❌'}</span>
+                  <span class="text-[13px] font-extrabold truncate">{check.title}</span>
+                  {#if !check.done && check.target}
+                    <span class="text-[10px] font-extrabold text-zinc-400 bg-zinc-900/80 border border-zinc-800 rounded px-2 py-0.25 shrink-0">{check.target}</span>
+                  {/if}
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  {#if check.tabLink}
+                    <button class="text-[9px] font-bold text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded px-2 py-0.5 cursor-pointer transition-colors"
+                      onclick={(e) => { e.stopPropagation(); activeSubTab = check.tabLink!; cursorTime = null }}>View</button>
+                  {/if}
+                  <span class="text-[10px] text-zinc-500 transition-transform duration-200 {expandedCheckIndex === idx ? 'rotate-180' : ''}">▼</span>
+                </div>
+              </div>
+              {#if expandedCheckIndex === idx}
+                <div class="px-3.5 pb-3.5 text-[11.5px] leading-relaxed text-zinc-300 border-t border-zinc-800/30 pt-2.5 font-normal">{check.desc}</div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      </div>
+    {:else if activeSubTab === 'map'}
       <div class="p-5 flex flex-col gap-5">
         <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6 items-start">
           <div class="flex flex-col gap-3">
             <div class="flex items-center justify-between">
-              <div class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]">Position Telemetry</div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]">Position Telemetry</span>
+                <div class="flex gap-1 ml-1">
+                  {#each ['all', 'laning', 'midgame', 'late'] as phaseId}
+                    {@const phase = phaseRanges[phaseId as MatchPhase]}
+                    <button
+                      class="text-[9px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5 border transition-all cursor-pointer {activePhase === phaseId
+                        ? 'bg-zinc-800 border-zinc-700 text-white'
+                        : 'bg-zinc-950/40 border-zinc-800/60 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700'}"
+                      onclick={() => setPhase(phaseId as MatchPhase)}
+                    >{phase.label.slice(0, phase.label.indexOf('(') > 0 ? phase.label.indexOf('(') : undefined).trim() || phase.label}</button>
+                  {/each}
+                </div>
+              </div>
               <label class="flex items-center gap-1.5 text-xxs font-semibold text-zinc-400 cursor-pointer hover:text-white">
                 <input type="checkbox" bind:checked={heatmapMode} class="rounded border-zinc-800 bg-zinc-950" />
                 Heatmap
@@ -982,10 +1761,34 @@
             <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 flex flex-col gap-2.5 shadow-sm">
               <div class="flex flex-col gap-1">
                 <div class="flex justify-between items-center text-xs text-zinc-400 font-semibold">
-                  <span>Playback Scrubber</span>
+                  <div class="flex items-center gap-2">
+                    <button
+                      class="w-7 h-7 flex items-center justify-center rounded-md border cursor-pointer transition-all {playbackPlaying
+                        ? 'bg-zinc-800 border-zinc-700 text-white'
+                        : 'bg-zinc-950/40 border-zinc-800/80 text-zinc-400 hover:text-white hover:border-zinc-600'}"
+                      onclick={togglePlayback}
+                      title={playbackPlaying ? 'Pause (Space)' : 'Play (Space)'}
+                    >
+                      {#if playbackPlaying}
+                        <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current"><rect x="2" y="1" width="3" height="10" rx="0.5"/><rect x="7" y="1" width="3" height="10" rx="0.5"/></svg>
+                      {:else}
+                        <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current"><polygon points="1.5,0 11.5,6 1.5,12"/></svg>
+                      {/if}
+                    </button>
+                    <div class="flex gap-1">
+                      {#each [2, 4, 8] as speed}
+                        <button
+                          class="text-[9px] font-bold border rounded px-1.5 py-0.5 cursor-pointer transition-all {playbackSpeed === speed
+                            ? 'bg-zinc-800 border-zinc-700 text-white'
+                            : 'bg-zinc-950/40 border-zinc-800/80 text-zinc-500 hover:text-white hover:border-zinc-600'}"
+                          onclick={() => { setPlaybackSpeed(speed); if (playbackPlaying) { stopPlayback(); startPlayback() } }}
+                        >{formatSpeedLabel(speed)}</button>
+                      {/each}
+                    </div>
+                  </div>
                   <span class="font-mono text-zinc-200 font-bold">{formatTime(timeSliderValue)} / {formatTime(matchDurationSeconds)}</span>
                 </div>
-                <input type="range" min="0" max={matchDurationSeconds} bind:value={timeSliderValue} class="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-200" />
+                <input type="range" min="0" max={matchDurationSeconds} bind:value={timeSliderValue} oninput={onScrub} class="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-200" />
               </div>
 
               <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-2 gap-y-1.5 text-xs font-semibold text-zinc-400 border-t border-zinc-800/60 pt-2.5">
@@ -1031,7 +1834,7 @@
             <div class="text-xs font-bold text-zinc-400 uppercase tracking-[0.5px]">Farm distribution report</div>
             <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
               <span class="text-sm text-zinc-400 leading-relaxed">
-                As a carry, where you farm determines your safety. Pushing dangerous lanes draws map pressure, while the Main Jungle serves as fallback recovery.
+                {expectedFarmNote(focusedPlayer.position)}
               </span>
               <div class="flex flex-col gap-2.5 mt-2">
                 {#each farmDistributionList as farm, idx}
@@ -1149,6 +1952,14 @@
                 {/each}
               {/if}
 
+              {#if selectedMetric === 'networth' && focusSeries.length > 0}
+                {#each itemChartMarkers as marker}
+                  {@const ix = 30 + (marker.minuteIdx / Math.max(1, focusSeries.length - 1)) * 450}
+                  <line x1={ix} y1="5" x2={ix} y2="105" stroke="var(--color-pu2)" stroke-opacity="0.08" stroke-width="0.5" stroke-dasharray="2,2" />
+                  <image href={marker.imgUrl} x={ix - 3.5} y="0" width="7" height="5" preserveAspectRatio="xMidYMid meet" class="pointer-events-none" />
+                {/each}
+              {/if}
+
               {#if hoverIdx !== null}
                 <line x1={hoverCx} y1="5" x2={hoverCx} y2="105" stroke="#fff" stroke-opacity="0.25" stroke-width="1" />
                 <circle cx={hoverCx} cy={hoverCy} r="4.5" fill="black" />
@@ -1237,37 +2048,17 @@
             <div class="font-mono text-[16px] font-extrabold {networthLead >= 0 ? 'text-emerald-400' : 'text-rose-500'}">{networthLead >= 0 ? '+' : ''}{networthLead.toLocaleString()}g</div>
           </div>
           <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 shadow-sm">
-            <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">Impact Score</div>
-            <div class="font-mono text-[16px] font-extrabold text-cyan-400">{focusedPlayer.imp}</div>
+            <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">Alive GPM / Dead</div>
+            <div class="font-mono text-[16px] font-extrabold">
+              <span class="text-emerald-400">{aliveEfficiency.aliveGPM}</span>
+              <span class="text-zinc-600 text-sm"> / </span>
+              <span class="text-rose-400">{aliveEfficiency.deadSeconds > 0 ? '−' + Math.round(aliveEfficiency.deadSeconds / 60) + 'm' : '0m'}</span>
+            </div>
           </div>
           <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 shadow-sm">
             <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">KDA Ratio</div>
             <div class="font-mono text-[16px] font-extrabold text-white">{kdaText}</div>
           </div>
-        </div>
-
-        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Item Timing Milestones</div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {#each gameplayMilestones as milestone}
-            <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
-              <div class="flex items-center gap-3">
-                <img src={milestone.itemIcon} class="w-11 h-8 rounded border border-zinc-800 object-cover" alt="" />
-                <div>
-                  <div class="text-[12.5px] font-bold text-white">{milestone.name}</div>
-                  <div class="text-[10.5px] font-mono text-tx2">Secured at: {formatTime(milestone.time)}</div>
-                </div>
-              </div>
-              <div class="border-t border-zinc-800/60 pt-2.5 flex items-center justify-between text-[11px]">
-                <span class="text-zinc-500 uppercase tracking-wider font-extrabold">Evaluation</span>
-                <span class="font-bold {milestone.color}">{milestone.statusText}</span>
-              </div>
-            </div>
-          {/each}
-          {#if gameplayMilestones.length === 0}
-            <div class="col-span-3 bg-zinc-950/40 border border-zinc-800/60 border-dashed rounded-xl p-6 text-center text-zinc-500 font-medium">
-              No core carry farming items (Battle Fury, Manta) timing information logged for this hero.
-            </div>
-          {/if}
         </div>
       </div>
     {:else if activeSubTab === 'combat'}
@@ -1294,10 +2085,48 @@
           {/each}
         </div>
 
+        {#if deathClusters.length > 0}
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Death Clusters</div>
+          <div class="flex flex-col gap-2">
+            {#each deathClusters as cluster}
+              <div class="flex items-center justify-between gap-3 bg-zinc-950/60 border border-rose-500/20 rounded-lg px-3.5 py-2.5">
+                <span class="text-xs text-zinc-300">
+                  <span class="font-extrabold text-rose-400">{cluster.count}×</span> {cluster.landmark}
+                </span>
+                <span class="font-mono text-xxs text-zinc-500">{cluster.times.map((t) => formatTime(t)).join(', ')}</span>
+              </div>
+            {/each}
+          </div>
+        {/if}
+
+        {#if focusedPlayer.stats.deathEvents && focusedPlayer.stats.deathEvents.length > 0}
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Death Timeline</div>
+          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 shadow-sm">
+            <div class="text-[11px] text-zinc-400 leading-relaxed mb-3">
+              Match duration with alive (green) and dead (red) segments. Each death pauses farm for ~respawn + return travel.
+            </div>
+            <svg viewBox="0 0 500 32" class="w-full h-auto">
+              <rect x="0" y="12" width="500" height="8" rx="4" fill="var(--color-gr)" fill-opacity="0.25" />
+              {#each focusedPlayer.stats.deathEvents as death, idx}
+                {@const startPct = (death.time / matchDurationSeconds) * 500}
+                {@const respawnSec = Math.min(100, 10 + death.time / 30)}
+                {@const endPct = Math.min(500, ((death.time + respawnSec) / matchDurationSeconds) * 500)}
+                {@const width = Math.max(3, endPct - startPct)}
+                <rect x={startPct} y="12" width={width} height="8" rx="2" fill="var(--color-rd)" fill-opacity="0.8" class="cursor-help hover:fill-opacity-100 transition-opacity">
+                  <title>Death #{idx + 1} at {formatTime(death.time)} — respawn {Math.round(respawnSec)}s</title>
+                </rect>
+              {/each}
+              <text x="2" y="30" fill="var(--color-tx3)" font-size="7" font-family="monospace">0:00</text>
+              <text x="250" y="30" fill="var(--color-tx3)" font-size="7" font-family="monospace" text-anchor="middle">{formatTime(Math.round(matchDurationSeconds / 2))}</text>
+              <text x="498" y="30" fill="var(--color-tx3)" font-size="7" font-family="monospace" text-anchor="end">{formatTime(matchDurationSeconds)}</text>
+            </svg>
+          </div>
+        {/if}
+
         <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Farming downtime (Deaths log)</div>
         <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
           <div class="text-[11.5px] text-zinc-400 leading-relaxed mb-1">
-            Deaths are the biggest set-back for carries. You lose reliable gold, feed enemies, and stop accumulating Net Worth.
+            Deaths are the biggest set-back for carries. You lose reliable gold, feed enemies, and stop accumulating Net Worth. Gold-lost figures below are a rough <span class="italic">estimate</span> based on typical respawn timers, not a value logged by the match itself.
           </div>
           {#if focusedPlayer.stats.deathEvents && focusedPlayer.stats.deathEvents.length > 0}
             <div class="flex flex-col gap-2">
@@ -1305,7 +2134,7 @@
                 {@const respawnSec = Math.min(100, 10 + death.time / 30)}
                 <div class="flex items-center justify-between text-[11.5px] p-2.5 px-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
                   <span class="font-mono text-zinc-400">Death #{idx + 1} at {formatTime(death.time)}</span>
-                  <span class="text-rose-400 font-bold">Estimated farm lost: ~{Math.round(respawnSec * 10).toLocaleString()} gold ({Math.round(respawnSec)}s dead)</span>
+                  <span class="text-rose-400 font-bold">Est. farm lost: ~{Math.round(respawnSec * 10).toLocaleString()} gold ({Math.round(respawnSec)}s dead)</span>
                 </div>
               {/each}
             </div>
@@ -1329,44 +2158,37 @@
           </div>
         </div>
 
-        <div class="relative pl-5 flex flex-col">
-          <div class="absolute left-[7px] top-1 bottom-1 w-px bg-zinc-800"></div>
-          {#each timelineEntries as entry}
-            <button
-              class="relative flex items-start gap-3 py-2 text-left group"
-              onmouseenter={() => (cursorTime = entry.time)}
-            >
-              <span class="absolute -left-5 top-2.5 w-3 h-3 rounded-full border-2 border-black shrink-0" style="background:{entry.color}"></span>
-              <span class="font-mono text-[10.5px] text-zinc-500 w-12 shrink-0 pt-0.5">{formatTime(entry.time)}</span>
-              <span class="flex flex-col min-w-0 group-hover:translate-x-0.5 transition-transform">
-                <span class="text-[12px] font-bold text-zinc-200">{entry.icon} {entry.label}</span>
-                {#if entry.sub}
-                  <span class="text-[10px] text-zinc-500 truncate">{entry.sub}</span>
-                {/if}
-              </span>
-            </button>
+        <div class="flex flex-col gap-5">
+          {#each timelinePhaseGroups as group}
+            <div class="flex flex-col">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.5px]">{group.label}</span>
+                <span class="text-[9px] font-mono text-zinc-600">{group.rangeLabel}</span>
+                <span class="text-[9px] text-zinc-600">· {group.entries.length} events</span>
+              </div>
+              <div class="relative pl-5">
+                <div class="absolute left-[7px] top-1 bottom-1 w-px bg-zinc-800"></div>
+                {#each group.entries as entry}
+                  <button
+                    class="relative flex items-start gap-3 py-1.5 text-left group"
+                    onmouseenter={() => (cursorTime = entry.time)}
+                  >
+                    <span class="absolute -left-5 top-2.5 w-2.5 h-2.5 rounded-full border-2 border-black shrink-0" style="background:{entry.color}"></span>
+                    <span class="font-mono text-[10.5px] text-zinc-500 w-12 shrink-0 pt-0.5">{formatTime(entry.time)}</span>
+                    <span class="flex flex-col min-w-0 group-hover:translate-x-0.5 transition-transform">
+                      <span class="text-[12px] font-bold text-zinc-200">{entry.icon} {entry.label}</span>
+                      {#if entry.sub}
+                        <span class="text-[10px] text-zinc-500 truncate">{entry.sub}</span>
+                      {/if}
+                    </span>
+                  </button>
+                {:else}
+                  <div class="text-center text-zinc-600 text-[11px] py-3">No events in this phase.</div>
+                {/each}
+              </div>
+            </div>
           {:else}
             <div class="text-center text-zinc-600 text-[11px] py-8">No events match the current filters.</div>
-          {/each}
-        </div>
-      </div>
-    {:else if activeSubTab === 'insights'}
-      <div class="p-5 flex flex-col gap-4">
-        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px]">Coaching Checklist</div>
-        <div class="flex flex-col gap-3">
-          {#each coachingChecklist as check, idx}
-            <div class="flex flex-col border rounded-xl {check.color} transition-all duration-200 cursor-pointer hover:shadow-sm" onclick={() => toggleCheckIndex(idx)}>
-              <div class="flex items-center justify-between p-3.5 select-none font-bold">
-                <div class="flex items-center gap-3">
-                  <span class="text-[16px]">{check.done ? '✅' : '❌'}</span>
-                  <span class="text-[13px] font-extrabold">{check.title}</span>
-                </div>
-                <span class="text-[10px] text-zinc-500 transition-transform duration-200 {expandedCheckIndex === idx ? 'rotate-180' : ''}">▼</span>
-              </div>
-              {#if expandedCheckIndex === idx}
-                <div class="px-3.5 pb-3.5 text-[11.5px] leading-relaxed text-zinc-300 border-t border-zinc-800/30 pt-2.5 font-normal">{check.desc}</div>
-              {/if}
-            </div>
           {/each}
         </div>
       </div>
