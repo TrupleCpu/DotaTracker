@@ -14,6 +14,7 @@ asarUnpack:
   - resources/**
   - src/main/data/hero-assets/**
   - src/main/data/item-assets/**
+  - src/main/data/hero-models/**
 win:
   executableName: dotatrack
 nsis:

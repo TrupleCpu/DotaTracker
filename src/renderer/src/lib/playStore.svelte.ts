@@ -2,6 +2,7 @@ import heroesData from '../../../main/data/heroes.json'
 
 interface HeroData {
   id: number
+  name: string
   localized_name: string
   img: string
 }
@@ -114,6 +115,7 @@ class PlayerStore {
 
         return {
           id: m.id,
+          heroId: player?.heroId,
           heroName: hero?.localized_name ?? `Hero #${player?.heroId}`,
           heroImg: hero ? `hero-asset://${hero.img.replace(/^hero-assets\//, '')}` : null,
           outcome: player?.isVictory ? 'win' : 'loss',

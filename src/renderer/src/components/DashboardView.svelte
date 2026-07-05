@@ -25,6 +25,10 @@
   function getHeroImgUrl(img: string): string {
     return `hero-asset://${img.replace(/^hero-assets\//, '')}`
   }
+  function getHeroModelUrl(heroId: number): string | null {
+    if (!heroId) return null
+    return `hero-model://${heroId}.png`
+  }
   function getRankImage(rank: number): string {
     let r =
       rank === 10 ||
@@ -395,6 +399,98 @@
     </div>
 
     <div class="flex flex-col gap-4">
+      {#if playerStore.detailedMatches.length > 0}
+        {@const m = playerStore.detailedMatches[0]}
+        <div
+          class="card p-3 cursor-pointer hover:bg-white/5 transition-colors select-none"
+          onclick={() => openMatchDetail(m)}
+        >
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-tx3">Recent Match</span>
+          </div>
+          <div class="w-full h-64 rounded-lg border border-bd overflow-hidden mb-3 flex items-center justify-center">
+            {#if m.heroId}
+              <img
+                src={getHeroModelUrl(m.heroId)}
+                alt={m.heroName}
+                class="w-full h-full object-contain"
+              />
+            {:else}
+              <span class="text-tx3 text-sm">?</span>
+            {/if}
+          </div>
+
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-base font-bold text-tx truncate">{m.heroName}</div>
+            <div
+              class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0
+                {m.outcome === 'win' ? 'bg-gr text-black' : 'bg-rd text-black'}"
+            >
+              {m.outcome === 'win' ? 'W' : 'L'}
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-1.5">
+              {#if toLaneIcon(m.lane)}
+                <div class="relative group">
+                  <img src={toLaneIcon(m.lane)} alt={m.lane} class="w-4 h-4 opacity-70" />
+                  <div
+                    class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1
+                      whitespace-nowrap rounded-md bg-s4 border border-bd2 px-2 py-1 text-xs font-semibold text-tx
+                      opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100
+                      transition-all duration-100 ease-out z-50 shadow-lg"
+                  >
+                    {laneLabel(m.lane)}
+                  </div>
+                </div>
+              {/if}
+              <span class="text-xs text-tx2 font-semibold">{laneLabel(m.lane).split(' (')[0]}</span>
+            </div>
+            <div class="text-sm font-mono font-medium text-tx2 font-tabular">
+              {m.k}<span class="text-tx3">/</span>{m.d}<span class="text-tx3">/</span>{m.a}
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-tx2 mb-3">
+            <span class="font-bold uppercase">{m.mode}</span>
+            <span class="font-mono font-tabular">{m.dur}</span>
+            <span>{m.timeAgo}</span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="w-5 h-5 rounded bg-s3 flex items-center justify-center overflow-hidden shrink-0">
+              <img src={getRankImage(m.rank)} alt="rank" class="w-full h-full object-contain" />
+            </div>
+            <div class="flex items-center gap-2">
+              {#if m.award && toAwardIcon(m.award)}
+                <img src={toAwardIcon(m.award)} alt={m.award} class="w-4 h-4 opacity-70 shrink-0" />
+              {/if}
+              <div class="flex items-center gap-1">
+                <div class="w-12 h-1.5 rounded-full bg-black/40 overflow-hidden">
+                  <div
+                    class="h-full {impactColor(m.impactValue)} rounded-full"
+                    style="width: {Math.min(Math.abs(m.impactValue), 100)}%"
+                  ></div>
+                </div>
+                <span
+                  class="text-xs font-bold font-mono font-tabular
+                    {m.impactValue >= 0 ? 'text-gr' : 'text-rd'}"
+                >{m.impactValue}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      {:else if playerStore.isLoading}
+        <div class="card p-3 flex items-center justify-center py-10">
+          <span class="text-sm text-tx3 animate-pulse">Loading match…</span>
+        </div>
+      {:else}
+        <div class="card p-3 flex items-center justify-center py-10">
+          <span class="text-sm text-tx3">No matches found.</span>
+        </div>
+      {/if}
+
       <div class="card p-4">
         <div class="flex items-center justify-between pb-3 border-b border-bd/40 mb-3">
           <span class="text-xs font-bold uppercase tracking-wider text-tx3">Recent Teammates</span>
