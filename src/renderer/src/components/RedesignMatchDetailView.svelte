@@ -35,7 +35,7 @@
   const detailedMatch = detailedMatchData.data.match
   const players = detailedMatch.players
 
-  let selectedPlayerIndex = $state(3)
+  let selectedPlayerIndex = $state(0)
   const focusedPlayer = $derived(players[selectedPlayerIndex])
   const heroInfo = $derived(getHero(focusedPlayer.heroId))
 
@@ -59,9 +59,11 @@
       return
 
     if (e.key === 'ArrowLeft') {
-      selectedPlayerIndex = (selectedPlayerIndex - 1 + players.length) % players.length
+      const cur = displayOrder.indexOf(selectedPlayerIndex)
+      if (cur > 0) selectedPlayerIndex = displayOrder[cur - 1]
     } else if (e.key === 'ArrowRight') {
-      selectedPlayerIndex = (selectedPlayerIndex + 1) % players.length
+      const cur = displayOrder.indexOf(selectedPlayerIndex)
+      if (cur < displayOrder.length - 1) selectedPlayerIndex = displayOrder[cur + 1]
     } else if (e.key >= '1' && e.key <= '5') {
       activeSubTab = subTabOrder[parseInt(e.key) - 1]
     } else if (e.key === ' ' && activeSubTab === 'map') {
@@ -111,16 +113,18 @@
       return hero?.localized_name.toLowerCase() === heroNameStr.toLowerCase()
     })
 
-    const isUserRadiant = userPlayerIdx !== -1 ? userPlayerIdx < 5 : true
-    const carryIdx = players.findIndex((p, idx) => {
-      const isRadiant = idx < 5
-      return p.position === 'POSITION_1' && isRadiant === isUserRadiant
-    })
-
     if (userPlayerIdx !== -1) {
       selectedPlayerIndex = userPlayerIdx
-    } else if (carryIdx !== -1) {
-      selectedPlayerIndex = carryIdx
+    } else {
+      let lowestImp = Infinity
+      let bestIdx = 0
+      for (let i = 0; i < 5; i++) {
+        if (players[i].imp < lowestImp) {
+          lowestImp = players[i].imp
+          bestIdx = i
+        }
+      }
+      selectedPlayerIndex = bestIdx
     }
 
     expandedCheckIndex = 0
@@ -161,6 +165,38 @@
     const hero = getHero(heroId)
     const heroNameStr = match.hero || match.heroName || ''
     return hero?.localized_name.toLowerCase() === heroNameStr.toLowerCase()
+  }
+
+  const positionOrder = ['POSITION_1', 'POSITION_2', 'POSITION_3', 'POSITION_4', 'POSITION_5']
+
+  function computePlayerGrade(player: any): { grade: string; color: string; label: string } {
+    const gpm = player.goldPerMinute
+    const deaths = player.deaths
+    const kills = player.kills
+    const assists = player.assists
+    const kda = (kills + assists) / Math.max(deaths, 1)
+    const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(player.position)
+
+    if (isCore) {
+      if (gpm >= 750 && kda >= 6.0 && deaths <= 2)
+        return { grade: 'A+', color: 'text-gr', label: 'Godlike Carry' }
+      if (gpm >= 650 && kda >= 4.0 && deaths <= 4)
+        return { grade: 'A', color: 'text-gr', label: 'Excellent Carry' }
+      if (gpm >= 550 && kda >= 3.0 && deaths <= 6)
+        return { grade: 'B+', color: 'text-tx', label: 'Solid Carry' }
+      if (gpm >= 450 && kda >= 2.0) return { grade: 'B', color: 'text-tx2', label: 'Average Carry' }
+      if (gpm >= 400) return { grade: 'C', color: 'text-gd', label: 'Struggling Carry' }
+      return { grade: 'D', color: 'text-rd', label: 'Underperformed' }
+    } else {
+      if (kda >= 5.0 && deaths <= 4)
+        return { grade: 'A+', color: 'text-gr', label: 'Elite Support' }
+      if (kda >= 3.5 && deaths <= 6)
+        return { grade: 'A', color: 'text-gr', label: 'Excellent Support' }
+      if (kda >= 2.5 && deaths <= 8)
+        return { grade: 'B+', color: 'text-tx', label: 'Active Support' }
+      if (kda >= 1.8) return { grade: 'B', color: 'text-tx2', label: 'Standard Support' }
+      return { grade: 'C', color: 'text-rd', label: 'High Exposure Support' }
+    }
   }
 
   // ── Item resolution ─────────────────────────────────────────────────
@@ -1758,8 +1794,20 @@
     ((focusedPlayer.kills + focusedPlayer.assists) / Math.max(focusedPlayer.deaths, 1)).toFixed(2)
   )
 
-  const radiantPlayers = $derived(players.slice(0, 5))
-  const direPlayers = $derived(players.slice(5, 10))
+  const radiantPlayers = $derived(
+    players.slice(0, 5)
+      .map((player, i) => ({ player, originalIdx: i }))
+      .sort((a, b) => positionOrder.indexOf(a.player.position) - positionOrder.indexOf(b.player.position))
+  )
+  const direPlayers = $derived(
+    players.slice(5, 10)
+      .map((player, i) => ({ player, originalIdx: i + 5 }))
+      .sort((a, b) => positionOrder.indexOf(a.player.position) - positionOrder.indexOf(b.player.position))
+  )
+  const displayOrder = $derived([
+    ...radiantPlayers.map((e) => e.originalIdx),
+    ...direPlayers.map((e) => e.originalIdx)
+  ])
 
   // ── Combat tab: kill / death feed ───────────────────────────────────
   const combatFeed = $derived.by(() => {
@@ -1972,6 +2020,84 @@
   onkeydown={handleKeydown}
   tabindex="-1"
 >
+  <!-- Coaching Focus roster -->
+  <div class="px-4 pt-3 pb-1.5 border-b border-zinc-800/40 bg-black shrink-0">
+    <span class="text-xxs text-zinc-500 uppercase tracking-wider font-extrabold">Coaching Focus</span>
+    <div class="flex items-stretch gap-2 overflow-x-auto pb-0.5 mt-1">
+      <!-- Radiant / Your Team -->
+      <div class="flex flex-col gap-1 shrink-0">
+        <span class="text-xxxs text-emerald-500/70 uppercase tracking-wider font-bold">Your Team</span>
+        <div class="flex items-stretch gap-1">
+          {#each radiantPlayers as entry}
+            {@const p = entry.player}
+            {@const hero = getHero(p.heroId)}
+            {@const grade = computePlayerGrade(p)}
+            {@const kda = ((p.kills + p.assists) / Math.max(p.deaths, 1)).toFixed(1)}
+            <div
+              class="flex flex-col items-center gap-0.5 px-1.5 py-1.5 rounded-lg cursor-pointer transition-all min-w-0 {selectedPlayerIndex === entry.originalIdx
+                ? 'bg-zinc-800/60 ring-1 ring-zinc-600'
+                : 'hover:bg-zinc-900/50'}"
+              onclick={() => (selectedPlayerIndex = entry.originalIdx)}
+              title={`${hero?.localized_name || 'Unknown'} — ${roleShortLabel(p.position)} | KDA: ${kda} | IMP: ${p.imp} | ${grade.label}`}
+            >
+              <div class="relative w-9 h-9 rounded-full overflow-hidden border-2 shrink-0 {selectedPlayerIndex === entry.originalIdx ? 'border-zinc-300' : 'border-zinc-800/60'}">
+                {#if hero}
+                  <img src={getHeroImgUrl(hero.icon)} alt={hero.localized_name} class="w-full h-full object-cover" />
+                {/if}
+                {#if isYou(p.heroId)}
+                  <span class="absolute bottom-[-2px] left-1/2 -translate-x-1/2 text-xxs bg-white text-black font-extrabold px-1 rounded-full leading-[10px]">YOU</span>
+                {/if}
+              </div>
+              <span class="text-[10px] font-bold text-zinc-300 uppercase tracking-wide whitespace-nowrap">{roleShortLabel(p.position)}</span>
+              <div class="flex items-center gap-1">
+                <span class="text-[10px] font-mono font-bold {p.imp >= 10 ? 'text-emerald-400' : p.imp <= 5 ? 'text-rose-400' : 'text-zinc-400'}">{p.imp}</span>
+                <span class="text-[10px] font-bold {grade.color}">{grade.grade}</span>
+              </div>
+              <span class="text-[9px] font-mono text-zinc-500 whitespace-nowrap">{kda} KDA</span>
+            </div>
+          {/each}
+        </div>
+      </div>
+
+      <div class="w-px self-stretch bg-zinc-800/60 mx-0.5 shrink-0"></div>
+
+      <!-- Dire / Enemy Team -->
+      <div class="flex flex-col gap-1 shrink-0">
+        <span class="text-xxxs text-rose-500/70 uppercase tracking-wider font-bold">Enemy Team</span>
+        <div class="flex items-stretch gap-1">
+          {#each direPlayers as entry}
+            {@const p = entry.player}
+            {@const hero = getHero(p.heroId)}
+            {@const grade = computePlayerGrade(p)}
+            {@const kda = ((p.kills + p.assists) / Math.max(p.deaths, 1)).toFixed(1)}
+            <div
+              class="flex flex-col items-center gap-0.5 px-1.5 py-1.5 rounded-lg cursor-pointer transition-all min-w-0 {selectedPlayerIndex === entry.originalIdx
+                ? 'bg-zinc-800/60 ring-1 ring-zinc-600'
+                : 'hover:bg-zinc-900/50'}"
+              onclick={() => (selectedPlayerIndex = entry.originalIdx)}
+              title={`${hero?.localized_name || 'Unknown'} — ${roleShortLabel(p.position)} | KDA: ${kda} | IMP: ${p.imp} | ${grade.label}`}
+            >
+              <div class="relative w-9 h-9 rounded-full overflow-hidden border-2 shrink-0 {selectedPlayerIndex === entry.originalIdx ? 'border-zinc-300' : 'border-zinc-800/60'}">
+                {#if hero}
+                  <img src={getHeroImgUrl(hero.icon)} alt={hero.localized_name} class="w-full h-full object-cover" />
+                {/if}
+                {#if isYou(p.heroId)}
+                  <span class="absolute bottom-[-2px] left-1/2 -translate-x-1/2 text-xxs bg-white text-black font-extrabold px-1 rounded-full leading-[10px]">YOU</span>
+                {/if}
+              </div>
+              <span class="text-[10px] font-bold text-zinc-300 uppercase tracking-wide whitespace-nowrap">{roleShortLabel(p.position)}</span>
+              <div class="flex items-center gap-1">
+                <span class="text-[10px] font-mono font-bold {p.imp >= 10 ? 'text-emerald-400' : p.imp <= 5 ? 'text-rose-400' : 'text-zinc-400'}">{p.imp}</span>
+                <span class="text-[10px] font-bold {grade.color}">{grade.grade}</span>
+              </div>
+              <span class="text-[9px] font-mono text-zinc-500 whitespace-nowrap">{kda} KDA</span>
+            </div>
+          {/each}
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- LEFT/RIGHT SPLIT: HeroModel + Info + Items -->
   <div class="flex gap-5 p-4 border-b border-zinc-800/60 bg-black items-start shrink-0">
     <!-- Left: Hero Model (3D render) -->
@@ -1990,49 +2116,8 @@
     <!-- Right: Info + Items -->
     <div class="flex-1 flex flex-col gap-3 min-w-0">
       <!-- Top row: player select, name, role, outcome, grade, copy -->
-      <div class="flex items-center justify-between gap-4">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
         <div class="flex items-center gap-4 min-w-0">
-          <div class="flex flex-col gap-1">
-            <span class="text-xxs text-zinc-500 uppercase tracking-wider font-extrabold">Coaching Focus</span>
-            <div class="flex items-center gap-0.5">
-              {#each radiantPlayers as p, idx}
-                {@const hero = getHero(p.heroId)}
-                <button
-                  class="relative w-9 h-9 rounded-full overflow-hidden border-2 transition-all cursor-pointer shrink-0 {selectedPlayerIndex === idx
-                    ? 'border-zinc-300 ring-1 ring-zinc-300/50'
-                    : 'border-zinc-800/60 hover:border-zinc-600'}"
-                  onclick={() => (selectedPlayerIndex = idx)}
-                  title={hero?.localized_name || `Hero ${p.heroId}`}
-                >
-                  {#if hero}
-                    <img src={getHeroImgUrl(hero.icon)} alt={hero.localized_name} class="w-full h-full object-cover" />
-                  {/if}
-                  {#if isYou(p.heroId)}
-                    <span class="absolute bottom-[-2px] left-1/2 -translate-x-1/2 text-xxs bg-white text-black font-extrabold px-1 rounded-full leading-[10px]">YOU</span>
-                  {/if}
-                </button>
-              {/each}
-              <div class="w-px h-7 bg-zinc-800/60 mx-1 shrink-0"></div>
-              {#each direPlayers as p, idx}
-                {@const hero = getHero(p.heroId)}
-                <button
-                  class="relative w-9 h-9 rounded-full overflow-hidden border-2 transition-all cursor-pointer shrink-0 {selectedPlayerIndex === idx + 5
-                    ? 'border-zinc-300 ring-1 ring-zinc-300/50'
-                    : 'border-zinc-800/60 hover:border-zinc-600'}"
-                  onclick={() => (selectedPlayerIndex = idx + 5)}
-                  title={hero?.localized_name || `Hero ${p.heroId}`}
-                >
-                  {#if hero}
-                    <img src={getHeroImgUrl(hero.icon)} alt={hero.localized_name} class="w-full h-full object-cover" />
-                  {/if}
-                  {#if isYou(p.heroId)}
-                    <span class="absolute bottom-[-2px] left-1/2 -translate-x-1/2 text-xxs bg-white text-black font-extrabold px-1 rounded-full leading-[10px]">YOU</span>
-                  {/if}
-                </button>
-              {/each}
-            </div>
-          </div>
-
           <div>
             <div class="font-extrabold text-lg flex items-center gap-2">
               <span class="text-white">{heroInfo?.localized_name || 'Solo Carry'}</span>

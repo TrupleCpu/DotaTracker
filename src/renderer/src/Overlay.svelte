@@ -108,49 +108,43 @@
   .tracking-container {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-1);
-    padding: var(--space-2) var(--space-3);
-    box-sizing: border-box;
+    gap: 2px;
+    padding: 6px 10px;
     font-family: var(--font-sans);
-
-    /* Semi-transparent slate-charcoal profile tint */
-    background: rgba(15, 16, 21, 0.85) !important;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: var(--radius-md);
-
+    background: rgba(10, 10, 15, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(124, 92, 191, 0.2);
+    border-radius: 6px;
     user-select: none;
     width: 260px;
   }
 
   .stat {
     display: grid;
-    grid-template-columns: 40px 50px 65px 18px 1fr;
+    grid-template-columns: 36px 48px 60px 18px 1fr;
     align-items: center;
-    column-gap: var(--space-2);
+    gap: 6px;
     font-size: var(--text-sm);
-    font-weight: var(--font-bold);
-    letter-spacing: 0.06em;
-    height: 22px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    height: 20px;
   }
 
   .label {
-    color: #9aa7b2;
+    color: var(--color-tx2);
     text-align: left;
     white-space: nowrap;
   }
 
   .value {
-    color: #d7e0e7;
+    color: var(--color-tx);
     text-align: right;
     white-space: nowrap;
   }
 
   .diff {
-    color: #7f8c8d;
+    color: var(--color-tx3);
     font-size: var(--text-xs);
     text-align: right;
     white-space: nowrap;
@@ -158,36 +152,34 @@
 
   .icon {
     font-size: 10px;
-    font-weight: var(--font-bold);
     width: 18px;
     text-align: center;
   }
 
   .up {
-    color: var(--accent-success);
-    text-shadow: 0 0 6px var(--accent-success-glow);
+    color: var(--color-gr);
+    text-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
   }
 
   .down {
-    color: var(--accent-danger);
-    text-shadow: 0 0 6px var(--accent-danger-glow);
+    color: var(--color-rd);
+    text-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
   }
 
   .badge {
     font-size: var(--text-xxs);
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-secondary);
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--color-s3);
+    color: var(--color-tx2);
     justify-self: end;
     white-space: nowrap;
-    font-weight: var(--font-medium);
   }
 
   .divider {
     height: 1px;
-    background: rgba(255, 255, 255, 0.06);
-    margin: var(--space-1) 0;
+    background: var(--color-bd);
+    margin: 2px 0;
   }
 
   .font-tabular {

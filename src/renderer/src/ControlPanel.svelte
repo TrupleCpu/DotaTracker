@@ -43,8 +43,7 @@
       heading: 'Analysis',
       items: [
         { id: 'trends', label: 'Trends', icon: ChartNoAxesCombined },
-        { id: 'draft', label: 'Draft Analyzer', icon: Zap },
-        { id: 'roles', label: 'Roles', icon: Shield }
+        { id: 'draft', label: 'Draft Analyzer', icon: Zap }
       ]
     },
     {
@@ -60,6 +59,7 @@
   let currentView = $state('dashboard')
   let prevView = $state('dashboard')
   let selectedMatch = $state<any>(null)
+  let sidebarCollapsed = $state(false)
 
   // Toast
   let toast = $state({ show: false, msg: '', type: '' })
@@ -107,24 +107,20 @@
     selectedMatch = null
   }
 
+  let rolesViewInitialRole = $state<string | null>(null)
+
+  function openRolesView(role: string): void {
+    rolesViewInitialRole = role
+    prevView = currentView
+    currentView = 'roles'
+  }
+
   function openMatchDetail(match: any): void {
     prevView = currentView
     selectedMatch = match
     currentView = 'match-detail'
   }
 
-  function doRefresh(e: MouseEvent): void {
-    const btn = e.currentTarget as HTMLButtonElement
-    const orig = btn.textContent
-    btn.textContent = '⏳ Syncing…'
-    btn.disabled = true
-    showToast('Fetching latest matches…', 'ok')
-    setTimeout(() => {
-      btn.textContent = orig
-      btn.disabled = false
-      showToast('All data up to date ✓', 'ok')
-    }, 1800)
-  }
 </script>
 
 {#if !steamId}
@@ -162,27 +158,29 @@
     </div>
 
     <div class="flex flex-1 overflow-hidden">
-      <aside class="w-50 shrink-0 bg-sb border-r border-bd flex flex-col">
-        <div class="flex items-center gap-2.5 p-[14px_14px_12px] border-b border-bd">
-          <div class="w-14 h-14 rounded-lg flex items-center justify-center text-base shrink-0">
-            <img src={AppLogo} alt="Logo" class="w-14 h-14" />
+      <aside
+        class="shrink-0 bg-sb border-r border-bd flex flex-col transition-all duration-200 overflow-hidden"
+        class:w-50={!sidebarCollapsed}
+        class:w-14={sidebarCollapsed}
+      >
+        <div class="flex items-center gap-2.5 p-[16px_14px] border-b border-bd" class:justify-center={sidebarCollapsed}>
+          <div class="w-[44px] h-[44px] rounded-lg flex items-center justify-center text-base shrink-0">
+            <img src={AppLogo} alt="Logo" class="w-[44px] h-[44px]" />
           </div>
-          <div>
-            <div class="text-xs font-extrabold tracking-[0.2px] leading-[1.15]">ANCIENTEYE</div>
-            <div class="text-[6px] text-tx3 tracking-[0.9px] uppercase mt-0.5">
+          <div class:hidden={sidebarCollapsed}>
+            <div class="text-[11px] font-extrabold tracking-[0.3px] leading-none text-tx">ANCIENTEYE</div>
+            <div class="text-[7px] text-tx3 tracking-[0.8px] uppercase mt-1 font-medium">
               Analyze &middot; Improve &middot; Win
             </div>
           </div>
         </div>
 
-        <nav class="flex-1 py-2 overflow-y-auto">
-          <div class="text-xxs font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]">
-            Main
-          </div>
+        <nav class="flex-1 py-1.5 overflow-y-auto">
           {#each navSections as section (section.heading)}
             {#if section.heading}
               <div
-                class="text-xxs font-bold text-tx3 uppercase tracking-[1.1px] p-[10px_14px_4px]"
+                class="text-xxs font-bold text-tx3 uppercase tracking-[1.1px] px-[14px] pt-[9px] pb-[4px]"
+                class:hidden={sidebarCollapsed}
               >
                 {section.heading}
               </div>
@@ -191,15 +189,16 @@
             {#each section.items as { id, label, icon: Icon } (id)}
               {@const active = currentView === id}
               <button
-                class="w-full text-left flex items-center gap-[9px] px-[13px] py-[7px] text-base font-medium transition-all cursor-pointer relative
-                  {active ? 'text-tx bg-pub' : 'text-tx2 hover:text-tx hover:bg-white/5'}"
+                class="w-full flex items-center gap-[9px] px-[13px] py-[7px] text-sm font-semibold transition-all cursor-pointer relative
+                  {active ? 'text-tx bg-pub shadow-sm' : 'text-tx2 hover:text-tx hover:bg-white/[0.04]'}
+                  {sidebarCollapsed ? 'justify-center' : 'text-left'}"
                 onclick={() => gotoView(id)}
               >
                 {#if active}
-                  <div class="absolute left-0 top-0 bottom-0 w-[2.5px] bg-pu rounded-r-[2px]"></div>
+                  <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-pu"></div>
                 {/if}
-                <span class="w-4 text-center opacity-80"><Icon size={14} /></span>
-                {label}
+                <span class="w-4 text-center {active ? 'text-pu2' : 'text-tx3'}"><Icon size={14} /></span>
+                <span class:hidden={sidebarCollapsed}>{label}</span>
               </button>
             {/each}
           {/each}
@@ -208,70 +207,61 @@
         {#if playerStore.playerStats}
           <div class="border-t border-bd p-[10px]">
             <div
-              class="flex items-center gap-2 p-2 rounded-lg cursor-pointer hover:bg-s2 transition-colors"
+              class="flex items-center gap-2.5 p-[10px] rounded-lg cursor-pointer hover:bg-s2 transition-colors"
+              class:justify-center={sidebarCollapsed}
               onclick={() => showToast('Profile settings')}
             >
               <div
-                class="w-[30px] h-[30px] flex items-center justify-center text-base font-extrabold shrink-0"
+                class="w-[32px] h-[32px] flex items-center justify-center text-base font-extrabold shrink-0 rounded-full overflow-hidden ring-2 ring-pub"
               >
                 <img
-                  class="rounded-full"
+                  class="w-full h-full object-cover"
                   src={playerStore.playerStats?.avatar}
                   alt={playerStore.playerStats?.name}
                 />
               </div>
-              <div>
-                <div class="text-sm font-bold leading-tight">
+              <div class="min-w-0 flex-1" class:hidden={sidebarCollapsed}>
+                <div class="text-sm font-bold leading-tight truncate text-tx">
                   {playerStore.playerStats?.name}
                 </div>
-                <div class="text-xs text-tx2">
+                <div class="text-[10px] text-tx3 font-semibold uppercase tracking-wide">
                   {playerStore.playerStats && rankToString(playerStore.playerStats?.rank)}
                 </div>
               </div>
             </div>
           </div>
         {:else}
-          <div class="text-sm text-tx3">Loading profile...</div>
+          <div class="text-[11px] text-tx3 p-[14px]" class:hidden={sidebarCollapsed}>Loading profile...</div>
         {/if}
       </aside>
 
       <div class="flex-1 flex flex-col overflow-hidden min-w-0">
-        <div class="flex items-center px-[18px] h-[46px] border-b border-bd gap-2.5 shrink-0 bg-sb">
-          <div class="flex items-center gap-1.5 text-base font-semibold text-tx2">
+        <div class="flex items-center gap-2 px-4 h-[44px] border-b border-bd shrink-0 bg-sb">
+          <button
+            onclick={() => sidebarCollapsed = !sidebarCollapsed}
+            class="shrink-0 w-[26px] h-[26px] flex flex-col items-center justify-center gap-[3px] cursor-pointer hover:bg-white/[0.05] rounded transition-colors"
+          >
+            <span class="w-3.5 h-[2px] bg-tx3 rounded-full"></span>
+            <span class="w-3.5 h-[2px] bg-tx3 rounded-full"></span>
+            <span class="w-3.5 h-[2px] bg-tx3 rounded-full"></span>
+          </button>
+          <div class="flex items-center gap-1.5 text-sm font-semibold text-tx3">
             {#if currentView === 'match-detail'}
               <button
-                class="cursor-pointer hover:text-tx transition-colors bg-transparent border-none p-0 text-inherit"
+                class="cursor-pointer hover:text-tx transition-colors bg-transparent border-none p-0 text-inherit text-xs"
                 onclick={() => gotoView(prevView)}>{VIEW_TITLES[prevView] || prevView}</button
               >
-              <span class="text-tx3 text-xs">›</span>
-              <span class="text-tx cursor-default">Match — {selectedMatch?.hero || selectedMatch?.heroName}</span>
+              <span class="text-tx3 text-[10px]">/</span>
+              <span class="text-tx text-sm">Match — {selectedMatch?.hero || selectedMatch?.heroName}</span>
             {:else}
-              <span class="text-tx cursor-default">{VIEW_TITLES[currentView]}</span>
+              <span class="text-tx text-sm font-bold">{VIEW_TITLES[currentView]}</span>
             {/if}
           </div>
-          <div class="flex-1"></div>
-          {#if currentView !== 'match-detail'}
-            <div class="flex items-center gap-2">
-              <select class="sel">
-                <option>All Pick</option>
-                <option>Ranked</option>
-                <option>Turbo</option>
-                <option>Captain's Mode</option>
-              </select>
-              <select class="sel">
-                <option>Last 30 Matches</option>
-                <option>Last 7 Days</option>
-                <option>Last 60 Days</option>
-                <option>All Time</option>
-              </select>
-              <button class="btn-pri" onclick={doRefresh}>↻ Refresh</button>
-            </div>
-          {/if}
         </div>
 
         <div class="flex-1 overflow-hidden flex flex-col bg-bg">
           {#if currentView === 'dashboard'}
-            <DashboardView {openMatchDetail} {gotoView} />
+            <DashboardView {openMatchDetail} {gotoView} {openRolesView} />
           {:else if currentView === 'matches'}
             <MatchesView {openMatchDetail} />
           {:else if currentView === 'coach'}
@@ -283,7 +273,7 @@
           {:else if currentView === 'draft'}
             <DraftView />
           {:else if currentView === 'roles'}
-            <RolePerformanceView {openMatchDetail} />
+            <RolePerformanceView {openMatchDetail} initialRole={rolesViewInitialRole} />
           {:else if currentView === 'settings'}
             <SettingsView />
           {:else if currentView === 'match-detail' && selectedMatch}
@@ -295,7 +285,7 @@
 
     <div
       id="toast"
-      class="fixed bottom-5 right-5 bg-s4 border border-bd2 rounded-lg px-[15px] py-[9px] text-base font-semibold text-tx z-[9999] transition-all duration-200 pointer-events-none min-w-[160px] {toast.show
+      class="fixed bottom-5 right-5 bg-s4 border border-bd rounded-lg px-4 py-2.5 text-sm font-semibold text-tx z-[9999] transition-all duration-200 pointer-events-none min-w-[140px] shadow-md {toast.show
         ? 'opacity-100 translate-y-0'
         : 'opacity-0 translate-y-2'} {toast.type === 'ok'
         ? 'border-gr text-gr'
@@ -309,7 +299,6 @@
 {/if}
 
 <style>
-  /* Titlebar framework rules */
   .titlebar {
     height: 38px;
     background: var(--color-sb);
@@ -338,14 +327,14 @@
 
   /* Custom Form & Interactive Elements */
   .sel {
-    background: var(--color-s2);
+    background: var(--color-s1);
     border: 1px solid var(--color-bd);
     color: var(--color-tx2);
     padding: 5px 24px 5px 10px;
-    border-radius: 7px;
-    font-size: var(--text-sm);
+    border-radius: 6px;
+    font-size: var(--text-xs);
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0l4.5 5L9 0z' fill='%23a1a1aa'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M0 0l4.5 5L9 0z' fill='%239898b0'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 8px center;
     transition: border-color 0.1s;
@@ -354,14 +343,18 @@
   .sel:hover {
     border-color: var(--color-bd2);
   }
+  .sel:focus {
+    border-color: var(--color-pu);
+    outline: none;
+  }
 
   .btn-pri {
     background: var(--color-pu);
-    color: var(--color-bg);
+    color: #fff;
     border: none;
-    border-radius: 7px;
+    border-radius: 6px;
     padding: 6px 14px;
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -392,15 +385,13 @@
     justify-content: center;
     background: transparent;
     border: none;
-    color: var(--color-tx2);
+    color: var(--color-tx3);
     cursor: pointer;
-    transition:
-      background 0.1s,
-      color 0.1s;
+    transition: background 0.1s;
     font-size: var(--text-xs);
   }
   .win-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--color-s3);
     color: var(--color-tx);
   }
 

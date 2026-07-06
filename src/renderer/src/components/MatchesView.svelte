@@ -34,40 +34,40 @@
 </script>
 
 <div class="flex-1 overflow-y-auto p-4 select-none">
-  <!-- FILTER BAR -->
-  <div class="flex items-center gap-2.5 mb-4">
-    <select bind:value={selectedHero} class="bg-zinc-950 border border-zinc-800/80 rounded-lg px-3 py-1.5 text-sm text-tx2 outline-none cursor-pointer hover:border-zinc-700/80 focus:border-zinc-600/80">
+  <div class="flex items-center gap-1.5 mb-4 bg-s1 border border-bd rounded-lg p-2.5">
+    <select bind:value={selectedHero} class="sel-pill">
       <option>All Heroes</option>
       {#each heroes as h}
         <option>{h}</option>
       {/each}
     </select>
-    <select bind:value={selectedResult} class="bg-zinc-950 border border-zinc-800/80 rounded-lg px-3 py-1.5 text-sm text-tx2 outline-none cursor-pointer hover:border-zinc-700/80 focus:border-zinc-600/80">
+    <select bind:value={selectedResult} class="sel-pill">
       <option>All Results</option>
       <option>Wins Only</option>
       <option>Losses Only</option>
     </select>
-    <select bind:value={selectedMode} class="bg-zinc-950 border border-zinc-800/80 rounded-lg px-3 py-1.5 text-sm text-tx2 outline-none cursor-pointer hover:border-zinc-700/80 focus:border-zinc-600/80">
+    <select bind:value={selectedMode} class="sel-pill">
       <option>All Modes</option>
       {#each modes as mo}
         <option>{mo}</option>
       {/each}
     </select>
-    <select bind:value={selectedRole} class="bg-zinc-950 border border-zinc-800/80 rounded-lg px-3 py-1.5 text-sm text-tx2 outline-none cursor-pointer hover:border-zinc-700/80 focus:border-zinc-600/80">
+    <select bind:value={selectedRole} class="sel-pill">
       <option>All Roles</option>
       {#each roles as r}
         <option>{r}</option>
       {/each}
     </select>
     <div class="flex-1"></div>
-    <span class="text-sm text-tx3">{filteredMatches.length} matches shown</span>
+    <span class="text-xs text-tx3 font-semibold tabular-nums">{filteredMatches.length} matches</span>
   </div>
 
   <!-- MATCHES LIST -->
-  <div class="flex flex-col gap-[7px]">
+  <div class="overflow-x-auto">
+    <div class="flex flex-col gap-[7px] min-w-0">
     {#each filteredMatches as m}
       <div
-        class="flex items-center gap-3 bg-s1 border border-bd rounded-lg p-[10px_14px] cursor-pointer transition-all hover:border-bd2 hover:bg-s2 hover:translate-x-0.5 {m.outcome === 'win' ? 'bg-emerald-500/[0.03] border-emerald-500/10' : 'bg-rose-500/[0.03] border-rose-500/10'}"
+        class="flex items-center gap-3 bg-s1 border border-bd rounded-lg p-[10px_14px] cursor-pointer transition-all hover:border-bd2 hover:bg-s2"
         onclick={() => openMatchDetail(m)}
       >
         <!-- Hero Portrait -->
@@ -81,12 +81,12 @@
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2">
             <span
-              class="flex items-center justify-center w-[22px] h-[22px] rounded-full text-xs font-extrabold shrink-0 leading-none {m.outcome === 'win' ? 'text-emerald-400 bg-emerald-500/15' : 'text-rose-400 bg-rose-500/15'}"
+              class="flex items-center justify-center w-[22px] h-[22px] rounded-full text-xs font-extrabold shrink-0 leading-none {m.outcome === 'win' ? 'text-gr bg-grb' : 'text-rd bg-rdb'}"
             >
               {m.outcome === 'win' ? 'W' : 'L'}
             </span>
             <span class="text-sm font-bold truncate">{m.hero}</span>
-            <span class="text-xxs text-tx3 uppercase tracking-wide px-1.5 py-[1px] rounded bg-zinc-800/60 shrink-0">{m.role}</span>
+            <span class="text-xxs text-tx3 uppercase tracking-wide px-1.5 py-[1px] rounded bg-s2 shrink-0">{m.role}</span>
           </div>
           <div class="text-xs text-tx3 mt-[2px]">{m.mode}</div>
         </div>
@@ -121,5 +121,6 @@
         <div class="text-tx3 text-lg transition-colors shrink-0 hover:text-pu2">›</div>
       </div>
     {/each}
+    </div>
   </div>
 </div>

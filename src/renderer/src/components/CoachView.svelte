@@ -13,9 +13,9 @@
 
   {#if activeTab === 'co-overview'}
     <div>
-      <div class="bg-linear-to-r from-[rgba(123,92,240,0.14)] to-[rgba(56,189,248,0.05)] border border-[#7B5CF0]/30 rounded-xl p-4 mb-4">
-        <div class="flex items-center gap-[11px] mb-[11px]">
-          <div class="w-10 h-10 rounded-full bg-linear-to-br from-pu to-[#4f46e5] flex items-center justify-center text-2xl border-2 border-pu2 shrink-0">🤖</div>
+      <div class="bg-s1 border border-bd rounded-xl p-4 mb-4 shadow-sm">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-lg bg-pub flex items-center justify-center text-lg shrink-0">🤖</div>
           <div>
             <div class="text-base font-bold">AI Coach Summary</div>
             <div class="text-xs text-tx2 mt-0.5">Based on your last 30 matches · Updated 2m ago</div>
@@ -24,7 +24,7 @@
         <div class="text-sm text-tx2 leading-relaxed">
           You played well this period. Teamfighting presence and objective control were strong. Focus on <strong class="text-gd">early-game survival</strong> and <strong class="text-bl">farming efficiency</strong> — leaving ~15–20 CS per game. Hook accuracy at <strong class="text-gr">38%</strong> this week, above average for Archon. Teams win <strong class="text-gr">72%</strong> of games where you secure Aegis.
         </div>
-        <div class="flex items-center gap-[14px] bg-black/20 rounded-lg p-[10px_13px] mt-3 border border-bd">
+        <div class="flex items-center gap-3 bg-s2 rounded-lg p-3 mt-3 border border-bd">
           <div class="font-mono text-4xl font-bold text-gr leading-none font-tabular">7.8</div>
           <div>
             <div class="text-sm font-bold text-tx">Overall Rating</div>
