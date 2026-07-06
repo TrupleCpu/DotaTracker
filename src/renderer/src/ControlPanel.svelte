@@ -10,7 +10,7 @@
   import HeroesView from './components/HeroesView.svelte'
   import TrendsView from './components/TrendsView.svelte'
   import DraftView from './components/DraftView.svelte'
-  import CompareView from './components/CompareView.svelte'
+  import RolePerformanceView from './components/RolePerformanceView.svelte'
   import SettingsView from './components/SettingsView.svelte'
   import RedesignMatchDetailView from './components/RedesignMatchDetailView.svelte'
   import AppLogo from './assets/logo/AppLogo.png'
@@ -21,7 +21,7 @@
     Shield,
     ChartNoAxesCombined,
     Zap,
-    Scale,
+
     Settings,
     Minus,
     Square,
@@ -44,7 +44,7 @@
       items: [
         { id: 'trends', label: 'Trends', icon: ChartNoAxesCombined },
         { id: 'draft', label: 'Draft Analyzer', icon: Zap },
-        { id: 'compare', label: 'Compare', icon: Scale }
+        { id: 'roles', label: 'Roles', icon: Shield }
       ]
     },
     {
@@ -80,7 +80,7 @@
     heroes: 'Heroes',
     trends: 'Trends',
     draft: 'Draft Analyzer',
-    compare: 'Compare',
+    roles: 'Role Performance',
     settings: 'Settings'
   }
   async function handleSteamLogin(): Promise<void> {
@@ -282,8 +282,8 @@
             <TrendsView />
           {:else if currentView === 'draft'}
             <DraftView />
-          {:else if currentView === 'compare'}
-            <CompareView />
+          {:else if currentView === 'roles'}
+            <RolePerformanceView {openMatchDetail} />
           {:else if currentView === 'settings'}
             <SettingsView />
           {:else if currentView === 'match-detail' && selectedMatch}

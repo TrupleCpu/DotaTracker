@@ -42,12 +42,21 @@
   function getHeroImgUrl(img: string): string {
     return `hero-asset://${img.replace(/^hero-assets\//, '')}`
   }
+  function getHeroModelUrl(heroId: number): string | null {
+    if (!heroId) return null
+    return `hero-model://${heroId}.png`
+  }
 
   // ── Keyboard shortcuts ───────────────────────────────────────────────
   const subTabOrder = ['insights', 'map', 'economy', 'combat', 'timeline']
 
   function handleKeydown(e: KeyboardEvent) {
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLSelectElement) return
+    if (
+      e.target instanceof HTMLInputElement ||
+      e.target instanceof HTMLTextAreaElement ||
+      e.target instanceof HTMLSelectElement
+    )
+      return
 
     if (e.key === 'ArrowLeft') {
       selectedPlayerIndex = (selectedPlayerIndex - 1 + players.length) % players.length
@@ -79,10 +88,14 @@
     lines.push('')
 
     if (biggestGap) {
-      lines.push(`Biggest gap: ${biggestGap.label} — ${Math.round(Math.abs(biggestGap.pct))}% ${biggestGap.pct < 0 ? 'behind' : 'ahead'} vs. ${enemyMirrorHero?.localized_name || 'enemy mirror'}`)
+      lines.push(
+        `Biggest gap: ${biggestGap.label} — ${Math.round(Math.abs(biggestGap.pct))}% ${biggestGap.pct < 0 ? 'behind' : 'ahead'} vs. ${enemyMirrorHero?.localized_name || 'enemy mirror'}`
+      )
     }
     if (deathClusters.length > 0) {
-      lines.push(`Death clusters: ${deathClusters.map((c) => `${c.count}x ${c.landmark}`).join(', ')}`)
+      lines.push(
+        `Death clusters: ${deathClusters.map((c) => `${c.count}x ${c.landmark}`).join(', ')}`
+      )
     }
 
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
@@ -123,16 +136,22 @@
     const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(focusedPlayer.position)
 
     if (isCore) {
-      if (gpm >= 750 && kda >= 6.0 && deaths <= 2) return { grade: 'A+', color: 'text-gr', label: 'Godlike Carry' }
-      if (gpm >= 650 && kda >= 4.0 && deaths <= 4) return { grade: 'A', color: 'text-gr', label: 'Excellent Carry' }
-      if (gpm >= 550 && kda >= 3.0 && deaths <= 6) return { grade: 'B+', color: 'text-tx', label: 'Solid Carry' }
+      if (gpm >= 750 && kda >= 6.0 && deaths <= 2)
+        return { grade: 'A+', color: 'text-gr', label: 'Godlike Carry' }
+      if (gpm >= 650 && kda >= 4.0 && deaths <= 4)
+        return { grade: 'A', color: 'text-gr', label: 'Excellent Carry' }
+      if (gpm >= 550 && kda >= 3.0 && deaths <= 6)
+        return { grade: 'B+', color: 'text-tx', label: 'Solid Carry' }
       if (gpm >= 450 && kda >= 2.0) return { grade: 'B', color: 'text-tx2', label: 'Average Carry' }
       if (gpm >= 400) return { grade: 'C', color: 'text-gd', label: 'Struggling Carry' }
       return { grade: 'D', color: 'text-rd', label: 'Underperformed' }
     } else {
-      if (kda >= 5.0 && deaths <= 4) return { grade: 'A+', color: 'text-gr', label: 'Elite Support' }
-      if (kda >= 3.5 && deaths <= 6) return { grade: 'A', color: 'text-gr', label: 'Excellent Support' }
-      if (kda >= 2.5 && deaths <= 8) return { grade: 'B+', color: 'text-tx', label: 'Active Support' }
+      if (kda >= 5.0 && deaths <= 4)
+        return { grade: 'A+', color: 'text-gr', label: 'Elite Support' }
+      if (kda >= 3.5 && deaths <= 6)
+        return { grade: 'A', color: 'text-gr', label: 'Excellent Support' }
+      if (kda >= 2.5 && deaths <= 8)
+        return { grade: 'B+', color: 'text-tx', label: 'Active Support' }
       if (kda >= 1.8) return { grade: 'B', color: 'text-tx2', label: 'Standard Support' }
       return { grade: 'C', color: 'text-rd', label: 'High Exposure Support' }
     }
@@ -156,7 +175,12 @@
   for (const [key, value] of Object.entries(itemsData)) {
     const val = value as any
     if (val && typeof val.id === 'number') {
-      itemMap.set(val.id, { id: val.id, dname: val.dname || key, img: val.img, cost: val.cost || 0 })
+      itemMap.set(val.id, {
+        id: val.id,
+        dname: val.dname || key,
+        img: val.img,
+        cost: val.cost || 0
+      })
     }
   }
 
@@ -174,7 +198,9 @@
   // duplicated consumable ids this falls back to the latest matching entry.
   function getPurchaseTime(itemId: number | null | undefined): number | null {
     if (itemId == null) return null
-    const matches = (focusedPlayer.stats.itemPurchases || []).filter((p: any) => p.itemId === itemId)
+    const matches = (focusedPlayer.stats.itemPurchases || []).filter(
+      (p: any) => p.itemId === itemId
+    )
     if (matches.length === 0) return null
     return matches[matches.length - 1].time
   }
@@ -188,7 +214,11 @@
     focusedPlayer.item5Id
   ])
 
-  const backpackIds = $derived([focusedPlayer.backpack0Id, focusedPlayer.backpack1Id, focusedPlayer.backpack2Id])
+  const backpackIds = $derived([
+    focusedPlayer.backpack0Id,
+    focusedPlayer.backpack1Id,
+    focusedPlayer.backpack2Id
+  ])
   const neutralId = $derived(focusedPlayer.neutral0Id)
   const neutralItem = $derived(getItem(neutralId))
 
@@ -307,6 +337,25 @@
     landmark: string
     color: string
     char: string
+    gold?: number
+    xp?: number
+    goldLost?: number
+    xpFed?: number
+  }
+
+  interface CombatEntry {
+    time: number
+    type: 'kill' | 'death'
+    streak?: number
+    spree?: number
+    heroName: string
+    heroIcon: string
+    landmark: string
+    gold?: number
+    xp?: number
+    goldLost?: number
+    xpFed?: number
+    color: string
   }
 
   function scaleCoordinateX(val: number): number {
@@ -336,42 +385,366 @@
   }
 
   const rawStructures = [
-    { name: 'Radiant Ancient', x: 29, y: 202, w: 16.06, h: 16.06, team: 'radiant', type: 'ancient', content: PATHS_ANCIENT },
-    { name: 'Radiant T1 Top Tower', x: 25, y: 93, w: 12.05, h: 12.05, team: 'radiant', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Radiant T2 Top Tower', x: 25, y: 135, w: 12.05, h: 12.05, team: 'radiant', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Radiant T3 Top Tower', x: 21, y: 174, w: 12.05, h: 12.05, team: 'radiant', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Radiant T1 Mid Tower', x: 98, y: 143, w: 12.05, h: 12.05, team: 'radiant', type: 'tower', content: PATHS_TOWER_DIAGONAL },
-    { name: 'Radiant T2 Mid Tower', x: 71, y: 164, w: 12.05, h: 12.05, team: 'radiant', type: 'tower', content: PATHS_TOWER_DIAGONAL },
-    { name: 'Radiant T3 Mid Tower', x: 51, y: 184, w: 12.05, h: 12.05, team: 'radiant', type: 'tower', content: PATHS_TOWER_DIAGONAL },
-    { name: 'Radiant T1 Bot Tower', x: 197, y: 214, w: 12.05, h: 12.05, team: 'radiant', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Radiant T2 Bot Tower', x: 116, y: 217, w: 12.05, h: 12.05, team: 'radiant', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Radiant T3 Bot Tower', x: 62, y: 215, w: 12.05, h: 12.05, team: 'radiant', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Radiant T4 Top Tower', x: 34, y: 195, w: 12.05, h: 12.05, team: 'radiant', type: 'tower', content: PATHS_TOWER_DIAGONAL },
-    { name: 'Radiant T4 Bot Tower', x: 40, y: 201, w: 12.05, h: 12.05, team: 'radiant', type: 'tower', content: PATHS_TOWER_DIAGONAL },
-    { name: 'Radiant Top Melee Rax', x: 18, y: 181, w: 10.04, h: 10.04, team: 'radiant', type: 'barracks', content: PATHS_BARRACKS },
-    { name: 'Radiant Top Ranged Rax', x: 26, y: 181, w: 10.04, h: 10.04, team: 'radiant', type: 'barracks', content: PATHS_BARRACKS },
-    { name: 'Radiant Mid Melee Rax', x: 46, y: 187, w: 10.04, h: 10.04, team: 'radiant', type: 'barracks', content: PATHS_BARRACKS },
-    { name: 'Radiant Mid Ranged Rax', x: 52, y: 192, w: 10.04, h: 10.04, team: 'radiant', type: 'barracks', content: PATHS_BARRACKS },
-    { name: 'Radiant Bot Melee Rax', x: 58, y: 212, w: 10.04, h: 10.04, team: 'radiant', type: 'barracks', content: PATHS_BARRACKS },
-    { name: 'Radiant Bot Ranged Rax', x: 58, y: 220, w: 10.04, h: 10.04, team: 'radiant', type: 'barracks', content: PATHS_BARRACKS },
-    { name: 'Dire Ancient', x: 204, y: 43, w: 16.06, h: 16.06, team: 'dire', type: 'ancient', content: PATHS_ANCIENT },
-    { name: 'Dire T1 Top Tower', x: 50, y: 29, w: 12.05, h: 12.05, team: 'dire', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Dire T2 Top Tower', x: 120, y: 29, w: 12.05, h: 12.05, team: 'dire', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Dire T3 Top Tower', x: 176, y: 33, w: 12.05, h: 12.05, team: 'dire', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Dire T1 Mid Tower', x: 130, y: 111, w: 12.05, h: 12.05, team: 'dire', type: 'tower', content: PATHS_TOWER_DIAGONAL },
-    { name: 'Dire T2 Mid Tower', x: 160, y: 89, w: 12.05, h: 12.05, team: 'dire', type: 'tower', content: PATHS_TOWER_DIAGONAL },
-    { name: 'Dire T3 Mid Tower', x: 187, y: 64, w: 12.05, h: 12.05, team: 'dire', type: 'tower', content: PATHS_TOWER_DIAGONAL },
-    { name: 'Dire T1 Bot Tower', x: 218, y: 156, w: 12.05, h: 12.05, team: 'dire', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Dire T2 Bot Tower', x: 220, y: 116, w: 12.05, h: 12.05, team: 'dire', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Dire T3 Bot Tower', x: 218, y: 76, w: 12.05, h: 12.05, team: 'dire', type: 'tower', content: PATHS_TOWER_SIDE },
-    { name: 'Dire T4 Top Tower', x: 196, y: 48, w: 12.05, h: 12.05, team: 'dire', type: 'tower', content: PATHS_TOWER_DIAGONAL },
-    { name: 'Dire T4 Bot Tower', x: 202, y: 53, w: 12.05, h: 12.05, team: 'dire', type: 'tower', content: PATHS_TOWER_DIAGONAL },
-    { name: 'Dire Top Melee Rax', x: 183, y: 31, w: 10.04, h: 10.04, team: 'dire', type: 'barracks', content: PATHS_BARRACKS },
-    { name: 'Dire Top Ranged Rax', x: 183, y: 39, w: 10.04, h: 10.04, team: 'dire', type: 'barracks', content: PATHS_BARRACKS },
-    { name: 'Dire Mid Melee Rax', x: 189, y: 58, w: 10.04, h: 10.04, team: 'dire', type: 'barracks', content: PATHS_BARRACKS },
-    { name: 'Dire Mid Ranged Rax', x: 195, y: 64, w: 10.04, h: 10.04, team: 'dire', type: 'barracks', content: PATHS_BARRACKS },
-    { name: 'Dire Bot Melee Rax', x: 215, y: 71, w: 10.04, h: 10.04, team: 'dire', type: 'barracks', content: PATHS_BARRACKS },
-    { name: 'Dire Bot Ranged Rax', x: 224, y: 71, w: 10.04, h: 10.04, team: 'dire', type: 'barracks', content: PATHS_BARRACKS }
+    {
+      name: 'Radiant Ancient',
+      x: 29,
+      y: 202,
+      w: 16.06,
+      h: 16.06,
+      team: 'radiant',
+      type: 'ancient',
+      content: PATHS_ANCIENT
+    },
+    {
+      name: 'Radiant T1 Top Tower',
+      x: 25,
+      y: 93,
+      w: 12.05,
+      h: 12.05,
+      team: 'radiant',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Radiant T2 Top Tower',
+      x: 25,
+      y: 135,
+      w: 12.05,
+      h: 12.05,
+      team: 'radiant',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Radiant T3 Top Tower',
+      x: 21,
+      y: 174,
+      w: 12.05,
+      h: 12.05,
+      team: 'radiant',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Radiant T1 Mid Tower',
+      x: 98,
+      y: 143,
+      w: 12.05,
+      h: 12.05,
+      team: 'radiant',
+      type: 'tower',
+      content: PATHS_TOWER_DIAGONAL
+    },
+    {
+      name: 'Radiant T2 Mid Tower',
+      x: 71,
+      y: 164,
+      w: 12.05,
+      h: 12.05,
+      team: 'radiant',
+      type: 'tower',
+      content: PATHS_TOWER_DIAGONAL
+    },
+    {
+      name: 'Radiant T3 Mid Tower',
+      x: 51,
+      y: 184,
+      w: 12.05,
+      h: 12.05,
+      team: 'radiant',
+      type: 'tower',
+      content: PATHS_TOWER_DIAGONAL
+    },
+    {
+      name: 'Radiant T1 Bot Tower',
+      x: 197,
+      y: 214,
+      w: 12.05,
+      h: 12.05,
+      team: 'radiant',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Radiant T2 Bot Tower',
+      x: 116,
+      y: 217,
+      w: 12.05,
+      h: 12.05,
+      team: 'radiant',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Radiant T3 Bot Tower',
+      x: 62,
+      y: 215,
+      w: 12.05,
+      h: 12.05,
+      team: 'radiant',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Radiant T4 Top Tower',
+      x: 34,
+      y: 195,
+      w: 12.05,
+      h: 12.05,
+      team: 'radiant',
+      type: 'tower',
+      content: PATHS_TOWER_DIAGONAL
+    },
+    {
+      name: 'Radiant T4 Bot Tower',
+      x: 40,
+      y: 201,
+      w: 12.05,
+      h: 12.05,
+      team: 'radiant',
+      type: 'tower',
+      content: PATHS_TOWER_DIAGONAL
+    },
+    {
+      name: 'Radiant Top Melee Rax',
+      x: 18,
+      y: 181,
+      w: 10.04,
+      h: 10.04,
+      team: 'radiant',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    },
+    {
+      name: 'Radiant Top Ranged Rax',
+      x: 26,
+      y: 181,
+      w: 10.04,
+      h: 10.04,
+      team: 'radiant',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    },
+    {
+      name: 'Radiant Mid Melee Rax',
+      x: 46,
+      y: 187,
+      w: 10.04,
+      h: 10.04,
+      team: 'radiant',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    },
+    {
+      name: 'Radiant Mid Ranged Rax',
+      x: 52,
+      y: 192,
+      w: 10.04,
+      h: 10.04,
+      team: 'radiant',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    },
+    {
+      name: 'Radiant Bot Melee Rax',
+      x: 58,
+      y: 212,
+      w: 10.04,
+      h: 10.04,
+      team: 'radiant',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    },
+    {
+      name: 'Radiant Bot Ranged Rax',
+      x: 58,
+      y: 220,
+      w: 10.04,
+      h: 10.04,
+      team: 'radiant',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    },
+    {
+      name: 'Dire Ancient',
+      x: 204,
+      y: 43,
+      w: 16.06,
+      h: 16.06,
+      team: 'dire',
+      type: 'ancient',
+      content: PATHS_ANCIENT
+    },
+    {
+      name: 'Dire T1 Top Tower',
+      x: 50,
+      y: 29,
+      w: 12.05,
+      h: 12.05,
+      team: 'dire',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Dire T2 Top Tower',
+      x: 120,
+      y: 29,
+      w: 12.05,
+      h: 12.05,
+      team: 'dire',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Dire T3 Top Tower',
+      x: 176,
+      y: 33,
+      w: 12.05,
+      h: 12.05,
+      team: 'dire',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Dire T1 Mid Tower',
+      x: 130,
+      y: 111,
+      w: 12.05,
+      h: 12.05,
+      team: 'dire',
+      type: 'tower',
+      content: PATHS_TOWER_DIAGONAL
+    },
+    {
+      name: 'Dire T2 Mid Tower',
+      x: 160,
+      y: 89,
+      w: 12.05,
+      h: 12.05,
+      team: 'dire',
+      type: 'tower',
+      content: PATHS_TOWER_DIAGONAL
+    },
+    {
+      name: 'Dire T3 Mid Tower',
+      x: 187,
+      y: 64,
+      w: 12.05,
+      h: 12.05,
+      team: 'dire',
+      type: 'tower',
+      content: PATHS_TOWER_DIAGONAL
+    },
+    {
+      name: 'Dire T1 Bot Tower',
+      x: 218,
+      y: 156,
+      w: 12.05,
+      h: 12.05,
+      team: 'dire',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Dire T2 Bot Tower',
+      x: 220,
+      y: 116,
+      w: 12.05,
+      h: 12.05,
+      team: 'dire',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Dire T3 Bot Tower',
+      x: 218,
+      y: 76,
+      w: 12.05,
+      h: 12.05,
+      team: 'dire',
+      type: 'tower',
+      content: PATHS_TOWER_SIDE
+    },
+    {
+      name: 'Dire T4 Top Tower',
+      x: 196,
+      y: 48,
+      w: 12.05,
+      h: 12.05,
+      team: 'dire',
+      type: 'tower',
+      content: PATHS_TOWER_DIAGONAL
+    },
+    {
+      name: 'Dire T4 Bot Tower',
+      x: 202,
+      y: 53,
+      w: 12.05,
+      h: 12.05,
+      team: 'dire',
+      type: 'tower',
+      content: PATHS_TOWER_DIAGONAL
+    },
+    {
+      name: 'Dire Top Melee Rax',
+      x: 183,
+      y: 31,
+      w: 10.04,
+      h: 10.04,
+      team: 'dire',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    },
+    {
+      name: 'Dire Top Ranged Rax',
+      x: 183,
+      y: 39,
+      w: 10.04,
+      h: 10.04,
+      team: 'dire',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    },
+    {
+      name: 'Dire Mid Melee Rax',
+      x: 189,
+      y: 58,
+      w: 10.04,
+      h: 10.04,
+      team: 'dire',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    },
+    {
+      name: 'Dire Mid Ranged Rax',
+      x: 195,
+      y: 64,
+      w: 10.04,
+      h: 10.04,
+      team: 'dire',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    },
+    {
+      name: 'Dire Bot Melee Rax',
+      x: 215,
+      y: 71,
+      w: 10.04,
+      h: 10.04,
+      team: 'dire',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    },
+    {
+      name: 'Dire Bot Ranged Rax',
+      x: 224,
+      y: 71,
+      w: 10.04,
+      h: 10.04,
+      team: 'dire',
+      type: 'barracks',
+      content: PATHS_BARRACKS
+    }
   ]
 
   const staticStructures: StaticStructure[] = rawStructures.map((s) => ({
@@ -533,7 +906,7 @@
       details: struct.name,
       landmark: '',
       color: struct.team === 'radiant' ? '#22c55e' : struct.team === 'dire' ? '#ef4444' : '#eab308',
-      char: struct.type === 'tower' ? '🏰' : '🛡️'
+      char: struct.type === 'tower' ? 'T' : 'B'
     }
     const left = (struct.x / 100) * 300
     const top = (struct.y / 100) * 300 - 32
@@ -554,12 +927,18 @@
 
   function formatPosition(pos: string): string {
     switch (pos) {
-      case 'POSITION_1': return 'Carry (Pos 1)'
-      case 'POSITION_2': return 'Mid (Pos 2)'
-      case 'POSITION_3': return 'Offlane (Pos 3)'
-      case 'POSITION_4': return 'Soft Support (Pos 4)'
-      case 'POSITION_5': return 'Hard Support (Pos 5)'
-      default: return pos.replace('POSITION_', 'Pos ')
+      case 'POSITION_1':
+        return 'Carry (Pos 1)'
+      case 'POSITION_2':
+        return 'Mid (Pos 2)'
+      case 'POSITION_3':
+        return 'Offlane (Pos 3)'
+      case 'POSITION_4':
+        return 'Soft Support (Pos 4)'
+      case 'POSITION_5':
+        return 'Hard Support (Pos 5)'
+      default:
+        return pos.replace('POSITION_', 'Pos ')
     }
   }
 
@@ -567,34 +946,52 @@
   // "Enemy Offlane", "Enemy Hard Support", ...).
   function roleShortLabel(pos: string): string {
     switch (pos) {
-      case 'POSITION_1': return 'Carry'
-      case 'POSITION_2': return 'Mid'
-      case 'POSITION_3': return 'Offlane'
-      case 'POSITION_4': return 'Soft Support'
-      case 'POSITION_5': return 'Hard Support'
-      default: return pos.replace('POSITION_', 'Pos ')
+      case 'POSITION_1':
+        return 'Carry'
+      case 'POSITION_2':
+        return 'Mid'
+      case 'POSITION_3':
+        return 'Offlane'
+      case 'POSITION_4':
+        return 'Soft Support'
+      case 'POSITION_5':
+        return 'Hard Support'
+      default:
+        return pos.replace('POSITION_', 'Pos ')
     }
   }
 
   function getFarmLocationName(id: number): string {
     switch (id) {
-      case 1: return 'Radiant Bot (Safe Lane)'
-      case 2: return 'Mid Lane'
-      case 3: return 'Radiant Top (Off Lane)'
-      case 4: return 'Radiant Main Jungle'
-      case 5: return 'Radiant Ancient Triangle'
-      case 6: return 'Dire Main Jungle'
-      case 7: return 'Dire Ancient Triangle'
-      case 8: return 'Radiant Ancients'
-      case 9: return 'Dire Ancients'
-      case 10: return 'River / Rosh Pit'
-      default: return `Lane/Camp ID ${id}`
+      case 1:
+        return 'Radiant Bot (Safe Lane)'
+      case 2:
+        return 'Mid Lane'
+      case 3:
+        return 'Radiant Top (Off Lane)'
+      case 4:
+        return 'Radiant Main Jungle'
+      case 5:
+        return 'Radiant Ancient Triangle'
+      case 6:
+        return 'Dire Main Jungle'
+      case 7:
+        return 'Dire Ancient Triangle'
+      case 8:
+        return 'Radiant Ancients'
+      case 9:
+        return 'Dire Ancients'
+      case 10:
+        return 'River / Rosh Pit'
+      default:
+        return `Lane/Camp ID ${id}`
     }
   }
 
   // Expected farm share heuristic per role for jungle vs. lane distribution
   function expectedFarmShare(farmName: string, position: string): number {
-    const isJungle = farmName.includes('Jungle') || farmName.includes('Triangle') || farmName.includes('Ancients')
+    const isJungle =
+      farmName.includes('Jungle') || farmName.includes('Triangle') || farmName.includes('Ancients')
     const isRiver = farmName.includes('River') || farmName.includes('Rosh')
     const corePositions = ['POSITION_1', 'POSITION_2']
 
@@ -625,15 +1022,19 @@
     const corePositions = ['POSITION_1', 'POSITION_2']
 
     if (corePositions.includes(pos)) {
-      if (junglePct > 50) return `Careful: ${junglePct}% jungle farm. Core heroes should prioritize lane creeps (higher gold/xp per creep) over jungle camps when safe. Heavy jungle reliance before 14m often leaves lane pressure open for the enemy.`
-      if (junglePct > 35) return `Solid balance — ${junglePct}% jungle vs. ${100 - junglePct}% lane. Lane creeps give more gold; press lanes before rotating into jungle stacks.`
+      if (junglePct > 50)
+        return `Careful: ${junglePct}% jungle farm. Core heroes should prioritize lane creeps (higher gold/xp per creep) over jungle camps when safe. Heavy jungle reliance before 14m often leaves lane pressure open for the enemy.`
+      if (junglePct > 35)
+        return `Solid balance — ${junglePct}% jungle vs. ${100 - junglePct}% lane. Lane creeps give more gold; press lanes before rotating into jungle stacks.`
       return `Great lane priority — ${100 - junglePct}% lane farm. Lane creeps yield the highest gold/min; keeping lane pressure up is the right call.`
     }
     if (pos === 'POSITION_3') {
-      if (junglePct > 70) return `Heavy jungle focus (${junglePct}%). Offlaners should split farm between lane pressure and jungle stacks. Less lane time means less disruption of the enemy carry.`
+      if (junglePct > 70)
+        return `Heavy jungle focus (${junglePct}%). Offlaners should split farm between lane pressure and jungle stacks. Less lane time means less disruption of the enemy carry.`
       return `Good farm split — ~${100 - junglePct}% lane / ~${junglePct}% jungle. Offlane benefits from both pressure and stacking.`
     }
-    if (junglePct > 40) return `Support with high jungle share (${junglePct}%). Farm priority should stay with cores — consider spending more time warding, stacking, or roaming for ganks.`
+    if (junglePct > 40)
+      return `Support with high jungle share (${junglePct}%). Farm priority should stay with cores — consider spending more time warding, stacking, or roaming for ganks.`
     return `Support farm looks appropriate — low overall, mostly incidental.`
   }
 
@@ -657,7 +1058,10 @@
   // ── Reusable per-minute chart builder (Economy tab) ─────────────────
   type EconomyMetric = 'networth' | 'heroDamage' | 'damageTaken' | 'healing' | 'towerDamage'
 
-  const metricConfig: Record<EconomyMetric, { label: string; unit: string; color: string; cumulative: boolean }> = {
+  const metricConfig: Record<
+    EconomyMetric,
+    { label: string; unit: string; color: string; cumulative: boolean }
+  > = {
     networth: { label: 'Net Worth', unit: 'g', color: 'var(--color-gr)', cumulative: false },
     heroDamage: { label: 'Hero Damage', unit: '', color: 'var(--color-rd)', cumulative: true },
     damageTaken: { label: 'Damage Taken', unit: '', color: 'var(--color-gd)', cumulative: false },
@@ -670,11 +1074,16 @@
   function seriesFor(player: any, metric: EconomyMetric): number[] {
     const stats = player.stats
     switch (metric) {
-      case 'networth': return stats.networthPerMinute || []
-      case 'heroDamage': return cumulativeSum(stats.heroDamagePerMinute || [])
-      case 'damageTaken': return stats.heroDamageReceivedPerMinute || []
-      case 'healing': return cumulativeSum(stats.healPerMinute || [])
-      case 'towerDamage': return cumulativeSum(stats.towerDamagePerMinute || [])
+      case 'networth':
+        return stats.networthPerMinute || []
+      case 'heroDamage':
+        return cumulativeSum(stats.heroDamagePerMinute || [])
+      case 'damageTaken':
+        return stats.heroDamageReceivedPerMinute || []
+      case 'healing':
+        return cumulativeSum(stats.healPerMinute || [])
+      case 'towerDamage':
+        return cumulativeSum(stats.towerDamagePerMinute || [])
     }
   }
 
@@ -714,11 +1123,15 @@
   const enemyMirrorRoleLabel = $derived(`Enemy ${roleShortLabel(focusedPlayer.position)}`)
 
   const focusSeries = $derived(seriesFor(focusedPlayer, selectedMetric))
-  const enemySeries = $derived(enemyMirrorPlayer ? seriesFor(enemyMirrorPlayer, selectedMetric) : [])
+  const enemySeries = $derived(
+    enemyMirrorPlayer ? seriesFor(enemyMirrorPlayer, selectedMetric) : []
+  )
   const chartMax = $derived(Math.max(1, ...focusSeries, ...enemySeries))
   const focusChartPaths = $derived(buildLinePath(focusSeries, chartMax))
   const enemyChartPaths = $derived(buildLinePath(enemySeries, chartMax))
-  const networthLead = $derived(enemyMirrorPlayer ? focusedPlayer.networth - enemyMirrorPlayer.networth : 0)
+  const networthLead = $derived(
+    enemyMirrorPlayer ? focusedPlayer.networth - enemyMirrorPlayer.networth : 0
+  )
 
   // ── Game snapshot — one-glance summary card ──────────────────────────
   interface GameSnapshot {
@@ -730,11 +1143,16 @@
 
   const gameSnapshot = $derived.by((): GameSnapshot => {
     const roleMap: Record<string, string> = {
-      POSITION_1: 'As Carry, your job is to farm efficiently, survive early ganks, and dominate late-game teamfights with item advantage.',
-      POSITION_2: 'As Mid, your job is to win the lane, rotate for ganks, and set the tempo for your team through the mid-game.',
-      POSITION_3: 'As Offlane, your job is to disrupt enemy farm, create space, and initiate key teamfights.',
-      POSITION_4: 'As Soft Support, your job is to roam, set up ganks, stack camps, and secure vision in contested areas.',
-      POSITION_5: 'As Hard Support, your job is to protect your carry in lane, ward defensively, and enable your cores to farm safely.'
+      POSITION_1:
+        'As Carry, your job is to farm efficiently, survive early ganks, and dominate late-game teamfights with item advantage.',
+      POSITION_2:
+        'As Mid, your job is to win the lane, rotate for ganks, and set the tempo for your team through the mid-game.',
+      POSITION_3:
+        'As Offlane, your job is to disrupt enemy farm, create space, and initiate key teamfights.',
+      POSITION_4:
+        'As Soft Support, your job is to roam, set up ganks, stack camps, and secure vision in contested areas.',
+      POSITION_5:
+        'As Hard Support, your job is to protect your carry in lane, ward defensively, and enable your cores to farm safely.'
     }
 
     const outcomeQuality = focusedPlayer.isVictory
@@ -742,39 +1160,55 @@
       : `Defeat — review survival patterns and farm timing to avoid similar losses.`
 
     const topStats: { label: string; value: string; color: string }[] = [
-      { label: 'GPM', value: focusedPlayer.goldPerMinute.toString(), color: focusedPlayer.goldPerMinute >= 550 ? 'text-emerald-400' : 'text-amber-400' },
+      {
+        label: 'GPM',
+        value: focusedPlayer.goldPerMinute.toString(),
+        color: focusedPlayer.goldPerMinute >= 550 ? 'text-emerald-400' : 'text-amber-400'
+      },
       { label: 'KDA', value: kdaText, color: kdaVal >= 3 ? 'text-emerald-400' : 'text-rose-400' },
-      { label: 'Deaths', value: focusedPlayer.deaths.toString(), color: focusedPlayer.deaths <= 4 ? 'text-emerald-400' : 'text-rose-400' }
+      {
+        label: 'Deaths',
+        value: focusedPlayer.deaths.toString(),
+        color: focusedPlayer.deaths <= 4 ? 'text-emerald-400' : 'text-rose-400'
+      }
     ]
 
     return {
-      roleSummary: roleMap[focusedPlayer.position] || 'Focus on your role-specific responsibilities.',
+      roleSummary:
+        roleMap[focusedPlayer.position] || 'Focus on your role-specific responsibilities.',
       outcomeQuality,
       topStats,
       gradeLabel: performanceGrade.label
     }
   })
 
-  const kdaVal = $derived((focusedPlayer.kills + focusedPlayer.assists) / Math.max(focusedPlayer.deaths, 1))
+  const kdaVal = $derived(
+    (focusedPlayer.kills + focusedPlayer.assists) / Math.max(focusedPlayer.deaths, 1)
+  )
 
   // ── Actionable advice generator per mirror gap ───────────────────────
   function gapAdvice(gap: MirrorGap, enemyHeroName: string): string {
     const hero = heroInfo?.localized_name || 'You'
     switch (gap.key) {
       case 'goldPerMinute':
-        if (gap.pct < 0) return `${hero} earned ${gap.pct >= 0 ? '+' : ''}${Math.round(gap.pct)}% less gold/min than ${enemyHeroName}. Prioritize lane creeps (higher gold yield) over inefficient jungle rotations, and avoid deaths that pause farm for ~45s each.`
+        if (gap.pct < 0)
+          return `${hero} earned ${gap.pct >= 0 ? '+' : ''}${Math.round(gap.pct)}% less gold/min than ${enemyHeroName}. Prioritize lane creeps (higher gold yield) over inefficient jungle rotations, and avoid deaths that pause farm for ~45s each.`
         return `${hero} out-earned ${enemyHeroName} by ${Math.round(gap.pct)}% in gold/min — strong farm efficiency. Keep hitting lane timings before rotating.`
       case 'experiencePerMinute':
-        if (gap.pct < 0) return `${hero} trailed ${enemyHeroName} in XPM by ${Math.abs(Math.round(gap.pct))}%. Missing wisdom runes or dying early slows level curve; check rune pickup timestamps in Timeline.`
+        if (gap.pct < 0)
+          return `${hero} trailed ${enemyHeroName} in XPM by ${Math.abs(Math.round(gap.pct))}%. Missing wisdom runes or dying early slows level curve; check rune pickup timestamps in Timeline.`
         return `${hero} had ${Math.round(gap.pct)}% more XPM than ${enemyHeroName} — good XP acceleration.`
       case 'networth':
-        if (gap.pct < 0) return `Net worth gap of ${Math.abs(Math.round(gap.pct))}% behind ${enemyHeroName}. Each death costs ~200-400g from lost farm + feed bounty; review your death map to tighten survival.`
+        if (gap.pct < 0)
+          return `Net worth gap of ${Math.abs(Math.round(gap.pct))}% behind ${enemyHeroName}. Each death costs ~200-400g from lost farm + feed bounty; review your death map to tighten survival.`
         return `+${Math.round(gap.pct)}% net worth lead over ${enemyHeroName} — your item advantage translated well.`
       case 'deaths':
-        if (gap.pct < 0) return `${hero} died ${Math.abs(Math.round(gap.pct))}% more than ${enemyHeroName}. Repeated death locations indicate positioning issues — click Map tab to review where you were caught.`
+        if (gap.pct < 0)
+          return `${hero} died ${Math.abs(Math.round(gap.pct))}% more than ${enemyHeroName}. Repeated death locations indicate positioning issues — click Map tab to review where you were caught.`
         return `${hero} died ${Math.abs(Math.round(gap.pct))}% less than ${enemyHeroName} — excellent survival.`
       case 'kills':
-        if (gap.pct < 0) return `${hero} scored ${Math.abs(Math.round(gap.pct))}% fewer kills than ${enemyHeroName}. Consider earlier item timing to spike your kill potential, or rotate onto vulnerable lanes more aggressively.`
+        if (gap.pct < 0)
+          return `${hero} scored ${Math.abs(Math.round(gap.pct))}% fewer kills than ${enemyHeroName}. Consider earlier item timing to spike your kill potential, or rotate onto vulnerable lanes more aggressively.`
         return `${hero} secured ${Math.round(gap.pct)}% more kills than ${enemyHeroName} — strong kill pressure.`
       default:
         return ''
@@ -799,12 +1233,42 @@
 
   const mirrorGaps = $derived.by((): MirrorGap[] => {
     if (!enemyMirrorPlayer) return []
-    const defs: { key: string; label: string; goodIfPositive: boolean; format: (n: number) => string }[] = [
-      { key: 'goldPerMinute', label: 'Gold Per Minute', goodIfPositive: true, format: (n) => Math.round(n).toString() },
-      { key: 'experiencePerMinute', label: 'Experience Per Minute', goodIfPositive: true, format: (n) => Math.round(n).toString() },
-      { key: 'networth', label: 'Net Worth', goodIfPositive: true, format: (n) => `${Math.round(n).toLocaleString()}g` },
-      { key: 'deaths', label: 'Deaths', goodIfPositive: false, format: (n) => Math.round(n).toString() },
-      { key: 'kills', label: 'Kills', goodIfPositive: true, format: (n) => Math.round(n).toString() }
+    const defs: {
+      key: string
+      label: string
+      goodIfPositive: boolean
+      format: (n: number) => string
+    }[] = [
+      {
+        key: 'goldPerMinute',
+        label: 'Gold Per Minute',
+        goodIfPositive: true,
+        format: (n) => Math.round(n).toString()
+      },
+      {
+        key: 'experiencePerMinute',
+        label: 'Experience Per Minute',
+        goodIfPositive: true,
+        format: (n) => Math.round(n).toString()
+      },
+      {
+        key: 'networth',
+        label: 'Net Worth',
+        goodIfPositive: true,
+        format: (n) => `${Math.round(n).toLocaleString()}g`
+      },
+      {
+        key: 'deaths',
+        label: 'Deaths',
+        goodIfPositive: false,
+        format: (n) => Math.round(n).toString()
+      },
+      {
+        key: 'kills',
+        label: 'Kills',
+        goodIfPositive: true,
+        format: (n) => Math.round(n).toString()
+      }
     ]
 
     const enemyName = enemyMirrorHero?.localized_name || enemyMirrorRoleLabel
@@ -833,7 +1297,10 @@
   function chartHover(e: MouseEvent, svgEl: SVGSVGElement, data: number[]) {
     const rect = svgEl.getBoundingClientRect()
     const relX = ((e.clientX - rect.left) / rect.width) * 500
-    const minuteIdx = Math.max(0, Math.min(data.length - 1, Math.round(((relX - 30) / 450) * (data.length - 1))))
+    const minuteIdx = Math.max(
+      0,
+      Math.min(data.length - 1, Math.round(((relX - 30) / 450) * (data.length - 1)))
+    )
     hoverIdx = minuteIdx
     cursorTime = minuteIdx * 60
   }
@@ -846,13 +1313,20 @@
   // Value/position of the hover point, in the chart's own 0–500 / 0–120
   // viewBox space, so the tooltip and the snapped dot line up exactly
   // with the rendered path.
-  const hoverValue = $derived(hoverIdx !== null ? focusSeries[hoverIdx] ?? null : null)
-  const hoverCx = $derived(hoverIdx !== null ? 30 + (hoverIdx / Math.max(1, focusSeries.length - 1)) * 450 : 0)
-  const hoverCy = $derived(hoverValue !== null ? 100 - (hoverValue / Math.max(1, chartMax)) * 90 : 0)
+  const hoverValue = $derived(hoverIdx !== null ? (focusSeries[hoverIdx] ?? null) : null)
+  const hoverCx = $derived(
+    hoverIdx !== null ? 30 + (hoverIdx / Math.max(1, focusSeries.length - 1)) * 450 : 0
+  )
+  const hoverCy = $derived(
+    hoverValue !== null ? 100 - (hoverValue / Math.max(1, chartMax)) * 90 : 0
+  )
 
   // Delta vs. the previous minute — real, derived straight from the series.
   const hoverDelta = $derived(
-    hoverIdx !== null && hoverIdx > 0 && focusSeries[hoverIdx] != null && focusSeries[hoverIdx - 1] != null
+    hoverIdx !== null &&
+      hoverIdx > 0 &&
+      focusSeries[hoverIdx] != null &&
+      focusSeries[hoverIdx - 1] != null
       ? focusSeries[hoverIdx] - focusSeries[hoverIdx - 1]
       : null
   )
@@ -861,11 +1335,13 @@
   // real killEvents/deathEvents timestamps, not fabricated.
   const hoverKills = $derived.by(() => {
     if (hoverIdx === null) return focusedPlayer.kills
-    return (focusedPlayer.stats.killEvents || []).filter((k: any) => k.time <= hoverIdx! * 60).length
+    return (focusedPlayer.stats.killEvents || []).filter((k: any) => k.time <= hoverIdx! * 60)
+      .length
   })
   const hoverDeaths = $derived.by(() => {
     if (hoverIdx === null) return focusedPlayer.deaths
-    return (focusedPlayer.stats.deathEvents || []).filter((k: any) => k.time <= hoverIdx! * 60).length
+    return (focusedPlayer.stats.deathEvents || []).filter((k: any) => k.time <= hoverIdx! * 60)
+      .length
   })
 
   // A handful of evenly-spaced hero-portrait markers along the focus line.
@@ -961,7 +1437,11 @@
     itemIcon: string
   }
 
-  function buildMilestone(itemId: number, name: string, thresholds: [number, number]): GameplayMilestone | null {
+  function buildMilestone(
+    itemId: number,
+    name: string,
+    thresholds: [number, number]
+  ): GameplayMilestone | null {
     const timing = focusedPlayer.stats.itemPurchases?.find((p: any) => p.itemId === itemId)
     if (!timing) return null
     const minutes = timing.time / 60
@@ -977,7 +1457,14 @@
       statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`
       color = 'text-gd'
     }
-    return { name, time: timing.time, status, statusText, color, itemIcon: getItemImgUrl(`item-assets/images/${itemId}.png`) }
+    return {
+      name,
+      time: timing.time,
+      status,
+      statusText,
+      color,
+      itemIcon: getItemImgUrl(`item-assets/images/${itemId}.png`)
+    }
   }
 
   // Hero-specific power-spike items (only meaningful for a handful of
@@ -991,7 +1478,9 @@
       buildMilestone(208, 'Abyssal Blade Timing', [35, 38])
     ].filter((m): m is GameplayMilestone => m !== null)
 
-    const purchases = (focusedPlayer.stats.itemPurchases || []).slice().sort((a: any, b: any) => a.time - b.time)
+    const purchases = (focusedPlayer.stats.itemPurchases || [])
+      .slice()
+      .sort((a: any, b: any) => a.time - b.time)
     const general: GameplayMilestone[] = []
 
     // Boots line (any tier) — first boots purchased, role-agnostic.
@@ -1006,9 +1495,13 @@
       let statusText = `Excellent (Under ${thresholds[0]}m)`
       let status: 'ontime' | 'delayed' | 'late' = 'ontime'
       if (minutes > thresholds[1]) {
-        status = 'late'; statusText = `Late (Over ${thresholds[1]}m)`; color = 'text-rd'
+        status = 'late'
+        statusText = `Late (Over ${thresholds[1]}m)`
+        color = 'text-rd'
       } else if (minutes > thresholds[0]) {
-        status = 'delayed'; statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`; color = 'text-gd'
+        status = 'delayed'
+        statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`
+        color = 'text-gd'
       }
       general.push({
         name: 'First Boots Timing',
@@ -1035,9 +1528,13 @@
       let statusText = `Excellent (Under ${thresholds[0]}m)`
       let status: 'ontime' | 'delayed' | 'late' = 'ontime'
       if (minutes > thresholds[1]) {
-        status = 'late'; statusText = `Late (Over ${thresholds[1]}m)`; color = 'text-rd'
+        status = 'late'
+        statusText = `Late (Over ${thresholds[1]}m)`
+        color = 'text-rd'
       } else if (minutes > thresholds[0]) {
-        status = 'delayed'; statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`; color = 'text-gd'
+        status = 'delayed'
+        statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`
+        color = 'text-gd'
       }
       general.push({
         name: 'First Power Item Timing',
@@ -1076,7 +1573,14 @@
   })
 
   const coachingChecklist = $derived.by(() => {
-    const list: { title: string; desc: string; target: string; done: boolean; color: string; tabLink?: string }[] = []
+    const list: {
+      title: string
+      desc: string
+      target: string
+      done: boolean
+      color: string
+      tabLink?: string
+    }[] = []
     const pos = focusedPlayer.position
     const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(pos)
     const gpm = focusedPlayer.goldPerMinute
@@ -1084,26 +1588,63 @@
 
     // 1) GPM — role-aware thresholds with graduated targets
     const gpmTargets = isCore
-      ? { done: 700, target: 550, hint: (t: number) => `Target: 650+ GPM. At ${gpm}, aim for ${t}+ next game by hitting lane creeps more often.` }
-      : { done: 450, target: 300, hint: (t: number) => `Target: 400+ GPM for supports. At ${gpm}, aim for ${t}+ next game through bounties, assists, and tower pushes.` }
+      ? {
+          done: 700,
+          target: 550,
+          hint: (t: number) =>
+            `Target: 650+ GPM. At ${gpm}, aim for ${t}+ next game by hitting lane creeps more often.`
+        }
+      : {
+          done: 450,
+          target: 300,
+          hint: (t: number) =>
+            `Target: 400+ GPM for supports. At ${gpm}, aim for ${t}+ next game through bounties, assists, and tower pushes.`
+        }
 
     if (gpm >= gpmTargets.done) {
-      list.push({ title: 'Farming Velocity', desc: `Strong — ${gpm} GPM exceeds benchmarks for ${roleShortLabel(pos)}. Maintain lane pressure and stack-clearing pattern.`, target: '', done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+      list.push({
+        title: 'Farming Velocity',
+        desc: `Strong — ${gpm} GPM exceeds benchmarks for ${roleShortLabel(pos)}. Maintain lane pressure and stack-clearing pattern.`,
+        target: '',
+        done: true,
+        color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400'
+      })
     } else {
       const nextTarget = Math.max(gpmTargets.target, gpm + 50)
-      list.push({ title: 'Farming Velocity', desc: `At ${gpm} GPM, you're below ${roleShortLabel(pos)} benchmarks. ${gpmTargets.hint(nextTarget)}`, target: `→ ${nextTarget} GPM`, done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300' })
+      list.push({
+        title: 'Farming Velocity',
+        desc: `At ${gpm} GPM, you're below ${roleShortLabel(pos)} benchmarks. ${gpmTargets.hint(nextTarget)}`,
+        target: `→ ${nextTarget} GPM`,
+        done: false,
+        color: 'border-rose-500/25 bg-rose-950/15 text-rose-300'
+      })
     }
 
     // 2) Survivability
     const deathThresholds = isCore ? { done: 3, target: 6 } : { done: 4, target: 7 }
     if (deaths <= deathThresholds.done) {
-      list.push({ title: 'Survival & Position', desc: `${deaths} deaths — excellent positioning. Keep your current map awareness.`, target: '', done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+      list.push({
+        title: 'Survival & Position',
+        desc: `${deaths} deaths — excellent positioning. Keep your current map awareness.`,
+        target: '',
+        done: true,
+        color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400'
+      })
     } else {
-      list.push({ title: 'Survival & Position', desc: `${deaths} deaths — each one costs farm time and feeds opponents. Review the Map tab to see repeated danger zones.`, target: `→ ≤${deathThresholds.done} deaths`, done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300', tabLink: 'map' })
+      list.push({
+        title: 'Survival & Position',
+        desc: `${deaths} deaths — each one costs farm time and feeds opponents. Review the Map tab to see repeated danger zones.`,
+        target: `→ ≤${deathThresholds.done} deaths`,
+        done: false,
+        color: 'border-rose-500/25 bg-rose-950/15 text-rose-300',
+        tabLink: 'map'
+      })
     }
 
     // 3) Item timing — first meaningful item (≥1000g cost)
-    const purchases = (focusedPlayer.stats.itemPurchases || []).slice().sort((a: any, b: any) => a.time - b.time)
+    const purchases = (focusedPlayer.stats.itemPurchases || [])
+      .slice()
+      .sort((a: any, b: any) => a.time - b.time)
     const firstBig = purchases.find((p: any) => {
       const item = getItem(p.itemId)
       return item && item.cost >= 1000
@@ -1111,28 +1652,63 @@
     if (firstBig) {
       const item = getItem(firstBig.itemId)!
       const minutes = firstBig.time / 60
-      const timingTargets = isCore && (pos === 'POSITION_1' || pos === 'POSITION_2')
-        ? { done: 12, target: 18 }
-        : { done: 15, target: 22 }
+      const timingTargets =
+        isCore && (pos === 'POSITION_1' || pos === 'POSITION_2')
+          ? { done: 12, target: 18 }
+          : { done: 15, target: 22 }
 
       if (minutes <= timingTargets.done) {
-        list.push({ title: 'First Power Item Timing', desc: `Outstanding — ${item.dname} secured at ${formatTime(firstBig.time)}, ~${Math.round(timingTargets.done - minutes)} min ahead of benchmark.`, target: '', done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+        list.push({
+          title: 'First Power Item Timing',
+          desc: `Outstanding — ${item.dname} secured at ${formatTime(firstBig.time)}, ~${Math.round(timingTargets.done - minutes)} min ahead of benchmark.`,
+          target: '',
+          done: true,
+          color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400'
+        })
       } else if (minutes <= timingTargets.target) {
-        list.push({ title: 'First Power Item Timing', desc: `${item.dname} at ${formatTime(firstBig.time)} is on-pace. Next game, aim to shave 1-2 min off by avoiding early deaths and securing bounty runes.`, target: `→ ≤${timingTargets.done}m`, done: false, color: 'border-amber-500/25 bg-amber-950/15 text-amber-300' })
+        list.push({
+          title: 'First Power Item Timing',
+          desc: `${item.dname} at ${formatTime(firstBig.time)} is on-pace. Next game, aim to shave 1-2 min off by avoiding early deaths and securing bounty runes.`,
+          target: `→ ≤${timingTargets.done}m`,
+          done: false,
+          color: 'border-amber-500/25 bg-amber-950/15 text-amber-300'
+        })
       } else {
-        list.push({ title: 'First Power Item Timing', desc: `${item.dname} at ${formatTime(firstBig.time)} is ${Math.round(minutes - timingTargets.target)} min late. Focus on safe CS in lane before 10m; each early death delays your power spike significantly.`, target: `→ ≤${timingTargets.target}m`, done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300' })
+        list.push({
+          title: 'First Power Item Timing',
+          desc: `${item.dname} at ${formatTime(firstBig.time)} is ${Math.round(minutes - timingTargets.target)} min late. Focus on safe CS in lane before 10m; each early death delays your power spike significantly.`,
+          target: `→ ≤${timingTargets.target}m`,
+          done: false,
+          color: 'border-rose-500/25 bg-rose-950/15 text-rose-300'
+        })
       }
     }
 
     // 4) Core Checklist — fight participation for carries
-    const totalDamage = (focusedPlayer.stats.heroDamagePerMinute || []).reduce((a: number, b: number) => a + b, 0)
+    const totalDamage = (focusedPlayer.stats.heroDamagePerMinute || []).reduce(
+      (a: number, b: number) => a + b,
+      0
+    )
     if (isCore) {
-      const dmgPerKill = focusedPlayer.kills > 0 ? Math.round(totalDamage / focusedPlayer.kills) : totalDamage
+      const dmgPerKill =
+        focusedPlayer.kills > 0 ? Math.round(totalDamage / focusedPlayer.kills) : totalDamage
       const dmgOk = totalDamage >= (focusedPlayer.isVictory ? 18000 : 15000)
       if (dmgOk) {
-        list.push({ title: 'Teamfight Output', desc: `${totalDamage.toLocaleString()} hero damage (~${dmgPerKill.toLocaleString()} per kill) — you turned net worth into fight impact.`, target: '', done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+        list.push({
+          title: 'Teamfight Output',
+          desc: `${totalDamage.toLocaleString()} hero damage (~${dmgPerKill.toLocaleString()} per kill) — you turned net worth into fight impact.`,
+          target: '',
+          done: true,
+          color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400'
+        })
       } else {
-        list.push({ title: 'Teamfight Output', desc: `${totalDamage.toLocaleString()} hero damage is low for a ${roleShortLabel(pos)}. With your net worth, consider joining fights when your key item is online.`, target: '→ Join 2+ more teamfights at item spike', done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300' })
+        list.push({
+          title: 'Teamfight Output',
+          desc: `${totalDamage.toLocaleString()} hero damage is low for a ${roleShortLabel(pos)}. With your net worth, consider joining fights when your key item is online.`,
+          target: '→ Join 2+ more teamfights at item spike',
+          done: false,
+          color: 'border-rose-500/25 bg-rose-950/15 text-rose-300'
+        })
       }
     } else {
       // 4) Support Checklist — vision & utility
@@ -1142,11 +1718,31 @@
       const wardsOk = totalWards >= 15 && earlyWards >= 4
 
       if (wardsOk) {
-        list.push({ title: 'Vision Coverage', desc: `${totalWards} wards placed (${earlyWards} early) — strong vision game protecting your cores' farm windows.`, target: '', done: true, color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400' })
+        list.push({
+          title: 'Vision Coverage',
+          desc: `${totalWards} wards placed (${earlyWards} early) — strong vision game protecting your cores' farm windows.`,
+          target: '',
+          done: true,
+          color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400'
+        })
       } else if (totalWards >= 8) {
-        list.push({ title: 'Vision Coverage', desc: `${totalWards} wards total but only ${earlyWards} before 10:00. Early wards protect carries during their most vulnerable farm phase; front-load at least 4.`, target: '→ ≥4 early wards next game', done: false, color: 'border-amber-500/25 bg-amber-950/15 text-amber-300', tabLink: 'map' })
+        list.push({
+          title: 'Vision Coverage',
+          desc: `${totalWards} wards total but only ${earlyWards} before 10:00. Early wards protect carries during their most vulnerable farm phase; front-load at least 4.`,
+          target: '→ ≥4 early wards next game',
+          done: false,
+          color: 'border-amber-500/25 bg-amber-950/15 text-amber-300',
+          tabLink: 'map'
+        })
       } else {
-        list.push({ title: 'Vision Coverage', desc: `Only ${totalWards} wards total (${earlyWards} early). As ${roleShortLabel(pos)}, wards are your primary contribution to map control.`, target: `→ ≥${totalWards >= 6 ? 12 : 8} wards`, done: false, color: 'border-rose-500/25 bg-rose-950/15 text-rose-300', tabLink: 'map' })
+        list.push({
+          title: 'Vision Coverage',
+          desc: `Only ${totalWards} wards total (${earlyWards} early). As ${roleShortLabel(pos)}, wards are your primary contribution to map control.`,
+          target: `→ ≥${totalWards >= 6 ? 12 : 8} wards`,
+          done: false,
+          color: 'border-rose-500/25 bg-rose-950/15 text-rose-300',
+          tabLink: 'map'
+        })
       }
     }
 
@@ -1158,13 +1754,85 @@
     expandedCheckIndex = expandedCheckIndex === idx ? null : idx
   }
 
-  const kdaText = $derived(((focusedPlayer.kills + focusedPlayer.assists) / Math.max(focusedPlayer.deaths, 1)).toFixed(2))
+  const kdaText = $derived(
+    ((focusedPlayer.kills + focusedPlayer.assists) / Math.max(focusedPlayer.deaths, 1)).toFixed(2)
+  )
+
+  const radiantPlayers = $derived(players.slice(0, 5))
+  const direPlayers = $derived(players.slice(5, 10))
 
   // ── Combat tab: kill / death feed ───────────────────────────────────
   const combatFeed = $derived.by(() => {
     return focusedPlayerEvents
       .filter((e) => e.type === 'kill' || e.type === 'death')
       .sort((a, b) => a.time - b.time)
+  })
+
+  interface CombatPhaseGroup {
+    id: string
+    label: string
+    rangeLabel: string
+    min: number
+    max: number
+    entries: CombatEntry[]
+  }
+
+  const combatFeedEnhanced = $derived.by((): CombatEntry[] => {
+    const entries: CombatEntry[] = []
+    let killStreak = 0
+    let deathSpree = 0
+
+    for (const ev of combatFeed) {
+      if (ev.type === 'kill') {
+        killStreak++
+        deathSpree = 0
+      } else {
+        deathSpree++
+        killStreak = 0
+      }
+      entries.push({
+        time: ev.time,
+        type: ev.type,
+        streak: ev.type === 'kill' && killStreak >= 2 ? killStreak : undefined,
+        spree: ev.type === 'death' && deathSpree >= 2 ? deathSpree : undefined,
+        heroName: ev.heroName,
+        heroIcon: ev.heroIcon,
+        landmark: ev.landmark,
+        gold: ev.gold,
+        xp: ev.xp,
+        goldLost: ev.goldLost,
+        xpFed: ev.xpFed,
+        color: ev.color
+      })
+    }
+    return entries
+  })
+
+  const combatSummary = $derived.by(() => {
+    const kills = combatFeedEnhanced.filter((e) => e.type === 'kill')
+    const deaths = combatFeedEnhanced.filter((e) => e.type === 'death')
+    const totalGold = kills.reduce((s, e) => s + (e.gold || 0), 0)
+    const totalXp = kills.reduce((s, e) => s + (e.xp || 0), 0)
+    const totalGoldLost = deaths.reduce((s, e) => s + (e.goldLost || 0), 0)
+    const totalXpFed = deaths.reduce((s, e) => s + (e.xpFed || 0), 0)
+    const bestStreak = Math.max(1, ...kills.map((e) => e.streak || 1))
+    const worstSpree = Math.max(1, ...deaths.map((e) => e.spree || 1))
+    const firstKill = kills.length > 0 ? kills[0].time : null
+    const firstDeath = deaths.length > 0 ? deaths[0].time : null
+    return { killCount: kills.length, deathCount: deaths.length, totalGold, totalXp, totalGoldLost, totalXpFed, bestStreak, worstSpree, firstKill, firstDeath }
+  })
+
+  const combatPhaseGroups = $derived.by((): CombatPhaseGroup[] => {
+    const groups: CombatPhaseGroup[] = [
+      { id: 'early', label: 'Early Game', rangeLabel: '0\u201310m', min: 0, max: 600, entries: [] },
+      { id: 'midgame', label: 'Mid Game', rangeLabel: '10\u201325m', min: 600, max: 1500, entries: [] },
+      { id: 'late', label: 'Late Game', rangeLabel: '25m+', min: 1500, max: Infinity, entries: [] }
+    ]
+    for (const entry of combatFeedEnhanced) {
+      const g = groups.find((g) => entry.time >= g.min && entry.time < g.max)
+      if (g) g.entries.push(entry)
+    }
+    return groups.filter((g) => g.entries.length > 0)
   })
 
   // ── Timeline tab: unified real events ───────────────────────────────
@@ -1197,7 +1865,13 @@
   // Persist timeline filters to localStorage
   const TL_FILTER_KEY = 'dotatracker_timeline_filters'
   $effect(() => {
-    const filters = { kills: tlShowKills, deaths: tlShowDeaths, wards: tlShowWards, runes: tlShowRunes, items: tlShowItems }
+    const filters = {
+      kills: tlShowKills,
+      deaths: tlShowDeaths,
+      wards: tlShowWards,
+      runes: tlShowRunes,
+      items: tlShowItems
+    }
     localStorage.setItem(TL_FILTER_KEY, JSON.stringify(filters))
   })
   $effect(() => {
@@ -1211,7 +1885,9 @@
         tlShowRunes = filters.runes ?? true
         tlShowItems = filters.items ?? true
       }
-    } catch { /* ignore corrupt localStorage */ }
+    } catch {
+      /* ignore corrupt localStorage */
+    }
   })
 
   const timelinePhaseGroups = $derived.by((): TimelinePhaseGroup[] => {
@@ -1255,7 +1931,6 @@
         icon: isObs ? '★' : '✚'
       })
     })
-
     ;(focusedPlayer.stats.runes || []).forEach((r: any) => {
       entries.push({
         kind: 'rune',
@@ -1266,7 +1941,6 @@
         icon: '♦'
       })
     })
-
     ;(focusedPlayer.stats.itemPurchases || []).forEach((p: any) => {
       const item = getItem(p.itemId)
       if (!item || item.cost < 500) return // keep the feed readable: only meaningful purchases
@@ -1276,7 +1950,7 @@
         label: `Purchased ${item.dname}`,
         sub: `${item.cost.toLocaleString()}g`,
         color: '#a1a1aa',
-        icon: '🛒'
+        icon: '$'
       })
     })
 
@@ -1293,89 +1967,155 @@
   })
 </script>
 
-<div class="flex-1 overflow-hidden flex flex-col select-none bg-black" onkeydown={handleKeydown} tabindex="-1">
-  <!-- HEADER -->
-  <div class="bg-black border-b border-zinc-800/60 p-4 flex items-center justify-between shrink-0 gap-4">
-    <div class="flex items-center gap-4">
-      <div class="flex flex-col gap-1">
-        <label class="text-xxs text-zinc-500 uppercase tracking-wider font-extrabold" for="player-select">Coaching Focus</label>
-        <select
-          id="player-select"
-          bind:value={selectedPlayerIndex}
-          class="sel bg-zinc-950 border border-zinc-800/80 hover:border-zinc-700/80 text-tx font-bold py-1 px-2.5 rounded text-base cursor-pointer focus:outline-none focus:border-zinc-500 transition-colors"
-        >
-          {#each players as p, idx}
-            {@const hero = getHero(p.heroId)}
-            {@const kdaStr = `${p.kills}/${p.deaths}/${p.assists}`}
-            {@const roleLabel = p.position === 'POSITION_1' ? 'P1' : p.position === 'POSITION_2' ? 'P2' : p.position === 'POSITION_3' ? 'P3' : p.position === 'POSITION_4' ? 'P4' : 'P5'}
-            <option value={idx}>
-              {hero?.localized_name || `Hero ${p.heroId}`} — {roleLabel} | {kdaStr} | {p.goldPerMinute}GPM
-            </option>
-          {/each}
-        </select>
-      </div>
-
-      <div class="h-8 w-px bg-zinc-800/60"></div>
-
-      <div class="w-12 h-12 rounded-lg overflow-hidden border {focusedPlayer.isVictory ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-rose-500/30 bg-rose-500/10'} transition-transform hover:scale-105">
-        {#if heroInfo}
-          <img src={getHeroImgUrl(heroInfo.icon)} class="w-full h-full object-cover" alt={heroInfo.localized_name} />
-        {/if}
-      </div>
-
-      <div>
-        <div class="font-extrabold text-lg flex items-center gap-2">
-          <span class="text-white">{heroInfo?.localized_name || 'Solo Carry'}</span>
-          {#if isYou(focusedPlayer.heroId)}
-            <span class="text-xxs bg-white/10 border border-white/20 text-white px-1.5 py-0.25 rounded font-bold uppercase tracking-wider">YOU</span>
-          {/if}
-          <span class="text-xxs px-1.5 py-0.25 rounded font-bold uppercase tracking-wider {focusedPlayer.isVictory ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25' : 'bg-rose-500/15 text-rose-400 border border-rose-500/25'}">
-            {focusedPlayer.isVictory ? 'Victory' : 'Defeat'}
-          </span>
-        </div>
-        <div class="text-xs text-zinc-400 font-mono uppercase tracking-[0.2px] mt-0.5">
-          {formatPosition(focusedPlayer.position)}
-        </div>
-      </div>
+<div
+  class="flex-1 overflow-hidden flex flex-col select-none bg-black"
+  onkeydown={handleKeydown}
+  tabindex="-1"
+>
+  <!-- LEFT/RIGHT SPLIT: HeroModel + Info + Items -->
+  <div class="flex gap-5 p-4 border-b border-zinc-800/60 bg-black items-start shrink-0">
+    <!-- Left: Hero Model (3D render) -->
+    <div
+      class="w-52 h-72 rounded-xl  overflow-hidden shrink-0 flex items-center justify-center"
+    >
+      {#if heroInfo}
+        <img
+          src={getHeroModelUrl(focusedPlayer.heroId)}
+          alt={heroInfo.localized_name}
+          class="w-full h-full object-contain"
+        />
+      {/if}
     </div>
 
-    <div class="flex items-center gap-4">
-      <div class="hidden lg:flex gap-3 font-mono text-center">
+    <!-- Right: Info + Items -->
+    <div class="flex-1 flex flex-col gap-3 min-w-0">
+      <!-- Top row: player select, name, role, outcome, grade, copy -->
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-4 min-w-0">
+          <div class="flex flex-col gap-1">
+            <span class="text-xxs text-zinc-500 uppercase tracking-wider font-extrabold">Coaching Focus</span>
+            <div class="flex items-center gap-0.5">
+              {#each radiantPlayers as p, idx}
+                {@const hero = getHero(p.heroId)}
+                <button
+                  class="relative w-9 h-9 rounded-full overflow-hidden border-2 transition-all cursor-pointer shrink-0 {selectedPlayerIndex === idx
+                    ? 'border-zinc-300 ring-1 ring-zinc-300/50'
+                    : 'border-zinc-800/60 hover:border-zinc-600'}"
+                  onclick={() => (selectedPlayerIndex = idx)}
+                  title={hero?.localized_name || `Hero ${p.heroId}`}
+                >
+                  {#if hero}
+                    <img src={getHeroImgUrl(hero.icon)} alt={hero.localized_name} class="w-full h-full object-cover" />
+                  {/if}
+                  {#if isYou(p.heroId)}
+                    <span class="absolute bottom-[-2px] left-1/2 -translate-x-1/2 text-xxs bg-white text-black font-extrabold px-1 rounded-full leading-[10px]">YOU</span>
+                  {/if}
+                </button>
+              {/each}
+              <div class="w-px h-7 bg-zinc-800/60 mx-1 shrink-0"></div>
+              {#each direPlayers as p, idx}
+                {@const hero = getHero(p.heroId)}
+                <button
+                  class="relative w-9 h-9 rounded-full overflow-hidden border-2 transition-all cursor-pointer shrink-0 {selectedPlayerIndex === idx + 5
+                    ? 'border-zinc-300 ring-1 ring-zinc-300/50'
+                    : 'border-zinc-800/60 hover:border-zinc-600'}"
+                  onclick={() => (selectedPlayerIndex = idx + 5)}
+                  title={hero?.localized_name || `Hero ${p.heroId}`}
+                >
+                  {#if hero}
+                    <img src={getHeroImgUrl(hero.icon)} alt={hero.localized_name} class="w-full h-full object-cover" />
+                  {/if}
+                  {#if isYou(p.heroId)}
+                    <span class="absolute bottom-[-2px] left-1/2 -translate-x-1/2 text-xxs bg-white text-black font-extrabold px-1 rounded-full leading-[10px]">YOU</span>
+                  {/if}
+                </button>
+              {/each}
+            </div>
+          </div>
+
+          <div>
+            <div class="font-extrabold text-lg flex items-center gap-2">
+              <span class="text-white">{heroInfo?.localized_name || 'Solo Carry'}</span>
+              {#if isYou(focusedPlayer.heroId)}
+                <span
+                  class="text-xxs bg-white/10 border border-white/20 text-white px-1.5 py-0.25 rounded font-bold uppercase tracking-wider"
+                  >YOU</span
+                >
+              {/if}
+              <span
+                class="text-xxs px-1.5 py-0.25 rounded font-bold uppercase tracking-wider {focusedPlayer.isVictory
+                  ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
+                  : 'bg-rose-500/15 text-rose-400 border border-rose-500/25'}"
+              >
+                {focusedPlayer.isVictory ? 'Victory' : 'Defeat'}
+              </span>
+            </div>
+            <div class="text-xs text-zinc-400 font-mono uppercase tracking-[0.2px] mt-0.5">
+              {formatPosition(focusedPlayer.position)}
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0">
+          <div
+            class="flex items-center gap-3 bg-zinc-950 border border-zinc-800/80 p-2 px-3 rounded-lg"
+          >
+            <div class="flex flex-col text-right">
+              <span class="text-xxs text-zinc-500 font-extrabold uppercase tracking-[0.6px]"
+                >Game Grade</span
+              >
+              <span class="text-xs text-zinc-300 font-semibold truncate max-w-[120px]"
+                >{performanceGrade.label}</span
+              >
+            </div>
+            <div
+              class="text-4xl font-black leading-none font-mono tracking-tighter font-tabular {performanceGrade.color} select-none"
+            >
+              {performanceGrade.grade}
+            </div>
+          </div>
+
+          <button
+            class="flex items-center gap-1.5 bg-zinc-950 border border-zinc-800/80 hover:border-zinc-600/80 text-xs font-bold text-zinc-400 hover:text-white rounded-lg px-3 py-2 cursor-pointer transition-all"
+            onclick={copyCoachingSummary}
+            title="Copy coaching summary to clipboard"
+          >
+            {#if copyFeedback}
+              <span class="flex items-center gap-1 text-emerald-400">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.3 14.7H4.7V5.3h8.6v9.4z"/><path d="M10.7 5.3V3.3A1.3 1.3 0 0 0 9.4 2H3.3A1.3 1.3 0 0 0 2 3.3v6.1a1.3 1.3 0 0 0 1.3 1.3h2"/><path d="M6 9.3 7.3 11 10 8"/></svg>
+                Copied
+              </span>
+            {:else}
+              <span class="flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.3 14.7H4.7V5.3h8.6v9.4z"/><path d="M10.7 5.3V3.3A1.3 1.3 0 0 0 9.4 2H3.3A1.3 1.3 0 0 0 2 3.3v6.1a1.3 1.3 0 0 0 1.3 1.3h2"/></svg>
+                Copy Summary
+              </span>
+            {/if}
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="flex items-center gap-3 font-mono text-center">
         <div class="bg-zinc-950 border border-zinc-800/80 rounded-lg px-3 py-1.5">
-          <div class="text-base font-bold font-tabular text-white">{focusedPlayer.goldPerMinute}</div>
+          <div class="text-base font-bold font-tabular text-white">
+            {focusedPlayer.goldPerMinute}
+          </div>
           <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px]">GPM</div>
         </div>
         <div class="bg-zinc-950 border border-zinc-800/80 rounded-lg px-3 py-1.5">
-          <div class="text-base font-bold font-tabular text-white">{focusedPlayer.experiencePerMinute}</div>
+          <div class="text-base font-bold font-tabular text-white">
+            {focusedPlayer.experiencePerMinute}
+          </div>
           <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px]">XPM</div>
         </div>
         <div class="bg-zinc-950 border border-zinc-800/80 rounded-lg px-3 py-1.5">
-          <div class="text-base font-bold font-tabular text-amber-400">{focusedPlayer.networth.toLocaleString()}</div>
+          <div class="text-base font-bold font-tabular text-amber-400">
+            {focusedPlayer.networth.toLocaleString()}
+          </div>
           <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px]">Net Worth</div>
         </div>
-      </div>
-
-      <div class="flex items-center gap-3 bg-zinc-950 border border-zinc-800/80 p-2 px-3 rounded-lg">
-        <div class="flex flex-col text-right">
-          <span class="text-xxs text-zinc-500 font-extrabold uppercase tracking-[0.6px]">Game Grade</span>
-          <span class="text-xs text-zinc-300 font-semibold truncate max-w-[120px]">{performanceGrade.label}</span>
-        </div>
-        <div class="text-4xl font-black leading-none font-mono tracking-tighter font-tabular {performanceGrade.color} select-none">{performanceGrade.grade}</div>
-      </div>
-
-      <button
-        class="flex items-center gap-1.5 bg-zinc-950 border border-zinc-800/80 hover:border-zinc-600/80 text-xs font-bold text-zinc-400 hover:text-white rounded-lg px-3 py-2 cursor-pointer transition-all"
-        onclick={copyCoachingSummary}
-        title="Copy coaching summary to clipboard"
-      >
-        {#if copyFeedback}
-          <span class="text-emerald-400">✓ Copied</span>
-        {:else}
-          <span>📋 Copy Summary</span>
-        {/if}
-      </button>
-
-      <div class="hidden sm:flex gap-4 font-mono text-center">
+        <div class="h-6 w-px bg-zinc-800/60"></div>
         <div>
           <div class="text-xl font-bold font-tabular text-emerald-400">{focusedPlayer.kills}</div>
           <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px] mt-0.5">Kills</div>
@@ -1389,67 +2129,99 @@
           <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px] mt-0.5">Assists</div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- INVENTORY STRIP -->
-  <div class="flex items-center gap-4 px-4 py-2.5 border-b border-zinc-800/60 bg-zinc-950/40 shrink-0 overflow-x-auto">
-    <span class="text-xxs font-extrabold uppercase tracking-wider text-zinc-500 shrink-0">Loadout</span>
-    <div class="flex gap-1.5 shrink-0">
-      {#each inventoryIds as itemId}
-        {@const item = getItem(itemId)}
-        {@const purchaseTime = getPurchaseTime(itemId)}
-        <div class="w-11 h-8 rounded bg-zinc-900 border border-zinc-800 overflow-hidden relative group cursor-help transition-all hover:border-zinc-500 hover:-translate-y-0.5">
-          {#if item}
-            <img src={getItemImgUrl(item.img)} alt={item.dname} class="w-full h-full object-cover" />
-            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:flex flex-col bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-xs z-20 whitespace-nowrap shadow-xl">
-              <span class="font-bold">{item.dname}</span>
-              {#if purchaseTime !== null}
-                <span class="text-zinc-500 font-mono">Purchased {formatTime(purchaseTime)}</span>
+      <!-- Item slots -->
+      <div class="flex items-center gap-4 mt-1">
+        <span class="text-xxs font-extrabold uppercase tracking-wider text-zinc-500 shrink-0"
+          >Loadout</span
+        >
+        <div class="flex gap-1.5 shrink-0">
+          {#each inventoryIds as itemId}
+            {@const item = getItem(itemId)}
+            {@const purchaseTime = getPurchaseTime(itemId)}
+            <div
+              class="w-11 h-8 rounded bg-zinc-900 border border-zinc-800 overflow-hidden relative group cursor-help transition-all hover:border-zinc-500 hover:-translate-y-0.5"
+            >
+              {#if item}
+                <img
+                  src={getItemImgUrl(item.img)}
+                  alt={item.dname}
+                  class="w-full h-full object-cover"
+                />
+                <div
+                  class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:flex flex-col bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-xs z-20 whitespace-nowrap shadow-xl"
+                >
+                  <span class="font-bold">{item.dname}</span>
+                  {#if purchaseTime !== null}
+                    <span class="text-zinc-500 font-mono">Purchased {formatTime(purchaseTime)}</span
+                    >
+                  {/if}
+                </div>
+              {:else}
+                <div
+                  class="w-full h-full bg-zinc-950/20 border border-dashed border-zinc-800/80"
+                ></div>
               {/if}
             </div>
+          {/each}
+        </div>
+        <div class="h-6 w-px bg-zinc-800/60 shrink-0"></div>
+        <div
+          class="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden relative group cursor-help flex items-center justify-center shrink-0"
+        >
+          {#if neutralItem}
+            <img
+              src={getItemImgUrl(neutralItem.img)}
+              alt={neutralItem.dname}
+              class="w-[85%] h-[85%] rounded-full object-cover"
+            />
+            <div
+              class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-xs z-20 whitespace-nowrap shadow-xl"
+            >
+              {neutralItem.dname}
+            </div>
           {:else}
-            <div class="w-full h-full bg-zinc-950/20 border border-dashed border-zinc-800/80"></div>
+            <div
+              class="w-full h-full rounded-full bg-zinc-950/20 border border-dashed border-zinc-800/80"
+            ></div>
           {/if}
         </div>
-      {/each}
-    </div>
-    <div class="h-6 w-px bg-zinc-800/60 shrink-0"></div>
-    <div class="w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden relative group cursor-help flex items-center justify-center shrink-0">
-      {#if neutralItem}
-        <img src={getItemImgUrl(neutralItem.img)} alt={neutralItem.dname} class="w-[85%] h-[85%] rounded-full object-cover" />
-        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-xs z-20 whitespace-nowrap shadow-xl">{neutralItem.dname}</div>
-      {:else}
-        <div class="w-full h-full rounded-full bg-zinc-950/20 border border-dashed border-zinc-800/80"></div>
-      {/if}
-    </div>
-    <div class="flex gap-1.5 shrink-0">
-      {#each backpackIds as itemId}
-        {@const item = getItem(itemId)}
-        <div class="w-9 h-6 rounded bg-zinc-900 border border-zinc-800 overflow-hidden relative group cursor-help transition-all hover:border-zinc-500">
-          {#if item}
-            <img src={getItemImgUrl(item.img)} alt={item.dname} class="w-full h-full object-cover grayscale opacity-70" />
-            <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-xs z-20 whitespace-nowrap shadow-xl">{item.dname}</div>
-          {:else}
-            <div class="w-full h-full bg-zinc-950/20 border border-dashed border-zinc-800/80"></div>
-          {/if}
+        <div class="flex gap-1.5 shrink-0">
+          {#each backpackIds as itemId}
+            {@const item = getItem(itemId)}
+            <div
+              class="w-9 h-6 rounded bg-zinc-900 border border-zinc-800 overflow-hidden relative group cursor-help transition-all hover:border-zinc-500"
+            >
+              {#if item}
+                <img
+                  src={getItemImgUrl(item.img)}
+                  alt={item.dname}
+                  class="w-full h-full object-cover grayscale opacity-70"
+                />
+                <div
+                  class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-zinc-950 border border-zinc-800 text-zinc-200 p-[4px_8px] rounded text-xs z-20 whitespace-nowrap shadow-xl"
+                >
+                  {item.dname}
+                </div>
+              {:else}
+                <div
+                  class="w-full h-full bg-zinc-950/20 border border-dashed border-zinc-800/80"
+                ></div>
+              {/if}
+            </div>
+          {/each}
         </div>
-      {/each}
+      </div>
     </div>
   </div>
 
   <!-- SUBTABS — Insights first: this is the "how do I improve" answer,
        everything else is supporting evidence you drill into from here. -->
   <div class="flex gap-2 border-b border-zinc-800/60 p-2.5 shrink-0 bg-black">
-    {#each [
-      { id: 'insights', label: '🎓 Insights' },
-      { id: 'map', label: '🗺️ Map' },
-      { id: 'economy', label: '📈 Economy' },
-      { id: 'combat', label: '⚔️ Combat' },
-      { id: 'timeline', label: '🕒 Timeline' }
-    ] as tab}
+    {#each [{ id: 'insights', label: 'Insights' }, { id: 'map', label: 'Map' }, { id: 'economy', label: 'Economy' }, { id: 'combat', label: 'Combat' }, { id: 'timeline', label: 'Timeline' }] as tab}
       <button
-        class="p-[6px_12px] text-sm font-bold rounded-md transition-all cursor-pointer border flex items-center gap-1.5 {activeSubTab === tab.id
+        class="p-[6px_12px] text-sm font-bold rounded-md transition-all cursor-pointer border flex items-center gap-1.5 {activeSubTab ===
+        tab.id
           ? 'bg-zinc-800 border-zinc-700 text-white shadow-inner shadow-black/30'
           : 'bg-zinc-950/40 border-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'}"
         onclick={() => (activeSubTab = tab.id)}
@@ -1465,20 +2237,36 @@
       <div class="p-5 flex flex-col gap-5">
         {#if enemyMirrorPlayer && enemyMirrorHero}
           <!-- Game Snapshot — one-glance role & outcome summary -->
-          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+          <div
+            class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm"
+          >
             <div class="flex items-start justify-between gap-4">
               <div class="flex-1">
-                <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-1">Game Snapshot</div>
+                <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mb-1">
+                  Game Snapshot
+                </div>
                 <div class="text-sm text-zinc-300 leading-relaxed">{gameSnapshot.roleSummary}</div>
               </div>
-              <div class="shrink-0 flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2">
+              <div
+                class="shrink-0 flex items-center gap-3 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2"
+              >
                 <div class="flex flex-col text-right">
-                  <span class="text-xxs text-zinc-500 font-extrabold uppercase tracking-[0.6px]">Outcome</span>
-                  <span class="text-xs font-semibold {focusedPlayer.isVictory ? 'text-emerald-400' : 'text-rose-400'}">
+                  <span class="text-xxs text-zinc-500 font-extrabold uppercase tracking-[0.6px]"
+                    >Outcome</span
+                  >
+                  <span
+                    class="text-xs font-semibold {focusedPlayer.isVictory
+                      ? 'text-emerald-400'
+                      : 'text-rose-400'}"
+                  >
                     {focusedPlayer.isVictory ? 'Victory' : 'Defeat'}
                   </span>
                 </div>
-                <div class="font-mono text-2xl font-black {performanceGrade.color} w-14 text-center">{performanceGrade.grade}</div>
+                <div
+                  class="font-mono text-2xl font-black {performanceGrade.color} w-14 text-center"
+                >
+                  {performanceGrade.grade}
+                </div>
               </div>
             </div>
             <div class="text-xs text-zinc-500 italic">{gameSnapshot.outcomeQuality}</div>
@@ -1493,35 +2281,63 @@
           </div>
 
           <div class="flex flex-col gap-2">
-            <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px]">Biggest Lever — vs. {enemyMirrorRoleLabel}</div>
+            <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px]">
+              Biggest Lever — vs. {enemyMirrorRoleLabel}
+            </div>
             <div class="text-xs text-zinc-500 leading-relaxed">
-              Compared minute-for-minute against the only fair baseline in this match: {enemyMirrorHero.localized_name}, the enemy player at the same role. Ranked by size of gap, worst first.
+              Compared minute-for-minute against the only fair baseline in this match: {enemyMirrorHero.localized_name},
+              the enemy player at the same role. Ranked by size of gap, worst first.
             </div>
           </div>
 
           {#if biggestGap}
-            <div class="bg-zinc-950/60 border {biggestGap.pct < 0 ? 'border-rose-500/25' : 'border-emerald-500/25'} rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+            <div
+              class="bg-zinc-950/60 border {biggestGap.pct < 0
+                ? 'border-rose-500/25'
+                : 'border-emerald-500/25'} rounded-xl p-4 flex flex-col gap-3 shadow-sm"
+            >
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <span class="text-2xl">{biggestGap.pct < 0 ? '⚠️' : '✅'}</span>
+                  {#if biggestGap.pct < 0}
+                    <svg class="w-6 h-6 text-rose-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                  {:else}
+                    <svg class="w-6 h-6 text-emerald-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+                  {/if}
                   <div>
                     <div class="text-sm font-extrabold text-white">{biggestGap.label}</div>
                     <div class="text-xs text-zinc-400 mt-0.5">
-                      You: <span class="font-mono font-bold text-zinc-200">{biggestGap.format(biggestGap.mine)}</span>
-                      &nbsp;·&nbsp; {enemyMirrorRoleLabel}: <span class="font-mono font-bold text-zinc-200">{biggestGap.format(biggestGap.theirs)}</span>
+                      You: <span class="font-mono font-bold text-zinc-200"
+                        >{biggestGap.format(biggestGap.mine)}</span
+                      >
+                      &nbsp;·&nbsp; {enemyMirrorRoleLabel}:
+                      <span class="font-mono font-bold text-zinc-200"
+                        >{biggestGap.format(biggestGap.theirs)}</span
+                      >
                     </div>
                   </div>
                 </div>
                 <div class="text-right shrink-0">
-                  <div class="font-mono text-xl font-black {biggestGap.pct < 0 ? 'text-rose-400' : 'text-emerald-400'}">{biggestGap.pct >= 0 ? '+' : ''}{Math.round(biggestGap.pct)}%</div>
+                  <div
+                    class="font-mono text-xl font-black {biggestGap.pct < 0
+                      ? 'text-rose-400'
+                      : 'text-emerald-400'}"
+                  >
+                    {biggestGap.pct >= 0 ? '+' : ''}{Math.round(biggestGap.pct)}%
+                  </div>
                   <div class="text-xxs text-zinc-500 uppercase tracking-wider">vs. mirror</div>
                 </div>
               </div>
               <div class="border-t border-zinc-800/40 pt-2 flex items-start gap-2">
-                <span class="text-xs text-zinc-300 leading-relaxed flex-1">{biggestGap.advice}</span>
+                <span class="text-xs text-zinc-300 leading-relaxed flex-1">{biggestGap.advice}</span
+                >
                 {#if biggestGap.pct < 0}
-                  <button class="shrink-0 text-[9px] font-bold text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded px-2 py-0.5 cursor-pointer transition-colors"
-                    onclick={() => { activeSubTab = 'map'; cursorTime = null }}>Review Map</button>
+                  <button
+                    class="shrink-0 text-[9px] font-bold text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded px-2 py-0.5 cursor-pointer transition-colors"
+                    onclick={() => {
+                      activeSubTab = 'map'
+                      cursorTime = null
+                    }}>Review Map</button
+                  >
                 {/if}
               </div>
             </div>
@@ -1529,133 +2345,231 @@
 
           <div class="grid grid-cols-1 gap-2">
             {#each mirrorGaps as gap}
-              <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg px-3.5 py-2.5 flex flex-col gap-1.5">
+              <div
+                class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg px-3.5 py-2.5 flex flex-col gap-1.5"
+              >
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-zinc-300">{gap.label}</span>
                   <div class="flex items-center gap-2 font-mono text-xs">
-                    <span class="text-zinc-500">{gap.format(gap.mine)} vs {gap.format(gap.theirs)}</span>
-                    <span class="font-extrabold {gap.pct < 0 ? 'text-rose-400' : 'text-emerald-400'}">{gap.pct >= 0 ? '+' : ''}{Math.round(gap.pct)}%</span>
+                    <span class="text-zinc-500"
+                      >{gap.format(gap.mine)} vs {gap.format(gap.theirs)}</span
+                    >
+                    <span
+                      class="font-extrabold {gap.pct < 0 ? 'text-rose-400' : 'text-emerald-400'}"
+                      >{gap.pct >= 0 ? '+' : ''}{Math.round(gap.pct)}%</span
+                    >
                   </div>
                 </div>
-                <div class="text-[10.5px] text-zinc-400 leading-relaxed border-t border-zinc-800/40 pt-1.5">{gap.advice}</div>
+                <div
+                  class="text-[10.5px] text-zinc-400 leading-relaxed border-t border-zinc-800/40 pt-1.5"
+                >
+                  {gap.advice}
+                </div>
               </div>
             {/each}
           </div>
         {:else}
-          <div class="bg-zinc-950/40 border border-zinc-800/60 border-dashed rounded-xl p-6 text-center text-zinc-500 font-medium">
+          <div
+            class="bg-zinc-950/40 border border-zinc-800/60 border-dashed rounded-xl p-6 text-center text-zinc-500 font-medium"
+          >
             No opposing player at the same role was found to compare against.
           </div>
         {/if}
 
         {#if farmDistributionList.length > 0}
-          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Farm Distribution Insight</div>
-          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">
+            Farm Distribution Insight
+          </div>
+          <div
+            class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm"
+          >
             <div class="grid grid-cols-1 gap-2">
               {#each farmDistributionList.slice(0, 3) as farm}
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-semibold text-zinc-200 truncate">{farm.name}</span>
                   <div class="flex items-center gap-2">
                     <div class="w-16 h-1.5 bg-zinc-900 rounded-full overflow-hidden">
-                      <div class="h-full rounded-full" class:bg-emerald-500={farm.percent >= expectedFarmShare(farm.name, focusedPlayer.position)} class:bg-amber-400={farm.percent < expectedFarmShare(farm.name, focusedPlayer.position)} style="width: {Math.min(farm.percent, 100)}%"></div>
+                      <div
+                        class="h-full rounded-full"
+                        class:bg-emerald-500={farm.percent >=
+                          expectedFarmShare(farm.name, focusedPlayer.position)}
+                        class:bg-amber-400={farm.percent <
+                          expectedFarmShare(farm.name, focusedPlayer.position)}
+                        style="width: {Math.min(farm.percent, 100)}%"
+                      ></div>
                     </div>
                     <span class="font-mono text-xs text-zinc-400">{farm.percent}%</span>
                   </div>
                 </div>
               {/each}
             </div>
-            <div class="text-[10.5px] text-zinc-400 leading-relaxed border-t border-zinc-800/40 pt-2">{farmInsightNote()}</div>
+            <div
+              class="text-[10.5px] text-zinc-400 leading-relaxed border-t border-zinc-800/40 pt-2"
+            >
+              {farmInsightNote()}
+            </div>
           </div>
         {/if}
 
         {#if deathClusters.length > 0}
-          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Repeated Death Pattern</div>
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">
+            Repeated Death Pattern
+          </div>
           <div class="flex flex-col gap-2">
             {#each deathClusters as cluster}
               <button
                 class="flex items-center justify-between gap-3 bg-zinc-950/60 border border-rose-500/20 rounded-lg px-3.5 py-2.5 text-left hover:bg-zinc-900 transition-colors"
-                onclick={() => { activeSubTab = 'map'; cursorTime = cluster.times[0] }}
+                onclick={() => {
+                  activeSubTab = 'map'
+                  cursorTime = cluster.times[0]
+                }}
               >
                 <span class="text-xs text-zinc-300">
-                  Died <span class="font-extrabold text-rose-400">{cluster.count} times</span> {cluster.landmark}
+                  Died <span class="font-extrabold text-rose-400">{cluster.count} times</span>
+                  {cluster.landmark}
                 </span>
-                <span class="font-mono text-xxs text-zinc-500 shrink-0">{cluster.times.map((t) => formatTime(t)).join(', ')}</span>
+                <span class="font-mono text-xxs text-zinc-500 shrink-0"
+                  >{cluster.times.map((t) => formatTime(t)).join(', ')}</span
+                >
               </button>
             {/each}
           </div>
         {/if}
 
         {#if !['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(focusedPlayer.position) && wardTimingSummary.total > 0}
-          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Vision Timing</div>
-          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-2 shadow-sm">
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">
+            Vision Timing
+          </div>
+          <div
+            class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-2 shadow-sm"
+          >
             <div class="text-xs text-zinc-400 leading-relaxed">
-              Early vision (before 10:00) is what protects your team's core farm; late vision mostly just confirms fights already in motion.
+              Early vision (before 10:00) is what protects your team's core farm; late vision mostly
+              just confirms fights already in motion.
             </div>
             <div class="grid grid-cols-3 gap-2 text-center mt-1">
               <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-2">
-                <div class="font-mono text-lg font-extrabold {wardTimingSummary.early / wardTimingSummary.total < 0.3 ? 'text-rose-400' : 'text-emerald-400'}">{wardTimingSummary.early}</div>
+                <div
+                  class="font-mono text-lg font-extrabold {wardTimingSummary.early /
+                    wardTimingSummary.total <
+                  0.3
+                    ? 'text-rose-400'
+                    : 'text-emerald-400'}"
+                >
+                  {wardTimingSummary.early}
+                </div>
                 <div class="text-xxs text-zinc-500 uppercase tracking-wider">Early (0–10m)</div>
               </div>
               <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-2">
-                <div class="font-mono text-lg font-extrabold text-zinc-300">{wardTimingSummary.mid}</div>
+                <div class="font-mono text-lg font-extrabold text-zinc-300">
+                  {wardTimingSummary.mid}
+                </div>
                 <div class="text-xxs text-zinc-500 uppercase tracking-wider">Mid (10–25m)</div>
               </div>
               <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-2">
-                <div class="font-mono text-lg font-extrabold text-zinc-300">{wardTimingSummary.late}</div>
+                <div class="font-mono text-lg font-extrabold text-zinc-300">
+                  {wardTimingSummary.late}
+                </div>
                 <div class="text-xxs text-zinc-500 uppercase tracking-wider">Late (25m+)</div>
               </div>
             </div>
             {#if wardTimingSummary.early / wardTimingSummary.total < 0.3}
-              <div class="text-xs text-rose-300 mt-1">Under a third of your wards went down in the first 10 minutes — consider front-loading vision before your laners are exposed.</div>
+              <div class="text-xs text-rose-300 mt-1">
+                Under a third of your wards went down in the first 10 minutes — consider
+                front-loading vision before your laners are exposed.
+              </div>
             {/if}
           </div>
         {/if}
 
-        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Item Timing Milestones</div>
+        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">
+          Item Timing Milestones
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           {#each gameplayMilestones as milestone}
-            <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+            <div
+              class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm"
+            >
               <div class="flex items-center gap-3">
-                <img src={milestone.itemIcon} class="w-11 h-8 rounded border border-zinc-800 object-cover" alt="" />
+                <img
+                  src={milestone.itemIcon}
+                  class="w-11 h-8 rounded border border-zinc-800 object-cover"
+                  alt=""
+                />
                 <div>
                   <div class="text-[12.5px] font-bold text-white">{milestone.name}</div>
-                  <div class="text-[10.5px] font-mono text-tx2">Secured at: {formatTime(milestone.time)}</div>
+                  <div class="text-[10.5px] font-mono text-tx2">
+                    Secured at: {formatTime(milestone.time)}
+                  </div>
                 </div>
               </div>
-              <div class="border-t border-zinc-800/60 pt-2.5 flex items-center justify-between text-[11px]">
-                <span class="text-zinc-500 uppercase tracking-wider font-extrabold">Evaluation</span>
+              <div
+                class="border-t border-zinc-800/60 pt-2.5 flex items-center justify-between text-[11px]"
+              >
+                <span class="text-zinc-500 uppercase tracking-wider font-extrabold">Evaluation</span
+                >
                 <span class="font-bold {milestone.color}">{milestone.statusText}</span>
               </div>
             </div>
           {/each}
           {#if gameplayMilestones.length === 0}
-            <div class="col-span-3 bg-zinc-950/40 border border-zinc-800/60 border-dashed rounded-xl p-6 text-center text-zinc-500 font-medium">
+            <div
+              class="col-span-3 bg-zinc-950/40 border border-zinc-800/60 border-dashed rounded-xl p-6 text-center text-zinc-500 font-medium"
+            >
               No item purchase timing information logged for this hero.
             </div>
           {/if}
         </div>
 
-        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Coaching Checklist</div>
+        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">
+          Coaching Checklist
+        </div>
         <div class="flex flex-col gap-3">
           {#each coachingChecklist as check, idx}
-            <div class="flex flex-col border rounded-xl {check.color} transition-all duration-200 cursor-pointer hover:shadow-sm" onclick={() => toggleCheckIndex(idx)}>
+            <div
+              class="flex flex-col border rounded-xl {check.color} transition-all duration-200 cursor-pointer hover:shadow-sm"
+              onclick={() => toggleCheckIndex(idx)}
+            >
               <div class="flex items-center justify-between p-3.5 select-none font-bold">
                 <div class="flex items-center gap-3 min-w-0">
-                  <span class="text-[16px] shrink-0">{check.done ? '✅' : '❌'}</span>
+                  {#if check.done}
+                    <svg class="w-4 h-4 shrink-0 text-emerald-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.3 2.7L5.3 13.3 2 10"/></svg>
+                  {:else}
+                    <svg class="w-4 h-4 shrink-0 text-rose-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4L4 12M4 4l8 8"/></svg>
+                  {/if}
                   <span class="text-[13px] font-extrabold truncate">{check.title}</span>
                   {#if !check.done && check.target}
-                    <span class="text-[10px] font-extrabold text-zinc-400 bg-zinc-900/80 border border-zinc-800 rounded px-2 py-0.25 shrink-0">{check.target}</span>
+                    <span
+                      class="text-[10px] font-extrabold text-zinc-400 bg-zinc-900/80 border border-zinc-800 rounded px-2 py-0.25 shrink-0"
+                      >{check.target}</span
+                    >
                   {/if}
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                   {#if check.tabLink}
-                    <button class="text-[9px] font-bold text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded px-2 py-0.5 cursor-pointer transition-colors"
-                      onclick={(e) => { e.stopPropagation(); activeSubTab = check.tabLink!; cursorTime = null }}>View</button>
+                    <button
+                      class="text-[9px] font-bold text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded px-2 py-0.5 cursor-pointer transition-colors"
+                      onclick={(e) => {
+                        e.stopPropagation()
+                        activeSubTab = check.tabLink!
+                        cursorTime = null
+                      }}>View</button
+                    >
                   {/if}
-                  <span class="text-[10px] text-zinc-500 transition-transform duration-200 {expandedCheckIndex === idx ? 'rotate-180' : ''}">▼</span>
+                  <span
+                    class="text-[10px] text-zinc-500 transition-transform duration-200 {expandedCheckIndex ===
+                    idx
+                      ? 'rotate-180'
+                      : ''}">▼</span
+                  >
                 </div>
               </div>
               {#if expandedCheckIndex === idx}
-                <div class="px-3.5 pb-3.5 text-[11.5px] leading-relaxed text-zinc-300 border-t border-zinc-800/30 pt-2.5 font-normal">{check.desc}</div>
+                <div
+                  class="px-3.5 pb-3.5 text-[11.5px] leading-relaxed text-zinc-300 border-t border-zinc-800/30 pt-2.5 font-normal"
+                >
+                  {check.desc}
+                </div>
               {/if}
             </div>
           {/each}
@@ -1667,27 +2581,49 @@
           <div class="flex flex-col gap-3">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]">Position Telemetry</span>
+                <span class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]"
+                  >Position Telemetry</span
+                >
                 <div class="flex gap-1 ml-1">
                   {#each ['all', 'laning', 'midgame', 'late'] as phaseId}
                     {@const phase = phaseRanges[phaseId as MatchPhase]}
                     <button
-                      class="text-[9px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5 border transition-all cursor-pointer {activePhase === phaseId
+                      class="text-[9px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5 border transition-all cursor-pointer {activePhase ===
+                      phaseId
                         ? 'bg-zinc-800 border-zinc-700 text-white'
                         : 'bg-zinc-950/40 border-zinc-800/60 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700'}"
                       onclick={() => setPhase(phaseId as MatchPhase)}
-                    >{phase.label.slice(0, phase.label.indexOf('(') > 0 ? phase.label.indexOf('(') : undefined).trim() || phase.label}</button>
+                      >{phase.label
+                        .slice(
+                          0,
+                          phase.label.indexOf('(') > 0 ? phase.label.indexOf('(') : undefined
+                        )
+                        .trim() || phase.label}</button
+                    >
                   {/each}
                 </div>
               </div>
-              <label class="flex items-center gap-1.5 text-xxs font-semibold text-zinc-400 cursor-pointer hover:text-white">
-                <input type="checkbox" bind:checked={heatmapMode} class="rounded border-zinc-800 bg-zinc-950" />
+              <label
+                class="flex items-center gap-1.5 text-xxs font-semibold text-zinc-400 cursor-pointer hover:text-white"
+              >
+                <input
+                  type="checkbox"
+                  bind:checked={heatmapMode}
+                  class="rounded border-zinc-800 bg-zinc-950"
+                />
                 Heatmap
               </label>
             </div>
 
-            <div class="relative w-[300px] h-[300px] border border-bd rounded-lg overflow-hidden bg-sb/90 flex items-center justify-center select-none shadow-lg" onmouseleave={hideTooltip}>
-              <img src={MinimapImage} alt="Dota 2 Calibrated Minimap" class="w-full h-full object-contain opacity-95" />
+            <div
+              class="relative w-[300px] h-[300px] border border-bd rounded-lg overflow-hidden bg-sb/90 flex items-center justify-center select-none shadow-lg"
+              onmouseleave={hideTooltip}
+            >
+              <img
+                src={MinimapImage}
+                alt="Dota 2 Calibrated Minimap"
+                class="w-full h-full object-contain opacity-95"
+              />
 
               <svg viewBox="0 0 255 255" class="absolute inset-0 w-full h-full">
                 {#if heatmapMode}
@@ -1700,7 +2636,12 @@
                     {/each}
                   </defs>
                   {#each visibleEvents as ev, i}
-                    <circle cx={(ev.x / 100) * 255} cy={(ev.y / 100) * 255} r="16" fill={`url(#heat-${i})`} />
+                    <circle
+                      cx={(ev.x / 100) * 255}
+                      cy={(ev.y / 100) * 255}
+                      r="16"
+                      fill={`url(#heat-${i})`}
+                    />
                   {/each}
                 {/if}
 
@@ -1712,7 +2653,11 @@
                       width={struct.w}
                       height={struct.h}
                       viewBox="0 0 24 24"
-                      color={struct.team === 'radiant' ? '#22c55e' : struct.team === 'dire' ? '#ef4444' : '#eab308'}
+                      color={struct.team === 'radiant'
+                        ? '#22c55e'
+                        : struct.team === 'dire'
+                          ? '#ef4444'
+                          : '#eab308'}
                       class="transition-all duration-100 hover:brightness-150 hover:scale-115 origin-center cursor-help z-0 [&_*]:pointer-events-none"
                       onmouseenter={() => showStructureTooltip(struct)}
                       role="img"
@@ -1730,18 +2675,48 @@
                     {@const isCursor = cursorTime !== null && Math.abs(ev.time - cursorTime) < 15}
 
                     {#if ev.type === 'death'}
-                      <rect x={svgX - 3.5} y={svgY - 3.5} width="7" height="7" fill={ev.color} stroke={isCursor ? '#fff' : 'black'} stroke-width={isCursor ? 1.5 : 0.75} class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker" onmouseenter={() => showTooltip(ev)} />
+                      <rect
+                        x={svgX - 3.5}
+                        y={svgY - 3.5}
+                        width="7"
+                        height="7"
+                        fill={ev.color}
+                        stroke={isCursor ? '#fff' : 'black'}
+                        stroke-width={isCursor ? 1.5 : 0.75}
+                        class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
+                        onmouseenter={() => showTooltip(ev)}
+                      />
                     {:else if ev.type === 'rune'}
-                      <polygon points="{svgX},{svgY - 4.5} {svgX + 4.5},{svgY} {svgX},{svgY + 4.5} {svgX - 4.5},{svgY}" fill={ev.color} stroke={isCursor ? '#fff' : 'black'} stroke-width={isCursor ? 1.5 : 0.75} class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker" onmouseenter={() => showTooltip(ev)} />
+                      <polygon
+                        points="{svgX},{svgY - 4.5} {svgX + 4.5},{svgY} {svgX},{svgY + 4.5} {svgX -
+                          4.5},{svgY}"
+                        fill={ev.color}
+                        stroke={isCursor ? '#fff' : 'black'}
+                        stroke-width={isCursor ? 1.5 : 0.75}
+                        class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
+                        onmouseenter={() => showTooltip(ev)}
+                      />
                     {:else}
-                      <circle cx={svgX} cy={svgY} r="4" fill={ev.color} stroke={isCursor ? '#fff' : 'black'} stroke-width={isCursor ? 1.5 : 0.75} class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker" onmouseenter={() => showTooltip(ev)} />
+                      <circle
+                        cx={svgX}
+                        cy={svgY}
+                        r="4"
+                        fill={ev.color}
+                        stroke={isCursor ? '#fff' : 'black'}
+                        stroke-width={isCursor ? 1.5 : 0.75}
+                        class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
+                        onmouseenter={() => showTooltip(ev)}
+                      />
                     {/if}
                   {/each}
                 {/if}
               </svg>
 
               {#if tooltipEvent}
-                <div class="absolute bg-s4 border border-bd2 text-tx p-[5px_8px] rounded shadow-lg text-xs pointer-events-none z-50 whitespace-nowrap -translate-x-1/2 flex items-center gap-1.5 font-sans animate-fade-in" style={tooltipStyle}>
+                <div
+                  class="absolute bg-s4 border border-bd2 text-tx p-[5px_8px] rounded shadow-lg text-xs pointer-events-none z-50 whitespace-nowrap -translate-x-1/2 flex items-center gap-1.5 font-sans animate-fade-in"
+                  style={tooltipStyle}
+                >
                   {#if tooltipEvent.heroIcon}
                     <img src={tooltipEvent.heroIcon} class="w-4 h-4 rounded-full" alt="" />
                   {/if}
@@ -1751,14 +2726,18 @@
                       <span class="text-xxs text-tx2">{tooltipEvent.landmark}</span>
                     {/if}
                     {#if tooltipEvent.time > 0}
-                      <span class="text-xxs text-tx2 font-mono">Time: {formatTime(tooltipEvent.time)}</span>
+                      <span class="text-xxs text-tx2 font-mono"
+                        >Time: {formatTime(tooltipEvent.time)}</span
+                      >
                     {/if}
                   </div>
                 </div>
               {/if}
             </div>
 
-            <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 flex flex-col gap-2.5 shadow-sm">
+            <div
+              class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 flex flex-col gap-2.5 shadow-sm"
+            >
               <div class="flex flex-col gap-1">
                 <div class="flex justify-between items-center text-xs text-zinc-400 font-semibold">
                   <div class="flex items-center gap-2">
@@ -1770,45 +2749,109 @@
                       title={playbackPlaying ? 'Pause (Space)' : 'Play (Space)'}
                     >
                       {#if playbackPlaying}
-                        <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current"><rect x="2" y="1" width="3" height="10" rx="0.5"/><rect x="7" y="1" width="3" height="10" rx="0.5"/></svg>
+                        <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current"
+                          ><rect x="2" y="1" width="3" height="10" rx="0.5" /><rect
+                            x="7"
+                            y="1"
+                            width="3"
+                            height="10"
+                            rx="0.5"
+                          /></svg
+                        >
                       {:else}
-                        <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current"><polygon points="1.5,0 11.5,6 1.5,12"/></svg>
+                        <svg viewBox="0 0 12 12" class="w-3 h-3 fill-current"
+                          ><polygon points="1.5,0 11.5,6 1.5,12" /></svg
+                        >
                       {/if}
                     </button>
                     <div class="flex gap-1">
                       {#each [2, 4, 8] as speed}
                         <button
-                          class="text-[9px] font-bold border rounded px-1.5 py-0.5 cursor-pointer transition-all {playbackSpeed === speed
+                          class="text-[9px] font-bold border rounded px-1.5 py-0.5 cursor-pointer transition-all {playbackSpeed ===
+                          speed
                             ? 'bg-zinc-800 border-zinc-700 text-white'
                             : 'bg-zinc-950/40 border-zinc-800/80 text-zinc-500 hover:text-white hover:border-zinc-600'}"
-                          onclick={() => { setPlaybackSpeed(speed); if (playbackPlaying) { stopPlayback(); startPlayback() } }}
-                        >{formatSpeedLabel(speed)}</button>
+                          onclick={() => {
+                            setPlaybackSpeed(speed)
+                            if (playbackPlaying) {
+                              stopPlayback()
+                              startPlayback()
+                            }
+                          }}>{formatSpeedLabel(speed)}</button
+                        >
                       {/each}
                     </div>
                   </div>
-                  <span class="font-mono text-zinc-200 font-bold">{formatTime(timeSliderValue)} / {formatTime(matchDurationSeconds)}</span>
+                  <span class="font-mono text-zinc-200 font-bold"
+                    >{formatTime(timeSliderValue)} / {formatTime(matchDurationSeconds)}</span
+                  >
                 </div>
-                <input type="range" min="0" max={matchDurationSeconds} bind:value={timeSliderValue} oninput={onScrub} class="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-200" />
+                <input
+                  type="range"
+                  min="0"
+                  max={matchDurationSeconds}
+                  bind:value={timeSliderValue}
+                  oninput={onScrub}
+                  class="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-200"
+                />
               </div>
 
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-2 gap-y-1.5 text-xs font-semibold text-zinc-400 border-t border-zinc-800/60 pt-2.5">
-                <label class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors">
-                  <input type="checkbox" bind:checked={showKills} class="rounded border-zinc-800 bg-zinc-950" /><span>🟢 Kills (+)</span>
+              <div
+                class="grid grid-cols-2 sm:grid-cols-3 gap-x-2 gap-y-1.5 text-xs font-semibold text-zinc-400 border-t border-zinc-800/60 pt-2.5"
+              >
+                <label
+                  class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    bind:checked={showKills}
+                    class="rounded border-zinc-800 bg-zinc-950"
+                  /><span class="flex items-center gap-1"><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#22c55e"/></svg> Kills (+)</span>
                 </label>
-                <label class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors">
-                  <input type="checkbox" bind:checked={showDeaths} class="rounded border-zinc-800 bg-zinc-950" /><span>🔴 Deaths (×)</span>
+                <label
+                  class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    bind:checked={showDeaths}
+                    class="rounded border-zinc-800 bg-zinc-950"
+                  /><span class="flex items-center gap-1"><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#ef4444"/></svg> Deaths (×)</span>
                 </label>
-                <label class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors">
-                  <input type="checkbox" bind:checked={showObserverWards} class="rounded border-zinc-800 bg-zinc-950" /><span>🟡 Observers (★)</span>
+                <label
+                  class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    bind:checked={showObserverWards}
+                    class="rounded border-zinc-800 bg-zinc-950"
+                  /><span class="flex items-center gap-1"><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#f59e0b"/></svg> Observers (★)</span>
                 </label>
-                <label class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors">
-                  <input type="checkbox" bind:checked={showSentryWards} class="rounded border-zinc-800 bg-zinc-950" /><span>🔵 Sentries (✚)</span>
+                <label
+                  class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    bind:checked={showSentryWards}
+                    class="rounded border-zinc-800 bg-zinc-950"
+                  /><span class="flex items-center gap-1"><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#3b82f6"/></svg> Sentries (✚)</span>
                 </label>
-                <label class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors">
-                  <input type="checkbox" bind:checked={showRunes} class="rounded border-zinc-800 bg-zinc-950" /><span>🟣 Runes (♦)</span>
+                <label
+                  class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    bind:checked={showRunes}
+                    class="rounded border-zinc-800 bg-zinc-950"
+                  /><span class="flex items-center gap-1"><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#a855f7"/></svg> Runes (♦)</span>
                 </label>
-                <label class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors">
-                  <input type="checkbox" bind:checked={showStructures} class="rounded border-zinc-800 bg-zinc-950" /><span>🏰 Structures</span>
+                <label
+                  class="flex items-center gap-1.5 cursor-pointer hover:text-white transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    bind:checked={showStructures}
+                    class="rounded border-zinc-800 bg-zinc-950"
+                  /><span class="flex items-center gap-1"><svg class="w-2.5 h-2.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 10V5l4-3 4 3v5H7V7H5v3H2z"/></svg> Structures</span>
                 </label>
               </div>
             </div>
@@ -1816,11 +2859,15 @@
             <!-- Vision summary (real counts only — no destroyed/lifetime/score) -->
             <div class="grid grid-cols-3 gap-2 text-center">
               <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg p-2">
-                <div class="font-mono text-lg font-extrabold text-amber-400">{visionSummary.observers}</div>
+                <div class="font-mono text-lg font-extrabold text-amber-400">
+                  {visionSummary.observers}
+                </div>
                 <div class="text-xxs text-zinc-500 uppercase tracking-wider">Observers</div>
               </div>
               <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg p-2">
-                <div class="font-mono text-lg font-extrabold text-sky-400">{visionSummary.sentries}</div>
+                <div class="font-mono text-lg font-extrabold text-sky-400">
+                  {visionSummary.sentries}
+                </div>
                 <div class="text-xxs text-zinc-500 uppercase tracking-wider">Sentries</div>
               </div>
               <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg p-2">
@@ -1831,8 +2878,12 @@
           </div>
 
           <div class="flex flex-col gap-3">
-            <div class="text-xs font-bold text-zinc-400 uppercase tracking-[0.5px]">Farm distribution report</div>
-            <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+            <div class="text-xs font-bold text-zinc-400 uppercase tracking-[0.5px]">
+              Farm distribution report
+            </div>
+            <div
+              class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm"
+            >
               <span class="text-sm text-zinc-400 leading-relaxed">
                 {expectedFarmNote(focusedPlayer.position)}
               </span>
@@ -1844,15 +2895,24 @@
                       <span class="text-zinc-400">{farm.count} creeps ({farm.percent}%)</span>
                     </div>
                     <div class="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden">
-                      <div class="h-full rounded-full transition-all duration-300" class:bg-amber-400={idx === 0} class:bg-zinc-700={idx > 0} style="width: {farm.percent}%"></div>
+                      <div
+                        class="h-full rounded-full transition-all duration-300"
+                        class:bg-amber-400={idx === 0}
+                        class:bg-zinc-700={idx > 0}
+                        style="width: {farm.percent}%"
+                      ></div>
                     </div>
                   </div>
                 {/each}
               </div>
             </div>
 
-            <div class="text-xs font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Recent Events</div>
-            <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-2 max-h-[260px] overflow-y-auto flex flex-col gap-1">
+            <div class="text-xs font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">
+              Recent Events
+            </div>
+            <div
+              class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-2 max-h-[260px] overflow-y-auto flex flex-col gap-1"
+            >
               {#each visibleEvents.slice(-14).reverse() as ev}
                 <button
                   class="flex items-center justify-between gap-2 text-left px-2.5 py-1.5 rounded-lg hover:bg-zinc-900 transition-colors text-sm"
@@ -1876,7 +2936,8 @@
         <div class="flex flex-wrap gap-2">
           {#each Object.entries(metricConfig) as [key, cfg]}
             <button
-              class="px-3 py-1.5 rounded-lg text-sm font-bold border transition-all {selectedMetric === key
+              class="px-3 py-1.5 rounded-lg text-sm font-bold border transition-all {selectedMetric ===
+              key
                 ? 'bg-zinc-800 border-zinc-700 text-white'
                 : 'bg-zinc-950/40 border-zinc-900 text-zinc-400 hover:text-zinc-200'}"
               onclick={() => (selectedMetric = key as EconomyMetric)}
@@ -1888,13 +2949,21 @@
 
         <div class="flex gap-4 items-stretch">
           <!-- Interactive chart card -->
-          <div class="relative flex-1 border border-zinc-800/60 rounded-xl bg-zinc-950/60 p-4 shadow-sm overflow-visible">
+          <div
+            class="relative flex-1 border border-zinc-800/60 rounded-xl bg-zinc-950/60 p-4 shadow-sm overflow-visible"
+          >
             <div class="flex items-center justify-between text-sm font-bold text-zinc-400 mb-2">
               <span>{metricConfig[selectedMetric].label} Over Time</span>
               <div class="flex items-center gap-3 text-xs">
-                <span class="text-emerald-400">🟢 You ({heroInfo?.localized_name}): {focusSeries.at(-1)?.toLocaleString() ?? 0}{metricConfig[selectedMetric].unit}</span>
+                <span class="flex items-center gap-1 text-emerald-400">
+                  <svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#22c55e"/></svg>
+                  You ({heroInfo?.localized_name}): {focusSeries.at(-1)?.toLocaleString() ?? 0}{metricConfig[selectedMetric].unit}
+                </span>
                 {#if enemyMirrorPlayer && enemyMirrorHero}
-                  <span class="text-rose-500">🔴 {enemyMirrorRoleLabel} ({enemyMirrorHero.localized_name}): {enemySeries.at(-1)?.toLocaleString() ?? 0}{metricConfig[selectedMetric].unit}</span>
+                  <span class="flex items-center gap-1 text-rose-500">
+                    <svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#ef4444"/></svg>
+                    {enemyMirrorRoleLabel} ({enemyMirrorHero.localized_name}): {enemySeries.at(-1)?.toLocaleString() ?? 0}{metricConfig[selectedMetric].unit}
+                  </span>
                 {/if}
               </div>
             </div>
@@ -1907,28 +2976,72 @@
             >
               <defs>
                 <linearGradient id="metricgrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color={metricConfig[selectedMetric].color} stop-opacity=".22" />
-                  <stop offset="100%" stop-color={metricConfig[selectedMetric].color} stop-opacity="0" />
+                  <stop
+                    offset="0%"
+                    stop-color={metricConfig[selectedMetric].color}
+                    stop-opacity=".22"
+                  />
+                  <stop
+                    offset="100%"
+                    stop-color={metricConfig[selectedMetric].color}
+                    stop-opacity="0"
+                  />
                 </linearGradient>
                 {#each heroMarkerIndices as _, i}
                   <clipPath id={`hero-clip-${i}`}><circle cx="0" cy="0" r="6.5" /></clipPath>
                 {/each}
               </defs>
 
-              <line x1="30" y1="10" x2="480" y2="10" stroke="rgba(255,255,255,.03)" stroke-width="1" />
-              <line x1="30" y1="55" x2="480" y2="55" stroke="rgba(255,255,255,.05)" stroke-width="1" />
-              <line x1="30" y1="100" x2="480" y2="100" stroke="rgba(255,255,255,.1)" stroke-width="1" />
+              <line
+                x1="30"
+                y1="10"
+                x2="480"
+                y2="10"
+                stroke="rgba(255,255,255,.03)"
+                stroke-width="1"
+              />
+              <line
+                x1="30"
+                y1="55"
+                x2="480"
+                y2="55"
+                stroke="rgba(255,255,255,.05)"
+                stroke-width="1"
+              />
+              <line
+                x1="30"
+                y1="100"
+                x2="480"
+                y2="100"
+                stroke="rgba(255,255,255,.1)"
+                stroke-width="1"
+              />
 
-              <text x="5" y="14" fill="#4A5270" font-size="8" font-family="monospace">{Math.round(chartMax).toLocaleString()}</text>
-              <text x="5" y="58" fill="#4A5270" font-size="8" font-family="monospace">{Math.round(chartMax / 2).toLocaleString()}</text>
+              <text x="5" y="14" fill="#4A5270" font-size="8" font-family="monospace"
+                >{Math.round(chartMax).toLocaleString()}</text
+              >
+              <text x="5" y="58" fill="#4A5270" font-size="8" font-family="monospace"
+                >{Math.round(chartMax / 2).toLocaleString()}</text
+              >
               <text x="5" y="103" fill="#4A5270" font-size="8" font-family="monospace">0</text>
 
               {#if focusChartPaths.line}
                 <path d={focusChartPaths.area} fill="url(#metricgrad)" />
-                <path d={focusChartPaths.line} fill="none" stroke={metricConfig[selectedMetric].color} stroke-width="2" />
+                <path
+                  d={focusChartPaths.line}
+                  fill="none"
+                  stroke={metricConfig[selectedMetric].color}
+                  stroke-width="2"
+                />
               {/if}
               {#if enemyChartPaths.line}
-                <path d={enemyChartPaths.line} fill="none" stroke="var(--color-rd)" stroke-width="1.5" stroke-dasharray="3,3" />
+                <path
+                  d={enemyChartPaths.line}
+                  fill="none"
+                  stroke="var(--color-rd)"
+                  stroke-width="1.5"
+                  stroke-dasharray="3,3"
+                />
               {/if}
 
               <!-- Hero-portrait markers sampled along the focus line -->
@@ -1947,7 +3060,12 @@
                       clip-path={`url(#hero-clip-${i})`}
                       preserveAspectRatio="xMidYMid slice"
                     />
-                    <circle r="6.5" fill="none" stroke={metricConfig[selectedMetric].color} stroke-width="1" />
+                    <circle
+                      r="6.5"
+                      fill="none"
+                      stroke={metricConfig[selectedMetric].color}
+                      stroke-width="1"
+                    />
                   </g>
                 {/each}
               {/if}
@@ -1955,21 +3073,57 @@
               {#if selectedMetric === 'networth' && focusSeries.length > 0}
                 {#each itemChartMarkers as marker}
                   {@const ix = 30 + (marker.minuteIdx / Math.max(1, focusSeries.length - 1)) * 450}
-                  <line x1={ix} y1="5" x2={ix} y2="105" stroke="var(--color-pu2)" stroke-opacity="0.08" stroke-width="0.5" stroke-dasharray="2,2" />
-                  <image href={marker.imgUrl} x={ix - 3.5} y="0" width="7" height="5" preserveAspectRatio="xMidYMid meet" class="pointer-events-none" />
+                  <line
+                    x1={ix}
+                    y1="5"
+                    x2={ix}
+                    y2="105"
+                    stroke="var(--color-pu2)"
+                    stroke-opacity="0.08"
+                    stroke-width="0.5"
+                    stroke-dasharray="2,2"
+                  />
+                  <image
+                    href={marker.imgUrl}
+                    x={ix - 3.5}
+                    y="0"
+                    width="7"
+                    height="5"
+                    preserveAspectRatio="xMidYMid meet"
+                    class="pointer-events-none"
+                  />
                 {/each}
               {/if}
 
               {#if hoverIdx !== null}
-                <line x1={hoverCx} y1="5" x2={hoverCx} y2="105" stroke="#fff" stroke-opacity="0.25" stroke-width="1" />
+                <line
+                  x1={hoverCx}
+                  y1="5"
+                  x2={hoverCx}
+                  y2="105"
+                  stroke="#fff"
+                  stroke-opacity="0.25"
+                  stroke-width="1"
+                />
                 <circle cx={hoverCx} cy={hoverCy} r="4.5" fill="black" />
-                <circle cx={hoverCx} cy={hoverCy} r="4.5" fill="none" stroke={metricConfig[selectedMetric].color} stroke-width="2" />
+                <circle
+                  cx={hoverCx}
+                  cy={hoverCy}
+                  r="4.5"
+                  fill="none"
+                  stroke={metricConfig[selectedMetric].color}
+                  stroke-width="2"
+                />
                 <circle cx={hoverCx} cy={hoverCy} r="1.6" fill="#fff" />
               {/if}
 
               <text x="30" y="115" fill="#4A5270" font-size="7.5" text-anchor="middle">0:00</text>
-              <text x="255" y="115" fill="#4A5270" font-size="7.5" text-anchor="middle">{formatTime(Math.round((focusSeries.length / 2) * 60))}</text>
-              <text x="480" y="115" fill="#4A5270" font-size="7.5" text-anchor="middle">{formatTime(focusSeries.length * 60)}</text>
+              <text x="255" y="115" fill="#4A5270" font-size="7.5" text-anchor="middle"
+                >{formatTime(Math.round((focusSeries.length / 2) * 60))}</text
+              >
+              <text x="480" y="115" fill="#4A5270" font-size="7.5" text-anchor="middle"
+                >{formatTime(focusSeries.length * 60)}</text
+              >
             </svg>
 
             <!-- Floating tooltip card, positioned from the same viewBox coords as the dot -->
@@ -1978,7 +3132,10 @@
               {@const topPct = (hoverCy / 120) * 100}
               <div
                 class="absolute z-30 pointer-events-none bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl px-3.5 py-3 min-w-[168px] -translate-x-1/2 animate-fade-in"
-                style="left: {leftPct}%; top: {Math.max(topPct - 6, 4)}%; transform: translate(-50%, -100%);"
+                style="left: {leftPct}%; top: {Math.max(
+                  topPct - 6,
+                  4
+                )}%; transform: translate(-50%, -100%);"
               >
                 <div class="text-sm font-extrabold text-white mb-2">
                   {metricConfig[selectedMetric].label} @ {formatTime(hoverIdx * 60)}
@@ -1986,22 +3143,32 @@
                 <div class="flex flex-col gap-1.5 text-xs">
                   <div class="flex items-center justify-between gap-4">
                     <span class="text-zinc-400">Value</span>
-                    <span class="font-mono font-bold" style="color:{metricConfig[selectedMetric].color}">
+                    <span
+                      class="font-mono font-bold"
+                      style="color:{metricConfig[selectedMetric].color}"
+                    >
                       {hoverValue.toLocaleString()}{metricConfig[selectedMetric].unit}
                     </span>
                   </div>
                   {#if hoverDelta !== null}
                     <div class="flex items-center justify-between gap-4">
                       <span class="text-zinc-400">Δ this minute</span>
-                      <span class="font-mono font-bold {hoverDelta >= 0 ? 'text-emerald-400' : 'text-rose-400'}">{hoverDelta >= 0 ? '+' : ''}{hoverDelta.toLocaleString()}</span>
+                      <span
+                        class="font-mono font-bold {hoverDelta >= 0
+                          ? 'text-emerald-400'
+                          : 'text-rose-400'}"
+                        >{hoverDelta >= 0 ? '+' : ''}{hoverDelta.toLocaleString()}</span
+                      >
                     </div>
                   {/if}
-                  <div class="flex items-center justify-between gap-4 border-t border-zinc-800/60 pt-1.5 mt-0.5">
-                    <span class="text-zinc-400 flex items-center gap-1">🟢 Kills so far</span>
+                  <div
+                    class="flex items-center justify-between gap-4 border-t border-zinc-800/60 pt-1.5 mt-0.5"
+                  >
+                    <span class="text-zinc-400 flex items-center gap-1"><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#22c55e"/></svg> Kills so far</span>
                     <span class="font-mono font-bold text-emerald-400">{hoverKills}</span>
                   </div>
                   <div class="flex items-center justify-between gap-4">
-                    <span class="text-zinc-400 flex items-center gap-1">🔴 Deaths so far</span>
+                    <span class="text-zinc-400 flex items-center gap-1"><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#ef4444"/></svg> Deaths so far</span>
                     <span class="font-mono font-bold text-rose-400">{hoverDeaths}</span>
                   </div>
                 </div>
@@ -2010,10 +3177,19 @@
           </div>
 
           <!-- Side gauge: hero level ring, honest to real data -->
-          <div class="hidden sm:flex flex-col items-center justify-center gap-1.5 w-[92px] shrink-0 border border-zinc-800/60 rounded-xl bg-zinc-950/60 p-3 shadow-sm">
+          <div
+            class="hidden sm:flex flex-col items-center justify-center gap-1.5 w-[92px] shrink-0 border border-zinc-800/60 rounded-xl bg-zinc-950/60 p-3 shadow-sm"
+          >
             <div class="relative w-14 h-14">
               <svg viewBox="0 0 56 56" class="w-full h-full -rotate-90">
-                <circle cx="28" cy="28" r="24" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5" />
+                <circle
+                  cx="28"
+                  cy="28"
+                  r="24"
+                  fill="none"
+                  stroke="rgba(255,255,255,.08)"
+                  stroke-width="5"
+                />
                 <circle
                   cx="28"
                   cy="28"
@@ -2029,81 +3205,180 @@
               </svg>
               <div class="absolute inset-0 flex items-center justify-center">
                 {#if heroInfo}
-                  <img src={getHeroImgUrl(heroInfo.icon)} alt="" class="w-8 h-8 rounded-full object-cover border border-zinc-800" />
+                  <img
+                    src={getHeroImgUrl(heroInfo.icon)}
+                    alt=""
+                    class="w-8 h-8 rounded-full object-cover border border-zinc-800"
+                  />
                 {/if}
               </div>
             </div>
-            <div class="font-mono text-sm font-extrabold text-white leading-none">{focusedPlayer.level}</div>
+            <div class="font-mono text-sm font-extrabold text-white leading-none">
+              {focusedPlayer.level}
+            </div>
             <div class="text-xxs text-zinc-500 uppercase tracking-wider">Level</div>
           </div>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
           <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 shadow-sm">
-            <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">GPM / XPM</div>
-            <div class="font-mono text-[16px] font-extrabold text-white">{focusedPlayer.goldPerMinute} / {focusedPlayer.experiencePerMinute}</div>
-          </div>
-          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 shadow-sm">
-            <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">Net Worth Lead</div>
-            <div class="font-mono text-[16px] font-extrabold {networthLead >= 0 ? 'text-emerald-400' : 'text-rose-500'}">{networthLead >= 0 ? '+' : ''}{networthLead.toLocaleString()}g</div>
-          </div>
-          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 shadow-sm">
-            <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">Alive GPM / Dead</div>
-            <div class="font-mono text-[16px] font-extrabold">
-              <span class="text-emerald-400">{aliveEfficiency.aliveGPM}</span>
-              <span class="text-zinc-600 text-sm"> / </span>
-              <span class="text-rose-400">{aliveEfficiency.deadSeconds > 0 ? '−' + Math.round(aliveEfficiency.deadSeconds / 60) + 'm' : '0m'}</span>
+            <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">
+              GPM / XPM
+            </div>
+            <div class="font-mono text-[16px] font-extrabold text-white">
+              {focusedPlayer.goldPerMinute} / {focusedPlayer.experiencePerMinute}
             </div>
           </div>
           <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 shadow-sm">
-            <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">KDA Ratio</div>
+            <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">
+              Net Worth Lead
+            </div>
+            <div
+              class="font-mono text-[16px] font-extrabold {networthLead >= 0
+                ? 'text-emerald-400'
+                : 'text-rose-500'}"
+            >
+              {networthLead >= 0 ? '+' : ''}{networthLead.toLocaleString()}g
+            </div>
+          </div>
+          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 shadow-sm">
+            <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">
+              Alive GPM / Dead
+            </div>
+            <div class="font-mono text-[16px] font-extrabold">
+              <span class="text-emerald-400">{aliveEfficiency.aliveGPM}</span>
+              <span class="text-zinc-600 text-sm"> / </span>
+              <span class="text-rose-400"
+                >{aliveEfficiency.deadSeconds > 0
+                  ? '−' + Math.round(aliveEfficiency.deadSeconds / 60) + 'm'
+                  : '0m'}</span
+              >
+            </div>
+          </div>
+          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3.5 shadow-sm">
+            <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">
+              KDA Ratio
+            </div>
             <div class="font-mono text-[16px] font-extrabold text-white">{kdaText}</div>
           </div>
         </div>
       </div>
     {:else if activeSubTab === 'combat'}
       <div class="p-5 flex flex-col gap-5">
-        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px]">Kill / Death Feed</div>
-        <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-2 flex flex-col gap-1">
-          {#each combatFeed as ev}
-            <button
-              class="flex items-center justify-between gap-3 text-left px-3 py-2 rounded-lg hover:bg-zinc-900 transition-colors border-l-2"
-              style="border-color:{ev.color}"
-              onmouseenter={() => (cursorTime = ev.time)}
-            >
-              <span class="flex items-center gap-2.5 min-w-0">
-                <span class="text-[15px]" style="color:{ev.color}">{ev.char}</span>
-                <span class="flex flex-col min-w-0">
-                  <span class="text-[12px] font-bold text-zinc-200">{ev.details}</span>
-                  <span class="text-[10px] text-zinc-500 truncate">{ev.landmark}</span>
-                </span>
-              </span>
-              <span class="font-mono text-[11px] text-zinc-400 shrink-0">{formatTime(ev.time)}</span>
-            </button>
+        <!-- Combat Summary Card -->
+        {#if combatSummary.killCount > 0 || combatSummary.deathCount > 0}
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3 text-center">
+              <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">Kills</div>
+              <div class="font-mono text-lg font-extrabold text-emerald-400">{combatSummary.killCount}</div>
+            </div>
+            <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3 text-center">
+              <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">Deaths</div>
+              <div class="font-mono text-lg font-extrabold text-rose-400">{combatSummary.deathCount}</div>
+            </div>
+            <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3 text-center">
+              <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">Best Streak</div>
+              <div class="font-mono text-lg font-extrabold text-emerald-400">{combatSummary.bestStreak}</div>
+            </div>
+            <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3 text-center">
+              <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">Worst Spree</div>
+              <div class="font-mono text-lg font-extrabold text-rose-400">{combatSummary.worstSpree}</div>
+            </div>
+            {#if combatSummary.firstKill !== null}
+              <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3 text-center">
+                <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">First Kill</div>
+                <div class="font-mono text-sm font-extrabold text-zinc-300">{formatTime(combatSummary.firstKill)}</div>
+              </div>
+            {/if}
+            {#if combatSummary.firstDeath !== null}
+              <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-3 text-center">
+                <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider mb-1">First Death</div>
+                <div class="font-mono text-sm font-extrabold text-zinc-300">{formatTime(combatSummary.firstDeath)}</div>
+              </div>
+            {/if}
+          </div>
+        {/if}
+
+        <!-- Phase-grouped Combat Feed -->
+        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px]">Combat Feed</div>
+        <div class="flex flex-col gap-5">
+          {#each combatPhaseGroups as group}
+            <div class="flex flex-col">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.5px]">{group.label}</span>
+                <span class="text-[9px] font-mono text-zinc-600">{group.rangeLabel}</span>
+                <span class="text-[9px] text-zinc-600">· {group.entries.length} events</span>
+              </div>
+              <div class="flex flex-col gap-1">
+                {#each group.entries as ev}
+                  <button
+                    class="flex items-center justify-between gap-3 text-left px-3 py-2 rounded-lg transition-colors {ev.type === 'kill' ? 'bg-emerald-500/5 hover:bg-emerald-500/10' : 'bg-rose-500/5 hover:bg-rose-500/10'}"
+                    onmouseenter={() => (cursorTime = ev.time)}
+                  >
+                    <span class="flex items-center gap-2.5 min-w-0">
+                      {#if ev.type === 'kill'}
+                        <svg class="w-3 h-3 shrink-0 text-emerald-500" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6l3 3 5-5"/></svg>
+                      {:else}
+                        <svg class="w-3 h-3 shrink-0 text-rose-500" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3l6 6M9 3l-6 6"/></svg>
+                      {/if}
+                      <span class="flex flex-col min-w-0">
+                        <span class="text-[12px] font-bold text-zinc-200">
+                          {ev.type === 'kill' ? 'Kill' : 'Death'}
+                          {#if ev.streak}
+                            <span class="text-emerald-400 font-extrabold"> ({ev.streak} streak)</span>
+                          {/if}
+                          {#if ev.spree}
+                            <span class="text-rose-400 font-extrabold"> ({ev.spree} in a row)</span>
+                          {/if}
+                        </span>
+                      </span>
+                    </span>
+                    <span class="font-mono text-[11px] text-zinc-400 shrink-0">{formatTime(ev.time)}</span>
+                  </button>
+                {:else}
+                  <div class="text-center text-zinc-600 text-[11px] py-3">No events in this phase.</div>
+                {/each}
+              </div>
+            </div>
           {:else}
             <div class="text-center text-zinc-600 text-[11px] py-6">No kill or death events recorded.</div>
           {/each}
         </div>
 
-        {#if deathClusters.length > 0}
-          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Death Clusters</div>
-          <div class="flex flex-col gap-2">
-            {#each deathClusters as cluster}
-              <div class="flex items-center justify-between gap-3 bg-zinc-950/60 border border-rose-500/20 rounded-lg px-3.5 py-2.5">
-                <span class="text-xs text-zinc-300">
-                  <span class="font-extrabold text-rose-400">{cluster.count}×</span> {cluster.landmark}
-                </span>
-                <span class="font-mono text-xxs text-zinc-500">{cluster.times.map((t) => formatTime(t)).join(', ')}</span>
+        <!-- Gold & XP Impact -->
+        {#if combatSummary.totalGold > 0 || combatSummary.totalGoldLost > 0}
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-1">Gold & XP Impact</div>
+          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 shadow-sm">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xxs text-zinc-500 uppercase tracking-wider">Gold from Kills</span>
+                <span class="font-mono text-sm font-extrabold text-emerald-400">{combatSummary.totalGold.toLocaleString()}g</span>
               </div>
-            {/each}
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xxs text-zinc-500 uppercase tracking-wider">XP from Kills</span>
+                <span class="font-mono text-sm font-extrabold text-blue-400">{combatSummary.totalXp.toLocaleString()}</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xxs text-zinc-500 uppercase tracking-wider">Gold Lost</span>
+                <span class="font-mono text-sm font-extrabold text-rose-400">-{combatSummary.totalGoldLost.toLocaleString()}g</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xxs text-zinc-500 uppercase tracking-wider">XP Fed</span>
+                <span class="font-mono text-sm font-extrabold text-rose-400">-{combatSummary.totalXpFed.toLocaleString()}</span>
+              </div>
+            </div>
+            <div class="text-[10.5px] text-zinc-500 leading-relaxed border-t border-zinc-800/40 pt-3 mt-2">
+              Gold and XP values are logged by the match — these are actual figures, not estimates.
+            </div>
           </div>
         {/if}
 
         {#if focusedPlayer.stats.deathEvents && focusedPlayer.stats.deathEvents.length > 0}
-          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Death Timeline</div>
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-1">Death Timeline</div>
           <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 shadow-sm">
             <div class="text-[11px] text-zinc-400 leading-relaxed mb-3">
-              Match duration with alive (green) and dead (red) segments. Each death pauses farm for ~respawn + return travel.
+              Match duration with alive (green) and dead (red) segments. Each death pauses farm for
+              ~respawn + return travel.
             </div>
             <svg viewBox="0 0 500 32" class="w-full h-auto">
               <rect x="0" y="12" width="500" height="8" rx="4" fill="var(--color-gr)" fill-opacity="0.25" />
@@ -2112,7 +3387,7 @@
                 {@const respawnSec = Math.min(100, 10 + death.time / 30)}
                 {@const endPct = Math.min(500, ((death.time + respawnSec) / matchDurationSeconds) * 500)}
                 {@const width = Math.max(3, endPct - startPct)}
-                <rect x={startPct} y="12" width={width} height="8" rx="2" fill="var(--color-rd)" fill-opacity="0.8" class="cursor-help hover:fill-opacity-100 transition-opacity">
+                <rect x={startPct} y="12" {width} height="8" rx="2" fill="var(--color-rd)" fill-opacity="0.8" class="cursor-help hover:fill-opacity-100 transition-opacity">
                   <title>Death #{idx + 1} at {formatTime(death.time)} — respawn {Math.round(respawnSec)}s</title>
                 </rect>
               {/each}
@@ -2123,38 +3398,74 @@
           </div>
         {/if}
 
-        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">Farming downtime (Deaths log)</div>
-        <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm">
-          <div class="text-[11.5px] text-zinc-400 leading-relaxed mb-1">
-            Deaths are the biggest set-back for carries. You lose reliable gold, feed enemies, and stop accumulating Net Worth. Gold-lost figures below are a rough <span class="italic">estimate</span> based on typical respawn timers, not a value logged by the match itself.
-          </div>
-          {#if focusedPlayer.stats.deathEvents && focusedPlayer.stats.deathEvents.length > 0}
+        {#if focusedPlayer.stats.deathEvents && focusedPlayer.stats.deathEvents.length > 0}
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-1">Death Breakdown</div>
+          <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 shadow-sm">
+            <div class="text-[11.5px] text-zinc-400 leading-relaxed mb-2">
+              Deaths are the biggest set-back for carries. You lose reliable gold, feed enemies, and
+              stop accumulating Net Worth.
+            </div>
             <div class="flex flex-col gap-2">
               {#each focusedPlayer.stats.deathEvents as death, idx}
-                {@const respawnSec = Math.min(100, 10 + death.time / 30)}
                 <div class="flex items-center justify-between text-[11.5px] p-2.5 px-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
                   <span class="font-mono text-zinc-400">Death #{idx + 1} at {formatTime(death.time)}</span>
-                  <span class="text-rose-400 font-bold">Est. farm lost: ~{Math.round(respawnSec * 10).toLocaleString()} gold ({Math.round(respawnSec)}s dead)</span>
+                  {#if death.goldLost != null}
+                    <span class="text-rose-400 font-bold text-[11px]">Gold lost: {death.goldLost.toLocaleString()}g</span>
+                  {:else}
+                    <span class="text-rose-400/60 font-bold text-[11px]">No gold data</span>
+                  {/if}
                 </div>
               {/each}
             </div>
-          {:else}
-            <div class="p-4 text-center text-emerald-400 font-bold bg-emerald-950/15 border border-emerald-500/20 rounded-xl">
-              Outstanding! Zero deaths logged. You maintained maximum farming efficiency.
-            </div>
-          {/if}
-        </div>
+          </div>
+        {:else}
+          <div class="p-4 text-center text-emerald-400 font-bold bg-emerald-950/15 border border-emerald-500/20 rounded-xl">
+            Outstanding! Zero deaths logged. You maintained maximum farming efficiency.
+          </div>
+        {/if}
       </div>
     {:else if activeSubTab === 'timeline'}
       <div class="p-5 flex flex-col gap-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
-          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px]">Match Timeline</div>
+          <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px]">
+            Match Timeline
+          </div>
           <div class="flex flex-wrap gap-x-3 gap-y-1.5 text-[10px] font-semibold text-zinc-400">
-            <label class="flex items-center gap-1.5 cursor-pointer hover:text-white"><input type="checkbox" bind:checked={tlShowKills} class="rounded border-zinc-800 bg-zinc-950" />🟢 Kills</label>
-            <label class="flex items-center gap-1.5 cursor-pointer hover:text-white"><input type="checkbox" bind:checked={tlShowDeaths} class="rounded border-zinc-800 bg-zinc-950" />🔴 Deaths</label>
-            <label class="flex items-center gap-1.5 cursor-pointer hover:text-white"><input type="checkbox" bind:checked={tlShowWards} class="rounded border-zinc-800 bg-zinc-950" />🟡 Wards</label>
-            <label class="flex items-center gap-1.5 cursor-pointer hover:text-white"><input type="checkbox" bind:checked={tlShowRunes} class="rounded border-zinc-800 bg-zinc-950" />🟣 Runes</label>
-            <label class="flex items-center gap-1.5 cursor-pointer hover:text-white"><input type="checkbox" bind:checked={tlShowItems} class="rounded border-zinc-800 bg-zinc-950" />🛒 Items ≥500g</label>
+            <label class="flex items-center gap-1.5 cursor-pointer hover:text-white"
+              ><input
+                type="checkbox"
+                bind:checked={tlShowKills}
+                class="rounded border-zinc-800 bg-zinc-950"
+              /><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#22c55e"/></svg> Kills</label
+            >
+            <label class="flex items-center gap-1.5 cursor-pointer hover:text-white"
+              ><input
+                type="checkbox"
+                bind:checked={tlShowDeaths}
+                class="rounded border-zinc-800 bg-zinc-950"
+              /><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#ef4444"/></svg> Deaths</label
+            >
+            <label class="flex items-center gap-1.5 cursor-pointer hover:text-white"
+              ><input
+                type="checkbox"
+                bind:checked={tlShowWards}
+                class="rounded border-zinc-800 bg-zinc-950"
+              /><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#f59e0b"/></svg> Wards</label
+            >
+            <label class="flex items-center gap-1.5 cursor-pointer hover:text-white"
+              ><input
+                type="checkbox"
+                bind:checked={tlShowRunes}
+                class="rounded border-zinc-800 bg-zinc-950"
+              /><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#a855f7"/></svg> Runes</label
+            >
+            <label class="flex items-center gap-1.5 cursor-pointer hover:text-white"
+              ><input
+                type="checkbox"
+                bind:checked={tlShowItems}
+                class="rounded border-zinc-800 bg-zinc-950"
+              /><svg class="w-2.5 h-2.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 4h8l-1 6H3L2 4zM4 4V3a2 2 0 014 0v1"/></svg> Items ≥500g</label
+            >
           </div>
         </div>
 
@@ -2162,7 +3473,9 @@
           {#each timelinePhaseGroups as group}
             <div class="flex flex-col">
               <div class="flex items-center gap-2 mb-2">
-                <span class="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.5px]">{group.label}</span>
+                <span class="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.5px]"
+                  >{group.label}</span
+                >
                 <span class="text-[9px] font-mono text-zinc-600">{group.rangeLabel}</span>
                 <span class="text-[9px] text-zinc-600">· {group.entries.length} events</span>
               </div>
@@ -2173,22 +3486,35 @@
                     class="relative flex items-start gap-3 py-1.5 text-left group"
                     onmouseenter={() => (cursorTime = entry.time)}
                   >
-                    <span class="absolute -left-5 top-2.5 w-2.5 h-2.5 rounded-full border-2 border-black shrink-0" style="background:{entry.color}"></span>
-                    <span class="font-mono text-[10.5px] text-zinc-500 w-12 shrink-0 pt-0.5">{formatTime(entry.time)}</span>
-                    <span class="flex flex-col min-w-0 group-hover:translate-x-0.5 transition-transform">
-                      <span class="text-[12px] font-bold text-zinc-200">{entry.icon} {entry.label}</span>
+                    <span
+                      class="absolute -left-5 top-2.5 w-2.5 h-2.5 rounded-full border-2 border-black shrink-0"
+                      style="background:{entry.color}"
+                    ></span>
+                    <span class="font-mono text-[10.5px] text-zinc-500 w-12 shrink-0 pt-0.5"
+                      >{formatTime(entry.time)}</span
+                    >
+                    <span
+                      class="flex flex-col min-w-0 group-hover:translate-x-0.5 transition-transform"
+                    >
+                      <span class="text-[12px] font-bold text-zinc-200"
+                        >{entry.icon} {entry.label}</span
+                      >
                       {#if entry.sub}
                         <span class="text-[10px] text-zinc-500 truncate">{entry.sub}</span>
                       {/if}
                     </span>
                   </button>
                 {:else}
-                  <div class="text-center text-zinc-600 text-[11px] py-3">No events in this phase.</div>
+                  <div class="text-center text-zinc-600 text-[11px] py-3">
+                    No events in this phase.
+                  </div>
                 {/each}
               </div>
             </div>
           {:else}
-            <div class="text-center text-zinc-600 text-[11px] py-8">No events match the current filters.</div>
+            <div class="text-center text-zinc-600 text-[11px] py-8">
+              No events match the current filters.
+            </div>
           {/each}
         </div>
       </div>
@@ -2206,7 +3532,9 @@
   }
 
   .marker {
-    transition: opacity 0.25s ease-in-out, transform 0.2s ease;
+    transition:
+      opacity 0.25s ease-in-out,
+      transform 0.2s ease;
   }
 
   input[type='range']::-webkit-slider-thumb {
@@ -2220,8 +3548,14 @@
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translate(-50%, 5px); }
-    to { opacity: 1; transform: translate(-50%, 0); }
+    from {
+      opacity: 0;
+      transform: translate(-50%, 5px);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
   }
 
   .animate-fade-in {

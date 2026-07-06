@@ -89,7 +89,7 @@ class PlayerStore {
           heroStats.length > 0
             ? heroStats.reduce((sum: number, h: any) => sum + h[key], 0) / heroStats.length
             : 0
-        return Math.round(val * 100) / 100
+        return Math.floor(val)
       }
 
       this.playerStats = {
