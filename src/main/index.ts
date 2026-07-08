@@ -10,6 +10,7 @@ import { exec } from 'child_process'
 import fs from 'fs'
 import os from 'os'
 import { pathToFileURL } from 'url'
+import { getMatchDetails } from './stratz/services/matchDetails'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -347,18 +348,11 @@ function registerIpcHandlers(): void {
 
   ipcMain.handle('fetch-match-details', async (_event, matchId: string | number) => {
     try {
-      const url = `https://api.opendota.com/api/matches/${matchId}`
-      const res = await fetch(url)
-
-      if (!res.ok) {
-        throw new Error(`OpenDota match API responded with status: ${res.status}`)
-      }
-
-      const details = await res.json()
-      return details
+      return await getMatchDetails(matchId)
     } catch (err) {
-      console.error(`OpenDota detailed fetch failure for match ${matchId}:`, err)
-      return { error: err instanceof Error ? err.message : String(err) }
+      console.error('STRATZ get match detailes failed.', err)
+
+      return { err: err instanceof Error ? err.message : String(err) }
     }
   })
 
@@ -461,7 +455,7 @@ app.whenReady().then(() => {
 
   protocol.handle('hero-model', (request) => {
     const url = new URL(request.url)
-   
+
     const relPath = decodeURIComponent((url.hostname + url.pathname).replace(/\/+$/, ''))
 
     const basePath = app.isPackaged

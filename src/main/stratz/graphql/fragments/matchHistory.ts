@@ -4,7 +4,7 @@ recentMatches: matches(request: { take: 7 }) {
   durationSeconds
   gameMode
   endDateTime
-  statsDateTime
+  statsDateTime 
   actualRank
   # 1. Fetch just YOUR player data using the targetPlayer filter
   targetPlayer: players(steamAccountId: $steamId) {

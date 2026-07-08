@@ -31,7 +31,6 @@
     playerStore.loadProfile()
   })
 
-
   function getHeroImgUrl(img: string): string {
     return `hero-asset://${img.replace(/^hero-assets\//, '')}`
   }
@@ -208,7 +207,9 @@
         </div>
       </div>
 
-      <div class="card flex items-center justify-center overflow-hidden p-1.5 h-full min-h-[70px] rounded-md">
+      <div
+        class="card flex items-center justify-center overflow-hidden p-1.5 h-full min-h-[70px] rounded-md"
+      >
         {#if playerStore.playerStats?.rank}
           <img
             src={getRankImage(playerStore.playerStats.rank)}
@@ -232,29 +233,42 @@
           <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background: {row.left.hex}"></span>
           <span class="text-xs font-bold text-tx3 w-[48px] shrink-0">{row.left.label}</span>
           <div class="flex-1 h-[8px] bg-s3 rounded-sm overflow-hidden min-w-[60px]">
-            <div class="h-full rounded-sm" style="width: {row.left.wr}%; background: {row.left.hex}"></div>
+            <div
+              class="h-full rounded-sm"
+              style="width: {row.left.wr}%; background: {row.left.hex}"
+            ></div>
           </div>
-          <span class="text-xs font-extrabold tabular-nums w-[32px] text-right shrink-0"
+          <span
+            class="text-xs font-extrabold tabular-nums w-[32px] text-right shrink-0"
             class:text-gr={row.left.wr >= 50}
-            class:text-rd={row.left.wr < 50}
-          >{row.left.wr}%</span>
-          <span class="text-xxs text-tx3 tabular-nums w-[28px] text-right shrink-0">{row.left.games}g</span>
+            class:text-rd={row.left.wr < 50}>{row.left.wr}%</span
+          >
+          <span class="text-xxs text-tx3 tabular-nums w-[28px] text-right shrink-0"
+            >{row.left.games}g</span
+          >
         </button>
         <div class="w-px h-[18px] bg-bd mx-2 shrink-0"></div>
         <button
           class="flex-1 flex items-center gap-2 min-w-0 cursor-pointer transition-opacity hover:opacity-70"
           onclick={() => openRolesView?.(row.right.id)}
         >
-          <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background: {row.right.hex}"></span>
+          <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background: {row.right.hex}"
+          ></span>
           <span class="text-xs font-bold text-tx3 w-[48px] shrink-0">{row.right.label}</span>
           <div class="flex-1 h-[8px] bg-s3 rounded-sm overflow-hidden min-w-[60px]">
-            <div class="h-full rounded-sm" style="width: {row.right.wr}%; background: {row.right.hex}"></div>
+            <div
+              class="h-full rounded-sm"
+              style="width: {row.right.wr}%; background: {row.right.hex}"
+            ></div>
           </div>
-          <span class="text-xs font-extrabold tabular-nums w-[32px] text-right shrink-0"
+          <span
+            class="text-xs font-extrabold tabular-nums w-[32px] text-right shrink-0"
             class:text-gr={row.right.wr >= 50}
-            class:text-rd={row.right.wr < 50}
-          >{row.right.wr}%</span>
-          <span class="text-xxs text-tx3 tabular-nums w-[28px] text-right shrink-0">{row.right.games}g</span>
+            class:text-rd={row.right.wr < 50}>{row.right.wr}%</span
+          >
+          <span class="text-xxs text-tx3 tabular-nums w-[28px] text-right shrink-0"
+            >{row.right.games}g</span
+          >
         </button>
       </div>
     {/each}
@@ -264,8 +278,13 @@
     <div class="flex flex-col gap-4">
       <div class="card overflow-x-auto">
         <div class="flex items-center justify-between px-3 py-2.5 border-b border-bd">
-          <span class="text-xs font-extrabold uppercase tracking-wider text-tx">Detailed Match History</span>
-          <span class="text-xs font-bold text-pu2 hover:text-pu cursor-pointer transition-colors" onclick={() => gotoView('matches')}>View all →</span>
+          <span class="text-xs font-extrabold uppercase tracking-wider text-tx"
+            >Detailed Match History</span
+          >
+          <span
+            class="text-xs font-bold text-pu2 hover:text-pu cursor-pointer transition-colors"
+            onclick={() => gotoView('matches')}>View all →</span
+          >
         </div>
 
         <div class="flex flex-col min-w-0">
@@ -285,7 +304,7 @@
             {#each playerStore.detailedMatches as m (m.id)}
               <div
                 class="flex items-center gap-4 py-2 px-3 border-b border-bd last:border-b-0 cursor-pointer hover:bg-white/[0.03] transition-colors"
-                onclick={() => openMatchDetail(m)}
+                onclick={() => openMatchDetail(m, m.id)}
               >
                 <div class="w-[55px] h-[31px] rounded-[4px] bg-s4 shrink-0 overflow-hidden">
                   {#if m.heroImg}
@@ -295,9 +314,7 @@
                       class="w-full h-full object-cover object-top"
                     />
                   {:else}
-                    <div
-                      class="w-full h-full flex items-center justify-center text-xs text-tx3"
-                    >
+                    <div class="w-full h-full flex items-center justify-center text-xs text-tx3">
                       ?
                     </div>
                   {/if}
@@ -378,9 +395,7 @@
                 </div>
 
                 <div class="flex items-center gap-1 shrink-0">
-                  <div
-                    class="w-[16px] h-[16px] shrink-0 flex items-center justify-center text-xs"
-                  >
+                  <div class="w-[16px] h-[16px] shrink-0 flex items-center justify-center text-xs">
                     👤
                   </div>
                   <div class="text-xs text-tx2 w-[16px] text-center shrink-0">
@@ -394,15 +409,15 @@
                 </div>
 
                 <div class="text-tx3 text-right flex flex-col w-[80px] shrink-0 ml-auto">
-                  <div class="text-sm font-medium font-mono font-tabular leading-tight">{m.dur}</div>
+                  <div class="text-sm font-medium font-mono font-tabular leading-tight">
+                    {m.dur}
+                  </div>
                   <div class="text-xs text-tx2 leading-tight uppercase font-medium">
                     {m.timeAgo}
                   </div>
                 </div>
 
-                <div class="text-tx3 text-lg ml-1 transition-colors hover:text-pu2 shrink-0">
-                  ›
-                </div>
+                <div class="text-tx3 text-lg ml-1 transition-colors hover:text-pu2 shrink-0">›</div>
               </div>
             {/each}
           {/if}
@@ -434,7 +449,10 @@
             <div class="text-gd text-base tracking-[2px] mt-0.5">★★★★☆</div>
           </div>
           <div class="ml-auto">
-            <span class="text-xs font-bold text-pu2 hover:text-pu cursor-pointer transition-colors" onclick={() => gotoView('coach')}>Full analysis →</span>
+            <span
+              class="text-xs font-bold text-pu2 hover:text-pu cursor-pointer transition-colors"
+              onclick={() => gotoView('coach')}>Full analysis →</span
+            >
           </div>
         </div>
       </div>
@@ -450,7 +468,9 @@
           <div class="flex items-center justify-between mb-3">
             <span class="text-xs font-bold uppercase tracking-wider text-tx3">Recent Match</span>
           </div>
-          <div class="w-full h-64 rounded-md border border-bd overflow-hidden mb-3 flex items-center justify-center">
+          <div
+            class="w-full h-64 rounded-md border border-bd overflow-hidden mb-3 flex items-center justify-center"
+          >
             {#if m.heroId}
               <img
                 src={getHeroModelUrl(m.heroId)}
@@ -501,7 +521,9 @@
           </div>
 
           <div class="flex items-center justify-between">
-            <div class="w-5 h-5 rounded bg-s3 flex items-center justify-center overflow-hidden shrink-0">
+            <div
+              class="w-5 h-5 rounded bg-s3 flex items-center justify-center overflow-hidden shrink-0"
+            >
               <img src={getRankImage(m.rank)} alt="rank" class="w-full h-full object-contain" />
             </div>
             <div class="flex items-center gap-2">
@@ -517,8 +539,8 @@
                 </div>
                 <span
                   class="text-xs font-bold font-mono font-tabular
-                    {m.impactValue >= 0 ? 'text-gr' : 'text-rd'}"
-                >{m.impactValue}</span>
+                    {m.impactValue >= 0 ? 'text-gr' : 'text-rd'}">{m.impactValue}</span
+                >
               </div>
             </div>
           </div>
@@ -625,11 +647,7 @@
               </div>
               <span
                 class="text-xs font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0
-          {winrate >= 60
-                  ? 'bg-grb text-gr'
-                  : winrate >= 50
-                    ? 'bg-gdb text-gd'
-                    : 'bg-rdb text-rd'}"
+          {winrate >= 60 ? 'bg-grb text-gr' : winrate >= 50 ? 'bg-gdb text-gd' : 'bg-rdb text-rd'}"
               >
                 {winrate}%
               </span>

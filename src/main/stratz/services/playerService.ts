@@ -27,6 +27,5 @@ export async function getPlayerData(steamId: number | string) {
     skipPlayedHeroes: false,
     skipDotaPlus: false
   })
-  console.log(JSON.stringify(data.player.name, null, 2))
   return data
 }
