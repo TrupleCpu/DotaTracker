@@ -77,15 +77,96 @@ export const HEROES: MockHero[] = [
   { id: 7, icon: '👑', name: 'Wraith King', matches: 3, winrate: 66.7, kda: 3.60, gpm: 540, role: 'Core' }
 ];
 
-export const MATCHES: MockMatch[] = [
-  { id: 1, icon: '🧙', hero: 'Pudge', outcome: 'win', mode: 'All Pick', k: 8, d: 4, a: 16, gpm: 612, xpm: 701, lh: '145/6', nw: '18,340', dur: '34:21', ago: '2 hours ago', role: 'Core', level: 18, items: ['🗡', '🛡', '💎', '🔮', '⚡', '🧲', '🪄', '', ''] },
-  { id: 2, icon: '👺', hero: 'Shadow Fiend', outcome: 'loss', mode: 'All Pick', k: 2, d: 7, a: 8, gpm: 430, xpm: 510, lh: '102/2', nw: '11,200', dur: '28:14', ago: '1 day ago', role: 'Mid', level: 14, items: ['🔮', '⚡', '', '', '', '', '', '', ''] },
-  { id: 3, icon: '🦁', hero: 'Lion', outcome: 'win', mode: 'All Pick', k: 11, d: 3, a: 8, gpm: 290, xpm: 380, lh: '24/5', nw: '9,800', dur: '32:09', ago: '2 days ago', role: 'Support', level: 16, items: ['🛡', '💎', '🔮', '', '', '', '', '', ''] },
-  { id: 4, icon: '🔮', hero: 'Void Spirit', outcome: 'win', mode: 'All Pick', k: 6, d: 2, a: 14, gpm: 598, xpm: 655, lh: '134/4', nw: '17,100', dur: '26:31', ago: '3 days ago', role: 'Mid', level: 17, items: ['⚡', '🔮', '🧲', '🗡', '', '', '', '', ''] },
-  { id: 5, icon: '🔥', hero: 'Ember Spirit', outcome: 'loss', mode: 'All Pick', k: 4, d: 6, a: 9, gpm: 510, xpm: 560, lh: '118/3', nw: '13,400', dur: '41:22', ago: '4 days ago', role: 'Mid', level: 19, items: ['🗡', '⚡', '🔮', '💎', '', '', '', '', ''] },
-  { id: 6, icon: '🐉', hero: 'Dragon Knight', outcome: 'win', mode: 'Ranked', k: 9, d: 2, a: 11, gpm: 520, xpm: 600, lh: '160/7', nw: '20,100', dur: '38:45', ago: '5 days ago', role: 'Offlane', level: 20, items: ['🛡', '🗡', '⚡', '🔮', '💎', '', '', '', ''] },
-  { id: 7, icon: '👑', hero: 'Wraith King', outcome: 'win', mode: 'All Pick', k: 7, d: 3, a: 13, gpm: 555, xpm: 620, lh: '148/5', nw: '18,800', dur: '36:10', ago: '5 days ago', role: 'Core', level: 19, items: ['🗡', '🛡', '💎', '⚡', '🔮', '🧲', '', '', ''] }
-];
+function makeMatch(
+  id: number, hero: string, icon: string, outcome: 'win' | 'loss', mode: string,
+  k: number, d: number, a: number, gpm: number, xpm: number,
+  lh: string, nw: string, dur: string, ago: string, role: string,
+  level: number, items: string[]
+): MockMatch {
+  return { id, icon, hero, outcome, mode, k, d, a, gpm, xpm, lh, nw, dur, ago, role, level, items }
+}
+
+const H = (name: string): [string, string] => {
+  const m: Record<string, [string, string]> = {
+    Pudge: ['Pudge', '🧙'], 'Shadow Fiend': ['Shadow Fiend', '👺'], Lion: ['Lion', '🦁'],
+    'Void Spirit': ['Void Spirit', '🔮'], 'Ember Spirit': ['Ember Spirit', '🔥'],
+    'Dragon Knight': ['Dragon Knight', '🐉'], 'Wraith King': ['Wraith King', '👑'],
+    'Phantom Assassin': ['Phantom Assassin', '🗡'], 'Snapfire': ['Snapfire', '🔥'],
+    Rubick: ['Rubick', '🔮'], 'Vengeful Spirit': ['Vengeful Spirit', '👻'],
+    'Kunkka': ['Kunkka', '⚓'], 'Juggernaut': ['Juggernaut', '⚔️'], 'Tidehunter': ['Tidehunter', '🌊']
+  }
+  return m[name] ?? [name, '❓']
+}
+
+const MODES = ['All Pick', 'Ranked', 'Turbo', 'Ability Draft', 'Random Draft']
+const ROLES: [string, string][] = [
+  ['Core', 'Core'], ['Mid', 'Mid'], ['Support', 'Support'], ['Offlane', 'Offlane'],
+  ['Hard Support', 'Support'], ['Mid', 'Mid'], ['Roaming', 'Support'], ['Safe Lane', 'Core']
+]
+const ITEM_SETS = [
+  ['🗡', '🛡', '💎', '🔮', '⚡', '🧲', '', '', ''],
+  ['🔮', '⚡', '💎', '', '', '', '', '', ''],
+  ['🛡', '💎', '🔮', '⚡', '', '', '', '', ''],
+  ['⚡', '🔮', '🧲', '🗡', '💎', '', '', '', ''],
+  ['🗡', '⚡', '🔮', '💎', '🛡', '', '', '', ''],
+  ['🛡', '🗡', '⚡', '🔮', '💎', '🧲', '', '', ''],
+  ['🗡', '🛡', '💎', '⚡', '🔮', '🧲', '🪄', '', ''],
+  ['💎', '🔮', '🛡', '🗡', '', '', '', '', ''],
+]
+const AGOS = [
+  '2 hours ago', '1 day ago', '2 days ago', '3 days ago', '4 days ago',
+  '5 days ago', '1 week ago', '2 weeks ago', '3 weeks ago', '1 month ago',
+  '2 months ago', '3 months ago', '6 hours ago', '12 hours ago', '30m ago'
+]
+const GPM_RANGE: Record<string, [number, number]> = {
+  Core: [500, 650], Mid: [480, 640], Support: [200, 380], Offlane: [400, 540],
+  'Hard Support': [180, 320], 'Safe Lane': [510, 660], Roaming: [220, 360]
+}
+
+const heroes = ['Pudge', 'Shadow Fiend', 'Lion', 'Void Spirit', 'Ember Spirit', 'Dragon Knight', 'Wraith King',
+  'Phantom Assassin', 'Snapfire', 'Rubick', 'Vengeful Spirit', 'Kunkka', 'Juggernaut', 'Tidehunter']
+
+function randInt(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1)) + min }
+
+export const MATCHES: MockMatch[] = (() => {
+  const results: MockMatch[] = [
+    makeMatch(1, ...H('Pudge'), 'win', 'All Pick', 8, 4, 16, 612, 701, '145/6', '18,340', '34:21', '2 hours ago', 'Core', 18, ['🗡', '🛡', '💎', '🔮', '⚡', '🧲', '🪄', '', '']),
+    makeMatch(2, ...H('Shadow Fiend'), 'loss', 'All Pick', 2, 7, 8, 430, 510, '102/2', '11,200', '28:14', '1 day ago', 'Mid', 14, ['🔮', '⚡', '', '', '', '', '', '', '']),
+    makeMatch(3, ...H('Lion'), 'win', 'All Pick', 11, 3, 8, 290, 380, '24/5', '9,800', '32:09', '2 days ago', 'Support', 16, ['🛡', '💎', '🔮', '', '', '', '', '', '']),
+    makeMatch(4, ...H('Void Spirit'), 'win', 'All Pick', 6, 2, 14, 598, 655, '134/4', '17,100', '26:31', '3 days ago', 'Mid', 17, ['⚡', '🔮', '🧲', '🗡', '', '', '', '', '']),
+    makeMatch(5, ...H('Ember Spirit'), 'loss', 'All Pick', 4, 6, 9, 510, 560, '118/3', '13,400', '41:22', '4 days ago', 'Mid', 19, ['🗡', '⚡', '🔮', '💎', '', '', '', '', '']),
+    makeMatch(6, ...H('Dragon Knight'), 'win', 'Ranked', 9, 2, 11, 520, 600, '160/7', '20,100', '38:45', '5 days ago', 'Offlane', 20, ['🛡', '🗡', '⚡', '🔮', '💎', '', '', '', '']),
+    makeMatch(7, ...H('Wraith King'), 'win', 'All Pick', 7, 3, 13, 555, 620, '148/5', '18,800', '36:10', '5 days ago', 'Core', 19, ['🗡', '🛡', '💎', '⚡', '🔮', '🧲', '', '', '']),
+  ]
+
+  let id = 8
+  for (let i = 0; i < 53; i++) {
+    const hero = heroes[i % heroes.length]
+    const [heroName, icon] = H(hero)
+    const outcome: 'win' | 'loss' = Math.random() < 0.55 ? 'win' : 'loss'
+    const mode = MODES[randInt(0, MODES.length - 1)]
+    const [role, _] = ROLES[randInt(0, ROLES.length - 1)]
+    const [gpmLo, gpmHi] = GPM_RANGE[role] ?? [300, 600]
+    const gpm = randInt(gpmLo, gpmHi)
+    const xpm = randInt(gpm - 80, gpm + 120)
+    const k = randInt(1, 14)
+    const d = randInt(1, 10)
+    const a = randInt(3, 20)
+    const lh = `${randInt(20, 200)}/${randInt(0, 10)}`
+    const nw = `${randInt(8, 25)},${randInt(0, 99).toString().padStart(2, '0')}`
+    const min = randInt(20, 55)
+    const sec = randInt(0, 59).toString().padStart(2, '0')
+    const dur = `${min}:${sec}`
+    const ago = AGOS[randInt(0, AGOS.length - 1)]
+    const level = randInt(12, 30)
+    const items = ITEM_SETS[randInt(0, ITEM_SETS.length - 1)]
+
+    results.push(makeMatch(id, icon, heroName, outcome, mode, k, d, a, gpm, xpm, lh, nw, dur, ago, role, level, items))
+    id++
+  }
+
+  return results
+})()
 
 export const TIMELINE: MockTimelineEvent[] = [
   { time: '03:12', c: '#22C55E', ev: 'First Blood — <span class="text-gr font-bold">Pudge</span> kills Shadow Fiend' },

@@ -6,6 +6,6 @@ export async function getMatchDetails(matchId: number | string) {
   const data = await fetchFromStratz(MATCH_DETAILS_QUERY, {
     matchId
   })
-//   console.log(JSON.stringify(data))
+  //   console.log(JSON.stringify(data))
   return data
 }

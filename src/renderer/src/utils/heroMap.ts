@@ -21,5 +21,5 @@ export function getHeroByName(name: string): Hero | null {
 }
 
 export function getHeroImgUrl(imgPath: string): string {
-  return `https://cdn.cloudflare.steamstatic.com${imgPath}`
+  return `hero-asset://${imgPath.replace(/^hero-assets\//, '')}`
 }

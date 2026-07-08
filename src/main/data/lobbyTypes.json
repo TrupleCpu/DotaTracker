@@ -1,0 +1,54 @@
+[
+  {
+    "id": -1,
+    "name": "Invalid"
+  },
+  {
+    "id": 0,
+    "name": "Unranked"
+  },
+  {
+    "id": 1,
+    "name": "Practice"
+  },
+  {
+    "id": 2,
+    "name": "Tournament"
+  },
+  {
+    "id": 3,
+    "name": "Tutorial"
+  },
+  {
+    "id": 4,
+    "name": "Coop vs Bots"
+  },
+  {
+    "id": 5,
+    "name": "Team Match"
+  },
+  {
+    "id": 6,
+    "name": "Solo Queue"
+  },
+  {
+    "id": 7,
+    "name": "Ranked"
+  },
+  {
+    "id": 8,
+    "name": "Solo Mid"
+  },
+  {
+    "id": 9,
+    "name": "Battle Cup"
+  },
+  {
+    "id": 12,
+    "name": "Event"
+  },
+  {
+    "id": 14,
+    "name": "New Player Pool"
+  }
+]

@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-
+import { FetchMatchesOptions } from '../main/stratz/services/fetchMatches'
 // Custom APIs for renderer
 const api = {
   toggleOverlay: (): void => ipcRenderer.send('toggle-overlay'),
@@ -30,7 +30,8 @@ const api = {
 
   fetchPlayerData: (steamId: string): Promise<unknown> =>
     ipcRenderer.invoke('fetch-player-data', steamId),
-
+  fetchAllMatches: (steamId: string, options: FetchMatchesOptions = {}): Promise<unknown> =>
+    ipcRenderer.invoke('fetch-all-matches', steamId, options),
   // ✅ NEW: CONFIG SYSTEM
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getConfig: (): Promise<any> => ipcRenderer.invoke('get-config'),

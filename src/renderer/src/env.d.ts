@@ -2,6 +2,16 @@
 /// <reference types="vite/client" />
 export {}
 
+interface FetchMatchesOptions {
+  take?: number
+  skip?: number
+  gameModeIds?: number[] | string[]
+  lobbyTypeIds?: number[]
+  bracketIds?: number[]
+  positionIds?: string[]
+  isParty?: boolean
+}
+
 declare global {
   interface Window {
     api: {
@@ -16,6 +26,7 @@ declare global {
       fetchMatchHistory: (steamId: string) => Promise<unknown | { error: string }>
       fetchPlayerData: (steamId: number | string) => Promise<unknown | { error: string } >
       fetchMatchDetails: (matchId: number) => Promise<unknown | { error: string }>
+      fetchAllMatches: (steamId: number | string, options?: FetchMatchesOptions) => Promise<unknown | { err: string }>
 
       toggleOverlay: () => void
       setOverlayState: (enabled: boolean) => Promise<boolean>

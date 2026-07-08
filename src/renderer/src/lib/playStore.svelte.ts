@@ -1,5 +1,5 @@
 import heroesData from '../../../main/data/heroes.json'
-
+import { formatDuration, formatGameMode, formatTimeAgo } from '../utils/matchHelper'
 interface HeroData {
   id: number
   name: string
@@ -62,6 +62,7 @@ class PlayerStore {
   recentTeammates = $state<RecentTeammates[]>()
   topHeroes = $state<TopHeroes[]>([])
   hasLoaded = $state(false)
+  steamId = $state<number | null>(null)
 
   async loadProfile(forceRefersh = false) {
     if (this.hasLoaded && !forceRefersh) return
@@ -71,7 +72,8 @@ class PlayerStore {
 
     try {
       const res = await window.api.getLocalSteamId()
-      if (!res?.steamId) {
+      this.steamId = res?.steamId ?? null
+      if (!this.steamId) {
         this.error = 'Could not resolve Steam ID.'
         return
       }
@@ -122,9 +124,9 @@ class PlayerStore {
           k: player?.kills ?? 0,
           d: player?.deaths ?? 0,
           a: player?.assists ?? 0,
-          mode: this.formatGameMode(m.gameMode),
-          dur: this.formatDuration(m.durationSeconds ?? 0),
-          timeAgo: this.formatTimeAgo(m.statsDateTime ?? m.endDateTime),
+          mode: formatGameMode(m.gameMode),
+          dur: formatDuration(m.durationSeconds ?? 0),
+          timeAgo: formatTimeAgo(m.statsDateTime ?? m.endDateTime),
           lane: player?.lane ?? 'Unknown',
           rank: m.actualRank ?? 0,
           mmrChange: player?.isVictory ? 25 : -25,
@@ -156,30 +158,6 @@ class PlayerStore {
     } finally {
       this.isLoading = false
     }
-  }
-
-  private formatDuration(seconds: number): string {
-    const m = Math.floor(seconds / 60)
-    const s = seconds % 60
-    return `${m}:${s.toString().padStart(2, '0')}`
-  }
-
-  private formatTimeAgo(unixSeconds: number | null): string {
-    if (!unixSeconds) return 'Unknown'
-    const diff = Math.floor(Date.now() / 1000) - unixSeconds
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
-    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`
-    return `${Math.floor(diff / 604800)}wk ago`
-  }
-
-  private formatGameMode(mode: string): string {
-    const map: Record<string, string> = {
-      ALL_PICK_RANKED: 'Ranked',
-      TURBO: 'Turbo',
-      ALL_PICK: 'Normal'
-    }
-    return map[mode] ?? mode
   }
 }
 

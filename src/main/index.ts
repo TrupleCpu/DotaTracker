@@ -11,6 +11,7 @@ import fs from 'fs'
 import os from 'os'
 import { pathToFileURL } from 'url'
 import { getMatchDetails } from './stratz/services/matchDetails'
+import { fetchMatches, FetchMatchesOptions } from './stratz/services/fetchMatches'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -356,6 +357,21 @@ function registerIpcHandlers(): void {
     }
   })
 
+  ipcMain.handle(
+    'fetch-all-matches',
+    async (
+      _event,
+      steamId: number | string,
+      options: FetchMatchesOptions = {}
+    ) => {
+      try {
+        return await fetchMatches(steamId, options)
+      } catch (err) {
+        console.error('STRATZ fetch all matches failed.', err)
+        return { err: err instanceof Error ? err.message : String(err) }
+      }
+    }
+  )
   ipcMain.handle('fetch-player-data', async (_event, steamId: number | string) => {
     try {
       return await getPlayerData(steamId)
