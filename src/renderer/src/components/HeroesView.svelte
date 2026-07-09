@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { HEROES } from '../utils/mockData'
+  import { playerStore, heroMap } from '../lib/playStore.svelte'
+  import { getHeroImgUrl } from '../utils/heroMap'
 
   let searchQuery = $state('')
   let selectedRole = $state('All Roles')
   let sortBy = $state('matches')
-  let sortDir = $state(-1) // -1 for desc, 1 for asc
+  let sortDir = $state(-1)
 
   function toggleSort(field: string) {
     if (sortBy === field) {
@@ -26,8 +27,26 @@
     }, 2600)
   }
 
+  let heroList = $derived.by(() => {
+    return playerStore.allHeroStats.map((h: any) => {
+      const hero = heroMap.get(h.heroId)
+      const winrate = h.matchCount > 0 ? +((h.winCount / h.matchCount) * 100).toFixed(1) : 0
+      const kda = h.avgDeaths > 0 ? +((h.avgKills + h.avgAssists) / h.avgDeaths).toFixed(1) : h.avgKills + h.avgAssists
+      return {
+        id: h.heroId,
+        icon: hero?.img ?? '',
+        name: hero?.localized_name ?? `Hero #${h.heroId}`,
+        matches: h.matchCount,
+        winrate,
+        kda,
+        gpm: h.avgGoldPerMinute ?? 0,
+        role: playerStore.heroRoleMap.get(h.heroId) ?? 'Unknown'
+      }
+    })
+  })
+
   let sortedAndFilteredHeroes = $derived.by(() => {
-    let list = HEROES.filter((h) => {
+    let list = heroList.filter((h) => {
       const matchQuery = h.name.toLowerCase().includes(searchQuery.toLowerCase())
       const matchRole = selectedRole === 'All Roles' || h.role === selectedRole
       return matchQuery && matchRole
@@ -39,15 +58,19 @@
       if (typeof valA === 'number' && typeof valB === 'number') {
         return (valA - valB) * sortDir
       }
-      return 0
+      return String(valA).localeCompare(String(valB)) * sortDir
     })
 
     return list
   })
+
+  let unplayedHeroes = $derived.by(() => {
+    const playedIds = new Set(playerStore.allHeroStats.map((h: any) => h.heroId))
+    return [...heroMap.values()].filter((h) => !playedIds.has(h.id))
+  })
 </script>
 
 <div class="flex-1 overflow-y-auto p-4 select-none">
-  <!-- TOOLBAR -->
   <div class="flex items-center gap-1.5 mb-3 bg-s1 border border-bd rounded-lg p-2.5">
     <div class="relative max-w-xs flex-1">
       <input
@@ -68,10 +91,11 @@
 
     <select bind:value={selectedRole} class="sel-pill">
       <option>All Roles</option>
-      <option>Core</option>
-      <option>Support</option>
+      <option>Carry</option>
       <option>Mid</option>
       <option>Offlane</option>
+      <option>Soft Support</option>
+      <option>Hard Support</option>
     </select>
 
     <select bind:value={sortBy} class="sel-pill">
@@ -85,7 +109,6 @@
     <span class="text-xs text-tx3 font-semibold tabular-nums">{sortedAndFilteredHeroes.length} heroes</span>
   </div>
 
-  <!-- TABLE -->
   <div class="card p-0 overflow-x-auto">
     <table class="w-full border-collapse min-w-0">
       <thead>
@@ -121,17 +144,19 @@
         </tr>
       </thead>
       <tbody>
-        {#each sortedAndFilteredHeroes as h}
+        {#each sortedAndFilteredHeroes as h (h.id)}
           <tr
             class="border-b border-bd last:border-b-0 group cursor-pointer"
             onclick={() => showToast(`${h.name} hero detail — coming soon`, 'ok')}
           >
             <td class="p-[10px_14px] text-sm vertical-middle group-hover:bg-white/[0.02]">
               <div class="flex items-center gap-2.5">
-                <div
-                  class="w-8 h-8 rounded-sm bg-s2 flex items-center justify-center text-lg shrink-0"
-                >
-                  {h.icon}
+                  <div
+                    class="w-10 h-10 rounded bg-s2 border border-bd/40 flex items-center justify-center shrink-0 overflow-hidden"
+                  >
+                  {#if h.icon}
+                    <img src={getHeroImgUrl(h.icon)} alt={h.name} class="w-full h-full object-cover" />
+                  {/if}
                 </div>
                 <strong>{h.name}</strong>
               </div>
@@ -174,6 +199,29 @@
       </tbody>
     </table>
   </div>
+
+  {#if unplayedHeroes.length > 0}
+    <div class="card p-4 mt-3">
+      <div
+        class="text-xs font-bold uppercase tracking-wider text-tx3 pb-3 border-b border-bd/40 mb-3"
+      >
+        Unplayed Heroes ({unplayedHeroes.length})
+      </div>
+      <div class="flex flex-wrap gap-1.5">
+        {#each unplayedHeroes as hero (hero.id)}
+          <div
+            class="w-10 h-10 rounded bg-s2 border border-bd/40 overflow-hidden"
+          >
+            <img
+              src={getHeroImgUrl(hero.icon)}
+              alt={hero.localized_name}
+              class="w-full h-full object-contain opacity-60 p-0.5"
+            />
+          </div>
+        {/each}
+      </div>
+    </div>
+  {/if}
 </div>
 
 {#if toast.show}

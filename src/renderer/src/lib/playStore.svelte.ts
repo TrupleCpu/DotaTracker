@@ -35,12 +35,6 @@ interface RecentTeammates {
   winrate: number
 }
 
-interface TopHeroes {
-  heroId: number
-  matchCount: number
-  winCount: number
-}
-
 // interface PlayerStats {
 //   matchCount: number
 //   winCount: number
@@ -59,8 +53,12 @@ class PlayerStore {
   isLoading = $state(false)
   error = $state('')
   playerStats = $state<any>(null)
-  recentTeammates = $state<RecentTeammates[]>()
-  topHeroes = $state<TopHeroes[]>([])
+  allTeammates = $state<RecentTeammates[]>([])
+  recentTeammates = $derived(this.allTeammates.slice(0, 5))
+  allHeroStats = $state<any[]>([])
+  topHeroes = $derived(this.allHeroStats.slice(0, 5))
+  heroRoleMap = $state<Map<number, string>>(new Map())
+  heroPerformanceStats = $state<any[]>([])
   hasLoaded = $state(false)
   steamId = $state<number | null>(null)
 
@@ -136,20 +134,40 @@ class PlayerStore {
         }
       })
 
-      this.recentTeammates = (raw?.stratz?.page?.player?.peers ?? [])
+      this.allTeammates = (raw?.stratz?.page?.player?.peers ?? [])
         .map((p: any) => ({
+          steamAccountId: p.steamAccount?.id ?? 0,
           name: p.steamAccount?.name ?? 'Unknown',
           avatar: p.steamAccount?.avatar ?? null,
           matches: p.matchCount ?? 1,
           winrate: parseFloat((((p.winCount ?? 0) / (p.matchCount ?? 1)) * 100).toFixed(1))
         }))
         .sort((a: any, b: any) => b.matches - a.matches)
-        .slice(1, 6)
+        .slice(1)
 
-      this.topHeroes = (raw.player.heroesGroupBy ?? [])
+      this.allHeroStats = (raw.player.heroesGroupBy ?? [])
         .filter((h: any) => h.matchCount > 0)
         .sort((a: any, b: any) => b.matchCount - a.matchCount)
-        .slice(0, 5)
+
+      const POSITION_LABELS: Record<string, string> = {
+        POSITION_1: 'Carry',
+        POSITION_2: 'Mid',
+        POSITION_3: 'Offlane',
+        POSITION_4: 'Soft Support',
+        POSITION_5: 'Hard Support'
+      }
+      const perfCounts: Record<number, Record<string, number>> = {}
+      for (const p of raw.player.heroesPerformanceGroupBy ?? []) {
+        if (!perfCounts[p.heroId]) perfCounts[p.heroId] = {}
+        perfCounts[p.heroId][p.position] = (perfCounts[p.heroId][p.position] ?? 0) + p.matchCount
+      }
+      const roleMap = new Map<number, string>()
+      for (const [heroId, positions] of Object.entries(perfCounts)) {
+        const bestPos = Object.entries(positions).sort((a, b) => b[1] - a[1])[0][0]
+        roleMap.set(Number(heroId), POSITION_LABELS[bestPos] ?? bestPos)
+      }
+      this.heroRoleMap = roleMap
+      this.heroPerformanceStats = raw.player.heroesPerformanceGroupBy ?? []
 
       this.hasLoaded = true
     } catch (err) {

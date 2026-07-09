@@ -1,6 +1,9 @@
 export const MATCH_DETAILS_QUERY = `
 query MatchDetails($matchId: Long!) {
   match(id: $matchId) {
+    gameMode
+    radiantNetworthLeads
+    radiantExperienceLeads
     players {
       steamAccountId
       heroId
@@ -24,7 +27,18 @@ query MatchDetails($matchId: Long!) {
       neutral0Id
       goldPerMinute
       networth
+      abilities {
+        abilityId
+        time
+        level
+        abilityType{
+					id
+          name
+            }
+          }
       stats {
+        deniesPerMinute
+        impPerMinute
         itemPurchases {
           itemId
           time
@@ -51,6 +65,13 @@ query MatchDetails($matchId: Long!) {
           positionX
           positionY
         }
+        assistEvents {
+          time
+          gold
+          xp
+          positionX
+          positionY
+				}
         heroDamagePerMinute
         heroDamageReceivedPerMinute
         campStack

@@ -2,7 +2,7 @@ export const PEERS_FRAGMENT = `
 stratz {
   page {
     player(steamAccountId: $steamId) {
-      peers(request: $peersRequest) { 
+      peers(request: $peersRequest, take: $take) { 
         matchCount
         winCount
         lastMatchDateTime

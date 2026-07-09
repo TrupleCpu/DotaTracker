@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { HEROES, MATCHES, type MockMatch } from './utils/mockData'
   import LoginScreen from './components/LoginScreen.svelte'
   import { playerStore } from './lib/playStore.svelte'
   import { rankToString } from './utils/rankMap'
@@ -8,9 +7,10 @@
   import MatchesView from './components/MatchesView.svelte'
   import CoachView from './components/CoachView.svelte'
   import HeroesView from './components/HeroesView.svelte'
-  import TrendsView from './components/TrendsView.svelte'
+  import AnalysisView from './components/AnalysisView.svelte'
   import DraftView from './components/DraftView.svelte'
   import RolePerformanceView from './components/RolePerformanceView.svelte'
+  import TeammatesView from './components/TeammatesView.svelte'
   import SettingsView from './components/SettingsView.svelte'
   import RedesignMatchDetailView from './components/RedesignMatchDetailView.svelte'
   import AppLogo from './assets/logo/AppLogo.png'
@@ -42,7 +42,7 @@
     {
       heading: 'Analysis',
       items: [
-        { id: 'trends', label: 'Trends', icon: ChartNoAxesCombined },
+        { id: 'analysis', label: 'Analysis', icon: ChartNoAxesCombined },
         { id: 'draft', label: 'Draft Analyzer', icon: Zap }
       ]
     },
@@ -78,10 +78,11 @@
     matches: 'Matches',
     coach: 'AI Coach',
     heroes: 'Heroes',
-    trends: 'Trends',
+    analysis: 'Analysis',
     draft: 'Draft Analyzer',
     roles: 'Role Performance',
-    settings: 'Settings'
+    settings: 'Settings',
+    teammates: 'Teammates'
   }
   async function handleSteamLogin(): Promise<void> {
     try {
@@ -268,12 +269,14 @@
             <CoachView />
           {:else if currentView === 'heroes'}
             <HeroesView />
-          {:else if currentView === 'trends'}
-            <TrendsView />
+          {:else if currentView === 'analysis'}
+            <AnalysisView />
           {:else if currentView === 'draft'}
             <DraftView />
           {:else if currentView === 'roles'}
             <RolePerformanceView {openMatchDetail} initialRole={rolesViewInitialRole} />
+          {:else if currentView === 'teammates'}
+            <TeammatesView />
           {:else if currentView === 'settings'}
             <SettingsView />
           {:else if currentView === 'match-detail' && selectedMatch}

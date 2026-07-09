@@ -1,5 +1,6 @@
 <script lang="ts">
   import itemsData from '../../../main/data/items.json'
+  import abilitiesData from '../../../main/data/abilities.json'
   import { getHero } from '../utils/heroMap.ts'
   import MinimapImage from '../assets/minimap_geometry_current.png'
 
@@ -246,6 +247,26 @@
 
   function getItemImgUrl(img: string): string {
     return `item-asset://${img.replace(/^item-assets\//, '')}`
+  }
+
+  // ── Ability resolution ──────────────────────────────────────────────
+  const abilityMap = new Map<number, string>()
+  for (const hero of abilitiesData as any[]) {
+    const prefix = (hero.shortName || '') + '_'
+    for (const entry of hero.abilities || []) {
+      const ab = entry.ability
+      if (ab && typeof ab.id === 'number') {
+        const cleaned = ab.name
+          .replace(prefix, '')
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, (c: string) => c.toUpperCase())
+        abilityMap.set(ab.id, cleaned)
+      }
+    }
+  }
+
+  function getAbilityImgUrl(abilityId: number): string {
+    return `ability-asset://${abilityId}.png`
   }
 
   // Best-effort purchase time for a given inventory item id. Only reliable
@@ -1111,7 +1132,7 @@
   }
 
   // ── Reusable per-minute chart builder (Economy tab) ─────────────────
-  type EconomyMetric = 'networth' | 'heroDamage' | 'damageTaken' | 'healing' | 'towerDamage'
+  type EconomyMetric = 'networth' | 'heroDamage' | 'damageTaken' | 'healing' | 'towerDamage' | 'imp' | 'denies'
 
   const metricConfig: Record<
     EconomyMetric,
@@ -1121,7 +1142,9 @@
     heroDamage: { label: 'Hero Damage', unit: '', color: 'var(--color-rd)', cumulative: true },
     damageTaken: { label: 'Damage Taken', unit: '', color: 'var(--color-gd)', cumulative: false },
     healing: { label: 'Healing', unit: '', color: '#34d399', cumulative: true },
-    towerDamage: { label: 'Tower Damage', unit: '', color: '#38bdf8', cumulative: true }
+    towerDamage: { label: 'Tower Damage', unit: '', color: '#38bdf8', cumulative: true },
+    imp: { label: 'IMP', unit: '', color: 'var(--color-pu2)', cumulative: false },
+    denies: { label: 'Denies', unit: '', color: 'var(--color-gd)', cumulative: false }
   }
 
   let selectedMetric = $state<EconomyMetric>('networth')
@@ -1139,6 +1162,10 @@
         return cumulativeSum(stats.healPerMinute || [])
       case 'towerDamage':
         return cumulativeSum(stats.towerDamagePerMinute || [])
+      case 'imp':
+        return stats.impPerMinute || []
+      case 'denies':
+        return stats.deniesPerMinute || []
     }
   }
 
@@ -1147,11 +1174,11 @@
     return arr.map((v) => (running += v))
   }
 
-  function buildLinePath(data: number[], maxVal: number): { line: string; area: string } {
+  function buildLinePath(data: number[], dataMin: number, dataRange: number): { line: string; area: string } {
     if (data.length === 0) return { line: '', area: '' }
     const points = data.map((val, idx) => {
       const x = 30 + (idx / Math.max(1, data.length - 1)) * 450
-      const y = 100 - (val / Math.max(1, maxVal)) * 90
+      const y = 100 - ((val - dataMin) / dataRange) * 90
       return `${x.toFixed(1)},${y.toFixed(1)}`
     })
     const line = `M ${points.join(' L ')}`
@@ -1182,11 +1209,38 @@
     enemyMirrorPlayer ? seriesFor(enemyMirrorPlayer, selectedMetric) : []
   )
   const chartMax = $derived(Math.max(1, ...focusSeries, ...enemySeries))
-  const focusChartPaths = $derived(buildLinePath(focusSeries, chartMax))
-  const enemyChartPaths = $derived(buildLinePath(enemySeries, chartMax))
+  const chartMin = $derived(Math.min(0, ...focusSeries, ...enemySeries))
+  const chartRange = $derived(Math.max(1, chartMax - chartMin))
+  const focusChartPaths = $derived(buildLinePath(focusSeries, chartMin, chartRange))
+  const enemyChartPaths = $derived(buildLinePath(enemySeries, chartMin, chartRange))
+  const zeroY = $derived(100 - ((0 - chartMin) / chartRange) * 90)
   const networthLead = $derived(
     enemyMirrorPlayer ? focusedPlayer.networth - enemyMirrorPlayer.networth : 0
   )
+
+  // ── Team Advantage (networth / XP leads over time) ──────────────────
+  const rawNetworthLeads = $derived(detailedMatch?.match?.radiantNetworthLeads ?? [])
+  const rawExperienceLeads = $derived(detailedMatch?.match?.radiantExperienceLeads ?? [])
+  const isRadiant = $derived(selectedPlayerIndex < 5)
+  const teamNetworthLeads = $derived(rawNetworthLeads.map(v => (isRadiant ? v : -v)))
+  const teamExperienceLeads = $derived(rawExperienceLeads.map(v => (isRadiant ? v : -v)))
+  const finalNwLead = $derived(teamNetworthLeads.at(-1) ?? 0)
+  const finalXpLead = $derived(teamExperienceLeads.at(-1) ?? 0)
+  const nwLeadMaxAbs = $derived(Math.max(1, ...teamNetworthLeads.map(Math.abs)))
+  const xpLeadMaxAbs = $derived(Math.max(1, ...teamExperienceLeads.map(Math.abs)))
+
+  function buildLeadPath(data: number[], maxAbs: number): string {
+    if (data.length === 0) return ''
+    const points = data.map((val, idx) => {
+      const x = (idx / Math.max(1, data.length - 1)) * 200
+      const y = 18 - (val / maxAbs) * 14
+      return `${x.toFixed(1)},${y.toFixed(1)}`
+    })
+    return `M ${points.join(' L ')}`
+  }
+
+  const nwLeadPath = $derived(buildLeadPath(teamNetworthLeads, nwLeadMaxAbs))
+  const xpLeadPath = $derived(buildLeadPath(teamExperienceLeads, xpLeadMaxAbs))
 
   // ── Game snapshot — one-glance summary card ──────────────────────────
   interface GameSnapshot {
@@ -1373,7 +1427,7 @@
     hoverIdx !== null ? 30 + (hoverIdx / Math.max(1, focusSeries.length - 1)) * 450 : 0
   )
   const hoverCy = $derived(
-    hoverValue !== null ? 100 - (hoverValue / Math.max(1, chartMax)) * 90 : 0
+    hoverValue !== null ? 100 - ((hoverValue - chartMin) / chartRange) * 90 : 0
   )
 
   // Delta vs. the previous minute — real, derived straight from the series.
@@ -1929,7 +1983,7 @@
   })
 
   // ── Timeline tab: unified real events ───────────────────────────────
-  type TimelineKind = 'kill' | 'death' | 'ward' | 'rune' | 'item'
+  type TimelineKind = 'kill' | 'death' | 'ward' | 'rune' | 'item' | 'ability'
   interface TimelineEntry {
     kind: TimelineKind
     time: number
@@ -1937,6 +1991,7 @@
     sub: string
     color: string
     icon: string
+    imgUrl?: string
   }
 
   type TimelinePhase = 'early' | 'midgame' | 'late'
@@ -1954,6 +2009,7 @@
   let tlShowWards = $state(true)
   let tlShowRunes = $state(true)
   let tlShowItems = $state(true)
+  let tlShowAbilities = $state(true)
 
   // Persist timeline filters to localStorage
   const TL_FILTER_KEY = 'dotatracker_timeline_filters'
@@ -1963,7 +2019,8 @@
       deaths: tlShowDeaths,
       wards: tlShowWards,
       runes: tlShowRunes,
-      items: tlShowItems
+      items: tlShowItems,
+      abilities: tlShowAbilities
     }
     localStorage.setItem(TL_FILTER_KEY, JSON.stringify(filters))
   })
@@ -1977,6 +2034,7 @@
         tlShowWards = filters.wards ?? true
         tlShowRunes = filters.runes ?? true
         tlShowItems = filters.items ?? true
+        tlShowAbilities = filters.abilities ?? true
       }
     } catch {
       /* ignore corrupt localStorage */
@@ -2047,6 +2105,19 @@
       })
     })
 
+    ;(focusedPlayer.abilities || []).forEach((a: any) => {
+      const name = abilityMap.get(a.abilityId) || `Ability ${a.abilityId}`
+      entries.push({
+        kind: 'ability',
+        time: a.time,
+        label: name,
+        sub: a.level <= 1 ? 'Learned' : `Level ${a.level}`,
+        color: '#06b6d4',
+        icon: '',
+        imgUrl: getAbilityImgUrl(a.abilityId)
+      })
+    })
+
     return entries
       .filter((e) => {
         if (e.kind === 'kill' && !tlShowKills) return false
@@ -2054,6 +2125,7 @@
         if (e.kind === 'ward' && !tlShowWards) return false
         if (e.kind === 'rune' && !tlShowRunes) return false
         if (e.kind === 'item' && !tlShowItems) return false
+        if (e.kind === 'ability' && !tlShowAbilities) return false
         return true
       })
       .sort((a, b) => a.time - b.time)
@@ -3307,13 +3379,27 @@
                   stroke-width="1"
                 />
 
+                {#if chartMin < 0}
+                  <line
+                    x1="30"
+                    y1={zeroY}
+                    x2="480"
+                    y2={zeroY}
+                    stroke="rgba(255,255,255,.2)"
+                    stroke-width="0.5"
+                    stroke-dasharray="2,2"
+                  />
+                {/if}
+
                 <text x="5" y="14" fill="#4A5270" font-size="8" font-family="monospace"
                   >{Math.round(chartMax).toLocaleString()}</text
                 >
                 <text x="5" y="58" fill="#4A5270" font-size="8" font-family="monospace"
-                  >{Math.round(chartMax / 2).toLocaleString()}</text
+                  >{Math.round((chartMax + chartMin) / 2).toLocaleString()}</text
                 >
-                <text x="5" y="103" fill="#4A5270" font-size="8" font-family="monospace">0</text>
+                <text x="5" y="103" fill="#4A5270" font-size="8" font-family="monospace"
+                  >{Math.round(chartMin).toLocaleString()}</text
+                >
 
                 {#if focusChartPaths.line}
                   <path d={focusChartPaths.area} fill="url(#metricgrad)" />
@@ -3338,7 +3424,7 @@
                 {#if heroInfo}
                   {#each heroMarkerIndices as idx, i}
                     {@const mx = 30 + (idx / Math.max(1, focusSeries.length - 1)) * 450}
-                    {@const my = 100 - ((focusSeries[idx] ?? 0) / Math.max(1, chartMax)) * 90}
+                    {@const my = 100 - (((focusSeries[idx] ?? 0) - chartMin) / chartRange) * 90}
                     <g transform="translate({mx},{my})" class="pointer-events-none">
                       <circle r="7.5" fill="black" opacity="0.5" />
                       <image
@@ -3561,6 +3647,42 @@
               <div class="font-mono text-[16px] font-extrabold text-white">{kdaText}</div>
             </div>
           </div>
+
+          {#if rawNetworthLeads.length > 0 || rawExperienceLeads.length > 0}
+            <div class="border border-zinc-800/60 rounded-xl bg-zinc-950/60 p-4 shadow-sm">
+              <div class="text-sm font-bold text-zinc-400 mb-3">Team Advantage</div>
+              <div class="flex flex-col gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-20 shrink-0">
+                    <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Net Worth</div>
+                    <div class="font-mono text-sm font-extrabold {finalNwLead >= 0 ? 'text-emerald-400' : 'text-rose-500'}">
+                      {finalNwLead >= 0 ? '+' : ''}{finalNwLead.toLocaleString()}g
+                    </div>
+                  </div>
+                  <svg viewBox="0 0 200 36" class="flex-1 h-9 overflow-visible">
+                    <line x1="0" y1="18" x2="200" y2="18" stroke="rgba(255,255,255,.08)" stroke-width="1" stroke-dasharray="2,2" />
+                    {#if nwLeadPath}
+                      <path d={nwLeadPath} fill="none" stroke={finalNwLead >= 0 ? '#22c55e' : '#ef4444'} stroke-width="1.5" stroke-linejoin="round" />
+                    {/if}
+                  </svg>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="w-20 shrink-0">
+                    <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Experience</div>
+                    <div class="font-mono text-sm font-extrabold {finalXpLead >= 0 ? 'text-emerald-400' : 'text-rose-500'}">
+                      {finalXpLead >= 0 ? '+' : ''}{finalXpLead.toLocaleString()}
+                    </div>
+                  </div>
+                  <svg viewBox="0 0 200 36" class="flex-1 h-9 overflow-visible">
+                    <line x1="0" y1="18" x2="200" y2="18" stroke="rgba(255,255,255,.08)" stroke-width="1" stroke-dasharray="2,2" />
+                    {#if xpLeadPath}
+                      <path d={xpLeadPath} fill="none" stroke={finalXpLead >= 0 ? '#22c55e' : '#ef4444'} stroke-width="1.5" stroke-linejoin="round" />
+                    {/if}
+                  </svg>
+                </div>
+              </div>
+            </div>
+          {/if}
         </div>
       {:else if activeSubTab === 'combat'}
         <div class="p-5 flex flex-col gap-5">
@@ -3911,6 +4033,15 @@
                   stroke-width="1.2"><path d="M2 4h8l-1 6H3L2 4zM4 4V3a2 2 0 014 0v1" /></svg
                 > Items ≥500g</label
               >
+              <label class="flex items-center gap-1.5 cursor-pointer hover:text-white"
+                ><input
+                  type="checkbox"
+                  bind:checked={tlShowAbilities}
+                  class="rounded border-zinc-800 bg-zinc-950"
+                /><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"
+                  ><circle cx="5" cy="5" r="4" fill="#06b6d4" /></svg
+                > Abilities</label
+              >
             </div>
           </div>
 
@@ -3941,8 +4072,19 @@
                       <span
                         class="flex flex-col min-w-0 group-hover:translate-x-0.5 transition-transform"
                       >
-                        <span class="text-[12px] font-bold text-zinc-200"
-                          >{entry.icon} {entry.label}</span
+                        <span
+                          class="text-[12px] font-bold text-zinc-200 flex items-center gap-1.5"
+                        >
+                          {#if entry.imgUrl}
+                            <img
+                              src={entry.imgUrl}
+                              class="w-4 h-4 rounded shrink-0"
+                              alt=""
+                            />
+                          {:else if entry.icon}
+                            {entry.icon}
+                          {/if}
+                          {entry.label}</span
                         >
                         {#if entry.sub}
                           <span class="text-[10px] text-zinc-500 truncate">{entry.sub}</span>

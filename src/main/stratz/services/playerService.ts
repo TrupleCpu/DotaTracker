@@ -10,8 +10,9 @@ export async function getPlayerData(steamId: number | string) {
       orderBy: 'DESC',
       matchLimitMin: 10,
       skip: 0,
-      take: 1000
+      take: 10000
     },
+    take: 10000,
     heroesGroupByRequest: {
       groupBy: 'HERO',
       playerList: 'SINGLE',
@@ -27,5 +28,7 @@ export async function getPlayerData(steamId: number | string) {
     skipPlayedHeroes: false,
     skipDotaPlus: false
   })
+
+  console.log(data.stratz.page.player.peers)
   return data
 }

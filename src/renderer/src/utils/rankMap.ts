@@ -11,7 +11,14 @@ const ranks: Record<number, string> = {
 
 export const rankToString = (r: number): string => {
   const rank = ranks[Math.floor(r / 10)]
-  const tier = 'I'.repeat(r % 10)
+  let tier = ''
+  if (r % 10 === 4) {
+    tier = 'IV'
+  } else if (r % 10 === 5) {
+    tier = 'V'
+  } else {
+    tier = 'I'.repeat(r % 10)
+  }
 
   return `${rank} ${tier}`
 }

@@ -244,7 +244,7 @@
             class:text-rd={row.left.wr < 50}>{row.left.wr}%</span
           >
           <span class="text-xxs text-tx3 tabular-nums w-[28px] text-right shrink-0"
-            >{row.left.games}g</span
+            >{row.left.games}</span
           >
         </button>
         <div class="w-px h-[18px] bg-bd mx-2 shrink-0"></div>
@@ -267,7 +267,7 @@
             class:text-rd={row.right.wr < 50}>{row.right.wr}%</span
           >
           <span class="text-xxs text-tx3 tabular-nums w-[28px] text-right shrink-0"
-            >{row.right.games}g</span
+            >{row.right.games}</span
           >
         </button>
       </div>
@@ -643,7 +643,7 @@
                 {hero?.localized_name ?? `Hero #${h.heroId}`}
               </div>
               <div class="text-xs text-tx3 font-mono font-medium font-tabular w-10 text-right">
-                {h.matchCount}g
+                {h.matchCount}
               </div>
               <span
                 class="text-xs font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0

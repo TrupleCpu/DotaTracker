@@ -7,6 +7,7 @@ export const PLAYER_DASHBOARD_QUERY = `
 query PlayerDashboard(
   $steamId: Long!
   $peersRequest: PlayerTeammatesGroupByRequestType!
+  $take: Int
   $heroesGroupByRequest: PlayerMatchesGroupByRequestType!
   $heroesPerformanceGroupByRequest: PlayerMatchesGroupByRequestType!
   $skipPlayedHeroes: Boolean!

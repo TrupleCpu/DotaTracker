@@ -37,6 +37,14 @@ protocol.registerSchemesAsPrivileged([
       secure: true,
       supportFetchAPI: true
     }
+  },
+  {
+    scheme: 'ability-asset',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true
+    }
   }
 ])
 
@@ -359,11 +367,7 @@ function registerIpcHandlers(): void {
 
   ipcMain.handle(
     'fetch-all-matches',
-    async (
-      _event,
-      steamId: number | string,
-      options: FetchMatchesOptions = {}
-    ) => {
+    async (_event, steamId: number | string, options: FetchMatchesOptions = {}) => {
       try {
         return await fetchMatches(steamId, options)
       } catch (err) {
@@ -469,6 +473,22 @@ app.whenReady().then(() => {
     return net.fetch(pathToFileURL(filePath).toString())
   })
 
+  protocol.handle('ability-asset', (request) => {
+    const url = new URL(request.url)
+    const relPath = decodeURIComponent((url.hostname + url.pathname).replace(/\/+$/, ''))
+
+    const basePath = app.isPackaged
+      ? join(app.getAppPath().replace('app.asar', 'app.asar.unpacked'), 'src/main/data/abilities')
+      : join(app.getAppPath(), 'src/main/data/abilities')
+
+    const filePath = join(basePath, relPath)
+
+    if (!fs.existsSync(filePath)) {
+      return new Response('Not found', { status: 404 })
+    }
+
+    return net.fetch(pathToFileURL(filePath).toString())
+  })
   protocol.handle('hero-model', (request) => {
     const url = new URL(request.url)
 
