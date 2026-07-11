@@ -148,7 +148,6 @@ export function createGSIServer(onData: (ui: Record<string, unknown>) => void): 
         }
 
         const data = JSON.parse(body)
-        console.log('Received GSI data:', data)
 
         if (!data.auth || data.auth.token !== AUTH_TOKEN) {
           res.writeHead(403)

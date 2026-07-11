@@ -44,6 +44,11 @@ const api = {
     ipcRenderer.on('config-updated', (_e, data) => cb(data))
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onDraftUpdate: (cb: (data: any) => void): void => {
+    ipcRenderer.on('draft-update', (_e, data) => cb(data))
+  },
+
   minimizeWindow: (): void => ipcRenderer.send('win-minimize'),
   maximizeWindow: (): void => ipcRenderer.send('win-maximize'),
   closeWindow: (): void => ipcRenderer.send('win-close')

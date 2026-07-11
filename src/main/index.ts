@@ -6,12 +6,13 @@ import { createGSIServer } from './gsi-server'
 import { loadConfig, saveConfig } from './config'
 import http from 'http'
 import { getPlayerData } from './stratz/services/playerService'
-import { exec } from 'child_process'
+import { ChildProcessWithoutNullStreams, exec } from 'child_process'
 import fs from 'fs'
 import os from 'os'
 import { pathToFileURL } from 'url'
 import { getMatchDetails } from './stratz/services/matchDetails'
 import { fetchMatches, FetchMatchesOptions } from './stratz/services/fetchMatches'
+import { spawn } from 'child_process'
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -59,6 +60,7 @@ let tray: Tray | null = null
 let gsiServer: http.Server | null = null
 let config = loadConfig()
 let isQuitting = false
+let draftEngineProcess: ChildProcessWithoutNullStreams | null = null
 
 type DotaBoundsProps = {
   x: number
@@ -66,7 +68,69 @@ type DotaBoundsProps = {
   height: number
   width: number
 }
+function getDraftEnginePath(): string {
+  const binDir = app.isPackaged
+    ? join(process.resourcesPath, 'bin')
+    : join(app.getAppPath(), 'src/main/bin')
+  return join(binDir, 'main.exe')
+}
 
+function startDraftEngine(): void {
+  const exePath = getDraftEnginePath()
+
+  if (!fs.existsSync(exePath)) {
+    console.error('main.exe not found at', exePath)
+    return
+  }
+
+  draftEngineProcess = spawn(exePath, ['--json'], {
+    cwd: join(exePath, '..')
+  })
+
+  let stdoutBuffer = ''
+
+  draftEngineProcess.stdout.on('data', (chunk: Buffer) => {
+    stdoutBuffer += chunk.toString()
+    const lines = stdoutBuffer.split('\n')
+    stdoutBuffer = lines.pop() || '' // keep incomplete trailing line in buffer
+
+    for (let line of lines) {
+      line = line.trim()
+      if (!line) continue
+
+      try {
+        const draftState = JSON.parse(line)
+        console.log('[Draft Engine Update]', draftState)
+
+        // fan out to whichever windows are alive
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('draft-update', draftState)
+        }
+        if (controlWindow && !controlWindow.isDestroyed()) {
+          controlWindow.webContents.send('draft-update', draftState)
+        }
+      } catch (err) {
+        console.log('[main.exe stdout log]', line)
+      }
+    }
+  })
+
+  draftEngineProcess.stderr.on('data', (chunk: Buffer) => {
+    console.error('[main.exe stderr]', chunk.toString().trim())
+  })
+
+  draftEngineProcess.on('exit', (code) => {
+    console.log('[main.exe] exited with code', code)
+    draftEngineProcess = null
+  })
+}
+
+function stopDraftEngine(): void {
+  if (draftEngineProcess) {
+    draftEngineProcess.kill()
+    draftEngineProcess = null
+  }
+}
 function createOverlayWindow(): void {
   mainWindow = new BrowserWindow({
     width: WIDGET_WIDTH,
@@ -505,7 +569,7 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
-
+  startDraftEngine()
   createOverlayWindow()
   createControlWindow()
   createTray()
@@ -536,6 +600,7 @@ app.on('will-quit', () => {
     gsiServer.close()
   }
   if (tray) tray.destroy()
+  stopDraftEngine()
 })
 
 app.on('window-all-closed', () => {

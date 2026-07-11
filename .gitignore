@@ -6,3 +6,6 @@ out
 *.log*
 .env
 env
+
+src/main/bin/
+*.exe
