@@ -54,6 +54,10 @@
       })
   })
 
+  let isParsing = $derived(
+    !loading && !error && detailedMatch !== null && !detailedMatch?.match
+  )
+
   let selectedPlayerIndex = $state(0)
   const players = $derived(detailedMatch?.match?.players ?? [])
   const focusedPlayer = $derived(players[selectedPlayerIndex])
@@ -2139,6 +2143,21 @@
 {:else if error}
   <div class="flex-1 flex items-center justify-center bg-black text-rose-400 text-sm font-semibold">
     {error}
+  </div>
+{:else if isParsing}
+  <div
+    class="flex-1 flex items-center justify-center bg-black text-zinc-400 text-sm font-semibold flex-col gap-3"
+  >
+    <svg class="w-8 h-8 animate-spin text-zinc-600" viewBox="0 0 24 24" fill="none">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path
+        class="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+      />
+    </svg>
+    <span>Parsing match…</span>
+    <span class="text-xxs text-zinc-600">STRATZ is still processing this replay</span>
   </div>
 {:else}
   <div
