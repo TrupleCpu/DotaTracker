@@ -1,8 +1,10 @@
 <script lang="ts">
-  import itemsData from '../../../main/data/items.json'
-  import abilitiesData from '../../../main/data/abilities.json'
-  import { getHero } from '../utils/heroMap.ts'
-  import MinimapImage from '../assets/minimap_geometry_current.png'
+  import itemsData from '../../../../main/data/items.json'
+  import abilitiesData from '../../../../main/data/abilities.json'
+  import { onMount } from 'svelte'
+  import { getHero } from '../../utils/heroMap.ts'
+  import { uiStore } from '../../stores/uiStore.svelte'
+  import MinimapImage from '../../assets/minimap_geometry_current.png'
 
   interface Props {
     match: any
@@ -54,9 +56,7 @@
       })
   })
 
-  let isParsing = $derived(
-    !loading && !error && detailedMatch !== null && !detailedMatch?.match
-  )
+  let isParsing = $derived(!loading && !error && detailedMatch !== null && !detailedMatch?.match)
 
   let selectedPlayerIndex = $state(0)
   const players = $derived(detailedMatch?.match?.players ?? [])
@@ -1136,7 +1136,14 @@
   }
 
   // ── Reusable per-minute chart builder (Economy tab) ─────────────────
-  type EconomyMetric = 'networth' | 'heroDamage' | 'damageTaken' | 'healing' | 'towerDamage' | 'imp' | 'denies'
+  type EconomyMetric =
+    | 'networth'
+    | 'heroDamage'
+    | 'damageTaken'
+    | 'healing'
+    | 'towerDamage'
+    | 'imp'
+    | 'denies'
 
   const metricConfig: Record<
     EconomyMetric,
@@ -1152,6 +1159,32 @@
   }
 
   let selectedMetric = $state<EconomyMetric>('networth')
+
+  let chartReady = $state(false)
+
+  const maxSeriesLen = $derived.by(() => {
+    const p = focusedPlayer?.stats
+    if (!p) return 0
+    return Math.max(
+      p.networthPerMinute?.length ?? 0,
+      p.heroDamagePerMinute?.length ?? 0,
+      p.heroDamageReceivedPerMinute?.length ?? 0,
+      p.healPerMinute?.length ?? 0,
+      p.towerDamagePerMinute?.length ?? 0,
+      p.impPerMinute?.length ?? 0,
+      p.deniesPerMinute?.length ?? 0
+    )
+  })
+
+  onMount(() => {
+    if (uiStore.animatedCharts) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => { chartReady = true })
+      })
+    } else {
+      chartReady = true
+    }
+  })
 
   function seriesFor(player: any, metric: EconomyMetric): number[] {
     const stats = player.stats
@@ -1178,7 +1211,29 @@
     return arr.map((v) => (running += v))
   }
 
-  function buildLinePath(data: number[], dataMin: number, dataRange: number): { line: string; area: string } {
+  function padToLen(arr: number[], len: number): number[] {
+    if (arr.length === len) return arr
+    if (arr.length > len) return arr.slice(0, len)
+    const last = arr.length > 0 ? arr[arr.length - 1] : 0
+    return [...arr, ...new Array(len - arr.length).fill(last)]
+  }
+
+  function buildZeroPath(len: number): { line: string; area: string } {
+    if (len === 0) return { line: '', area: '' }
+    const points = Array.from({ length: len }, (_, idx) => {
+      const x = 30 + (idx / Math.max(1, len - 1)) * 450
+      return `${x.toFixed(1)},100`
+    })
+    const line = `M ${points.join(' L ')}`
+    const area = `M 30,100 L ${points.join(' L ')} L 480,100 Z`
+    return { line, area }
+  }
+
+  function buildLinePath(
+    data: number[],
+    dataMin: number,
+    dataRange: number
+  ): { line: string; area: string } {
     if (data.length === 0) return { line: '', area: '' }
     const points = data.map((val, idx) => {
       const x = 30 + (idx / Math.max(1, data.length - 1)) * 450
@@ -1208,15 +1263,17 @@
   const enemyMirrorHero = $derived(enemyMirrorPlayer ? getHero(enemyMirrorPlayer.heroId) : null)
   const enemyMirrorRoleLabel = $derived(`Enemy ${roleShortLabel(focusedPlayer.position)}`)
 
-  const focusSeries = $derived(seriesFor(focusedPlayer, selectedMetric))
+  const focusSeries = $derived(padToLen(seriesFor(focusedPlayer, selectedMetric), maxSeriesLen))
   const enemySeries = $derived(
-    enemyMirrorPlayer ? seriesFor(enemyMirrorPlayer, selectedMetric) : []
+    enemyMirrorPlayer ? padToLen(seriesFor(enemyMirrorPlayer, selectedMetric), maxSeriesLen) : []
   )
   const chartMax = $derived(Math.max(1, ...focusSeries, ...enemySeries))
   const chartMin = $derived(Math.min(0, ...focusSeries, ...enemySeries))
   const chartRange = $derived(Math.max(1, chartMax - chartMin))
   const focusChartPaths = $derived(buildLinePath(focusSeries, chartMin, chartRange))
   const enemyChartPaths = $derived(buildLinePath(enemySeries, chartMin, chartRange))
+  const zeroFocusPath = $derived(buildZeroPath(focusSeries.length))
+  const zeroEnemyPath = $derived(buildZeroPath(enemySeries.length))
   const zeroY = $derived(100 - ((0 - chartMin) / chartRange) * 90)
   const networthLead = $derived(
     enemyMirrorPlayer ? focusedPlayer.networth - enemyMirrorPlayer.networth : 0
@@ -1226,8 +1283,8 @@
   const rawNetworthLeads = $derived(detailedMatch?.match?.radiantNetworthLeads ?? [])
   const rawExperienceLeads = $derived(detailedMatch?.match?.radiantExperienceLeads ?? [])
   const isRadiant = $derived(selectedPlayerIndex < 5)
-  const teamNetworthLeads = $derived(rawNetworthLeads.map(v => (isRadiant ? v : -v)))
-  const teamExperienceLeads = $derived(rawExperienceLeads.map(v => (isRadiant ? v : -v)))
+  const teamNetworthLeads = $derived(rawNetworthLeads.map((v) => (isRadiant ? v : -v)))
+  const teamExperienceLeads = $derived(rawExperienceLeads.map((v) => (isRadiant ? v : -v)))
   const finalNwLead = $derived(teamNetworthLeads.at(-1) ?? 0)
   const finalXpLead = $derived(teamExperienceLeads.at(-1) ?? 0)
   const nwLeadMaxAbs = $derived(Math.max(1, ...teamNetworthLeads.map(Math.abs)))
@@ -2108,7 +2165,6 @@
         icon: '$'
       })
     })
-
     ;(focusedPlayer.abilities || []).forEach((a: any) => {
       const name = abilityMap.get(a.abilityId) || `Ability ${a.abilityId}`
       entries.push({
@@ -3352,6 +3408,7 @@
               <svg
                 viewBox="0 0 500 120"
                 class="w-full h-auto mt-2 overflow-visible cursor-crosshair"
+                class:chart-animate={uiStore.animatedCharts}
                 onmousemove={(e) => chartHover(e, e.currentTarget as SVGSVGElement, focusSeries)}
                 onmouseleave={chartLeave}
               >
@@ -3421,9 +3478,9 @@
                 >
 
                 {#if focusChartPaths.line}
-                  <path d={focusChartPaths.area} fill="url(#metricgrad)" />
+                  <path d={chartReady ? focusChartPaths.area : zeroFocusPath.area} fill="url(#metricgrad)" />
                   <path
-                    d={focusChartPaths.line}
+                    d={chartReady ? focusChartPaths.line : zeroFocusPath.line}
                     fill="none"
                     stroke={metricConfig[selectedMetric].color}
                     stroke-width="2"
@@ -3431,7 +3488,7 @@
                 {/if}
                 {#if enemyChartPaths.line}
                   <path
-                    d={enemyChartPaths.line}
+                    d={chartReady ? enemyChartPaths.line : zeroEnemyPath.line}
                     fill="none"
                     stroke="var(--color-rd)"
                     stroke-width="1.5"
@@ -3440,7 +3497,7 @@
                 {/if}
 
                 <!-- Hero-portrait markers sampled along the focus line -->
-                {#if heroInfo}
+                {#if chartReady && heroInfo}
                   {#each heroMarkerIndices as idx, i}
                     {@const mx = 30 + (idx / Math.max(1, focusSeries.length - 1)) * 450}
                     {@const my = 100 - (((focusSeries[idx] ?? 0) - chartMin) / chartRange) * 90}
@@ -3465,7 +3522,7 @@
                   {/each}
                 {/if}
 
-                {#if selectedMetric === 'networth' && focusSeries.length > 0}
+                {#if chartReady && selectedMetric === 'networth' && focusSeries.length > 0}
                   {#each itemChartMarkers as marker}
                     {@const ix =
                       30 + (marker.minuteIdx / Math.max(1, focusSeries.length - 1)) * 450}
@@ -3673,29 +3730,69 @@
               <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-3">
                   <div class="w-20 shrink-0">
-                    <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Net Worth</div>
-                    <div class="font-mono text-sm font-extrabold {finalNwLead >= 0 ? 'text-emerald-400' : 'text-rose-500'}">
+                    <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">
+                      Net Worth
+                    </div>
+                    <div
+                      class="font-mono text-sm font-extrabold {finalNwLead >= 0
+                        ? 'text-emerald-400'
+                        : 'text-rose-500'}"
+                    >
                       {finalNwLead >= 0 ? '+' : ''}{finalNwLead.toLocaleString()}g
                     </div>
                   </div>
                   <svg viewBox="0 0 200 36" class="flex-1 h-9 overflow-visible">
-                    <line x1="0" y1="18" x2="200" y2="18" stroke="rgba(255,255,255,.08)" stroke-width="1" stroke-dasharray="2,2" />
+                    <line
+                      x1="0"
+                      y1="18"
+                      x2="200"
+                      y2="18"
+                      stroke="rgba(255,255,255,.08)"
+                      stroke-width="1"
+                      stroke-dasharray="2,2"
+                    />
                     {#if nwLeadPath}
-                      <path d={nwLeadPath} fill="none" stroke={finalNwLead >= 0 ? '#22c55e' : '#ef4444'} stroke-width="1.5" stroke-linejoin="round" />
+                      <path
+                        d={nwLeadPath}
+                        fill="none"
+                        stroke={finalNwLead >= 0 ? '#22c55e' : '#ef4444'}
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
                     {/if}
                   </svg>
                 </div>
                 <div class="flex items-center gap-3">
                   <div class="w-20 shrink-0">
-                    <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">Experience</div>
-                    <div class="font-mono text-sm font-extrabold {finalXpLead >= 0 ? 'text-emerald-400' : 'text-rose-500'}">
+                    <div class="text-[9.5px] text-zinc-500 font-extrabold uppercase tracking-wider">
+                      Experience
+                    </div>
+                    <div
+                      class="font-mono text-sm font-extrabold {finalXpLead >= 0
+                        ? 'text-emerald-400'
+                        : 'text-rose-500'}"
+                    >
                       {finalXpLead >= 0 ? '+' : ''}{finalXpLead.toLocaleString()}
                     </div>
                   </div>
                   <svg viewBox="0 0 200 36" class="flex-1 h-9 overflow-visible">
-                    <line x1="0" y1="18" x2="200" y2="18" stroke="rgba(255,255,255,.08)" stroke-width="1" stroke-dasharray="2,2" />
+                    <line
+                      x1="0"
+                      y1="18"
+                      x2="200"
+                      y2="18"
+                      stroke="rgba(255,255,255,.08)"
+                      stroke-width="1"
+                      stroke-dasharray="2,2"
+                    />
                     {#if xpLeadPath}
-                      <path d={xpLeadPath} fill="none" stroke={finalXpLead >= 0 ? '#22c55e' : '#ef4444'} stroke-width="1.5" stroke-linejoin="round" />
+                      <path
+                        d={xpLeadPath}
+                        fill="none"
+                        stroke={finalXpLead >= 0 ? '#22c55e' : '#ef4444'}
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
                     {/if}
                   </svg>
                 </div>
@@ -4091,15 +4188,9 @@
                       <span
                         class="flex flex-col min-w-0 group-hover:translate-x-0.5 transition-transform"
                       >
-                        <span
-                          class="text-[12px] font-bold text-zinc-200 flex items-center gap-1.5"
-                        >
+                        <span class="text-[12px] font-bold text-zinc-200 flex items-center gap-1.5">
                           {#if entry.imgUrl}
-                            <img
-                              src={entry.imgUrl}
-                              class="w-4 h-4 rounded shrink-0"
-                              alt=""
-                            />
+                            <img src={entry.imgUrl} class="w-4 h-4 rounded shrink-0" alt="" />
                           {:else if entry.icon}
                             {entry.icon}
                           {/if}

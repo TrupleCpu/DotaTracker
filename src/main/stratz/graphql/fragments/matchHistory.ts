@@ -6,6 +6,10 @@ recentMatches: matches(request: { take: 7 }) {
   endDateTime
   statsDateTime 
   actualRank
+  didRadiantWin
+  midLaneOutcome
+  bottomLaneOutcome
+  topLaneOutcome
   # 1. Fetch just YOUR player data using the targetPlayer filter
   targetPlayer: players(steamAccountId: $steamId) {
     heroId

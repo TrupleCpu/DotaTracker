@@ -1,5 +1,7 @@
 import heroesData from '../../../main/data/heroes.json'
 import { formatDuration, formatGameMode, formatTimeAgo } from '../utils/matchHelper'
+import type { PlayerStats, Match, Teammate, HeroStat } from '../types'
+
 interface HeroData {
   id: number
   name: string
@@ -7,60 +9,52 @@ interface HeroData {
   img: string
 }
 
-interface StratzMatch {
-  id: number
-  heroId: number
-  heroName: string
-  heroImg: string
-  outcome: 'win' | 'loss'
-  previousOutcome: 'win' | 'loss'
-  k: number
-  d: number
-  a: number
-  mode: string
-  dur: string
-  timeAgo: string
-  mmrChange: number
-  impactValue: number
-  partyCount: number
-  lane: string
-  rank: number
-}
-
-interface RecentTeammates {
-  steamAccountId: number
-  name: string
-  avatar: string | null
-  matches: number
-  winrate: number
-}
-
-// interface PlayerStats {
-//   matchCount: number
-//   winCount: number
-//   killsAverage: number
-//   deathsAverage: number
-//   assistsAverage: number
-//   gpmAverage: number
-//   xpmAverage: number
-//   rank: number
-// }
-
 export const heroMap = new Map<number, HeroData>((heroesData as HeroData[]).map((h) => [h.id, h]))
 
 class PlayerStore {
-  detailedMatches = $state<StratzMatch[]>([])
+  detailedMatches = $state<Match[]>([])
   isLoading = $state(false)
   error = $state('')
-  playerStats = $state<any>(null)
-  allTeammates = $state<RecentTeammates[]>([])
+  playerStats = $state<PlayerStats | null>(null)
+  allTeammates = $state<Teammate[]>([])
   recentTeammates = $derived(this.allTeammates.slice(0, 5))
-  allHeroStats = $state<any[]>([])
+  allHeroStats = $state<HeroStat[]>([])
   topHeroes = $derived(this.allHeroStats.slice(0, 5))
   heroRoleMap = $state<Map<number, string>>(new Map())
   heroPerformanceStats = $state<any[]>([])
   hasLoaded = $state(false)
   steamId = $state<number | null>(null)
+
+  roleDistribution = $derived.by(() => {
+    const groups: Record<string, { matches: number; wins: number }> = {}
+    for (const p of this.heroPerformanceStats) {
+      let label: string
+      if (p.position === 'POSITION_4' || p.position === 'POSITION_5') {
+        label = 'Support'
+      } else if (p.position === 'POSITION_1') {
+        label = 'Core'
+      } else if (p.position === 'POSITION_2') {
+        label = 'Mid'
+      } else if (p.position === 'POSITION_3') {
+        label = 'Offlane'
+      } else {
+        continue
+      }
+      if (!groups[label]) groups[label] = { matches: 0, wins: 0 }
+      groups[label].matches += p.matchCount
+      groups[label].wins += p.winCount
+    }
+    const order = ['Core', 'Mid', 'Offlane', 'Support']
+    const colors: Record<string, string> = {
+      Core: '#22C55E', Mid: '#3B82F6', Offlane: '#EAB308', Support: '#EC4899'
+    }
+    return order
+      .filter((id) => groups[id] && groups[id].matches > 0)
+      .map((id) => {
+        const g = groups[id]
+        return { id, label: id, hex: colors[id], wr: Math.round((g.wins / g.matches) * 100), games: g.matches }
+      })
+  })
 
   async loadProfile(forceRefersh = false) {
     if (this.hasLoaded && !forceRefersh) return
@@ -105,10 +99,9 @@ class PlayerStore {
         avatar: raw.player?.steamAccount?.avatar ?? ''
       }
 
-      this.detailedMatches = (raw.player.recentMatches ?? []).map((m: any, i: number) => {
+      this.detailedMatches = (raw.player.recentMatches ?? []).map((m: any) => {
         const player = m.targetPlayer?.[0]
         const hero = heroMap.get(player?.heroId)
-
         const partyCount = player?.partyId
           ? m.allPlayers?.filter((p: any) => p.partyId === player.partyId).length
           : 0
@@ -119,6 +112,10 @@ class PlayerStore {
           heroName: hero?.localized_name ?? `Hero #${player?.heroId}`,
           heroImg: hero ? `hero-asset://${hero.img.replace(/^hero-assets\//, '')}` : null,
           outcome: player?.isVictory ? 'win' : 'loss',
+          didRadiantWin: m.didRadiantWin,
+          midLaneOutcome: m.midLaneOutcome,
+          bottomLaneOutcome: m.bottomLaneOutcome,
+          topLaneOutcome: m.topLaneOutcome,
           k: player?.kills ?? 0,
           d: player?.deaths ?? 0,
           a: player?.assists ?? 0,
@@ -130,7 +127,9 @@ class PlayerStore {
           mmrChange: player?.isVictory ? 25 : -25,
           impactValue: player?.imp ?? 0,
           partyCount,
-          award: player?.award ?? null
+          award: player?.award ?? null,
+          gpm: 0,
+          xpm: 0
         }
       })
 

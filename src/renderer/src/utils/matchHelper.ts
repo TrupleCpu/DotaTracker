@@ -1,9 +1,3 @@
-import MidIcon from '../assets/role-icons/mid.svg'
-import CarryIcon from '../assets/role-icons/carry.svg'
-import OfflaneIcon from '../assets/role-icons/offlane.svg'
-import SoftSuppIcon from '../assets/role-icons/soft_support.svg'
-import HardSuppIcon from '../assets/role-icons/hard_support.svg'
-
 export function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
@@ -26,6 +20,35 @@ export function formatGameMode(mode: string): string {
     ALL_PICK: 'Normal'
   }
   return map[mode] ?? mode
+}
+
+export function getLaneOutcome(match: {
+  lane: string
+  outcome: 'win' | 'loss'
+  didRadiantWin?: boolean
+  midLaneOutcome?: string
+  bottomLaneOutcome?: string
+  topLaneOutcome?: string
+}): 'won' | 'lost' | 'tie' | null {
+  const { lane, outcome, didRadiantWin, midLaneOutcome, bottomLaneOutcome, topLaneOutcome } = match
+  if (!lane || didRadiantWin === undefined) return null
+
+  const playerIsRadiant = (outcome === 'win') === didRadiantWin
+
+  let laneOutcome: string | undefined
+  if (lane === 'MID_LANE') {
+    laneOutcome = midLaneOutcome
+  } else if (lane === 'SAFE_LANE') {
+    laneOutcome = playerIsRadiant ? bottomLaneOutcome : topLaneOutcome
+  } else if (lane === 'OFF_LANE') {
+    laneOutcome = playerIsRadiant ? topLaneOutcome : bottomLaneOutcome
+  } else {
+    return null
+  }
+
+  if (!laneOutcome) return null
+  if (laneOutcome === 'TIE') return 'tie'
+  return laneOutcome.includes(playerIsRadiant ? 'RADIANT' : 'DIRE') ? 'won' : 'lost'
 }
 
 export function formatRole(role: string | null, lane?: string | null): string {
@@ -52,14 +75,4 @@ export function formatRole(role: string | null, lane?: string | null): string {
   return 'Unknown'
 }
 
-export function toLaneIcon(lane: string): string | null {
-  return (
-    {
-      SAFE_LANE: CarryIcon,
-      MID_LANE: MidIcon,
-      OFF_LANE: OfflaneIcon,
-      LIGHT_SUPPORT: SoftSuppIcon,
-      HARD_SUPPORT: HardSuppIcon
-    }[lane] ?? null
-  )
-}
+

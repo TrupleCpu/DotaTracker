@@ -1,24 +1,26 @@
 <script lang="ts">
-  import type { MockMatch } from '../utils/mockData'
-  import { getHeroByName, getHero, getHeroImgUrl } from '../utils/heroMap'
-  import { playerStore } from '../lib/playStore.svelte'
-  import { formatDuration, formatGameMode, formatTimeAgo, formatRole } from '../utils/matchHelper'
-  import itemsData from '../../../main/data/items.json'
+  import { playerStore } from '../stores/playerStore.svelte'
+  import { uiStore } from '../stores/uiStore.svelte'
+  import { getHero, getHeroByName, getHeroImgUrl } from '../utils/heroMap'
+  import {
+    formatDuration,
+    formatGameMode,
+    formatTimeAgo,
+    formatRole,
+    getLaneOutcome
+  } from '../utils/matchHelper'
+  import LoadingSpinner from '../lib/ui/LoadingSpinner.svelte'
+  import ToolTip from '../lib/ui/ToolTip.svelte'
+  import type { Match } from '../types'
 
   const ROLE_OPTIONS = ['All Roles', 'Carry', 'Mid', 'Offlane', 'Soft Support', 'Hard Support']
-  const MODE_OPTIONS = ['All Modes', 'Normal', 'Ranked', 'Turbo']
-
-  interface Props {
-    openMatchDetail: (match: MockMatch) => void
-  }
-  let { openMatchDetail }: Props = $props()
 
   let selectedHero = $state('All Heroes')
   let selectedResult = $state('All Results')
   let selectedMode = $state('All Modes')
   let selectedRole = $state('All Roles')
 
-  let allMatches = $state<MockMatch[]>([])
+  let allMatches = $state<Match[]>([])
   let loading = $state(false)
   let isLoadingMore = $state(false)
   let error = $state<string | null>(null)
@@ -38,26 +40,11 @@
 
   let heroes = $derived([...new Set(allMatches.map((m) => m.hero))])
 
-  const itemMap = new Map<number, string>()
-  for (const val of Object.values(itemsData) as Array<{ id: number; img: string }>) {
-    if (val.id != null && val.img) {
-      itemMap.set(val.id, val.img.replace('item-assets/', ''))
-    }
-  }
+  async function fetchChunk(skip: number): Promise<Match[]> {
+    const steamId = playerStore.steamId
+    if (!steamId) return []
 
-  function getItemImgUrl(itemId: number): string {
-    const filename = itemMap.get(itemId)
-    return filename ? `item-asset://${filename}` : ''
-  }
-
-  function getHeroSrc(heroName: string): string {
-    const h = getHeroByName(heroName)
-    return h ? getHeroImgUrl(h.img) : ''
-  }
-
-  function buildOptions(skip: number = 0): Record<string, unknown> {
     const options: Record<string, unknown> = { take: 20, skip }
-
     if (selectedRole !== 'All Roles') {
       const roleMap: Record<string, string> = {
         Carry: 'POSITION_1',
@@ -68,40 +55,22 @@
       }
       options.positionIds = roleMap[selectedRole]
     }
+    if (selectedMode === 'Ranked') options.lobbyTypeIds = [7]
+    else if (selectedMode === 'Turbo') options.gameModeIds = [23]
+    else if (selectedMode === 'Normal') options.lobbyTypeIds = [0]
 
-    if (selectedMode === 'Ranked') {
-      options.lobbyTypeIds = [7]
-    } else if (selectedMode === 'Turbo') {
-      options.gameModeIds = [23]
-    } else if (selectedMode === 'Normal') {
-      options.lobbyTypeIds = [0]
-    }
-
-    return options
-  }
-
-  async function fetchChunk(skip: number): Promise<MockMatch[]> {
-    const steamId = playerStore.steamId
-    if (!steamId) return []
-
-    const result = await window.api.fetchAllMatches(steamId, buildOptions(skip))
-
+    const result = await window.api.fetchAllMatches(steamId, options)
     if (result && typeof result === 'object' && 'err' in result) {
       throw new Error((result as { err: string }).err)
     }
-
     const rawMatches = (result as any)?.player?.matches
-    if (!Array.isArray(rawMatches)) {
-      throw new Error('Unexpected response from server.')
-    }
-
-    return mapMatches(result)
+    if (!Array.isArray(rawMatches)) throw new Error('Unexpected response from server.')
+    return mapMatches(rawMatches, result)
   }
 
   async function fetchInitial() {
     const steamId = playerStore.steamId
     if (!steamId) return
-
     allMatches = []
     loadedCount = 0
     loading = true
@@ -131,28 +100,24 @@
     }
   }
 
-  function mapMatches(raw: unknown): MockMatch[] {
-    const rawMatches = (raw as any)?.player?.matches ?? []
-
-    return rawMatches.map((match: any): MockMatch => {
+  function mapMatches(rawMatches: any[], raw: unknown): Match[] {
+    return rawMatches.map((match: any) => {
       const playerData = match.players?.[0] ?? {}
-      const hero = getHero(playerData.heroId)
-      const items = [
-        playerData.item0Id,
-        playerData.item1Id,
-        playerData.item2Id,
-        playerData.item3Id,
-        playerData.item4Id,
-        playerData.item5Id
-      ]
+      const hero = playerData.heroId ? getHero(playerData.heroId) : null
+      const items = ['item0Id', 'item1Id', 'item2Id', 'item3Id', 'item4Id', 'item5Id']
+        .map((slot) => playerData[slot])
         .filter(Boolean)
-        .map((id: number) => getItemImgUrl(id))
+        .map((id: number) => `item-asset://images/${id}.png`)
 
       return {
         id: match.id,
-        icon: '',
         hero: hero?.localized_name ?? `Hero #${playerData.heroId}`,
+        heroId: playerData.heroId,
         outcome: playerData.isVictory ? 'win' : 'loss',
+        didRadiantWin: match.didRadiantWin,
+        midLaneOutcome: match.midLaneOutcome,
+        bottomLaneOutcome: match.bottomLaneOutcome,
+        topLaneOutcome: match.topLaneOutcome,
         mode: formatGameMode(match.gameMode),
         role:
           selectedRole !== 'All Roles'
@@ -163,21 +128,23 @@
         a: playerData.assists ?? 0,
         gpm: playerData.goldPerMinute ?? 0,
         xpm: 0,
-        lh: '0/0',
-        nw: '0',
-        level: 0,
         dur: formatDuration(match.durationSeconds ?? 0),
         ago: formatTimeAgo(match.endDateTime),
+        lane: playerData.lane ?? 'Unknown',
+        rank: 0,
         items
-      }
+      } as Match
     })
   }
 
+
+  function getHeroSrc(heroName: string): string {
+     const h = getHeroByName(heroName)
+     return h ? getHeroImgUrl(h.img) : ''
+  }
   $effect(() => {
     ;(selectedMode, selectedRole, playerStore.steamId)
-    if (playerStore.steamId) {
-      fetchInitial()
-    }
+    if (playerStore.steamId) fetchInitial()
   })
 </script>
 
@@ -185,30 +152,17 @@
   <div class="flex items-center gap-1.5 mb-4 bg-s1 border border-bd rounded-lg p-2.5">
     <select bind:value={selectedHero} class="sel-pill">
       <option>All Heroes</option>
-      {#each heroes as h}
-        <option>{h}</option>
-      {/each}
+      {#each heroes as h}<option>{h}</option>{/each}
     </select>
     <select bind:value={selectedResult} class="sel-pill">
-      <option>All Results</option>
-      <option>Wins Only</option>
-      <option>Losses Only</option>
+      <option>All Results</option><option>Wins Only</option><option>Losses Only</option>
     </select>
     <select bind:value={selectedMode} class="sel-pill">
-      <option>All Modes</option>
-      {#each MODE_OPTIONS as mo}
-        {#if mo !== 'All Modes'}
-          <option>{mo}</option>
-        {/if}
-      {/each}
+      <option>All Modes</option><option>Normal</option><option>Ranked</option><option>Turbo</option>
     </select>
     <select bind:value={selectedRole} class="sel-pill">
       <option>All Roles</option>
-      {#each ROLE_OPTIONS as r}
-        {#if r !== 'All Roles'}
-          <option>{r}</option>
-        {/if}
-      {/each}
+      {#each ROLE_OPTIONS as r}{#if r !== 'All Roles'}<option>{r}</option>{/if}{/each}
     </select>
     <div class="flex-1"></div>
     <span class="text-xs text-tx3 font-semibold tabular-nums"
@@ -217,13 +171,13 @@
   </div>
 
   {#if loading && allMatches.length === 0}
-    <div class="flex items-center justify-center py-16 text-sm text-tx3">Loading matches…</div>
+    <LoadingSpinner text="Loading matches…" />
   {:else if error && allMatches.length === 0}
     <div class="flex flex-col items-center justify-center gap-3 py-16 text-sm">
       <span class="text-rd">{error}</span>
       <button
         class="sel-pill px-3 py-1 text-sm font-semibold cursor-pointer hover:bg-s3"
-        onclick={() => fetchInitial()}>Retry</button
+        onclick={fetchInitial}>Retry</button
       >
     </div>
   {:else if filteredMatches.length === 0}
@@ -234,29 +188,53 @@
         {#each filteredMatches as m (m.id)}
           <div
             class="flex items-center gap-4 bg-s1 border border-bd rounded-lg p-[14px_18px] cursor-pointer transition-all hover:border-bd2 hover:bg-s2"
-            onclick={() => openMatchDetail(m)}
+            onclick={() => uiStore.openMatchDetail(m)}
           >
             <div class="w-16 h-14 rounded-lg bg-s2 shrink-0 overflow-hidden">
-              <img
-                src={getHeroSrc(m.hero)}
-                alt={m.hero}
-                class="w-full h-full object-cover"
-                onerror={(e) => {
-                  e.currentTarget.src = '/placeholder-hero.png'
-                }}
-              />
+              {#if m.heroId}
+                <img
+                  src={`hero-asset://images/${m.heroId}.png`}
+                  alt={m.hero}
+                  class="w-full h-full object-cover"
+                  onerror={(e) =>
+                    ((e.currentTarget as HTMLImageElement).src = '/placeholder-hero.png')}
+                />
+              {:else}
+                <div class="w-full h-full flex items-center justify-center text-xs text-tx3">?</div>
+              {/if}
             </div>
-
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2">
-                <span
-                  class="flex items-center justify-center w-[26px] h-[26px] rounded-full text-sm font-extrabold shrink-0 leading-none {m.outcome ===
-                  'win'
-                    ? 'text-gr bg-grb'
-                    : 'text-rd bg-rdb'}"
-                >
-                  {m.outcome === 'win' ? 'W' : 'L'}
-                </span>
+                <ToolTip text={m.outcome === 'win' ? 'Win' : 'Loss'}>
+                  <span
+                    class="flex items-center justify-center w-[26px] h-[26px] rounded-full text-sm font-extrabold shrink-0 leading-none {m.outcome ===
+                    'win'
+                      ? 'text-gr bg-grb'
+                      : 'text-rd bg-rdb'}"
+                  >
+                    {m.outcome === 'win' ? 'W' : 'L'}
+                  </span>
+                </ToolTip>
+                {#if getLaneOutcome(m)}
+                  <ToolTip
+                    text={getLaneOutcome(m) === 'won'
+                      ? 'Lane won'
+                      : getLaneOutcome(m) === 'tie'
+                        ? 'Lane tied'
+                        : 'Lane lost'}
+                  >
+                    <span
+                      class="flex items-center justify-center w-[14px] h-[14px] rounded-[3px] text-[10px] font-extrabold leading-none shrink-0
+                        {getLaneOutcome(m) === 'won'
+                        ? 'text-gr bg-grb'
+                        : getLaneOutcome(m) === 'tie'
+                          ? 'text-gd bg-gdb'
+                          : 'text-rd bg-rdb'}"
+                    >
+                      {getLaneOutcome(m) === 'won' ? '+' : getLaneOutcome(m) === 'tie' ? '~' : '−'}
+                    </span>
+                  </ToolTip>
+                {/if}
                 <span class="text-sm font-bold truncate">{m.hero ?? 'Unknown'}</span>
                 <span
                   class="text-xxs text-tx3 uppercase tracking-wide px-1.5 py-[1px] rounded bg-s2 shrink-0"
@@ -265,11 +243,10 @@
               </div>
               <div class="text-xs text-tx3 mt-[2px]">{m.mode ?? 'Unknown'}</div>
             </div>
-
             <div class="flex items-center gap-1.5 shrink-0">
               {#if m.items?.length}
-                {#each m.items as item, i}
-                  {#if item && i < 6}
+                {#each m.items.slice(0, 6) as item}
+                  {#if item}
                     <div class="w-[30px] h-[30px] rounded bg-s2 overflow-hidden">
                       <img src={item} alt="" class="w-full h-full object-cover" />
                     </div>
@@ -277,7 +254,6 @@
                 {/each}
               {/if}
             </div>
-
             <div class="flex items-center gap-4 shrink-0">
               <div
                 class="text-sm font-semibold w-[52px] text-center text-tx2 font-mono font-tabular leading-tight"
@@ -307,14 +283,12 @@
                 >
               </div>
             </div>
-
             <div class="text-xs text-tx3 w-[78px] text-right shrink-0">{m.ago ?? ''}</div>
             <div class="text-tx3 text-lg transition-colors shrink-0 hover:text-pu2">›</div>
           </div>
         {/each}
       </div>
     </div>
-
     {#if hasMore}
       <div class="flex justify-center mt-4 pb-2">
         <button

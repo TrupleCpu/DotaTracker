@@ -1,4 +1,3 @@
-import { json } from 'stream/consumers'
 import { fetchFromStratz } from '../client'
 import { MATCH_DETAILS_QUERY } from '../graphql/queries/matchDetails'
 
