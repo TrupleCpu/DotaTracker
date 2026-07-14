@@ -29,6 +29,5 @@ export async function getPlayerData(steamId: number | string) {
     skipDotaPlus: false
   })
 
-  console.log(data.stratz.page.player.peers)
   return data
 }

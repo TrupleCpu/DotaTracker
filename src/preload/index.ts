@@ -32,12 +32,29 @@ const api = {
     ipcRenderer.invoke('fetch-player-data', steamId),
   fetchAllMatches: (steamId: string, options: FetchMatchesOptions = {}): Promise<unknown> =>
     ipcRenderer.invoke('fetch-all-matches', steamId, options),
+
+  fetchHeroMatches: (steamId: string, heroId: number, skip?: number, take?: number): Promise<any> =>
+    ipcRenderer.invoke('fetch-hero-matches', steamId, heroId, skip, take),
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  analyzeHeroMatchups: (heroId: number): Promise<any> =>
+    ipcRenderer.invoke('analyze-hero-matchups', heroId),
+    
+  analyzeDraftWinProbability: (radiantIds: number[], direIds: number[]): Promise<any> =>
+    ipcRenderer.invoke('analyze-draft-win-probability', radiantIds, direIds),
+
+  triggerStartupSync: (steamId: string): Promise<void> =>
+    ipcRenderer.invoke('trigger-startup-sync', steamId),
+    
   // ✅ NEW: CONFIG SYSTEM
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getConfig: (): Promise<any> => ipcRenderer.invoke('get-config'),
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setConfig: (config: any): Promise<any> => ipcRenderer.invoke('set-config', config),
+
+  getStratzToken: (): Promise<string | null> => ipcRenderer.invoke('get-stratz-token'),
+  setStratzToken: (token: string): Promise<boolean> => ipcRenderer.invoke('set-stratz-token', token),
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onConfigUpdate: (cb: (config: any) => void): void => {

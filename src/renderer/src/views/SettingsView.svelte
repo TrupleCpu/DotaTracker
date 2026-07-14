@@ -1,10 +1,22 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
   import { uiStore } from '../stores/uiStore.svelte'
   import TabNav from '../lib/ui/TabNav.svelte'
 
   let activeTab = $state('sg')
   let apiVisible = $state(false)
   let connTested = $state(false)
+  let token = $state('')
+  let isSavingToken = $state(false)
+
+  onMount(async () => {
+    try {
+      const storedToken = await window.api.getStratzToken()
+      if (storedToken) token = storedToken
+      const config = await window.api.getConfig()
+      autoSync = config.autoSyncMatches ?? true
+    } catch {}
+  })
 
   // Local settings states
   let autoSync = $state(true)
@@ -29,8 +41,37 @@
     }, 1200)
   }
 
-  function toggleAutoSync() {
+  async function updateToken() {
+    isSavingToken = true
+    try {
+      await window.api.setStratzToken(token)
+      uiStore.showToast('API Key updated', 'ok')
+    } catch {
+      uiStore.showToast('Failed to save API Key', 'err')
+    } finally {
+      isSavingToken = false
+    }
+  }
+
+  async function disconnectApi() {
+    token = ''
+    try {
+      await window.api.setStratzToken('')
+      uiStore.showToast('API key removed', 'err')
+    } catch {
+      uiStore.showToast('Failed to remove API Key', 'err')
+    }
+  }
+
+  async function toggleAutoSync() {
     autoSync = !autoSync
+    try {
+      const config = await window.api.getConfig()
+      config.autoSyncMatches = autoSync
+      await window.api.setConfig(config)
+    } catch (e) {
+      console.error(e)
+    }
     uiStore.showToast(`Auto-sync new matches: ${autoSync ? 'ON' : 'OFF'}`, 'ok')
   }
 
@@ -91,11 +132,14 @@
           <input
             type={apiVisible ? 'text' : 'password'}
             class="bg-s2 border border-bd rounded-lg color-tx p-[8px_12px] text-sm flex-1 outline-hidden font-mono focus:border-pu transition-colors"
-            value="stratz_abcdef1234567890abcdef"
-            readonly
+            bind:value={token}
+            placeholder="Paste your STRATZ API Token..."
           />
-          <button class="btn-out" onclick={toggleApi}>{apiVisible ? 'Hide' : 'Show'}</button>
-          <button class="btn-pri" onclick={testConn}>Test Connection</button>
+          <button class="bg-s3 border border-bd text-tx2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-s4 hover:text-tx hover:border-bd2 cursor-pointer" onclick={toggleApi}>{apiVisible ? 'Hide' : 'Show'}</button>
+          <button class="bg-pub border border-pu/40 text-tx px-4 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-pu/30 hover:border-pu disabled:opacity-50 cursor-pointer shadow-sm" onclick={updateToken} disabled={isSavingToken}>
+            {#if isSavingToken}Saving...{:else}Save{/if}
+          </button>
+          <button class="bg-transparent border border-bd text-tx px-4 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-white/5 hover:border-bd2 cursor-pointer" onclick={testConn}>Test Connection</button>
         </div>
         {#if connTested}
           <div class="text-gr text-sm font-semibold flex items-center gap-1.25">
@@ -112,7 +156,7 @@
         </div>
         <button
           class="bg-rdb border border-rd text-rd rounded-lg px-[14px] py-1.5 text-sm font-bold cursor-pointer transition-all hover:bg-rd hover:text-white"
-          onclick={() => uiStore.showToast('API key removed', 'err')}>Disconnect</button
+          onclick={disconnectApi}>Disconnect</button
         >
       </div>
     </div>

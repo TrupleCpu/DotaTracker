@@ -121,7 +121,7 @@
         {#each sortedAndFilteredHeroes as h (h.id)}
           <tr
             class="border-b border-bd last:border-b-0 group cursor-pointer"
-            onclick={() => uiStore.showToast(`${h.name} hero detail — coming soon`, 'ok')}
+            onclick={() => uiStore.openHeroDetail(h.id)}
           >
             <td class="p-[10px_14px] text-sm group-hover:bg-white/[0.02]">
               <div class="flex items-center gap-2.5">

@@ -28,13 +28,15 @@
   import TeammatesView from './views/TeammatesView.svelte'
   import SettingsView from './views/SettingsView.svelte'
   import MatchDetailView from './views/match-detail/MatchDetailView.svelte'
+  import HeroDetailView from './views/HeroDetailView.svelte'
+
+  import TokenPrompt from './components/TokenPrompt.svelte'
 
   const navSections = [
     {
       items: [
         { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { id: 'matches', label: 'Matches', icon: Gamepad2, badge: 30 },
-
         { id: 'heroes', label: 'Heroes', icon: Shield }
       ]
     },
@@ -51,6 +53,22 @@
   let steamId = $state<string | null>(null)
   let isLoading = $state(false)
   let errorMessage = $state('')
+  let hasToken = $state(false)
+  let checkingToken = $state(true)
+
+  onMount(async () => {
+    try {
+      const token = await window.api.getStratzToken()
+      hasToken = !!token
+      if (hasToken) {
+        await handleSteamLogin()
+      }
+    } catch {
+      hasToken = false
+    } finally {
+      checkingToken = false
+    }
+  })
 
   async function handleSteamLogin(): Promise<void> {
     try {
@@ -59,6 +77,7 @@
       const response = await window.api.getLocalSteamId()
       if (response.steamId) {
         steamId = response.steamId
+        window.api.triggerStartupSync(steamId)
       } else {
         errorMessage = response.error || 'Active Steam profile not found.'
       }
@@ -77,7 +96,11 @@
   }
 </script>
 
-{#if !steamId}
+{#if checkingToken}
+  <div class="flex items-center justify-center min-h-screen bg-bg text-tx text-sm font-semibold">Loading...</div>
+{:else if !hasToken}
+  <TokenPrompt onSaved={() => hasToken = true} />
+{:else if !steamId}
   <LoginScreen {handleSteamLogin} {isLoading} {errorMessage} />
 {:else}
   <div
@@ -218,6 +241,14 @@
               <span class="text-tx text-sm"
                 >Match — {uiStore.selectedMatch?.hero || uiStore.selectedMatch?.heroName}</span
               >
+            {:else if uiStore.currentView === 'hero-detail'}
+              <button
+                class="cursor-pointer hover:text-tx transition-colors bg-transparent border-none p-0 text-inherit text-xs"
+                onclick={() => uiStore.gotoView(uiStore.prevView)}
+                >{VIEW_TITLES[uiStore.prevView] || uiStore.prevView}</button
+              >
+              <span class="text-tx3 text-[10px]">/</span>
+              <span class="text-tx text-sm">Hero Matches</span>
             {:else}
               <span class="text-tx text-sm font-bold">{VIEW_TITLES[uiStore.currentView]}</span>
             {/if}
@@ -243,6 +274,8 @@
             <SettingsView />
           {:else if uiStore.currentView === 'match-detail' && uiStore.selectedMatch}
             <MatchDetailView match={uiStore.selectedMatch} />
+          {:else if uiStore.currentView === 'hero-detail' && uiStore.selectedHeroId}
+            <HeroDetailView heroId={uiStore.selectedHeroId} />
           {/if}
         </div>
       </div>

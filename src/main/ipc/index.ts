@@ -3,6 +3,7 @@ import { registerMatchHandlers } from './matches'
 import { registerConfigHandlers } from './config'
 import { registerWindowControlHandlers } from './windowControls'
 import { registerSteamHandlers } from './steam'
+import { registerDraftHandlers } from './draft'
 
 export function registerIpcHandlers(): void {
   registerOverlayHandlers()
@@ -10,4 +11,5 @@ export function registerIpcHandlers(): void {
   registerConfigHandlers()
   registerWindowControlHandlers()
   registerSteamHandlers()
+  registerDraftHandlers()
 }

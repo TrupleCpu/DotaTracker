@@ -1,8 +1,10 @@
-const STRATZ_API_TOKEN = import.meta.env.STRATZ_API_TOKEN
+import { getStratzToken } from '../tokenStore'
+
 const STRATZ_GRAPHQL_URL = 'https://api.stratz.com/graphql'
 
 export async function fetchFromStratz(query: string, variables?: Record<string, any>) {
-  if (!STRATZ_API_TOKEN) {
+  const token = getStratzToken()
+  if (!token) {
     throw new Error('STRATZ_API_TOKEN is not defined')
   }
 
@@ -10,7 +12,7 @@ export async function fetchFromStratz(query: string, variables?: Record<string, 
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${STRATZ_API_TOKEN}`,
+      Authorization: `Bearer ${token}`,
       'User-Agent': 'STRATZ_API'
     },
     body: JSON.stringify({ query, variables })

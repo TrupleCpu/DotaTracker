@@ -8,6 +8,7 @@ export type AppConfig = {
   position: 'bottom-left' | 'bottom-right'
   refreshRate: number
   showBenchmarks: boolean
+  autoSyncMatches: boolean
 }
 
 const CONFIG_PATH = path.join(app.getPath('userData'), 'config.json')
@@ -17,7 +18,8 @@ const defaultConfig: AppConfig = {
   opacity: 0.9,
   position: 'bottom-left',
   refreshRate: 100,
-  showBenchmarks: true
+  showBenchmarks: true,
+  autoSyncMatches: true
 }
 
 export function loadConfig(): AppConfig {

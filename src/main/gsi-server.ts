@@ -1,5 +1,7 @@
 import http from 'http'
 import { benchmarkCache, heroMap, loadBenchmarks } from './benchmarkCache'
+import { handleGsiStateChange } from './services/syncManager'
+import { getActiveSteamId } from './ipc/steam'
 
 loadBenchmarks()
 
@@ -148,6 +150,7 @@ export function createGSIServer(onData: (ui: Record<string, unknown>) => void): 
         }
 
         const data = JSON.parse(body)
+        console.log(data)
 
         if (!data.auth || data.auth.token !== AUTH_TOKEN) {
           res.writeHead(403)
@@ -156,6 +159,14 @@ export function createGSIServer(onData: (ui: Record<string, unknown>) => void): 
         }
 
         const ui = processGSI(data)
+        
+        // GSI does not provide steamId directly in a reliable way, we should grab the logged-in steamId
+        getActiveSteamId().then((steamId) => {
+          if (steamId && data.map && data.map.game_state) {
+            handleGsiStateChange(data.map.game_state, steamId.toString())
+          }
+        })
+
         onData(ui)
 
         res.writeHead(200, { 'Content-Type': 'text/plain' })

@@ -1,6 +1,7 @@
 import { ipcMain } from "electron"
 import { state } from "../state"
 import { saveConfig } from "../config"
+import { getStratzToken, saveStratzToken } from "../tokenStore"
 
 export function registerConfigHandlers(): void {
   ipcMain.handle('get-config', () => {
@@ -17,5 +18,14 @@ export function registerConfigHandlers(): void {
     }
 
     return state.config
+  })
+
+  ipcMain.handle('get-stratz-token', () => {
+    return getStratzToken()
+  })
+
+  ipcMain.handle('set-stratz-token', (_event, token: string) => {
+    saveStratzToken(token)
+    return true
   })
 }

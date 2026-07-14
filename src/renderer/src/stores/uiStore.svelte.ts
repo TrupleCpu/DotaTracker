@@ -1,10 +1,23 @@
 let toastTimer: ReturnType<typeof setTimeout>
 
+export type ViewId =
+  | 'dashboard'
+  | 'matches'
+  | 'heroes'
+  | 'analysis'
+  | 'draft'
+  | 'roles'
+  | 'teammates'
+  | 'settings'
+  | 'match-detail'
+  | 'hero-detail'
+
 class UiStore {
-  currentView = $state('dashboard')
-  prevView = $state('dashboard')
+  currentView = $state<ViewId>('dashboard')
+  prevView = $state<ViewId>('dashboard')
   sidebarCollapsed = $state(false)
   selectedMatch = $state<any>(null)
+  selectedHeroId = $state<number | null>(null)
   compactMode = $state(false)
   animatedCharts = $state(true)
 
@@ -18,10 +31,11 @@ class UiStore {
     }, 2600)
   }
 
-  gotoView(view: string) {
+  gotoView(view: ViewId) {
     this.prevView = this.currentView
     this.currentView = view
     this.selectedMatch = null
+    this.selectedHeroId = null
   }
 
   openMatchDetail(match: any) {
@@ -29,11 +43,17 @@ class UiStore {
     this.selectedMatch = match
     this.currentView = 'match-detail'
   }
+
+  openHeroDetail(heroId: number) {
+    this.prevView = this.currentView
+    this.selectedHeroId = heroId
+    this.currentView = 'hero-detail'
+  }
 }
 
 export const uiStore = new UiStore()
 
-export const VIEW_TITLES: Record<string, string> = {
+export const VIEW_TITLES: Record<ViewId, string> = {
   dashboard: 'Dashboard',
   matches: 'Matches',
 
@@ -42,5 +62,7 @@ export const VIEW_TITLES: Record<string, string> = {
   draft: 'Draft Analyzer',
   roles: 'Role Performance',
   settings: 'Settings',
-  teammates: 'Teammates'
+  teammates: 'Teammates',
+  'match-detail': 'Match Detail',
+  'hero-detail': 'Hero Detail'
 }

@@ -10,6 +10,7 @@ import { registerIpcHandlers } from './ipc'
 import { startTracking } from './tracking/overlayTracking'
 import { createGSIServer } from './gsi-server'
 import { state } from './state'
+import { initDatabase } from './db'
 
 registerSchemesAsPrivileged()
 
@@ -18,6 +19,7 @@ let gsiServer: http.Server | null = null
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
 
+  initDatabase()
   registerAssetProtocols()
 
   app.on('browser-window-created', (_, window) => optimizer.watchWindowShortcuts(window))
