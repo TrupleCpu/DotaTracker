@@ -55,11 +55,13 @@
   let errorMessage = $state('')
   let hasToken = $state(false)
   let checkingToken = $state(true)
+  let appVersion = $state('')
 
   onMount(async () => {
     try {
       const token = await window.api.getStratzToken()
       hasToken = !!token
+      appVersion = await window.api.getAppVersion()
       if (hasToken) {
         await handleSteamLogin()
       }
@@ -117,7 +119,7 @@
       </div>
       <div class="flex-1"></div>
       <div class="titlebar-right">
-        <span class="text-xs text-tx3 mr-2">v2.4.1</span>
+        <span class="text-xs text-tx3 mr-2">v{appVersion}</span>
         <div class="win-controls">
           <button class="win-btn" onclick={() => window.api.minimizeWindow()} aria-label="Minimize"
             ><Minus size={13} strokeWidth={1.5} /></button

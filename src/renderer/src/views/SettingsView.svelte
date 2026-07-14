@@ -8,6 +8,7 @@
   let connTested = $state(false)
   let token = $state('')
   let isSavingToken = $state(false)
+  let appVersion = $state('')
 
   onMount(async () => {
     try {
@@ -15,6 +16,7 @@
       if (storedToken) token = storedToken
       const config = await window.api.getConfig()
       autoSync = config.autoSyncMatches ?? true
+      appVersion = await window.api.getAppVersion()
     } catch {}
   })
 
@@ -227,7 +229,7 @@
     <div class="card">
       <div class="py-1">
         <div class="text-lg font-extrabold mb-1.25">Dota Coach</div>
-        <div class="text-sm text-tx2 mb-1.25">Version 2.4.1 · Build 20240512</div>
+        <div class="text-sm text-tx2 mb-1.25">Version {appVersion} · Build {__BUILD_DATE__}</div>
         <div class="text-sm text-tx2 mb-4 leading-relaxed">
           Analytics and coaching dashboard for Dota 2 players. Powered by STRATZ API. Not affiliated with Valve
           Corporation.

@@ -4,6 +4,7 @@ import { registerConfigHandlers } from './config'
 import { registerWindowControlHandlers } from './windowControls'
 import { registerSteamHandlers } from './steam'
 import { registerDraftHandlers } from './draft'
+import { registerVersionHandlers } from './version'
 
 export function registerIpcHandlers(): void {
   registerOverlayHandlers()
@@ -12,4 +13,5 @@ export function registerIpcHandlers(): void {
   registerWindowControlHandlers()
   registerSteamHandlers()
   registerDraftHandlers()
+  registerVersionHandlers()
 }

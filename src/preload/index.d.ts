@@ -34,6 +34,7 @@ declare global {
       minimizeWindow: () => void
       maximizeWindow: () => void
       closeWindow: () => void
+      getAppVersion: () => Promise<string>
     }
   }
 }
