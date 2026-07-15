@@ -25,13 +25,19 @@ export async function runSync(steamId: string) {
     const data = await fetchMatches(steamId, { take: 5 })
     const matches = data?.player?.matches || []
     
-    matches.forEach(m => insertMatch(m, Number(steamId)))
-    
-    // Notify frontend to refresh
+    matches.forEach(m => {
+      insertMatch(m, Number(steamId))
+    })
+
     if (state.mainWindow) {
       state.mainWindow.webContents.send('match-history-updated')
+    }
+    if (state.controlWindow) {
+      state.controlWindow.webContents.send('match-history-updated')
     }
   } catch (err) {
     console.error('Error during auto-sync:', err)
   }
 }
+
+

@@ -17,5 +17,25 @@ export function initDatabase() {
       json_data TEXT
     );
     CREATE INDEX IF NOT EXISTS idx_steam_account ON matches(steam_account_id);
+
+    CREATE TABLE IF NOT EXISTS sync_state (
+      steam_id INTEGER PRIMARY KEY,
+      status TEXT NOT NULL DEFAULT 'idle',
+      cursor_skip INTEGER NOT NULL DEFAULT 0,
+      synced_count INTEGER NOT NULL DEFAULT 0,
+      total_count INTEGER NOT NULL DEFAULT 0,
+      last_synced_at INTEGER
+    );
+
+    CREATE TABLE IF NOT EXISTS hero_timings_cache (
+      hero_id INTEGER NOT NULL,
+      bracket_ids TEXT NOT NULL,
+      position_id TEXT,
+      data_json TEXT NOT NULL,
+      fetched_at INTEGER NOT NULL,
+      PRIMARY KEY (hero_id, bracket_ids, position_id)
+    );
+    DROP TABLE IF EXISTS global_timings_cache;
+    DROP TABLE IF EXISTS personal_timings;
   `)
 }

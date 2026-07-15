@@ -5,6 +5,7 @@ import { registerWindowControlHandlers } from './windowControls'
 import { registerSteamHandlers } from './steam'
 import { registerDraftHandlers } from './draft'
 import { registerVersionHandlers } from './version'
+import { registerCoachingHandlers } from './coaching'
 
 export function registerIpcHandlers(): void {
   registerOverlayHandlers()
@@ -14,4 +15,5 @@ export function registerIpcHandlers(): void {
   registerSteamHandlers()
   registerDraftHandlers()
   registerVersionHandlers()
+  registerCoachingHandlers()
 }

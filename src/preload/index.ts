@@ -39,14 +39,37 @@ const api = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   analyzeHeroMatchups: (heroId: number): Promise<any> =>
     ipcRenderer.invoke('analyze-hero-matchups', heroId),
-    
+
   analyzeDraftWinProbability: (radiantIds: number[], direIds: number[]): Promise<any> =>
     ipcRenderer.invoke('analyze-draft-win-probability', radiantIds, direIds),
 
   triggerStartupSync: (steamId: string): Promise<void> =>
     ipcRenderer.invoke('trigger-startup-sync', steamId),
-    
-  // ✅ NEW: CONFIG SYSTEM
+
+  startFullSync: (steamId: number): Promise<void> =>
+    ipcRenderer.invoke('start-full-sync', steamId),
+
+  getSyncProgress: (steamId: number): Promise<{ synced: number; total: number; status: string }> =>
+    ipcRenderer.invoke('get-sync-progress', steamId),
+
+  onSyncProgress: (cb: (data: { synced: number; total: number; status: string }) => void): void => {
+    ipcRenderer.on('sync-progress', (_e, data) => cb(data))
+  },
+
+  onSyncComplete: (cb: (data: { synced: number; total: number }) => void): void => {
+    ipcRenderer.on('sync-complete', (_e, data) => cb(data))
+  },
+
+  onMatchHistoryUpdated: (cb: () => void): void => {
+    ipcRenderer.on('match-history-updated', () => cb())
+  },
+
+  getHeroItemFrequency: (steamId: number, heroId: number): Promise<{ itemId: number; count: number }[]> =>
+    ipcRenderer.invoke('get-hero-item-frequency', steamId, heroId),
+
+  getHeroTimings: (heroId: number, steamId: number): Promise<{ items: { itemId: number; avgTimeMin: number; winRate: number; matchCount: number }[]; position: string | null }> =>
+    ipcRenderer.invoke('get-hero-timings', heroId, steamId),
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getConfig: (): Promise<any> => ipcRenderer.invoke('get-config'),
 
@@ -55,6 +78,15 @@ const api = {
 
   getStratzToken: (): Promise<string | null> => ipcRenderer.invoke('get-stratz-token'),
   setStratzToken: (token: string): Promise<boolean> => ipcRenderer.invoke('set-stratz-token', token),
+
+  getLlmConfig: (): Promise<{ configured: boolean; provider: string | null }> =>
+    ipcRenderer.invoke('get-llm-config'),
+  setLlmConfig: (config: { provider: string; apiKey: string; baseUrl?: string }): Promise<boolean> =>
+    ipcRenderer.invoke('set-llm-config', config),
+  clearLlmConfig: (): Promise<boolean> => ipcRenderer.invoke('clear-llm-config'),
+
+  generateCoaching: (ctx: any): Promise<any> => ipcRenderer.invoke('generate-coaching', ctx),
+  generateSessionReview: (matches: any[]): Promise<any> => ipcRenderer.invoke('generate-session-review', matches),
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onConfigUpdate: (cb: (config: any) => void): void => {

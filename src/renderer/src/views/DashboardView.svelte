@@ -12,6 +12,7 @@
   import AwardBadge from '../lib/dota/AwardBadge.svelte'
   import ImpactBar from '../lib/dota/ImpactBar.svelte'
   import RankBadge from '../lib/dota/RankBadge.svelte'
+  import { getCachedSessionReview, setCachedSessionReview } from '../lib/cache/llmCache'
 
   const rankImages = import.meta.glob('../assets/ranks/*.png', { eager: true, import: 'default' })
 
@@ -38,6 +39,55 @@
           { id: 'Support', label: 'Support', hex: '#EC4899', wr: 0, games: 0 }
         ]
   )
+
+  let sessionReview = $state<any | null>(null)
+  let sessionReviewLoading = $state(false)
+  let sessionReviewError = $state<string | null>(null)
+  let llmConfigured = $state(false)
+
+  $effect(() => {
+    window.api.getLlmConfig().then((cfg) => {
+      llmConfigured = cfg.configured
+    })
+  })
+
+  $effect(() => {
+    if (!llmConfigured || playerStore.detailedMatches.length === 0) {
+      sessionReview = null
+      return
+    }
+    const matches = playerStore.detailedMatches.slice(0, 20).map((m) => ({
+      heroName: m.heroName || `Hero #${m.heroId}`,
+      position: m.lane || '',
+      kills: m.k,
+      deaths: m.d,
+      assists: m.a,
+      gpm: m.gpm,
+      outcome: m.outcome
+    }))
+    const cached = getCachedSessionReview(matches)
+    if (cached) {
+      sessionReview = cached
+      return
+    }
+    sessionReview = null
+    sessionReviewLoading = true
+    sessionReviewError = null
+    window.api.generateSessionReview(matches).then((result: any) => {
+      if (result?.err) {
+        sessionReviewError = result.err
+        sessionReview = null
+      } else {
+        sessionReview = result
+        setCachedSessionReview(matches, result)
+        sessionReviewError = null
+      }
+    }).catch((e: any) => {
+      sessionReviewError = e?.message ?? 'Failed to generate session review'
+    }).finally(() => {
+      sessionReviewLoading = false
+    })
+  })
 
   onMount(() => {
     playerStore.loadProfile()
@@ -369,31 +419,53 @@
             🤖
           </div>
           <div>
-            <div class="text-base font-bold">AI Coach Summary</div>
+            <div class="text-base font-bold">AI Coach Session Review</div>
             <div class="text-xs text-tx2 mt-0.5">
-              Based on your last 30 matches · Updated 2m ago
+              Based on your last {Math.min(playerStore.detailedMatches.length, 20)} matches
             </div>
           </div>
         </div>
-        <div class="text-sm text-tx2 leading-relaxed">
-          Your hook accuracy improved to <strong class="text-gr">38%</strong> this week — above
-          average for your bracket. You're leaving ~15 CS per game in lane. Teams win
-          <strong class="text-gr">72%</strong> of games where you secure Aegis. Prioritize Roshan control
-          every game.
-        </div>
-        <div class="flex items-center gap-3 bg-s2 rounded-md p-3 mt-3 border border-bd">
-          <div class="font-mono text-4xl font-bold text-gr leading-none font-tabular">7.8</div>
-          <div>
-            <div class="text-sm font-bold text-tx">Overall Rating</div>
-            <div class="text-gd text-base tracking-[2px] mt-0.5">★★★★☆</div>
+
+        {#if !llmConfigured}
+          <div class="text-sm text-tx2 leading-relaxed text-center py-4 text-zinc-500">
+            Connect an AI provider in Settings to unlock session reviews.
           </div>
-          <div class="ml-auto">
-            <span
-              class="text-xs font-bold text-pu2 hover:text-pu cursor-pointer transition-colors"
-              onclick={() => uiStore.gotoView('coach')}>Full analysis →</span
-            >
+        {:else if sessionReviewLoading}
+          <div class="animate-pulse space-y-2">
+            <div class="h-4 bg-zinc-800 rounded w-3/4"></div>
+            <div class="h-3 bg-zinc-800 rounded w-full"></div>
+            <div class="h-3 bg-zinc-800 rounded w-2/3"></div>
+            <div class="h-3 bg-zinc-800 rounded w-1/2"></div>
           </div>
-        </div>
+        {:else if sessionReviewError}
+          <div class="text-sm text-rose-400 leading-relaxed">{sessionReviewError}</div>
+        {:else if sessionReview}
+          <div class="text-sm text-tx2 leading-relaxed mb-3">
+            {sessionReview.summary}
+          </div>
+          {#if sessionReview.patterns?.length > 0}
+            <div class="text-xs font-bold text-tx3 uppercase tracking-[0.5px] mb-1.5">Patterns</div>
+            <ul class="text-sm text-tx2 space-y-1 mb-3">
+              {#each sessionReview.patterns as pattern}
+                <li class="flex items-start gap-2">
+                  <span class="text-gd mt-0.5">•</span>
+                  <span>{pattern}</span>
+                </li>
+              {/each}
+            </ul>
+          {/if}
+          {#if sessionReview.recommendations?.length > 0}
+            <div class="text-xs font-bold text-tx3 uppercase tracking-[0.5px] mb-1.5">Recommendations</div>
+            <ul class="text-sm text-tx2 space-y-1">
+              {#each sessionReview.recommendations as rec}
+                <li class="flex items-start gap-2">
+                  <span class="text-pu mt-0.5">→</span>
+                  <span>{rec}</span>
+                </li>
+              {/each}
+            </ul>
+          {/if}
+        {/if}
       </div>
     </div>
 

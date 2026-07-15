@@ -27,6 +27,17 @@ declare global {
       fetchMatchDetails: (matchId: string) => Promise<unknown>
       fetchPlayerData: (steamId: string) => Promise<unknown>
       fetchAllMatches: (steamId: string, options?: unknown) => Promise<unknown>
+      fetchHeroMatches: (steamId: string, heroId: number, skip?: number, take?: number) => Promise<any>
+      analyzeHeroMatchups: (heroId: number) => Promise<any>
+      analyzeDraftWinProbability: (radiantIds: number[], direIds: number[]) => Promise<any>
+      triggerStartupSync: (steamId: string) => Promise<void>
+      startFullSync: (steamId: number) => Promise<void>
+      getSyncProgress: (steamId: number) => Promise<{ synced: number; total: number; status: string }>
+      onSyncProgress: (cb: (data: { synced: number; total: number; status: string }) => void) => void
+      onSyncComplete: (cb: (data: { synced: number; total: number }) => void) => void
+      onMatchHistoryUpdated: (cb: () => void) => void
+      getHeroItemFrequency: (steamId: number, heroId: number) => Promise<{ itemId: number; count: number }[]>
+      getHeroTimings: (heroId: number, steamId: number) => Promise<{ items: { itemId: number; avgTimeMin: number; winRate: number; matchCount: number }[]; position: string | null }>
       getConfig: () => Promise<unknown>
       setConfig: (config: unknown) => Promise<unknown>
       onConfigUpdate: (cb: (config: unknown) => void) => void

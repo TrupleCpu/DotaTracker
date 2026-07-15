@@ -25,6 +25,12 @@ class PlayerStore {
   hasLoaded = $state(false)
   steamId = $state<number | null>(null)
 
+  constructor() {
+    window.api.onMatchHistoryUpdated(() => {
+      this.loadProfile(true)
+    })
+  }
+
   roleDistribution = $derived.by(() => {
     const groups: Record<string, { matches: number; wins: number }> = {}
     for (const p of this.heroPerformanceStats) {

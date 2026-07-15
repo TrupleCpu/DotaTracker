@@ -43,6 +43,12 @@ declare global {
       setOverlayState: (enabled: boolean) => Promise<boolean>
       getOverlayStatus: () => Promise<boolean>
       onOverlayStatus: (cb: (visible: boolean) => void) => void
+
+      getLlmConfig: () => Promise<{ configured: boolean; provider: string | null; model?: string }>
+      setLlmConfig: (config: { provider: string; apiKey: string; baseUrl?: string; model?: string }) => Promise<boolean>
+      clearLlmConfig: () => Promise<boolean>
+      generateCoaching: (ctx: any) => Promise<any>
+      generateSessionReview: (matches: any[]) => Promise<any>
       
       minimizeWindow(): void
       maximizeWindow(): void

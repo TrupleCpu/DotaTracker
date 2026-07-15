@@ -4,7 +4,9 @@
   import { onMount } from 'svelte'
   import { getHero } from '../../utils/heroMap.ts'
   import { uiStore } from '../../stores/uiStore.svelte'
+  import { playerStore } from '../../stores/playerStore.svelte'
   import MinimapImage from '../../assets/minimap_geometry_current.png'
+  import { getCachedCoaching, setCachedCoaching } from '../../lib/cache/llmCache'
 
   interface Props {
     match: any
@@ -63,6 +65,32 @@
   const focusedPlayer = $derived(players[selectedPlayerIndex])
   const heroInfo = $derived(focusedPlayer ? getHero(focusedPlayer.heroId) : null)
 
+  interface HeroTimingItem {
+    itemId: number
+    avgTimeMin: number
+    winRate: number
+    matchCount: number
+  }
+
+  let heroTimingsMap = $state<Map<number, HeroTimingItem>>(new Map())
+
+  $effect(() => {
+    const player = focusedPlayer
+    if (!player?.heroId) {
+      heroTimingsMap = new Map()
+      return
+    }
+    const steamId = playerStore.steamId
+    if (!steamId) return
+    window.api.getHeroTimings(player.heroId, steamId).then((result: any) => {
+      const map = new Map<number, HeroTimingItem>()
+      for (const item of (result.items as HeroTimingItem[]) || []) {
+        map.set(item.itemId, item)
+      }
+      heroTimingsMap = map
+    })
+  })
+
   function getHeroImgUrl(img: string): string {
     return `hero-asset://${img.replace(/^hero-assets\//, '')}`
   }
@@ -96,39 +124,74 @@
     }
   }
 
-  // ── Copy coaching summary ────────────────────────────────────────────
-  let copyFeedback = $state(false)
+  // ── AI Coaching ──────────────────────────────────────────────────────
+  let aiCoachingPoints = $state<any[] | null>(null)
+  let aiCoachingLoading = $state(false)
+  let aiCoachingError = $state<string | null>(null)
+  let llmConfigured = $state(false)
 
-  function copyCoachingSummary() {
-    const hero = heroInfo?.localized_name || `Hero ${focusedPlayer.heroId}`
-    const lines: string[] = [
-      `DotaTracker Match Review — ${hero} (${roleShortLabel(focusedPlayer.position)}, ${focusedPlayer.isVictory ? 'Win' : 'Loss'})`,
-      `Grade: ${performanceGrade.grade} — ${performanceGrade.label}`,
-      `Stats: ${focusedPlayer.kills}/${focusedPlayer.deaths}/${focusedPlayer.assists} KDA | ${focusedPlayer.goldPerMinute} GPM | ${focusedPlayer.networth.toLocaleString()} Net Worth`,
-      ''
-    ]
-
-    for (const check of coachingChecklist) {
-      lines.push(`  ${check.done ? '✓' : '✗'} ${check.title}: ${check.desc}`)
-    }
-    lines.push('')
-
-    if (biggestGap) {
-      lines.push(
-        `Biggest gap: ${biggestGap.label} — ${Math.round(Math.abs(biggestGap.pct))}% ${biggestGap.pct < 0 ? 'behind' : 'ahead'} vs. ${enemyMirrorHero?.localized_name || 'enemy mirror'}`
-      )
-    }
-    if (deathClusters.length > 0) {
-      lines.push(
-        `Death clusters: ${deathClusters.map((c) => `${c.count}x ${c.landmark}`).join(', ')}`
-      )
-    }
-
-    navigator.clipboard.writeText(lines.join('\n')).then(() => {
-      copyFeedback = true
-      setTimeout(() => (copyFeedback = false), 2000)
+  $effect(() => {
+    window.api.getLlmConfig().then((cfg) => {
+      llmConfigured = cfg.configured
     })
-  }
+  })
+
+  $effect(() => {
+    const player = focusedPlayer
+    if (!player || !llmConfigured) {
+      aiCoachingPoints = null
+      aiCoachingError = null
+      return
+    }
+    const totalDamage = (player.stats?.heroDamagePerMinute || []).reduce(
+      (a: number, b: number) => a + b, 0
+    )
+    const wards = player.stats?.wards?.length || 0
+    const hero = heroInfo?.localized_name || `Hero ${player.heroId}`
+    const items = (player.stats?.itemPurchases || []).map((p: any) => ({
+      name: 'item_' + p.itemId,
+      time: p.time,
+      cost: p.cost || 0
+    }))
+    const ctx = {
+      heroName: hero,
+      position: player.position,
+      kills: player.kills,
+      deaths: player.deaths,
+      assists: player.assists,
+      gpm: player.goldPerMinute,
+      networth: player.networth,
+      isVictory: player.isVictory,
+      items,
+      totalDamage,
+      wardsPlaced: wards
+    }
+
+    const cached = getCachedCoaching(match.id, selectedPlayerIndex, ctx)
+    if (cached) {
+      aiCoachingPoints = cached
+      return
+    }
+
+    aiCoachingPoints = null
+    aiCoachingLoading = true
+    aiCoachingError = null
+
+    window.api.generateCoaching(ctx).then((result: any) => {
+      if (result?.err) {
+        aiCoachingError = result.err
+        aiCoachingPoints = null
+      } else {
+        aiCoachingPoints = result
+        setCachedCoaching(match.id, selectedPlayerIndex, ctx, result)
+        aiCoachingError = null
+      }
+    }).catch((e: any) => {
+      aiCoachingError = e?.message ?? 'Failed to generate coaching'
+    }).finally(() => {
+      aiCoachingLoading = false
+    })
+  })
 
   $effect(() => {
     const heroNameStr = match.hero || match.heroName || ''
@@ -151,7 +214,6 @@
       selectedPlayerIndex = bestIdx
     }
 
-    expandedCheckIndex = 0
     cursorTime = null
   })
 
@@ -229,6 +291,7 @@
     dname: string
     img: string
     cost: number
+    isRecipe: boolean
   }
 
   const itemMap = new Map<number, ItemInfo>()
@@ -239,7 +302,8 @@
         id: val.id,
         dname: val.dname || key,
         img: val.img,
-        cost: val.cost || 0
+        cost: val.cost || 0,
+        isRecipe: key.startsWith('recipe_') || (val.dname && val.dname.includes('Recipe'))
       })
     }
   }
@@ -1627,13 +1691,14 @@
       statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`
       color = 'text-gd'
     }
+    const item = getItem(itemId)
     return {
       name,
       time: timing.time,
       status,
       statusText,
       color,
-      itemIcon: getItemImgUrl(`item-assets/images/${itemId}.png`)
+      itemIcon: item ? getItemImgUrl(item.img) : ''
     }
   }
 
@@ -1641,82 +1706,143 @@
   // heroes/positions) plus two role-general milestones — first item back
   // and boots timing — so every player gets at least one timing data
   // point instead of an empty state.
+  // Dynamic list of key item timing milestones, including the player's boots
+  // and all full/key items purchased in chronological order.
   const gameplayMilestones = $derived.by(() => {
-    const heroSpecific = [
-      buildMilestone(145, 'Battle Fury Timing', [15, 18]),
-      buildMilestone(147, 'Manta Style Timing', [22, 26]),
-      buildMilestone(208, 'Abyssal Blade Timing', [35, 38])
-    ].filter((m): m is GameplayMilestone => m !== null)
-
     const purchases = (focusedPlayer.stats.itemPurchases || [])
       .slice()
       .sort((a: any, b: any) => a.time - b.time)
-    const general: GameplayMilestone[] = []
+      
+    const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(focusedPlayer.position)
+    
+    // Boot IDs
+    const bootIds = new Set([29, 48, 50, 63, 180, 214, 220, 231, 931])
+    
+    // Pure components that shouldn't show up as separate milestone cards
+    const componentIds = new Set([
+      3,   // Broadsword
+      5,   // Claymore
+      8,   // Mithril Hammer
+      21,  // Ogre Axe
+      22,  // Blade of Alacrity
+      23,  // Staff of Wizardry
+      24,  // Ultimate Orb
+      38,  // Sacred Relic
+      39,  // Reaver
+      40,  // Eaglesong
+      41,  // Mystic Staff
+      42,  // Demon Edge
+      43,  // Hyperstone
+      60,  // Point Booster
+      61,  // Vitality Booster
+      485, // Blitz Knuckles
+      1122,// Diadem
+      1802 // Tiara of Selemene
+    ])
 
-    // Boots line (any tier) — first boots purchased, role-agnostic.
-    const bootIds = new Set([1, 63, 64, 65, 68, 145, 617]) // common boot upgrade lines present in most item tables
-    const bootsPurchase = purchases.find((p: any) => bootIds.has(p.itemId))
-    if (bootsPurchase) {
-      const minutes = bootsPurchase.time / 60
-      const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(focusedPlayer.position)
-      const thresholds: [number, number] = isCore ? [7, 10] : [8, 12]
-      const item = getItem(bootsPurchase.itemId)
-      let color = 'text-gr'
-      let statusText = `Excellent (Under ${thresholds[0]}m)`
-      let status: 'ontime' | 'delayed' | 'late' = 'ontime'
-      if (minutes > thresholds[1]) {
-        status = 'late'
-        statusText = `Late (Over ${thresholds[1]}m)`
-        color = 'text-rd'
-      } else if (minutes > thresholds[0]) {
-        status = 'delayed'
-        statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`
-        color = 'text-gd'
+    const milestones: GameplayMilestone[] = []
+    
+    // Helper to get estimated thresholds based on item cost and role
+    function getItemThresholds(cost: number): [number, number] {
+      if (isCore) {
+        if (cost < 1500) return [7, 11]
+        if (cost < 2500) return [12, 17]
+        if (cost < 4000) return [17, 24]
+        if (cost < 5500) return [22, 30]
+        return [28, 38]
+      } else {
+        if (cost < 1500) return [8, 13]
+        if (cost < 2500) return [15, 22]
+        if (cost < 4000) return [22, 32]
+        if (cost < 5500) return [28, 40]
+        return [35, 48]
       }
-      general.push({
-        name: 'First Boots Timing',
-        time: bootsPurchase.time,
-        status,
-        statusText,
-        color,
-        itemIcon: item ? getItemImgUrl(item.img) : ''
-      })
     }
 
-    // First meaningful item (cost >= 1000) — a role-agnostic proxy for
-    // "how long before your first real power spike."
-    const firstBig = purchases.find((p: any) => {
+    function evalBenchmark(minutes: number, itemId: number): { status: 'ontime' | 'delayed' | 'late'; statusText: string; color: string } | null {
+      const bm = heroTimingsMap.get(itemId)
+      if (!bm || bm.matchCount === 0) return null
+      const pctDiff = ((minutes - bm.avgTimeMin) / bm.avgTimeMin) * 100
+      const avgStr = formatTime(bm.avgTimeMin * 60)
+      const pctStr = `${Math.abs(Math.round(pctDiff))}%`
+      if (pctDiff < -10) {
+        return { status: 'ontime', statusText: `${pctStr} faster than avg (${avgStr})`, color: 'text-gr' }
+      } else if (pctDiff > 15) {
+        return { status: 'late', statusText: `${pctStr} slower than avg (${avgStr})`, color: 'text-rd' }
+      } else {
+        const dir = pctDiff < 0 ? 'faster' : 'slower'
+        return { status: 'delayed', statusText: `${pctStr} ${dir} than avg (${avgStr})`, color: 'text-gd' }
+      }
+    }
+
+    const addedItemIds = new Set<number>()
+
+    for (const p of purchases) {
+      if (addedItemIds.has(p.itemId)) continue
+      
       const item = getItem(p.itemId)
-      return item && item.cost >= 1000
-    })
-    if (firstBig) {
-      const minutes = firstBig.time / 60
-      const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(focusedPlayer.position)
-      const thresholds: [number, number] = isCore ? [12, 18] : [15, 22]
-      const item = getItem(firstBig.itemId)
-      let color = 'text-gr'
-      let statusText = `Excellent (Under ${thresholds[0]}m)`
-      let status: 'ontime' | 'delayed' | 'late' = 'ontime'
-      if (minutes > thresholds[1]) {
-        status = 'late'
-        statusText = `Late (Over ${thresholds[1]}m)`
-        color = 'text-rd'
-      } else if (minutes > thresholds[0]) {
-        status = 'delayed'
-        statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`
-        color = 'text-gd'
+      if (!item) continue
+      if (item.isRecipe) continue
+      
+      const isBoot = bootIds.has(p.itemId)
+      const isComponent = componentIds.has(p.itemId)
+      
+      // We show boots, or any item with cost >= 1000 that is not a raw component
+      if (isBoot || (item.cost >= 1000 && !isComponent)) {
+        const minutes = p.time / 60
+        
+        const benchmarkResult = isBoot ? null : evalBenchmark(minutes, p.itemId)
+        
+        let status: 'ontime' | 'delayed' | 'late'
+        let statusText: string
+        let color: string
+        
+        if (benchmarkResult) {
+          status = benchmarkResult.status
+          statusText = benchmarkResult.statusText
+          color = benchmarkResult.color
+        } else {
+          let thresholds: [number, number]
+          if (isBoot) {
+            thresholds = isCore ? [7, 10] : [8, 12]
+          } else {
+            thresholds = getItemThresholds(item.cost)
+          }
+          
+          status = 'ontime'
+          statusText = `Excellent (Under ${thresholds[0]}m)`
+          color = 'text-gr'
+          if (minutes > thresholds[1]) {
+            status = 'late'
+            statusText = `Late (Over ${thresholds[1]}m)`
+            color = 'text-rd'
+          } else if (minutes > thresholds[0]) {
+            status = 'delayed'
+            statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`
+            color = 'text-gd'
+          }
+        }
+        
+        milestones.push({
+          name: isBoot ? 'First Boots Timing' : `${item.dname} Timing`,
+          time: p.time,
+          status,
+          statusText,
+          color,
+          itemIcon: getItemImgUrl(item.img)
+        })
+        
+        addedItemIds.add(p.itemId)
+        
+        if (isBoot) {
+          for (const bid of bootIds) {
+            addedItemIds.add(bid)
+          }
+        }
       }
-      general.push({
-        name: 'First Power Item Timing',
-        time: firstBig.time,
-        status,
-        statusText,
-        color,
-        itemIcon: item ? getItemImgUrl(item.img) : ''
-      })
     }
 
-    return [...heroSpecific, ...general]
+    return milestones
   })
 
   // ── Death clustering (Insights + Combat) ────────────────────────────
@@ -1741,188 +1867,6 @@
       .filter((c) => c.count >= 2)
       .sort((a, b) => b.count - a.count)
   })
-
-  const coachingChecklist = $derived.by(() => {
-    const list: {
-      title: string
-      desc: string
-      target: string
-      done: boolean
-      color: string
-      tabLink?: string
-    }[] = []
-    const pos = focusedPlayer.position
-    const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(pos)
-    const gpm = focusedPlayer.goldPerMinute
-    const deaths = focusedPlayer.deaths
-
-    // 1) GPM — role-aware thresholds with graduated targets
-    const gpmTargets = isCore
-      ? {
-          done: 700,
-          target: 550,
-          hint: (t: number) =>
-            `Target: 650+ GPM. At ${gpm}, aim for ${t}+ next game by hitting lane creeps more often.`
-        }
-      : {
-          done: 450,
-          target: 300,
-          hint: (t: number) =>
-            `Target: 400+ GPM for supports. At ${gpm}, aim for ${t}+ next game through bounties, assists, and tower pushes.`
-        }
-
-    if (gpm >= gpmTargets.done) {
-      list.push({
-        title: 'Farming Velocity',
-        desc: `Strong — ${gpm} GPM exceeds benchmarks for ${roleShortLabel(pos)}. Maintain lane pressure and stack-clearing pattern.`,
-        target: '',
-        done: true,
-        color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400'
-      })
-    } else {
-      const nextTarget = Math.max(gpmTargets.target, gpm + 50)
-      list.push({
-        title: 'Farming Velocity',
-        desc: `At ${gpm} GPM, you're below ${roleShortLabel(pos)} benchmarks. ${gpmTargets.hint(nextTarget)}`,
-        target: `→ ${nextTarget} GPM`,
-        done: false,
-        color: 'border-rose-500/25 bg-rose-950/15 text-rose-300'
-      })
-    }
-
-    // 2) Survivability
-    const deathThresholds = isCore ? { done: 3, target: 6 } : { done: 4, target: 7 }
-    if (deaths <= deathThresholds.done) {
-      list.push({
-        title: 'Survival & Position',
-        desc: `${deaths} deaths — excellent positioning. Keep your current map awareness.`,
-        target: '',
-        done: true,
-        color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400'
-      })
-    } else {
-      list.push({
-        title: 'Survival & Position',
-        desc: `${deaths} deaths — each one costs farm time and feeds opponents. Review the Map tab to see repeated danger zones.`,
-        target: `→ ≤${deathThresholds.done} deaths`,
-        done: false,
-        color: 'border-rose-500/25 bg-rose-950/15 text-rose-300',
-        tabLink: 'map'
-      })
-    }
-
-    // 3) Item timing — first meaningful item (≥1000g cost)
-    const purchases = (focusedPlayer.stats.itemPurchases || [])
-      .slice()
-      .sort((a: any, b: any) => a.time - b.time)
-    const firstBig = purchases.find((p: any) => {
-      const item = getItem(p.itemId)
-      return item && item.cost >= 1000
-    })
-    if (firstBig) {
-      const item = getItem(firstBig.itemId)!
-      const minutes = firstBig.time / 60
-      const timingTargets =
-        isCore && (pos === 'POSITION_1' || pos === 'POSITION_2')
-          ? { done: 12, target: 18 }
-          : { done: 15, target: 22 }
-
-      if (minutes <= timingTargets.done) {
-        list.push({
-          title: 'First Power Item Timing',
-          desc: `Outstanding — ${item.dname} secured at ${formatTime(firstBig.time)}, ~${Math.round(timingTargets.done - minutes)} min ahead of benchmark.`,
-          target: '',
-          done: true,
-          color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400'
-        })
-      } else if (minutes <= timingTargets.target) {
-        list.push({
-          title: 'First Power Item Timing',
-          desc: `${item.dname} at ${formatTime(firstBig.time)} is on-pace. Next game, aim to shave 1-2 min off by avoiding early deaths and securing bounty runes.`,
-          target: `→ ≤${timingTargets.done}m`,
-          done: false,
-          color: 'border-amber-500/25 bg-amber-950/15 text-amber-300'
-        })
-      } else {
-        list.push({
-          title: 'First Power Item Timing',
-          desc: `${item.dname} at ${formatTime(firstBig.time)} is ${Math.round(minutes - timingTargets.target)} min late. Focus on safe CS in lane before 10m; each early death delays your power spike significantly.`,
-          target: `→ ≤${timingTargets.target}m`,
-          done: false,
-          color: 'border-rose-500/25 bg-rose-950/15 text-rose-300'
-        })
-      }
-    }
-
-    // 4) Core Checklist — fight participation for carries
-    const totalDamage = (focusedPlayer.stats.heroDamagePerMinute || []).reduce(
-      (a: number, b: number) => a + b,
-      0
-    )
-    if (isCore) {
-      const dmgPerKill =
-        focusedPlayer.kills > 0 ? Math.round(totalDamage / focusedPlayer.kills) : totalDamage
-      const dmgOk = totalDamage >= (focusedPlayer.isVictory ? 18000 : 15000)
-      if (dmgOk) {
-        list.push({
-          title: 'Teamfight Output',
-          desc: `${totalDamage.toLocaleString()} hero damage (~${dmgPerKill.toLocaleString()} per kill) — you turned net worth into fight impact.`,
-          target: '',
-          done: true,
-          color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400'
-        })
-      } else {
-        list.push({
-          title: 'Teamfight Output',
-          desc: `${totalDamage.toLocaleString()} hero damage is low for a ${roleShortLabel(pos)}. With your net worth, consider joining fights when your key item is online.`,
-          target: '→ Join 2+ more teamfights at item spike',
-          done: false,
-          color: 'border-rose-500/25 bg-rose-950/15 text-rose-300'
-        })
-      }
-    } else {
-      // 4) Support Checklist — vision & utility
-      const wards = focusedPlayer.stats.wards || []
-      const earlyWards = wards.filter((w: any) => w.time < 600).length
-      const totalWards = wards.length
-      const wardsOk = totalWards >= 15 && earlyWards >= 4
-
-      if (wardsOk) {
-        list.push({
-          title: 'Vision Coverage',
-          desc: `${totalWards} wards placed (${earlyWards} early) — strong vision game protecting your cores' farm windows.`,
-          target: '',
-          done: true,
-          color: 'border-emerald-500/25 bg-emerald-950/15 text-emerald-400'
-        })
-      } else if (totalWards >= 8) {
-        list.push({
-          title: 'Vision Coverage',
-          desc: `${totalWards} wards total but only ${earlyWards} before 10:00. Early wards protect carries during their most vulnerable farm phase; front-load at least 4.`,
-          target: '→ ≥4 early wards next game',
-          done: false,
-          color: 'border-amber-500/25 bg-amber-950/15 text-amber-300',
-          tabLink: 'map'
-        })
-      } else {
-        list.push({
-          title: 'Vision Coverage',
-          desc: `Only ${totalWards} wards total (${earlyWards} early). As ${roleShortLabel(pos)}, wards are your primary contribution to map control.`,
-          target: `→ ≥${totalWards >= 6 ? 12 : 8} wards`,
-          done: false,
-          color: 'border-rose-500/25 bg-rose-950/15 text-rose-300',
-          tabLink: 'map'
-        })
-      }
-    }
-
-    return list
-  })
-
-  let expandedCheckIndex = $state<number | null>(0)
-  function toggleCheckIndex(idx: number) {
-    expandedCheckIndex = expandedCheckIndex === idx ? null : idx
-  }
 
   const kdaText = $derived(
     ((focusedPlayer.kills + focusedPlayer.assists) / Math.max(focusedPlayer.deaths, 1)).toFixed(2)
@@ -2409,45 +2353,6 @@
               </div>
             </div>
 
-            <button
-              class="flex items-center gap-1.5 bg-zinc-950 border border-zinc-800/80 hover:border-zinc-600/80 text-xs font-bold text-zinc-400 hover:text-white rounded-lg px-3 py-2 cursor-pointer transition-all"
-              onclick={copyCoachingSummary}
-              title="Copy coaching summary to clipboard"
-            >
-              {#if copyFeedback}
-                <span class="flex items-center gap-1 text-emerald-400">
-                  <svg
-                    class="w-3.5 h-3.5"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><path d="M13.3 14.7H4.7V5.3h8.6v9.4z" /><path
-                      d="M10.7 5.3V3.3A1.3 1.3 0 0 0 9.4 2H3.3A1.3 1.3 0 0 0 2 3.3v6.1a1.3 1.3 0 0 0 1.3 1.3h2"
-                    /><path d="M6 9.3 7.3 11 10 8" /></svg
-                  >
-                  Copied
-                </span>
-              {:else}
-                <span class="flex items-center gap-1.5">
-                  <svg
-                    class="w-3.5 h-3.5"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><path d="M13.3 14.7H4.7V5.3h8.6v9.4z" /><path
-                      d="M10.7 5.3V3.3A1.3 1.3 0 0 0 9.4 2H3.3A1.3 1.3 0 0 0 2 3.3v6.1a1.3 1.3 0 0 0 1.3 1.3h2"
-                    /></svg
-                  >
-                  Copy Summary
-                </span>
-              {/if}
-            </button>
           </div>
         </div>
 
@@ -2903,73 +2808,65 @@
           </div>
 
           <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.5px] mt-2">
-            Coaching Checklist
+            AI Coach
           </div>
-          <div class="flex flex-col gap-3">
-            {#each coachingChecklist as check, idx}
-              <div
-                class="flex flex-col border rounded-xl {check.color} transition-all duration-200 cursor-pointer hover:shadow-sm"
-                onclick={() => toggleCheckIndex(idx)}
+          {#if !llmConfigured}
+            <div
+              class="bg-zinc-950/40 border border-zinc-800/60 border-dashed rounded-xl p-6 text-center text-zinc-500"
+            >
+              <div class="text-sm font-bold mb-1">AI Coach Locked</div>
+              <div class="text-xs leading-relaxed">
+                Connect an AI provider in Settings to unlock personalized match coaching.
+              </div>
+              <button
+                class="mt-3 bg-pub border border-pu/40 text-tx px-4 py-1.5 rounded-lg text-xs font-semibold transition-all hover:bg-pu/30 hover:border-pu cursor-pointer"
+                onclick={() => uiStore.gotoView('settings', 'sllm')}
               >
-                <div class="flex items-center justify-between p-3.5 select-none font-bold">
-                  <div class="flex items-center gap-3 min-w-0">
-                    {#if check.done}
-                      <svg
-                        class="w-4 h-4 shrink-0 text-emerald-400"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"><path d="M13.3 2.7L5.3 13.3 2 10" /></svg
-                      >
-                    {:else}
-                      <svg
-                        class="w-4 h-4 shrink-0 text-rose-400"
-                        viewBox="0 0 16 16"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"><path d="M12 4L4 12M4 4l8 8" /></svg
-                      >
-                    {/if}
-                    <span class="text-[13px] font-extrabold truncate">{check.title}</span>
-                    {#if !check.done && check.target}
-                      <span
-                        class="text-[10px] font-extrabold text-zinc-400 bg-zinc-900/80 border border-zinc-800 rounded px-2 py-0.25 shrink-0"
-                        >{check.target}</span
-                      >
-                    {/if}
+                Open Settings
+              </button>
+            </div>
+          {:else if aiCoachingLoading}
+            <div class="flex flex-col gap-3">
+              {#each [1, 2, 3] as _}
+                <div
+                  class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 animate-pulse"
+                >
+                  <div class="h-4 bg-zinc-800 rounded w-1/3 mb-2"></div>
+                  <div class="h-3 bg-zinc-800 rounded w-full mb-1"></div>
+                  <div class="h-3 bg-zinc-800 rounded w-2/3"></div>
+                </div>
+              {/each}
+            </div>
+          {:else if aiCoachingError}
+            <div
+              class="bg-zinc-950/40 border border-rose-800/40 rounded-xl p-4 text-center"
+            >
+              <div class="text-xs text-rose-400 font-semibold">AI Coach Error</div>
+              <div class="text-xs text-zinc-400 mt-1">{aiCoachingError}</div>
+            </div>
+          {:else if aiCoachingPoints && aiCoachingPoints.length > 0}
+            <div class="flex flex-col gap-3">
+              {#each aiCoachingPoints as point, idx}
+                <div
+                  class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 transition-all duration-200"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                      {#if point.status === 'ontime'}
+                        <svg class="w-4 h-4 shrink-0 text-emerald-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.3 2.7L5.3 13.3 2 10" /></svg>
+                      {:else}
+                        <svg class="w-4 h-4 shrink-0 text-rose-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4L4 12M4 4l8 8" /></svg>
+                      {/if}
+                      <span class="text-[13px] font-extrabold text-white">{point.title}</span>
+                    </div>
                   </div>
-                  <div class="flex items-center gap-2 shrink-0">
-                    {#if check.tabLink}
-                      <button
-                        class="text-[9px] font-bold text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded px-2 py-0.5 cursor-pointer transition-colors"
-                        onclick={(e) => {
-                          e.stopPropagation()
-                          activeSubTab = check.tabLink!
-                          cursorTime = null
-                        }}>View</button
-                      >
-                    {/if}
-                    <span
-                      class="text-[10px] text-zinc-500 transition-transform duration-200 {expandedCheckIndex ===
-                      idx
-                        ? 'rotate-180'
-                        : ''}">▼</span
-                    >
+                  <div class="text-[11.5px] leading-relaxed text-zinc-300 font-normal">
+                    {point.desc}
                   </div>
                 </div>
-                {#if expandedCheckIndex === idx}
-                  <div
-                    class="px-3.5 pb-3.5 text-[11.5px] leading-relaxed text-zinc-300 border-t border-zinc-800/30 pt-2.5 font-normal"
-                  >
-                    {check.desc}
-                  </div>
-                {/if}
-              </div>
-            {/each}
-          </div>
+              {/each}
+            </div>
+          {/if}
         </div>
       {:else if activeSubTab === 'map'}
         <div class="p-5 flex flex-col gap-5">

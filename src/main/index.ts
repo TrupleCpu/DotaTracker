@@ -33,6 +33,7 @@ app.whenReady().then(() => {
 
   gsiServer = createGSIServer((ui) => {
     state.mainWindow?.webContents.send('dota-gsi-stream', ui)
+    state.controlWindow?.webContents.send('dota-gsi-stream', ui)
   })
 
   app.on('activate', () => {

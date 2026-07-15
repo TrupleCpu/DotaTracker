@@ -22,6 +22,7 @@
   import MatchesView from './views/MatchesView.svelte'
   import HeroesView from './views/HeroesView.svelte'
   import AnalysisView from './views/AnalysisView.svelte'
+
   import DraftView from './views/DraftView.svelte'
   import RolePerformanceView from './views/RolePerformanceView.svelte'
   import TeammatesView from './views/TeammatesView.svelte'
@@ -43,6 +44,7 @@
       heading: 'Analysis',
       items: [
         { id: 'analysis', label: 'Analysis', icon: ChartNoAxesCombined },
+
         { id: 'draft', label: 'Draft Analyzer', icon: Zap }
       ]
     },
@@ -79,6 +81,9 @@
       if (response.steamId) {
         steamId = response.steamId
         window.api.triggerStartupSync(steamId)
+        setTimeout(() => {
+          window.api.startFullSync(Number(steamId))
+        }, 1000)
       } else {
         errorMessage = response.error || 'Active Steam profile not found.'
       }
@@ -265,6 +270,7 @@
             <HeroesView />
           {:else if uiStore.currentView === 'analysis'}
             <AnalysisView />
+
           {:else if uiStore.currentView === 'draft'}
             <DraftView />
           {:else if uiStore.currentView === 'roles'}

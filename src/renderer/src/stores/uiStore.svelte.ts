@@ -20,6 +20,7 @@ class UiStore {
   selectedHeroId = $state<number | null>(null)
   compactMode = $state(false)
   animatedCharts = $state(true)
+  settingsTab = $state<string>('sg')
 
   toast = $state({ show: false, msg: '', type: '' })
 
@@ -31,11 +32,13 @@ class UiStore {
     }, 2600)
   }
 
-  gotoView(view: ViewId) {
+  gotoView(view: ViewId, settingsTab?: string) {
     this.prevView = this.currentView
     this.currentView = view
     this.selectedMatch = null
     this.selectedHeroId = null
+    if (settingsTab) this.settingsTab = settingsTab
+    else this.settingsTab = 'sg'
   }
 
   openMatchDetail(match: any) {
