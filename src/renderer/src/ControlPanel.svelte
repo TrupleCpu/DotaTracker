@@ -9,7 +9,6 @@
   import {
     LayoutDashboard,
     Gamepad2,
-
     Shield,
     ChartNoAxesCombined,
     Zap,
@@ -99,9 +98,11 @@
 </script>
 
 {#if checkingToken}
-  <div class="flex items-center justify-center min-h-screen bg-bg text-tx text-sm font-semibold">Loading...</div>
+  <div class="flex items-center justify-center min-h-screen bg-bg text-tx text-sm font-semibold">
+    Loading...
+  </div>
 {:else if !hasToken}
-  <TokenPrompt onSaved={() => hasToken = true} />
+  <TokenPrompt onSaved={() => (hasToken = true)} />
 {:else if !steamId}
   <LoginScreen {handleSteamLogin} {isLoading} {errorMessage} />
 {:else}
@@ -146,10 +147,8 @@
           class="flex items-center gap-2.5 p-[16px_14px] border-b border-bd"
           class:justify-center={uiStore.sidebarCollapsed}
         >
-          <div
-            class="w-[44px] h-[44px] rounded-lg flex items-center justify-center text-base shrink-0"
-          >
-            <img src={AppLogo} alt="Logo" class="w-[44px] h-[44px]" />
+          <div class="w-11 h-11 rounded-lg flex items-center justify-center text-base shrink-0">
+            <img src={AppLogo} alt="Logo" class="w-11 h-11" />
           </div>
           <div class:hidden={uiStore.sidebarCollapsed}>
             <div class="text-[11px] font-extrabold tracking-[0.3px] leading-none text-tx">
@@ -164,7 +163,7 @@
           {#each navSections as section (section.heading)}
             {#if section.heading}
               <div
-                class="text-xxs font-bold text-tx3 uppercase tracking-[1.1px] px-[14px] pt-[9px] pb-[4px]"
+                class="text-xxs font-bold text-tx3 uppercase tracking-[1.1px] px-3.5 pt-2.25 pb-1"
                 class:hidden={uiStore.sidebarCollapsed}
               >
                 {section.heading}
@@ -173,14 +172,12 @@
             {#each section.items as { id, label, icon: Icon } (id)}
               {@const active = uiStore.currentView === id}
               <button
-                class="w-full flex items-center gap-[9px] px-[13px] py-[7px] text-sm font-semibold transition-all cursor-pointer relative
-                {active
-                  ? 'text-tx bg-pub shadow-sm'
-                  : 'text-tx2 hover:text-tx hover:bg-white/[0.04]'}
+                class="w-full flex items-center gap-2.25 px-3.25 py-1.75 text-sm font-semibold transition-all cursor-pointer relative
+                {active ? 'text-tx bg-pub shadow-sm' : 'text-tx2 hover:text-tx hover:bg-white/4'}
                 {uiStore.sidebarCollapsed ? 'justify-center' : 'text-left'}"
                 onclick={() => uiStore.gotoView(id)}
               >
-                {#if active}<div class="absolute left-0 top-0 bottom-0 w-[3px] bg-pu"></div>{/if}
+                {#if active}<div class="absolute left-0 top-0 bottom-0 w-0.75] bg-pu"></div>{/if}
                 <span class="w-4 text-center {active ? 'text-pu2' : 'text-tx3'}"
                   ><Icon size={14} /></span
                 >
@@ -190,19 +187,20 @@
           {/each}
         </nav>
         {#if playerStore.playerStats}
-          <div class="border-t border-bd p-[10px]">
-            <div
-              class="flex items-center gap-2.5 p-[10px] rounded-lg cursor-pointer hover:bg-s2 transition-colors"
+          <div class="border-t border-bd p-2.5">
+            <button
+              type="button"
+              class="w-full text-left flex items-center gap-2.5 p-2.5 rounded-lg cursor-pointer hover:bg-s2 transition-colors focus-visible:outline-2 focus-visible:outline-pub"
               class:justify-center={uiStore.sidebarCollapsed}
               onclick={() => uiStore.showToast('Profile settings')}
             >
               <div
-                class="w-[32px] h-[32px] flex items-center justify-center text-base font-extrabold shrink-0 rounded-full overflow-hidden ring-2 ring-pub"
+                class="w-8 h-8 flex items-center justify-center text-base font-extrabold shrink-0 rounded-full overflow-hidden ring-2 ring-pub"
               >
                 <img
                   class="w-full h-full object-cover"
                   src={playerStore.playerStats?.avatar}
-                  alt={playerStore.playerStats?.name}
+                  alt={playerStore.playerStats?.name ?? 'Player avatar'}
                 />
               </div>
               <div class="min-w-0 flex-1" class:hidden={uiStore.sidebarCollapsed}>
@@ -213,24 +211,25 @@
                   {playerStore.playerStats && rankToString(playerStore.playerStats?.rank)}
                 </div>
               </div>
-            </div>
+            </button>
           </div>
         {:else}
-          <div class="text-[11px] text-tx3 p-[14px]" class:hidden={uiStore.sidebarCollapsed}>
+          <div class="text-[11px] text-tx3 p-3.5" class:hidden={uiStore.sidebarCollapsed}>
             Loading profile...
           </div>
         {/if}
       </aside>
 
       <div class="flex-1 flex flex-col overflow-hidden min-w-0">
-        <div class="flex items-center gap-2 px-4 h-[44px] border-b border-bd shrink-0 bg-sb">
+        <div class="flex items-center gap-2 px-4 h-11 border-b border-bd shrink-0 bg-sb">
           <button
             onclick={() => (uiStore.sidebarCollapsed = !uiStore.sidebarCollapsed)}
-            class="shrink-0 w-[26px] h-[26px] flex flex-col items-center justify-center gap-[3px] cursor-pointer hover:bg-white/[0.05] rounded transition-colors"
+            aria-label={uiStore.sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            class="shrink-0 w-6.5 h-6.5 flex flex-col items-center justify-center gap-0.75 cursor-pointer hover:bg-white/5 rounded transition-colors"
           >
-            <span class="w-3.5 h-[2px] bg-tx3 rounded-full"></span>
-            <span class="w-3.5 h-[2px] bg-tx3 rounded-full"></span>
-            <span class="w-3.5 h-[2px] bg-tx3 rounded-full"></span>
+            <span class="w-3.5 h-0.5 bg-tx3 rounded-full"></span>
+            <span class="w-3.5 h-0.5 bg-tx3 rounded-full"></span>
+            <span class="w-3.5 h-0.5 bg-tx3 rounded-full"></span>
           </button>
           <div class="flex items-center gap-1.5 text-sm font-semibold text-tx3">
             {#if uiStore.currentView === 'match-detail'}

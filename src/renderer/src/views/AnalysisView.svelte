@@ -50,7 +50,9 @@
   onMount(() => {
     if (uiStore.animatedCharts) {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => { chartReady = true })
+        requestAnimationFrame(() => {
+          chartReady = true
+        })
       })
     } else {
       chartReady = true
@@ -198,7 +200,12 @@
         <div class="card-hd"><span class="card-ttl">Win Rate by Role</span></div>
         <div class="flex items-start gap-4 pt-1">
           <div class="shrink-0">
-            <svg class={uiStore.animatedCharts ? 'chart-animate' : ''} width="130" height="130" viewBox="0 0 130 130">
+            <svg
+              class={uiStore.animatedCharts ? 'chart-animate' : ''}
+              width="130"
+              height="130"
+              viewBox="0 0 130 130"
+            >
               <circle
                 cx="65"
                 cy="65"
@@ -243,7 +250,7 @@
             </svg>
           </div>
           <div class="flex-1 min-w-0 flex flex-col gap-[9px]">
-            {#each roleStats as r}
+            {#each roleStats as r, i (i)}
               {@const color =
                 r.winrate >= 55
                   ? 'var(--color-gr)'
@@ -268,7 +275,7 @@
           {#if partyStats.length === 0}
             <div class="text-xs text-tx3 py-4 text-center">No match data available</div>
           {:else}
-            {#each partyStats as p}
+            {#each partyStats as p, i (i)}
               <div class="flex items-center gap-3 py-1.5 border-b border-bd last:border-b-0">
                 <span class="text-xs font-bold text-tx2 w-16 shrink-0 tabular-nums">{p.label}</span>
                 <div class="flex-1 h-[6px] bg-s3 rounded-sm overflow-hidden">
@@ -369,7 +376,7 @@
         <div class="text-xs text-tx3 py-4 text-center">No match data available</div>
       {:else}
         <div class="flex flex-col gap-2 pt-1">
-          {#each laneStats as l}
+          {#each laneStats as l, i (i)}
             {@const color =
               l.winrate >= 55
                 ? 'var(--color-gr)'
