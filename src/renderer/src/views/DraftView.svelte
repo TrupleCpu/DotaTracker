@@ -16,6 +16,7 @@
   let analyzeTimeout: ReturnType<typeof setTimeout> | null = null
   let engineReady = $state(false)
   let draftAnalyzerEnabled = $state(false)
+  let gameState = $state('')
 
   const POSITIONS = [
     { key: 'carry', label: 'Carry', icon: '⚔️' },
@@ -35,10 +36,7 @@
     if (radiantIds.length === 0 && direIds.length === 0) return
     isAnalyzing = true
     try {
-      const [suggestion, prob] = await Promise.all([
-        window.api.analyzeDraftSuggestion(radiantIds, direIds, playerTeam),
-        window.api.analyzeDraftWinProbability(radiantIds, direIds)
-      ])
+      const suggestion = await window.api.analyzeDraftSuggestion(radiantIds, direIds, playerTeam)
       if (suggestion.error) {
         suggestError = suggestion.error
         suggestions = null
@@ -46,7 +44,6 @@
         suggestError = null
         suggestions = suggestion.suggestions || null
       }
-      winProb = prob
     } catch (e) {
       console.error('Failed to analyze draft', e)
       suggestError = 'Failed to analyze draft'
@@ -74,6 +71,7 @@
     } catch {}
 
     window.api.onGsiStream((data: any) => {
+      gameState = data.game_state || ''
       if (!teamManuallySet) {
         const team = data.player?.team
         if (team === 'Radiant' || team === 'Dire') {
@@ -92,11 +90,19 @@
 
       if (newDraftString !== draftIdString && newDraftString.length > 0) {
         draftIdString = newDraftString
-        
+
+        // Win probability always updates
+        window.api.analyzeDraftWinProbability(radiantIds, direIds).then((prob) => {
+          winProb = prob
+        })
+
+        // LLM suggestions only during hero selection
+        if (gameState !== 'DOTA_GAMERULES_STATE_HERO_SELECTION') return
+
         if (analyzeTimeout) {
           clearTimeout(analyzeTimeout)
         }
-        
+
         // Wait 2.5 seconds after the latest update before calling the analyzer
         analyzeTimeout = setTimeout(() => {
           analyzeDraft(radiantIds, direIds)
@@ -250,7 +256,16 @@
     </div>
 
     <div class="bg-s1 border border-bd rounded-lg p-[14px]">
-      <div class="text-sm font-bold text-tx2 mb-3">Suggested Picks</div>
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-sm font-bold text-tx2">Suggested Picks</span>
+        {#if gameState === 'DOTA_GAMERULES_STATE_HERO_SELECTION'}
+          <span class="w-1.5 h-1.5 rounded-full bg-gr shrink-0"></span>
+          <span class="text-xxs text-gr">Draft active</span>
+        {:else}
+          <span class="w-1.5 h-1.5 rounded-full bg-tx3 shrink-0"></span>
+          <span class="text-xxs text-tx3">Waiting for hero selection</span>
+        {/if}
+      </div>
       {#if isAnalyzing}
         <div class="text-tx3 text-sm">Analyzing draft...</div>
       {:else if suggestError}
