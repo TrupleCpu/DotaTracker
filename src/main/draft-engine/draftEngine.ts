@@ -14,6 +14,8 @@ export function getDraftEnginePath(): string {
 }
 
 export function startDraftEngine(): void {
+  if (draftEngineProcess) return
+
   const exePath = getDraftEnginePath()
 
   if (!fs.existsSync(exePath)) {

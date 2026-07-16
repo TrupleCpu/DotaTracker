@@ -11,6 +11,7 @@ import { startTracking } from './tracking/overlayTracking'
 import { createGSIServer } from './gsi-server'
 import { state } from './state'
 import { initDatabase } from './db'
+import { loadConfig } from './config'
 
 registerSchemesAsPrivileged()
 
@@ -24,7 +25,10 @@ app.whenReady().then(() => {
 
   app.on('browser-window-created', (_, window) => optimizer.watchWindowShortcuts(window))
 
-  startDraftEngine()
+  const config = loadConfig()
+  if (config.draftAnalyzerEnabled) {
+    startDraftEngine()
+  }
   createOverlayWindow()
   createControlWindow()
   createTray()

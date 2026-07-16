@@ -17,6 +17,7 @@ asarUnpack:
   - src/main/data/hero-models/**
   - src/main/data/abilities/**
 win:
+  icon: build/icon.co
   executableName: dotatrack
 nsis:
   artifactName: ${name}-${version}-setup.${ext}

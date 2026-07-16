@@ -2494,7 +2494,7 @@
     </div>
 
     <!-- BODY -->
-    <div class="flex-1 overflow-y-auto bg-black">
+    <div class="flex-1 overflow-y-auto overflow-x-hidden bg-black">
       {#if activeSubTab === 'insights'}
         <div class="p-5 flex flex-col gap-5">
           {#if enemyMirrorPlayer && enemyMirrorHero}

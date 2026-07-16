@@ -57,7 +57,7 @@
   }
 </script>
 
-<div class="flex-1 overflow-y-auto p-4 select-none">
+<div class="flex-1 overflow-y-auto overflow-x-hidden p-4 select-none">
   <div class="grid grid-cols-5 gap-3 mb-5">
     {#each roleStats as role}
       {@const meta = roleMeta[role.id] ?? { color: 'text-pu2' }}

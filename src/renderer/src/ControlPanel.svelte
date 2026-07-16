@@ -144,16 +144,24 @@
 
     <div class="flex flex-1 overflow-hidden">
       <aside
-        class="shrink-0 bg-sb border-r border-bd flex flex-col transition-all duration-200 overflow-hidden"
-        class:w-50={!uiStore.sidebarCollapsed}
+        class="shrink-0 bg-sb border-r border-bd flex flex-col transition-all duration-200 overflow-x-hidden"
+        class:w-44={!uiStore.sidebarCollapsed}
         class:w-14={uiStore.sidebarCollapsed}
       >
         <div
-          class="flex items-center gap-2.5 p-[16px_14px] border-b border-bd"
+          class="flex items-center gap-2.5 p-[14px_10px] border-b border-bd"
           class:justify-center={uiStore.sidebarCollapsed}
         >
-          <div class="w-11 h-11 rounded-lg flex items-center justify-center text-base shrink-0">
-            <img src={AppLogo} alt="Logo" class="w-11 h-11" />
+          <div
+            class="rounded-lg flex items-center justify-center text-base shrink-0"
+            class:w-11={!uiStore.sidebarCollapsed} class:h-11={!uiStore.sidebarCollapsed}
+            class:w-8={uiStore.sidebarCollapsed} class:h-8={uiStore.sidebarCollapsed}
+          >
+            <img
+              src={AppLogo} alt="Logo"
+              class:w-11={!uiStore.sidebarCollapsed} class:h-11={!uiStore.sidebarCollapsed}
+              class:w-8={uiStore.sidebarCollapsed} class:h-8={uiStore.sidebarCollapsed}
+            />
           </div>
           <div class:hidden={uiStore.sidebarCollapsed}>
             <div class="text-[11px] font-extrabold tracking-[0.3px] leading-none text-tx">
@@ -164,7 +172,7 @@
             </div>
           </div>
         </div>
-        <nav class="flex-1 py-1.5 overflow-y-auto">
+        <nav class="flex-1 py-1.5 overflow-y-auto overflow-x-hidden">
           {#each navSections as section (section.heading)}
             {#if section.heading}
               <div
@@ -177,12 +185,12 @@
             {#each section.items as { id, label, icon: Icon } (id)}
               {@const active = uiStore.currentView === id}
               <button
-                class="w-full flex items-center gap-2.25 px-3.25 py-1.75 text-sm font-semibold transition-all cursor-pointer relative
+                class="w-full flex items-center gap-2.25 px-2.5 py-1.5 text-sm font-semibold transition-all cursor-pointer relative
                 {active ? 'text-tx bg-pub shadow-sm' : 'text-tx2 hover:text-tx hover:bg-white/4'}
                 {uiStore.sidebarCollapsed ? 'justify-center' : 'text-left'}"
                 onclick={() => uiStore.gotoView(id)}
               >
-                {#if active}<div class="absolute left-0 top-0 bottom-0 w-0.75] bg-pu"></div>{/if}
+                {#if active}<div class="absolute left-0 top-0 bottom-0 w-0.75 bg-pu"></div>{/if}
                 <span class="w-4 text-center {active ? 'text-pu2' : 'text-tx3'}"
                   ><Icon size={14} /></span
                 >
@@ -192,7 +200,7 @@
           {/each}
         </nav>
         {#if playerStore.playerStats}
-          <div class="border-t border-bd p-2.5">
+          <div class="border-t border-bd p-1.5">
             <button
               type="button"
               class="w-full text-left flex items-center gap-2.5 p-2.5 rounded-lg cursor-pointer hover:bg-s2 transition-colors focus-visible:outline-2 focus-visible:outline-pub"
@@ -219,7 +227,7 @@
             </button>
           </div>
         {:else}
-          <div class="text-[11px] text-tx3 p-3.5" class:hidden={uiStore.sidebarCollapsed}>
+          <div class="text-[11px] text-tx3 p-2.5" class:hidden={uiStore.sidebarCollapsed}>
             Loading profile...
           </div>
         {/if}

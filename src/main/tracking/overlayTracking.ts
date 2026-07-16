@@ -1,4 +1,5 @@
 import { windowManager } from 'node-window-manager'
+import { basename } from 'path'
 import { state } from '../state'
 import { WIDGET_HEIGHT, WIDGET_WIDTH } from '../windows/overlayWindow'
 
@@ -29,9 +30,10 @@ export function startTracking(): void {
       }
 
       const activeWindow = windowManager.getActiveWindow()
-      const title = activeWindow?.getTitle() || ''
+      const exeName = basename(activeWindow?.path || '').toLowerCase()
+      const isDota = exeName === 'dota2.exe'
 
-      if (title.toLowerCase().includes('dota 2')) {
+      if (isDota) {
         const bounds = getSafeBounds(activeWindow as unknown as { getBounds: () => Bounds | null })
 
         if (bounds && state.mainWindow) {
@@ -46,12 +48,12 @@ export function startTracking(): void {
         if (state.mainWindow && !state.mainWindow.isVisible()) {
           state.mainWindow.showInactive()
           state.mainWindow.setAlwaysOnTop(true, 'screen-saver')
-        } else if (state.mainWindow?.isVisible()) {
-          state.mainWindow.hide()
         }
+      } else {
+        if (state.mainWindow?.isVisible()) state.mainWindow.hide()
       }
     } catch (err) {
       console.error('Overlay visibility check error:', err)
     }
-  })
+  }, 250)
 }

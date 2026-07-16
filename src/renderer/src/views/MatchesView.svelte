@@ -148,7 +148,7 @@
   })
 </script>
 
-<div class="flex-1 overflow-y-auto p-4 select-none">
+<div class="flex-1 overflow-y-auto overflow-x-hidden p-4 select-none">
   <div class="flex items-center gap-1.5 mb-4 bg-s1 border border-bd rounded-lg p-2.5">
     <select bind:value={selectedHero} class="sel-pill">
       <option>All Heroes</option>

@@ -2,9 +2,14 @@ import { BrowserWindow } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { state } from '../state'
+import { app } from 'electron'
 
-export const CONTROL_WIDTH = 1200
+export const CONTROL_WIDTH = 1500
 export const CONTROL_HEIGHT = 900
+
+const iconPath = app.isPackaged
+  ? join(process.resourcesPath, 'icon.png')
+  : join(app.getAppPath(), 'build', 'icon.png')
 
 export function createControlWindow(): void {
   if (state.controlWindow && !state.controlWindow.isDestroyed()) {
@@ -16,6 +21,7 @@ export function createControlWindow(): void {
   const win = new BrowserWindow({
     width: CONTROL_WIDTH,
     height: CONTROL_HEIGHT,
+    icon: iconPath,
     autoHideMenuBar: true,
     frame: false,
     show: false,

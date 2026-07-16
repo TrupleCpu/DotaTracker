@@ -30,7 +30,7 @@
   })
 </script>
 
-<div class="flex-1 overflow-y-auto p-4 select-none">
+<div class="flex-1 overflow-y-auto overflow-x-hidden p-4 select-none">
   <div class="flex items-center gap-1.5 mb-3 bg-s1 border border-bd rounded-lg p-2.5">
     <SearchInput value={searchQuery} placeholder="Search teammates…" />
     <div class="w-px h-5 bg-bd shrink-0"></div>

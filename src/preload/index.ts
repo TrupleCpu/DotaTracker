@@ -36,9 +36,8 @@ const api = {
   fetchHeroMatches: (steamId: string, heroId: number, skip?: number, take?: number): Promise<any> =>
     ipcRenderer.invoke('fetch-hero-matches', steamId, heroId, skip, take),
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  analyzeHeroMatchups: (heroId: number): Promise<any> =>
-    ipcRenderer.invoke('analyze-hero-matchups', heroId),
+  analyzeDraftSuggestion: (radiantIds: number[], direIds: number[], playerTeam: string): Promise<any> =>
+    ipcRenderer.invoke('analyze-draft-suggestion', radiantIds, direIds, playerTeam),
 
   analyzeDraftWinProbability: (radiantIds: number[], direIds: number[]): Promise<any> =>
     ipcRenderer.invoke('analyze-draft-win-probability', radiantIds, direIds),
@@ -84,6 +83,9 @@ const api = {
   setLlmConfig: (config: { provider: string; apiKey: string; baseUrl?: string }): Promise<boolean> =>
     ipcRenderer.invoke('set-llm-config', config),
   clearLlmConfig: (): Promise<boolean> => ipcRenderer.invoke('clear-llm-config'),
+
+  setDraftAnalyzer: (enabled: boolean): Promise<void> =>
+    ipcRenderer.invoke('set-draft-analyzer', enabled),
 
   generateCoaching: (ctx: any): Promise<any> => ipcRenderer.invoke('generate-coaching', ctx),
   generateSessionReview: (matches: any[]): Promise<any> => ipcRenderer.invoke('generate-session-review', matches),

@@ -62,7 +62,8 @@ function processGSI(data: Record<string, any>): Record<string, any> {
       gpm: p.gpm ?? 0,
       xpm: p.xpm ?? 0,
       lh: p.last_hits ?? 0,
-      denies: p.denies ?? 0
+      denies: p.denies ?? 0,
+      team: (p.team_name as string) ?? 'unknown'
     }
   }
 

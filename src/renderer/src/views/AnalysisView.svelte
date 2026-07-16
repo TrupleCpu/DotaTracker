@@ -150,7 +150,7 @@
   })
 </script>
 
-<div class="flex-1 overflow-y-auto p-4 select-none">
+<div class="flex-1 overflow-y-auto overflow-x-hidden p-4 select-none">
   {#if playerStore.isLoading}
     <LoadingSpinner text="Loading analysis…" />
   {:else if !playerStore.playerStats}

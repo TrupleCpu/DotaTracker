@@ -68,12 +68,18 @@
   body {
     height: 100%;
     overflow: hidden;
+    overflow-x: hidden;
     background: var(--color-bg);
     color: var(--color-tx);
     font-family: var(--font-sans);
     font-size: 13px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  #app {
+    height: 100%;
+    overflow-x: hidden;
   }
 
   ::-webkit-scrollbar {

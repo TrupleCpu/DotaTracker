@@ -149,7 +149,7 @@
     </div>
   </div>
 
-  <div class="flex-1 overflow-y-auto p-4 bg-bg">
+  <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 bg-bg">
     {#if loading && allMatches.length === 0}
       <LoadingSpinner text="Loading hero matches…" />
     {:else if error && allMatches.length === 0}

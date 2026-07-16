@@ -28,7 +28,7 @@ declare global {
       fetchPlayerData: (steamId: string) => Promise<unknown>
       fetchAllMatches: (steamId: string, options?: unknown) => Promise<unknown>
       fetchHeroMatches: (steamId: string, heroId: number, skip?: number, take?: number) => Promise<any>
-      analyzeHeroMatchups: (heroId: number) => Promise<any>
+      analyzeDraftSuggestion: (radiantIds: number[], direIds: number[], playerTeam: string) => Promise<any>
       analyzeDraftWinProbability: (radiantIds: number[], direIds: number[]) => Promise<any>
       triggerStartupSync: (steamId: string) => Promise<void>
       startFullSync: (steamId: number) => Promise<void>
@@ -42,6 +42,7 @@ declare global {
       setConfig: (config: unknown) => Promise<unknown>
       onConfigUpdate: (cb: (config: unknown) => void) => void
       onDraftUpdate: (cb: (data: DraftState) => void) => void
+      setDraftAnalyzer: (enabled: boolean) => Promise<void>
       minimizeWindow: () => void
       maximizeWindow: () => void
       closeWindow: () => void

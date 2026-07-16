@@ -126,7 +126,7 @@
   }
 </script>
 
-<div class="flex-1 overflow-y-auto p-4 select-none">
+<div class="flex-1 overflow-y-auto overflow-x-hidden p-4 select-none">
   <div class="flex flex-col gap-4 mb-4">
     <div class="grid lg:grid-cols-2 grid-cols-1 gap-4">
       <div class="card p-4 flex flex-col justify-center gap-3 rounded-md">
