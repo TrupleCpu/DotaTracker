@@ -65,6 +65,7 @@ export const FETCH_HERO_MATCHES_QUERY = `
     kills
     deaths
     assists
+    goldPerMinute
     item0Id
     item1Id
     item2Id

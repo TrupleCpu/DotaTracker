@@ -145,22 +145,22 @@
     <div class="flex flex-1 overflow-hidden">
       <aside
         class="shrink-0 bg-sb border-r border-bd flex flex-col transition-all duration-200 overflow-x-hidden"
-        class:w-44={!uiStore.sidebarCollapsed}
-        class:w-14={uiStore.sidebarCollapsed}
+        class:w-56={!uiStore.sidebarCollapsed}
+        class:w-16={uiStore.sidebarCollapsed}
       >
         <div
-          class="flex items-center gap-2.5 p-[14px_10px] border-b border-bd"
+          class="flex items-center gap-3 p-[14px_12px] border-b border-bd"
           class:justify-center={uiStore.sidebarCollapsed}
         >
           <div
             class="rounded-lg flex items-center justify-center text-base shrink-0"
-            class:w-11={!uiStore.sidebarCollapsed} class:h-11={!uiStore.sidebarCollapsed}
-            class:w-8={uiStore.sidebarCollapsed} class:h-8={uiStore.sidebarCollapsed}
+            class:w-12={!uiStore.sidebarCollapsed} class:h-12={!uiStore.sidebarCollapsed}
+            class:w-10={uiStore.sidebarCollapsed} class:h-10={uiStore.sidebarCollapsed}
           >
             <img
               src={AppLogo} alt="Logo"
-              class:w-11={!uiStore.sidebarCollapsed} class:h-11={!uiStore.sidebarCollapsed}
-              class:w-8={uiStore.sidebarCollapsed} class:h-8={uiStore.sidebarCollapsed}
+              class:w-12={!uiStore.sidebarCollapsed} class:h-12={!uiStore.sidebarCollapsed}
+              class:w-10={uiStore.sidebarCollapsed} class:h-10={uiStore.sidebarCollapsed}
             />
           </div>
           <div class:hidden={uiStore.sidebarCollapsed}>
@@ -172,11 +172,11 @@
             </div>
           </div>
         </div>
-        <nav class="flex-1 py-1.5 overflow-y-auto overflow-x-hidden">
+        <nav class="flex-1 py-2 overflow-y-auto overflow-x-hidden">
           {#each navSections as section (section.heading)}
             {#if section.heading}
               <div
-                class="text-xxs font-bold text-tx3 uppercase tracking-[1.1px] px-3.5 pt-2.25 pb-1"
+                class="text-xs font-bold text-tx3 uppercase tracking-[1.1px] px-3.5 pt-2.5 pb-1.5"
                 class:hidden={uiStore.sidebarCollapsed}
               >
                 {section.heading}
@@ -185,14 +185,14 @@
             {#each section.items as { id, label, icon: Icon } (id)}
               {@const active = uiStore.currentView === id}
               <button
-                class="w-full flex items-center gap-2.25 px-2.5 py-1.5 text-sm font-semibold transition-all cursor-pointer relative
+                class="w-full flex items-center gap-3 px-3 py-2 text-lg font-semibold transition-all cursor-pointer relative
                 {active ? 'text-tx bg-pub shadow-sm' : 'text-tx2 hover:text-tx hover:bg-white/4'}
                 {uiStore.sidebarCollapsed ? 'justify-center' : 'text-left'}"
                 onclick={() => uiStore.gotoView(id)}
               >
-                {#if active}<div class="absolute left-0 top-0 bottom-0 w-0.75 bg-pu"></div>{/if}
-                <span class="w-4 text-center {active ? 'text-pu2' : 'text-tx3'}"
-                  ><Icon size={14} /></span
+                {#if active}<div class="absolute left-0 top-0 bottom-0 w-1 bg-pu"></div>{/if}
+                <span class="w-5 text-center {active ? 'text-pu2' : 'text-tx3'}"
+                  ><Icon size={16} /></span
                 >
                 <span class:hidden={uiStore.sidebarCollapsed}>{label}</span>
               </button>
@@ -200,15 +200,15 @@
           {/each}
         </nav>
         {#if playerStore.playerStats}
-          <div class="border-t border-bd p-1.5">
+          <div class="border-t border-bd p-2">
             <button
               type="button"
-              class="w-full text-left flex items-center gap-2.5 p-2.5 rounded-lg cursor-pointer hover:bg-s2 transition-colors focus-visible:outline-2 focus-visible:outline-pub"
+              class="w-full text-left flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-s2 transition-colors focus-visible:outline-2 focus-visible:outline-pub"
               class:justify-center={uiStore.sidebarCollapsed}
               onclick={() => uiStore.showToast('Profile settings')}
             >
               <div
-                class="w-8 h-8 flex items-center justify-center text-base font-extrabold shrink-0 rounded-full overflow-hidden ring-2 ring-pub"
+                class="w-9 h-9 flex items-center justify-center text-base font-extrabold shrink-0 rounded-full overflow-hidden ring-2 ring-pub"
               >
                 <img
                   class="w-full h-full object-cover"
@@ -217,17 +217,17 @@
                 />
               </div>
               <div class="min-w-0 flex-1" class:hidden={uiStore.sidebarCollapsed}>
-                <div class="text-sm font-bold leading-tight truncate text-tx">
+                <div class="text-base font-bold leading-tight truncate text-tx">
                   {playerStore.playerStats?.name}
                 </div>
-                <div class="text-[10px] text-tx3 font-semibold uppercase tracking-wide">
+                <div class="text-xs text-tx3 font-semibold uppercase tracking-wide">
                   {playerStore.playerStats && rankToString(playerStore.playerStats?.rank)}
                 </div>
               </div>
             </button>
           </div>
         {:else}
-          <div class="text-[11px] text-tx3 p-2.5" class:hidden={uiStore.sidebarCollapsed}>
+          <div class="text-xs text-tx3 p-2.5" class:hidden={uiStore.sidebarCollapsed}>
             Loading profile...
           </div>
         {/if}
