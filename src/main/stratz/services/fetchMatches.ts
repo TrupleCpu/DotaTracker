@@ -1,6 +1,6 @@
 import { fetchFromStratz } from '../client'
 import { FETCH_MATCH_QUERY } from '../graphql/queries/fetchMatches'
-import { getLocalMatches, insertMatch } from '../../db/matchesRepo'
+import { getLocalMatches, getLocalHeroMatches, insertMatch } from '../../db/matchesRepo'
 import { loadConfig } from '../../config'
 
 export interface FetchMatchesOptions {
@@ -32,7 +32,7 @@ export async function fetchMatches(
 
   if (config.autoSyncMatches && !hasComplexFilters) {
     const localMatches = getLocalMatches(Number(steamAccountId), take, skip)
-    if (localMatches.length === take || (localMatches.length > 0 && skip > 0)) {
+    if (localMatches.length > 0) {
       return { player: { matches: localMatches } }
     }
   }
@@ -66,12 +66,25 @@ export async function fetchHeroMatches(
   skip: number = 0,
   take: number = 20
 ) {
+  const config = loadConfig()
+  if (config.autoSyncMatches) {
+    const localMatches = getLocalHeroMatches(Number(steamAccountId), heroId, take, skip)
+    if (localMatches.length > 0) {
+      return { player: { matches: localMatches } }
+    }
+  }
+
   const request: Record<string, unknown> = { heroIds: [heroId], skip, take }
 
   const data = await fetchFromStratz(FETCH_HERO_MATCHES_QUERY, {
-    steamId: Number(steamAccountId), // The query expects $steamId instead of $steamAccountId
+    steamId: Number(steamAccountId),
     request
   })
+
+  if (config.autoSyncMatches && data?.player?.matches) {
+    const matches: any[] = data.player.matches
+    matches.forEach(m => insertMatch(m, Number(steamAccountId)))
+  }
 
   return data
 }

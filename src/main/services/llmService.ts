@@ -145,7 +145,6 @@ Each point MUST be valid JSON with these fields:
 - status: "ontime" | "late" (ontime = good, late = needs improvement)
 
 Return ONLY a JSON array, no markdown, no code fences.
-CRITICAL: Do NOT use double quotes inside string values. Use single quotes (e.g. 'BKB' instead of "BKB") for any internal quotes or names to prevent JSON parsing errors.
 
 Example:
 [{"title":"Farming Efficiency","desc":"At 480 GPM you're 15% below average for Anti-Mage. Focus on last-hitting under tower and stacking ancients.","status":"late"}]`
@@ -195,8 +194,7 @@ Return a JSON object with:
 - patterns: string[] (3-4 specific patterns found across matches)
 - recommendations: string[] (2-3 actionable recommendations)
 
-Return ONLY valid JSON, no markdown, no code fences.
-CRITICAL: Do NOT use double quotes inside JSON string values. Use single quotes (e.g. 'BKB' instead of "BKB") for any internal quotes or names to prevent JSON parsing errors.`
+Return ONLY valid JSON, no markdown, no code fences.`
     },
     {
       role: 'user',
@@ -303,8 +301,6 @@ ${VALID_HEROES.join(', ')}
 
 OUTPUT FORMAT (strict JSON, no markdown, no code fences, no extra text):
 {"suggestions":{"carry":{"heroName":"Hero Name","reason":"1 sentence explanation","confidence":85},"mid":{"heroName":"Hero Name","reason":"1 sentence explanation","confidence":80},"offlane":{"heroName":"Hero Name","reason":"1 sentence explanation","confidence":75},"softSupport":{"heroName":"Hero Name","reason":"1 sentence explanation","confidence":70},"hardSupport":{"heroName":"Hero Name","reason":"1 sentence explanation","confidence":65}}}
-
-CRITICAL: Do NOT use double quotes inside string values (like 'reason'). Use single quotes (e.g. 'BKB' instead of "BKB") for any internal quotes or names to prevent JSON parsing errors.
 
 Valid hero names to choose from: ${VALID_HEROES.join(', ')}
 

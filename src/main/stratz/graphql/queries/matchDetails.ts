@@ -31,9 +31,11 @@ query MatchDetails($matchId: Long!) {
         abilityId
         time
         level
+        isTalent
         abilityType{
 					id
           name
+          isTalent
             }
           }
       stats {

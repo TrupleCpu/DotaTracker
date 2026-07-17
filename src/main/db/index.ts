@@ -37,5 +37,11 @@ export function initDatabase() {
     );
     DROP TABLE IF EXISTS global_timings_cache;
     DROP TABLE IF EXISTS personal_timings;
+
+    CREATE TABLE IF NOT EXISTS player_cache (
+      steam_id INTEGER PRIMARY KEY,
+      data_json TEXT NOT NULL,
+      fetched_at INTEGER NOT NULL
+    );
   `)
 }

@@ -7,6 +7,7 @@
   import { playerStore } from '../../stores/playerStore.svelte'
   import MinimapImage from '../../assets/minimap_geometry_current.png'
   import { getCachedCoaching, setCachedCoaching } from '../../lib/cache/llmCache'
+  import TalentTree from '../../lib/dota/TalentTree.svelte'
 
   interface Props {
     match: any
@@ -2389,6 +2390,8 @@
             <div class="text-xl font-bold font-tabular text-cyan-400">{focusedPlayer.assists}</div>
             <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px] mt-0.5">Assists</div>
           </div>
+          <div class="h-8 w-px bg-zinc-800/60 shrink-0"></div>
+          <TalentTree abilities={focusedPlayer.abilities ?? []} heroId={focusedPlayer.heroId} />
         </div>
 
         <!-- Item slots -->

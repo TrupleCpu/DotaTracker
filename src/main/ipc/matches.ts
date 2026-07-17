@@ -41,9 +41,9 @@ export function registerMatchHandlers(): void {
     }
   )
 
-  ipcMain.handle('fetch-player-data', async (_e, steamId: number | string) => {
+  ipcMain.handle('fetch-player-data', async (_e, steamId: number | string, forceRefresh = false) => {
     try {
-      return await getPlayerData(steamId)
+      return await getPlayerData(steamId, forceRefresh)
     } catch (err) {
       console.error('STRATZ get match details failed.', err)
       return { err: err instanceof Error ? err.message : String(err) }

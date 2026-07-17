@@ -1,7 +1,17 @@
 import { fetchFromStratz } from '../client'
 import { PLAYER_DASHBOARD_QUERY } from '../graphql/queries/playerDashboard'
+import { getPlayerCache, setPlayerCache } from '../../db/matchesRepo'
 
-export async function getPlayerData(steamId: number | string) {
+export async function getPlayerData(steamId: number | string, forceRefresh = false) {
+  const numId = Number(steamId)
+
+  if (!forceRefresh) {
+    const cached = getPlayerCache(numId)
+    if (cached) {
+      return cached.data
+    }
+  }
+
   const data = await fetchFromStratz(PLAYER_DASHBOARD_QUERY, {
     steamId,
     peersRequest: {
@@ -28,6 +38,10 @@ export async function getPlayerData(steamId: number | string) {
     skipPlayedHeroes: false,
     skipDotaPlus: false
   })
+
+  if (data) {
+    setPlayerCache(numId, data)
+  }
 
   return data
 }

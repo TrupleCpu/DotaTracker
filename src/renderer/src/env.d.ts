@@ -27,7 +27,7 @@ declare global {
       steamLogin: () => Promise<string | null>
 
       fetchMatchHistory: (steamId: string) => Promise<unknown | { error: string }>
-      fetchPlayerData: (steamId: string) => Promise<any>
+      fetchPlayerData: (steamId: string, forceRefresh?: boolean) => Promise<any>
       fetchMatchDetails: (matchId: string) => Promise<any>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       fetchAllMatches: (steamId: string, options?: any) => Promise<any>

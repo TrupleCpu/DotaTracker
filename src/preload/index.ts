@@ -28,8 +28,8 @@ const api = {
   fetchMatchDetails: (matchId: string): Promise<unknown> =>
     ipcRenderer.invoke('fetch-match-details', matchId),
 
-  fetchPlayerData: (steamId: string): Promise<unknown> =>
-    ipcRenderer.invoke('fetch-player-data', steamId),
+  fetchPlayerData: (steamId: string, forceRefresh = false): Promise<unknown> =>
+    ipcRenderer.invoke('fetch-player-data', steamId, forceRefresh),
   fetchAllMatches: (steamId: string, options: FetchMatchesOptions = {}): Promise<unknown> =>
     ipcRenderer.invoke('fetch-all-matches', steamId, options),
 

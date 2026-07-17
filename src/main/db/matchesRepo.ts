@@ -58,6 +58,20 @@ export function countLocalMatches(steamId: number) {
   return row.c
 }
 
+export function getLocalHeroMatches(steamId: number, heroId: number, limit = 20, skip = 0) {
+  const stmt = db.prepare(
+    'SELECT json_data FROM matches WHERE steam_account_id = ? AND hero_id = ? ORDER BY start_date_time DESC LIMIT ? OFFSET ?'
+  )
+  const rows = stmt.all(steamId, heroId, limit, skip)
+  return rows.map((r: any) => JSON.parse(r.json_data))
+}
+
+export function getLocalMatchById(matchId: number) {
+  const stmt = db.prepare('SELECT json_data FROM matches WHERE match_id = ?')
+  const row = stmt.get(matchId) as { json_data: string } | undefined
+  return row ? JSON.parse(row.json_data) : null
+}
+
 export function getEarliestMatchDate(steamId: number): number | null {
   const stmt = db.prepare('SELECT MIN(start_date_time) as earliest FROM matches WHERE steam_account_id = ?')
   const row = stmt.get(steamId) as { earliest: number | null }
@@ -167,6 +181,25 @@ export function getHeroTimingsCache(
     | { data_json: string; fetched_at: number }
     | undefined
   return row ?? null
+}
+
+const PLAYER_CACHE_TTL_MS = 5 * 60 * 1000
+
+export function getPlayerCache(steamId: number): { data: any; fetchedAt: number } | null {
+  const stmt = db.prepare('SELECT data_json, fetched_at FROM player_cache WHERE steam_id = ?')
+  const row = stmt.get(steamId) as { data_json: string; fetched_at: number } | undefined
+  if (!row) return null
+  const age = Date.now() - row.fetched_at
+  if (age > PLAYER_CACHE_TTL_MS) return null
+  return { data: JSON.parse(row.data_json), fetchedAt: row.fetched_at }
+}
+
+export function setPlayerCache(steamId: number, data: any): void {
+  const stmt = db.prepare(`
+    INSERT OR REPLACE INTO player_cache (steam_id, data_json, fetched_at)
+    VALUES (?, ?, ?)
+  `)
+  stmt.run(steamId, JSON.stringify(data), Date.now())
 }
 
 export function setHeroTimingsCache(
