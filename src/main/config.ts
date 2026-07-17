@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import crypto from 'crypto'
 import { app } from 'electron'
 
 export type AppConfig = {
@@ -10,6 +11,7 @@ export type AppConfig = {
   showBenchmarks: boolean
   autoSyncMatches: boolean
   draftAnalyzerEnabled: boolean
+  gsiAuthToken: string
 }
 
 const CONFIG_PATH = path.join(app.getPath('userData'), 'config.json')
@@ -21,7 +23,8 @@ const defaultConfig: AppConfig = {
   refreshRate: 100,
   showBenchmarks: true,
   autoSyncMatches: true,
-  draftAnalyzerEnabled: false
+  draftAnalyzerEnabled: false,
+  gsiAuthToken: crypto.randomUUID()
 }
 
 export function loadConfig(): AppConfig {
@@ -31,7 +34,8 @@ export function loadConfig(): AppConfig {
       return defaultConfig
     }
 
-    return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'))
+    const parsed = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'))
+    return { ...defaultConfig, ...parsed }
   } catch {
     return defaultConfig
   }

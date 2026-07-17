@@ -195,6 +195,7 @@
   })
 
   $effect(() => {
+    if (players.length === 0) return
     const heroNameStr = match.hero || match.heroName || ''
     const userPlayerIdx = players.findIndex((p) => {
       const hero = getHero(p.heroId)

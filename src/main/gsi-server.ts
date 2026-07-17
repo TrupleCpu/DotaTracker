@@ -2,10 +2,11 @@ import http from 'http'
 import { benchmarkCache, heroMap, loadBenchmarks } from './benchmarkCache'
 import { handleGsiStateChange } from './services/syncManager'
 import { getActiveSteamId } from './ipc/steam'
+import { loadConfig } from './config'
 
 loadBenchmarks()
 
-const AUTH_TOKEN = '@@@!!!aBcasdc'
+const AUTH_TOKEN = loadConfig().gsiAuthToken
 let roshanStatus = 'Alive'
 let roshanDeathTime: number | null = null
 
@@ -162,9 +163,9 @@ export function createGSIServer(onData: (ui: Record<string, unknown>) => void): 
         const ui = processGSI(data)
         
         // GSI does not provide steamId directly in a reliable way, we should grab the logged-in steamId
-        getActiveSteamId().then((steamId) => {
-          if (steamId && data.map && data.map.game_state) {
-            handleGsiStateChange(data.map.game_state, steamId.toString())
+        getActiveSteamId().then((result) => {
+          if ('steamId' in result && data.map && data.map.game_state) {
+            handleGsiStateChange(data.map.game_state, String(result.steamId))
           }
         })
 

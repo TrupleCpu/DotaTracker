@@ -8,7 +8,7 @@ export async function getMatchDetails(matchId: number | string) {
   const config = loadConfig()
   if (config.autoSyncMatches) {
     const cached = getLocalMatchById(numId)
-    if (cached) {
+    if (cached && (cached.players?.length ?? 0) >= 10) {
       return { match: cached }
     }
   }

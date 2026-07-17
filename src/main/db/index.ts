@@ -35,9 +35,6 @@ export function initDatabase() {
       fetched_at INTEGER NOT NULL,
       PRIMARY KEY (hero_id, bracket_ids, position_id)
     );
-    DROP TABLE IF EXISTS global_timings_cache;
-    DROP TABLE IF EXISTS personal_timings;
-
     CREATE TABLE IF NOT EXISTS player_cache (
       steam_id INTEGER PRIMARY KEY,
       data_json TEXT NOT NULL,
