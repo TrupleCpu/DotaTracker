@@ -31,7 +31,7 @@
 {#if src}
   <ToolTip text={rankToString(rank)}>
     <div
-      class="{size} rounded bg-s3 flex items-center justify-center shrink-0 overflow-hidden {className}"
+      class="{size} rounded flex items-center justify-center shrink-0 overflow-hidden {className}"
     >
       <img {src} alt="rank {rank}" class="w-full h-full object-contain" />
     </div>

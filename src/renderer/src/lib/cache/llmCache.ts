@@ -1,5 +1,5 @@
 const PREFIX = 'dt_llm_'
-const TTL = 30 * 60 * 1000
+const TTL = 7 * 24 * 60 * 60 * 1000
 
 interface CacheEntry<T> {
   data: T

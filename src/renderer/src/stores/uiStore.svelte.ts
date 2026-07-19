@@ -5,7 +5,6 @@ export type ViewId =
   | 'matches'
   | 'heroes'
   | 'analysis'
-  | 'draft'
   | 'roles'
   | 'teammates'
   | 'settings'
@@ -62,7 +61,6 @@ export const VIEW_TITLES: Record<ViewId, string> = {
 
   heroes: 'Heroes',
   analysis: 'Analysis',
-  draft: 'Draft Analyzer',
   roles: 'Role Performance',
   settings: 'Settings',
   teammates: 'Teammates',

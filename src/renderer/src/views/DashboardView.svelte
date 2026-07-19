@@ -93,6 +93,24 @@
     playerStore.loadProfile()
   })
 
+  $effect(() => {
+    const matches = playerStore.detailedMatches
+    if (matches.length === 0) return
+    let warmed = new Set<number>()
+    for (const m of matches) {
+      if (!m.id || warmed.has(m.id)) continue
+      warmed.add(m.id)
+      const attempt = (): void => {
+        window.api.fetchMatchDetails(m.id).then((data: any) => {
+          if (data && typeof data === 'object' && !('err' in data) && data?.match === null) {
+            setTimeout(attempt, 10000)
+          }
+        }).catch(() => {})
+      }
+      attempt()
+    }
+  })
+
   function getHeroModelUrl(heroId: number): string | null {
     return heroId ? `hero-model://${heroId}.png` : null
   }
@@ -371,7 +389,7 @@
                   </div>
                 </div>
                 <div
-                  class="text-sm text-tx2 font-mono font-medium font-tabular w-[80px] text-center shrink-0"
+                  class="text-sm text-tx2 font-mono font-medium font-tabular text-center shrink-0"
                 >
                   {m.k} / {m.d} / {m.a}
                 </div>
@@ -389,15 +407,7 @@
                 <div class="w-[20px] h-[20px] shrink-0 flex items-center justify-center">
                   <AwardBadge award={m.award} />
                 </div>
-                <div class="flex items-center gap-1 shrink-0">
-                  <div class="w-[16px] h-[16px] shrink-0 flex items-center justify-center text-xs">
-                    👤
-                  </div>
-                  <div class="text-xs text-tx2 w-[16px] text-center shrink-0">
-                    {m.partyCount ?? 0}
-                  </div>
-                  <RankBadge rank={m.rank} />
-                </div>
+                <RankBadge rank={m.rank} size="w-7 h-7" />
                 <div class="text-tx3 text-right flex flex-col w-[80px] shrink-0 ml-auto">
                   <div class="text-sm font-medium font-mono font-tabular leading-tight">
                     {m.dur}

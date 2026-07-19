@@ -3,6 +3,9 @@ import { FETCH_MATCH_QUERY } from '../graphql/queries/fetchMatches'
 import { getLocalMatches, getLocalHeroMatches, insertMatch } from '../../db/matchesRepo'
 import { loadConfig } from '../../config'
 
+const CACHE_TTL_MS = 5 * 60 * 1000
+const lastFetchMap = new Map<number, number>()
+
 export interface FetchMatchesOptions {
   take?: number
   skip?: number
@@ -29,11 +32,19 @@ export async function fetchMatches(
 
   const hasComplexFilters = gameModeIds || lobbyTypeIds || bracketIds || positionIds || isParty !== undefined
   const config = loadConfig()
+  const numId = Number(steamAccountId)
 
   if (config.autoSyncMatches && !hasComplexFilters) {
-    const localMatches = getLocalMatches(Number(steamAccountId), take, skip)
+    const localMatches = getLocalMatches(numId, take, skip)
+
     if (localMatches.length > 0) {
-      return { player: { matches: localMatches } }
+      if (skip === 0) {
+        const lastFetch = lastFetchMap.get(numId)
+        const isFresh = lastFetch && (Date.now() - lastFetch) < CACHE_TTL_MS
+        if (isFresh) return { player: { matches: localMatches } }
+      } else {
+        return { player: { matches: localMatches } }
+      }
     }
   }
 
@@ -52,8 +63,10 @@ export async function fetchMatches(
   // Cache to DB if it's a basic fetch
   if (config.autoSyncMatches && !hasComplexFilters && data?.player?.matches) {
     const matches: any[] = data.player.matches
-    matches.forEach(m => insertMatch(m, Number(steamAccountId)))
+    matches.forEach(m => insertMatch(m, numId))
   }
+
+  if (skip === 0) lastFetchMap.set(numId, Date.now())
 
   return data
 }
@@ -67,24 +80,35 @@ export async function fetchHeroMatches(
   take: number = 20
 ) {
   const config = loadConfig()
+  const numId = Number(steamAccountId)
+
   if (config.autoSyncMatches) {
-    const localMatches = getLocalHeroMatches(Number(steamAccountId), heroId, take, skip)
+    const localMatches = getLocalHeroMatches(numId, heroId, take, skip)
+
     if (localMatches.length > 0) {
-      return { player: { matches: localMatches } }
+      if (skip === 0) {
+        const lastFetch = lastFetchMap.get(numId)
+        const isFresh = lastFetch && (Date.now() - lastFetch) < CACHE_TTL_MS
+        if (isFresh) return { player: { matches: localMatches } }
+      } else {
+        return { player: { matches: localMatches } }
+      }
     }
   }
 
   const request: Record<string, unknown> = { heroIds: [heroId], skip, take }
 
   const data = await fetchFromStratz(FETCH_HERO_MATCHES_QUERY, {
-    steamId: Number(steamAccountId),
+    steamId: numId,
     request
   })
 
   if (config.autoSyncMatches && data?.player?.matches) {
     const matches: any[] = data.player.matches
-    matches.forEach(m => insertMatch(m, Number(steamAccountId)))
+    matches.forEach(m => insertMatch(m, numId))
   }
+
+  if (skip === 0) lastFetchMap.set(numId, Date.now())
 
   return data
 }

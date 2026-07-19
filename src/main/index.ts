@@ -2,7 +2,6 @@ import { app, BrowserWindow } from 'electron'
 import { registerAssetProtocols, registerSchemesAsPrivileged } from './protocols/assetProtocols'
 import http from 'http'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { startDraftEngine, stopDraftEngine } from './draft-engine/draftEngine'
 import { createOverlayWindow } from './windows/overlayWindow'
 import { createControlWindow } from './windows/controlWindow'
 import { createTray } from './tray/tray'
@@ -11,7 +10,6 @@ import { startTracking } from './tracking/overlayTracking'
 import { createGSIServer } from './gsi-server'
 import { state } from './state'
 import { initDatabase } from './db'
-import { loadConfig } from './config'
 
 registerSchemesAsPrivileged()
 
@@ -25,10 +23,6 @@ app.whenReady().then(() => {
 
   app.on('browser-window-created', (_, window) => optimizer.watchWindowShortcuts(window))
 
-  const config = loadConfig()
-  if (config.draftAnalyzerEnabled) {
-    startDraftEngine()
-  }
   createOverlayWindow()
   createControlWindow()
   createTray()
@@ -51,7 +45,6 @@ app.on('before-quit', () => {
 
 app.on('will-quit', () => {
   gsiServer?.close()
-  stopDraftEngine()
 })
 
 app.on('window-all-closed', () => {

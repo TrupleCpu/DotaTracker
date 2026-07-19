@@ -11,7 +11,6 @@
     Gamepad2,
     Shield,
     ChartNoAxesCombined,
-    Zap,
     Settings,
     Minus,
     Square,
@@ -23,7 +22,6 @@
   import HeroesView from './views/HeroesView.svelte'
   import AnalysisView from './views/AnalysisView.svelte'
 
-  import DraftView from './views/DraftView.svelte'
   import RolePerformanceView from './views/RolePerformanceView.svelte'
   import TeammatesView from './views/TeammatesView.svelte'
   import SettingsView from './views/SettingsView.svelte'
@@ -43,9 +41,7 @@
     {
       heading: 'Analysis',
       items: [
-        { id: 'analysis', label: 'Analysis', icon: ChartNoAxesCombined },
-
-        { id: 'draft', label: 'Draft Analyzer', icon: Zap }
+        { id: 'analysis', label: 'Analysis', icon: ChartNoAxesCombined }
       ]
     },
     { heading: 'Account', items: [{ id: 'settings', label: 'Settings', icon: Settings }] }
@@ -278,9 +274,6 @@
             <HeroesView />
           {:else if uiStore.currentView === 'analysis'}
             <AnalysisView />
-
-          {:else if uiStore.currentView === 'draft'}
-            <DraftView />
           {:else if uiStore.currentView === 'roles'}
             <RolePerformanceView initialRole={rolesViewInitialRole} />
           {:else if uiStore.currentView === 'teammates'}

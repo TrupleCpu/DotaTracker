@@ -40,8 +40,10 @@
 
   let loading = $state<boolean>(true)
   let error = $state<string | null>(null)
+  let detailGen = 0
 
   $effect(() => {
+    const gen = ++detailGen
     loading = true
     error = null
     detailedMatch = null
@@ -49,13 +51,15 @@
     window.api
       .fetchMatchDetails(match.id)
       .then((data) => {
-        detailedMatch = data // whatever shape your IPC handler resolves, e.g. data.match
+        if (gen !== detailGen) return
+        detailedMatch = data
       })
       .catch((e) => {
+        if (gen !== detailGen) return
         error = e?.message ?? 'Failed to load match details'
       })
       .finally(() => {
-        loading = false
+        if (gen === detailGen) loading = false
       })
   })
 
@@ -1892,6 +1896,10 @@
           positionOrder.indexOf(a.player.position) - positionOrder.indexOf(b.player.position)
       )
   )
+  const playerTeamIsRadiant = $derived(
+    players.length < 10 ? true : players.slice(0, 5).some((p) => p.steamAccountId === playerStore.steamId)
+  )
+
   const displayOrder = $derived([
     ...radiantPlayers.map((e) => e.originalIdx),
     ...direPlayers.map((e) => e.originalIdx)
@@ -2173,13 +2181,13 @@
         >Coaching Focus</span
       >
       <div class="flex items-stretch gap-2 overflow-x-auto pb-0.5 mt-1">
-        <!-- Radiant / Your Team -->
+        <!-- Your Team -->
         <div class="flex flex-col gap-1 shrink-0">
-          <span class="text-xxxs text-emerald-500/70 uppercase tracking-wider font-bold"
+          <span class="text-xxxs uppercase tracking-wider font-bold {playerTeamIsRadiant ? 'text-emerald-500/70' : 'text-rose-500/70'}"
             >Your Team</span
           >
           <div class="flex items-stretch gap-1">
-            {#each radiantPlayers as entry}
+            {#each (playerTeamIsRadiant ? radiantPlayers : direPlayers) as entry}
               {@const p = entry.player}
               {@const hero = getHero(p.heroId)}
               {@const grade = computePlayerGrade(p)}
@@ -2234,13 +2242,13 @@
 
         <div class="w-px self-stretch bg-zinc-800/60 mx-0.5 shrink-0"></div>
 
-        <!-- Dire / Enemy Team -->
+        <!-- Enemy Team -->
         <div class="flex flex-col gap-1 shrink-0">
-          <span class="text-xxxs text-rose-500/70 uppercase tracking-wider font-bold"
+          <span class="text-xxxs uppercase tracking-wider font-bold {playerTeamIsRadiant ? 'text-rose-500/70' : 'text-emerald-500/70'}"
             >Enemy Team</span
           >
           <div class="flex items-stretch gap-1">
-            {#each direPlayers as entry}
+            {#each (playerTeamIsRadiant ? direPlayers : radiantPlayers) as entry}
               {@const p = entry.player}
               {@const hero = getHero(p.heroId)}
               {@const grade = computePlayerGrade(p)}

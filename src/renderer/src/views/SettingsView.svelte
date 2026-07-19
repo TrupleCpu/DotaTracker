@@ -20,7 +20,6 @@
       if (storedToken) token = storedToken
       const config = await window.api.getConfig()
       autoSync = config.autoSyncMatches ?? true
-      draftAnalyzerEnabled = config.draftAnalyzerEnabled ?? false
       appVersion = await window.api.getAppVersion()
       const llmCfg = await window.api.getLlmConfig()
       if (llmCfg.configured) {
@@ -44,8 +43,6 @@
 
   let autoSync = $state(true)
   let alwaysOnSidebar = $state(true)
-  let draftAnalyzerEnabled = $state(false)
-  let showDraftConfirm = $state(false)
 
   const tabs = [
     { id: 'sg', label: 'General' },
@@ -136,33 +133,6 @@
   function toggleAlwaysOnSidebar() {
     alwaysOnSidebar = !alwaysOnSidebar
     uiStore.showToast(`Always-on sidebar: ${alwaysOnSidebar ? 'ON' : 'OFF'}`, 'ok')
-  }
-
-  function toggleDraftAnalyzer() {
-    if (!draftAnalyzerEnabled) {
-      showDraftConfirm = true
-    } else {
-      draftAnalyzerEnabled = false
-      saveDraftConfig()
-    }
-  }
-
-  async function confirmDraftEnable() {
-    showDraftConfirm = false
-    draftAnalyzerEnabled = true
-    await saveDraftConfig()
-  }
-
-  async function saveDraftConfig() {
-    try {
-      const config = await window.api.getConfig()
-      config.draftAnalyzerEnabled = draftAnalyzerEnabled
-      await window.api.setConfig(config)
-      await window.api.setDraftAnalyzer(draftAnalyzerEnabled)
-      uiStore.showToast(`Draft Analyzer: ${draftAnalyzerEnabled ? 'ON' : 'OFF'}`, 'ok')
-    } catch (e) {
-      console.error(e)
-    }
   }
 
   function resolveModel(): string {
@@ -389,28 +359,6 @@
           </div>
         {/if}
       </div>
-
-      <div class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0">
-        <div>
-          <div class="text-base font-semibold">Draft Analyzer</div>
-          <div class="text-xs text-tx2 mt-0.5 leading-relaxed">
-            AI-powered hero pick suggestions during draft. Still in development — may cause high CPU usage.
-          </div>
-        </div>
-        <div
-          class="w-[38px] h-[22px] rounded-[11px] relative cursor-pointer border transition-all after:content-[''] after:absolute after:top-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.4)] after:transition-[left]"
-          class:bg-pu={draftAnalyzerEnabled}
-          class:bg-s4={!draftAnalyzerEnabled}
-          class:border-transparent={draftAnalyzerEnabled}
-          class:border-bd2={!draftAnalyzerEnabled}
-          class:after:left-[18px]={draftAnalyzerEnabled}
-          class:after:left-0.5={!draftAnalyzerEnabled}
-          role="switch"
-          aria-checked={draftAnalyzerEnabled}
-          onclick={toggleDraftAnalyzer}
-        ></div>
-      </div>
-    </div>
   {:else if activeTab === 'sapi'}
     <div class="card">
       <div class="flex flex-col items-start py-[13px] border-b border-bd gap-2 last:border-b-0">
@@ -533,30 +481,3 @@
     </div>
   {/if}
 </div>
-
-{#if showDraftConfirm}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-    <div class="bg-s1 border border-bd rounded-xl p-6 max-w-sm w-full shadow-2xl">
-      <div class="text-base font-bold text-tx mb-2">Enable Draft Analyzer?</div>
-      <div class="text-sm text-tx2 leading-relaxed mb-5">
-        This is still in <span class="font-semibold text-yw">development mode</span> and may cause
-        <span class="font-semibold text-rd">high CPU usage</span>.
-        Do you still wish to activate?
-      </div>
-      <div class="flex justify-end gap-2">
-        <button
-          class="bg-s3 border border-bd text-tx2 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-s4 hover:text-tx hover:border-bd2 cursor-pointer"
-          onclick={() => (showDraftConfirm = false)}
-        >
-          Cancel
-        </button>
-        <button
-          class="bg-pub border border-pu/40 text-tx px-4 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-pu/30 hover:border-pu cursor-pointer shadow-sm"
-          onclick={confirmDraftEnable}
-        >
-          Activate
-        </button>
-      </div>
-    </div>
-  </div>
-{/if}

@@ -2,11 +2,10 @@ import http from 'http'
 import { benchmarkCache, heroMap, loadBenchmarks } from './benchmarkCache'
 import { handleGsiStateChange } from './services/syncManager'
 import { getActiveSteamId } from './ipc/steam'
-import { loadConfig } from './config'
 
 loadBenchmarks()
 
-const AUTH_TOKEN = loadConfig().gsiAuthToken
+const AUTH_TOKEN = "@@@!!!aBcasdc"
 let roshanStatus = 'Alive'
 let roshanDeathTime: number | null = null
 

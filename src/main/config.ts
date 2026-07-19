@@ -10,7 +10,6 @@ export type AppConfig = {
   refreshRate: number
   showBenchmarks: boolean
   autoSyncMatches: boolean
-  draftAnalyzerEnabled: boolean
   gsiAuthToken: string
 }
 
@@ -23,7 +22,6 @@ const defaultConfig: AppConfig = {
   refreshRate: 100,
   showBenchmarks: true,
   autoSyncMatches: true,
-  draftAnalyzerEnabled: false,
   gsiAuthToken: crypto.randomUUID()
 }
 

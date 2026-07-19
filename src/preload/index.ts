@@ -36,12 +36,6 @@ const api = {
   fetchHeroMatches: (steamId: string, heroId: number, skip?: number, take?: number): Promise<any> =>
     ipcRenderer.invoke('fetch-hero-matches', steamId, heroId, skip, take),
 
-  analyzeDraftSuggestion: (radiantIds: number[], direIds: number[], playerTeam: string): Promise<any> =>
-    ipcRenderer.invoke('analyze-draft-suggestion', radiantIds, direIds, playerTeam),
-
-  analyzeDraftWinProbability: (radiantIds: number[], direIds: number[]): Promise<any> =>
-    ipcRenderer.invoke('analyze-draft-win-probability', radiantIds, direIds),
-
   triggerStartupSync: (steamId: string): Promise<void> =>
     ipcRenderer.invoke('trigger-startup-sync', steamId),
 
@@ -51,16 +45,22 @@ const api = {
   getSyncProgress: (steamId: number): Promise<{ synced: number; total: number; status: string }> =>
     ipcRenderer.invoke('get-sync-progress', steamId),
 
-  onSyncProgress: (cb: (data: { synced: number; total: number; status: string }) => void): void => {
-    ipcRenderer.on('sync-progress', (_e, data) => cb(data))
+  onSyncProgress: (cb: (data: { synced: number; total: number; status: string }) => void): (() => void) => {
+    const handler = (_e: Electron.IpcRendererEvent, data: { synced: number; total: number; status: string }) => cb(data)
+    ipcRenderer.on('sync-progress', handler)
+    return () => ipcRenderer.removeListener('sync-progress', handler)
   },
 
-  onSyncComplete: (cb: (data: { synced: number; total: number }) => void): void => {
-    ipcRenderer.on('sync-complete', (_e, data) => cb(data))
+  onSyncComplete: (cb: (data: { synced: number; total: number }) => void): (() => void) => {
+    const handler = (_e: Electron.IpcRendererEvent, data: { synced: number; total: number }) => cb(data)
+    ipcRenderer.on('sync-complete', handler)
+    return () => ipcRenderer.removeListener('sync-complete', handler)
   },
 
-  onMatchHistoryUpdated: (cb: () => void): void => {
-    ipcRenderer.on('match-history-updated', () => cb())
+  onMatchHistoryUpdated: (cb: () => void): (() => void) => {
+    const handler = () => cb()
+    ipcRenderer.on('match-history-updated', handler)
+    return () => ipcRenderer.removeListener('match-history-updated', handler)
   },
 
   getHeroItemFrequency: (steamId: number, heroId: number): Promise<{ itemId: number; count: number }[]> =>
@@ -84,23 +84,10 @@ const api = {
     ipcRenderer.invoke('set-llm-config', config),
   clearLlmConfig: (): Promise<boolean> => ipcRenderer.invoke('clear-llm-config'),
 
-  setDraftAnalyzer: (enabled: boolean): Promise<void> =>
-    ipcRenderer.invoke('set-draft-analyzer', enabled),
-
   generateCoaching: (ctx: any): Promise<any> => ipcRenderer.invoke('generate-coaching', ctx),
   generateSessionReview: (matches: any[]): Promise<any> => ipcRenderer.invoke('generate-session-review', matches),
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onConfigUpdate: (cb: (config: any) => void): void => {
-    ipcRenderer.on('config-updated', (_e, data) => cb(data))
-  },
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onDraftUpdate: (cb: (data: any) => void): void => {
-    ipcRenderer.on('draft-update', (_e, data) => cb(data))
-  },
-
-  minimizeWindow: (): void => ipcRenderer.send('win-minimize'),
+  onConfigUpdate: (): void => ipcRenderer.send('win-minimize'),
   maximizeWindow: (): void => ipcRenderer.send('win-maximize'),
   closeWindow: (): void => ipcRenderer.send('win-close'),
 

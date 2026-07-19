@@ -25,6 +25,7 @@
   let isLoadingMore = $state(false)
   let error = $state<string | null>(null)
   let loadedCount = $state(0)
+  let fetchGen = 0
 
   let totalMatches = $derived(playerStore.playerStats?.matchCount ?? 0)
   let hasMore = $derived(loadedCount < totalMatches)
@@ -69,6 +70,7 @@
   }
 
   async function fetchInitial() {
+    const gen = ++fetchGen
     const steamId = playerStore.steamId
     if (!steamId) return
     allMatches = []
@@ -77,12 +79,14 @@
     error = null
     try {
       const chunk = await fetchChunk(0)
+      if (gen !== fetchGen) return
       allMatches = chunk
       loadedCount = chunk.length
     } catch (err) {
+      if (gen !== fetchGen) return
       error = err instanceof Error ? err.message : 'Failed to load matches.'
     } finally {
-      loading = false
+      if (gen === fetchGen) loading = false
     }
   }
 
@@ -145,6 +149,11 @@
   $effect(() => {
     ;(selectedMode, selectedRole, playerStore.steamId)
     if (playerStore.steamId) fetchInitial()
+
+    const unsub = window.api.onSyncComplete(() => {
+      fetchInitial()
+    })
+    return () => unsub()
   })
 </script>
 
