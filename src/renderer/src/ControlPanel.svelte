@@ -12,6 +12,7 @@
     Shield,
     ChartNoAxesCombined,
     Settings,
+    BookOpen,
     Minus,
     Square,
     X
@@ -27,6 +28,7 @@
   import SettingsView from './views/SettingsView.svelte'
   import MatchDetailView from './views/match-detail/MatchDetailView.svelte'
   import HeroDetailView from './views/HeroDetailView.svelte'
+  import PlayGuideView from './views/PlayGuideView.svelte'
 
   import TokenPrompt from './components/TokenPrompt.svelte'
 
@@ -42,6 +44,12 @@
       heading: 'Analysis',
       items: [
         { id: 'analysis', label: 'Analysis', icon: ChartNoAxesCombined }
+      ]
+    },
+    {
+      heading: 'Tools',
+      items: [
+        { id: 'play-guide', label: 'Play Guide', icon: BookOpen }
       ]
     },
     { heading: 'Account', items: [{ id: 'settings', label: 'Settings', icon: Settings }] }
@@ -284,6 +292,8 @@
             <MatchDetailView match={uiStore.selectedMatch} />
           {:else if uiStore.currentView === 'hero-detail' && uiStore.selectedHeroId}
             <HeroDetailView heroId={uiStore.selectedHeroId} />
+          {:else if uiStore.currentView === 'play-guide'}
+            <PlayGuideView />
           {/if}
         </div>
       </div>

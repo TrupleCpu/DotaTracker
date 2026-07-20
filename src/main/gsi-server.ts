@@ -1,18 +1,29 @@
 import http from 'http'
-import { benchmarkCache, heroMap, loadBenchmarks } from './benchmarkCache'
+import { heroMap } from './benchmarkCache'
 import { handleGsiStateChange } from './services/syncManager'
 import { getActiveSteamId } from './ipc/steam'
-
-loadBenchmarks()
-
+import itemsData from './data/items.json'
 const AUTH_TOKEN = "@@@!!!aBcasdc"
+
 let roshanStatus = 'Alive'
 let roshanDeathTime: number | null = null
 
-// Helper to sanitize item names cleanly
+const itemKeyToId: Record<string, number> = {}
+for (const [key, val] of Object.entries(itemsData)) {
+  if (val && typeof val === 'object' && 'id' in val) {
+    itemKeyToId[key] = (val as { id: number }).id
+  }
+}
+
 function sanitizeItemName(name: string | unknown): string {
   if (typeof name !== 'string' || !name || name === 'empty') return 'empty'
   return name.replace('item_', '').replace(/_/g, ' ')
+}
+
+function getItemId(name: string | unknown): number {
+  if (typeof name !== 'string' || !name || name === 'empty') return 0
+  const key = name.replace(/^item_/, '')
+  return itemKeyToId[key] ?? 0
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,51 +80,30 @@ function processGSI(data: Record<string, any>): Record<string, any> {
 
   if (data.hero) {
     const h = data.hero
-
-    const heroId = heroMap.get(h.name)
-    const benchmark = heroId ? benchmarkCache[heroId] : null
-    const result = benchmark?.result
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let gpm50 = (result as any)?.gold_per_min?.find((p: any) => p.percentile === 0.5)?.value ?? 0
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let xpm50 = (result as any)?.xp_per_min?.find((p: any) => p.percentile === 0.5)?.value ?? 0
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let kpm50 = (result as any)?.kills_per_min?.find((p: any) => p.percentile === 0.5)?.value ?? 0
-
-    if (!gpm50)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      gpm50 = (result as any)?.gold_per_min?.find((p: any) => p.value !== null)?.value ?? 0
-    if (!xpm50)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      xpm50 = (result as any)?.xp_per_min?.find((p: any) => p.value !== null)?.value ?? 0
-    if (!kpm50)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      kpm50 = (result as any)?.kills_per_min?.find((p: any) => p.value !== null)?.value ?? 0
+    const heroId = heroMap.get(h.name) ?? null
 
     ui.hero = {
+      id: heroId,
       name: (h.name ?? '').replace('npc_dota_hero_', '').replace(/_/g, ' '),
       health: h.health ?? 0,
       max_health: h.max_health ?? 0,
       mana: h.mana ?? 0,
       max_mana: h.max_mana ?? 0,
       level: h.level ?? 0,
-      benchmark_gpm: gpm50,
-      benchmark_xpm: xpm50,
-      benchmark_kpm: kpm50,
       alive: h.alive ?? true,
       respawn_seconds: h.respawn_seconds ?? 0
     }
   }
 
-  // New section: Safely extract and format items data
   if (data.items) {
     const mainInventory: string[] = []
+    const inventoryIds: number[] = []
     const backpack: string[] = []
 
-    // Loop through standard slots (slot0 to slot5 are main inventory, slot6 to slot8 are backpack)
     for (let i = 0; i < 6; i++) {
-      mainInventory.push(sanitizeItemName(data.items[`slot${i}`]?.name))
+      const slotName = data.items[`slot${i}`]?.name
+      mainInventory.push(sanitizeItemName(slotName))
+      inventoryIds.push(getItemId(slotName))
     }
     for (let i = 6; i < 9; i++) {
       backpack.push(sanitizeItemName(data.items[`slot${i}`]?.name))
@@ -121,10 +111,12 @@ function processGSI(data: Record<string, any>): Record<string, any> {
 
     ui.items = {
       inventory: mainInventory,
+      inventory_ids: inventoryIds,
       backpack: backpack,
       teleport: sanitizeItemName(data.items.slot9?.name),
       neutral: sanitizeItemName(data.items.neutral0?.name)
     }
+    if (process.env.DEBUG) console.log('[GSI] Items:', JSON.stringify(inventoryIds))
   }
 
   return ui
@@ -151,7 +143,7 @@ export function createGSIServer(onData: (ui: Record<string, unknown>) => void): 
         }
 
         const data = JSON.parse(body)
-        console.log(data)
+        if (process.env.DEBUG) console.log(data)
 
         if (!data.auth || data.auth.token !== AUTH_TOKEN) {
           res.writeHead(403)

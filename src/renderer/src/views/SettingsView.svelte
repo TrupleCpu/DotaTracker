@@ -38,7 +38,9 @@
           llmModel = (PROVIDER_MODELS[llmProvider] || [])[0] || ''
         }
       }
-    } catch {}
+    } catch (error) {
+      console.error(error)
+    }
   })
 
   let autoSync = $state(true)
@@ -65,20 +67,33 @@
 
   const PROVIDER_MODELS: Record<string, string[]> = {
     openai: ['gpt-4o-mini', 'gpt-4o', 'gpt-5.6-terra', 'gpt-5.6-luna'],
-    nvidia: ['meta/llama-3.1-8b-instruct', 'meta/llama-3.3-70b-instruct', 'meta/llama-4-maverick', 'mistralai/mistral-large', 'z-ai/glm-5.2', 'deepseek-ai/deepseek-r1'],
+    nvidia: [
+      'meta/llama-3.1-8b-instruct',
+      'meta/llama-3.3-70b-instruct',
+      'meta/llama-4-maverick',
+      'mistralai/mistral-large',
+      'z-ai/glm-5.2',
+      'deepseek-ai/deepseek-r1'
+    ],
     claude: ['claude-3-5-haiku-latest', 'claude-sonnet-4-6', 'claude-opus-4-8', 'claude-fable-5'],
     gemini: ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3-flash', 'gemini-3.5-flash'],
-    groq: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'qwen3-32b']
+    groq: [
+      'llama-3.3-70b-versatile',
+      'llama-3.1-8b-instant',
+      'openai/gpt-oss-120b',
+      'openai/gpt-oss-20b',
+      'qwen3-32b'
+    ]
   }
 
   const availableModels = $derived(PROVIDER_MODELS[llmProvider] || [])
   const usingCustomModel = $derived(llmModel === '__custom__')
 
-  function toggleApi() {
+  function toggleApi(): void {
     apiVisible = !apiVisible
   }
 
-  function testConn() {
+  function testConn(): void {
     connTested = false
     setTimeout(() => {
       connTested = true
@@ -86,7 +101,7 @@
     }, 1200)
   }
 
-  async function updateToken() {
+  async function updateToken(): Promise<void> {
     isSavingToken = true
     try {
       await window.api.setStratzToken(token)
@@ -98,7 +113,7 @@
     }
   }
 
-  async function disconnectApi() {
+  async function disconnectApi(): Promise<void> {
     token = ''
     try {
       await window.api.setStratzToken('')
@@ -120,17 +135,17 @@
     uiStore.showToast(`Auto-sync new matches: ${autoSync ? 'ON' : 'OFF'}`, 'ok')
   }
 
-  function toggleCompact() {
+  function toggleCompact(): void {
     uiStore.compactMode = !uiStore.compactMode
     uiStore.showToast(`Compact mode: ${uiStore.compactMode ? 'ON' : 'OFF'}`, 'ok')
   }
 
-  function toggleAnimated() {
+  function toggleAnimated(): void {
     uiStore.animatedCharts = !uiStore.animatedCharts
     uiStore.showToast(`Animated charts: ${uiStore.animatedCharts ? 'ON' : 'OFF'}`, 'ok')
   }
 
-  function toggleAlwaysOnSidebar() {
+  function toggleAlwaysOnSidebar(): void {
     alwaysOnSidebar = !alwaysOnSidebar
     uiStore.showToast(`Always-on sidebar: ${alwaysOnSidebar ? 'ON' : 'OFF'}`, 'ok')
   }
@@ -141,7 +156,7 @@
     return availableModels[0] || ''
   }
 
-  async function saveLlmConfig() {
+  async function saveLlmConfig(): Promise<void> {
     isSavingLlm = true
     try {
       await window.api.setLlmConfig({
@@ -159,7 +174,7 @@
     }
   }
 
-  async function clearLlmConfig() {
+  async function clearLlmConfig(): Promise<void> {
     try {
       await window.api.clearLlmConfig()
       llmConfigured = false
@@ -173,7 +188,7 @@
     }
   }
 
-  async function testLlmConnection() {
+  async function testLlmConnection(): Promise<void> {
     llmTesting = true
     llmTestResult = null
     const model = resolveModel()
@@ -221,7 +236,9 @@
 
   {#if activeTab === 'sg'}
     <div class="card">
-      <div class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0">
+      <div
+        class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0"
+      >
         <div>
           <div class="text-base font-semibold">Auto-sync new matches</div>
           <div class="text-xs text-tx2 mt-0.5 leading-relaxed">
@@ -279,7 +296,7 @@
             class="bg-s2 border border-bd rounded-lg text-tx px-3 py-2 text-sm focus:border-pu outline-hidden transition-colors"
             bind:value={llmModel}
           >
-            {#each availableModels as m}
+            {#each availableModels as m, index (index)}
               <option value={m}>{m}</option>
             {/each}
             <option value="__custom__">Custom…</option>
@@ -359,6 +376,7 @@
           </div>
         {/if}
       </div>
+    </div>
   {:else if activeTab === 'sapi'}
     <div class="card">
       <div class="flex flex-col items-start py-[13px] border-b border-bd gap-2 last:border-b-0">
@@ -375,11 +393,21 @@
             bind:value={token}
             placeholder="Paste your STRATZ API Token..."
           />
-          <button class="bg-s3 border border-bd text-tx2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-s4 hover:text-tx hover:border-bd2 cursor-pointer" onclick={toggleApi}>{apiVisible ? 'Hide' : 'Show'}</button>
-          <button class="bg-pub border border-pu/40 text-tx px-4 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-pu/30 hover:border-pu disabled:opacity-50 cursor-pointer shadow-sm" onclick={updateToken} disabled={isSavingToken}>
+          <button
+            class="bg-s3 border border-bd text-tx2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-s4 hover:text-tx hover:border-bd2 cursor-pointer"
+            onclick={toggleApi}>{apiVisible ? 'Hide' : 'Show'}</button
+          >
+          <button
+            class="bg-pub border border-pu/40 text-tx px-4 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-pu/30 hover:border-pu disabled:opacity-50 cursor-pointer shadow-sm"
+            onclick={updateToken}
+            disabled={isSavingToken}
+          >
             {#if isSavingToken}Saving...{:else}Save{/if}
           </button>
-          <button class="bg-transparent border border-bd text-tx px-4 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-white/5 hover:border-bd2 cursor-pointer" onclick={testConn}>Test Connection</button>
+          <button
+            class="bg-transparent border border-bd text-tx px-4 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-white/5 hover:border-bd2 cursor-pointer"
+            onclick={testConn}>Test Connection</button
+          >
         </div>
         {#if connTested}
           <div class="text-gr text-sm font-semibold flex items-center gap-1.25">
@@ -387,7 +415,9 @@
           </div>
         {/if}
       </div>
-      <div class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0">
+      <div
+        class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0"
+      >
         <div>
           <div class="text-base font-semibold">Disconnect API</div>
           <div class="text-xs text-tx2 mt-0.5 leading-relaxed">
@@ -402,7 +432,9 @@
     </div>
   {:else if activeTab === 'sapp'}
     <div class="card">
-      <div class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0">
+      <div
+        class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0"
+      >
         <div>
           <div class="text-base font-semibold">Compact mode</div>
           <div class="text-xs text-tx2 mt-0.5 leading-relaxed">
@@ -422,7 +454,9 @@
           onclick={toggleCompact}
         ></div>
       </div>
-      <div class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0">
+      <div
+        class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0"
+      >
         <div>
           <div class="text-base font-semibold">Animated charts</div>
           <div class="text-xs text-tx2 mt-0.5 leading-relaxed">
@@ -442,7 +476,9 @@
           onclick={toggleAnimated}
         ></div>
       </div>
-      <div class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0">
+      <div
+        class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0"
+      >
         <div>
           <div class="text-base font-semibold">Always-on sidebar</div>
           <div class="text-xs text-tx2 mt-0.5 leading-relaxed">
@@ -469,13 +505,18 @@
         <div class="text-lg font-extrabold mb-1.25">Dota Coach</div>
         <div class="text-sm text-tx2 mb-1.25">Version {appVersion} · Build {__BUILD_DATE__}</div>
         <div class="text-sm text-tx2 mb-4 leading-relaxed">
-          Analytics and coaching dashboard for Dota 2 players. Powered by STRATZ API. Not affiliated with Valve
-          Corporation.
+          Analytics and coaching dashboard for Dota 2 players. Powered by STRATZ API. Not affiliated
+          with Valve Corporation.
         </div>
         <div class="flex gap-2">
-          <button class="btn-out" onclick={() => uiStore.showToast('Opening changelog…')}>📋 Changelog</button>
-          <button class="btn-out" onclick={() => uiStore.showToast('Opening docs…')}>📖 Docs</button>
-          <button class="btn-out" onclick={() => uiStore.showToast('Opening GitHub…')}>⭐ GitHub</button>
+          <button class="btn-out" onclick={() => uiStore.showToast('Opening changelog…')}
+            >📋 Changelog</button
+          >
+          <button class="btn-out" onclick={() => uiStore.showToast('Opening docs…')}>📖 Docs</button
+          >
+          <button class="btn-out" onclick={() => uiStore.showToast('Opening GitHub…')}
+            >⭐ GitHub</button
+          >
         </div>
       </div>
     </div>

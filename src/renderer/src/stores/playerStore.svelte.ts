@@ -77,8 +77,8 @@ class PlayerStore {
       }
 
       const raw = await window.api.fetchPlayerData(res.steamId, forceRefersh)
-      if (raw?.error) {
-        this.error = raw.error
+      if (raw?.err) {
+        this.error = raw.err
         return
       }
 

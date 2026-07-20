@@ -17,13 +17,14 @@ const api = {
     ipcRenderer.on('dota-gsi-stream', (_e, data) => cb(data))
   },
 
-  steamLogin: (): Promise<string> => ipcRenderer.invoke('steam-login'),
+  getPlayGuide: (heroId: number): Promise<unknown> =>
+    ipcRenderer.invoke('get-play-guide', heroId),
+
+  savePlayGuide: (heroId: number, slots: unknown[]): Promise<boolean> =>
+    ipcRenderer.invoke('save-play-guide', heroId, slots),
 
   getLocalSteamId: (): Promise<{ steamId?: string; error?: string }> =>
     ipcRenderer.invoke('get-local-steam-id'),
-
-  fetchMatchHistory: (steamId: string): Promise<unknown> =>
-    ipcRenderer.invoke('fetch-match-history', steamId),
 
   fetchMatchDetails: (matchId: string): Promise<unknown> =>
     ipcRenderer.invoke('fetch-match-details', matchId),
@@ -87,11 +88,26 @@ const api = {
   generateCoaching: (ctx: any): Promise<any> => ipcRenderer.invoke('generate-coaching', ctx),
   generateSessionReview: (matches: any[]): Promise<any> => ipcRenderer.invoke('generate-session-review', matches),
 
-  onConfigUpdate: (): void => ipcRenderer.send('win-minimize'),
+  onConfigUpdate: (cb: (config: unknown) => void): void => {
+    ipcRenderer.on('config-updated', (_e, config) => cb(config))
+  },
+
+  onGuideUpdated: (cb: (heroId: number) => void): void => {
+    ipcRenderer.on('guide-updated', (_e, heroId) => cb(heroId))
+  },
   maximizeWindow: (): void => ipcRenderer.send('win-maximize'),
   closeWindow: (): void => ipcRenderer.send('win-close'),
 
-  getAppVersion: (): Promise<string> => ipcRenderer.invoke('get-app-version')
+  getAppVersion: (): Promise<string> => ipcRenderer.invoke('get-app-version'),
+
+  showGuideNotification: (data: { itemName: string; itemImg: string | null; targetMinute: number; acquiredAtClock: number; diffSeconds: number }): void =>
+    ipcRenderer.send('show-guide-notification', data),
+
+  onGuideNotification: (cb: (data: { itemName: string; itemImg: string | null; targetMinute: number; acquiredAtClock: number; diffSeconds: number }) => void): void => {
+    ipcRenderer.on('guide-notification-data', (_e, data) => cb(data))
+  },
+
+  getBenchmarks: (): Promise<unknown> => ipcRenderer.invoke('get-benchmarks')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -200,24 +200,20 @@
 
   $effect(() => {
     if (players.length === 0) return
-    const heroNameStr = match.hero || match.heroName || ''
-    const userPlayerIdx = players.findIndex((p) => {
-      const hero = getHero(p.heroId)
-      return hero?.localized_name.toLowerCase() === heroNameStr.toLowerCase()
-    })
+
+    const userPlayerIdx = players.findIndex(
+      (p) => p.steamAccountId === playerStore.steamId
+    )
 
     if (userPlayerIdx !== -1) {
       selectedPlayerIndex = userPlayerIdx
     } else {
-      let lowestImp = Infinity
-      let bestIdx = 0
-      for (let i = 0; i < 5; i++) {
-        if (players[i].imp < lowestImp) {
-          lowestImp = players[i].imp
-          bestIdx = i
-        }
-      }
-      selectedPlayerIndex = bestIdx
+      const heroNameStr = match.hero || match.heroName || ''
+      const heroIdx = players.findIndex((p) => {
+        const hero = getHero(p.heroId)
+        return hero?.localized_name.toLowerCase() === heroNameStr.toLowerCase()
+      })
+      selectedPlayerIndex = heroIdx !== -1 ? heroIdx : 0
     }
 
     cursorTime = null
@@ -254,6 +250,10 @@
   })
 
   function isYou(heroId: number): boolean {
+    const player = players.find((p) => p.heroId === heroId)
+    if (player && player.steamAccountId !== undefined) {
+      return player.steamAccountId === playerStore.steamId
+    }
     const hero = getHero(heroId)
     const heroNameStr = match.hero || match.heroName || ''
     return hero?.localized_name.toLowerCase() === heroNameStr.toLowerCase()

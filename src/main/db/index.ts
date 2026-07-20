@@ -40,5 +40,11 @@ export function initDatabase() {
       data_json TEXT NOT NULL,
       fetched_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS play_guides (
+      hero_id INTEGER PRIMARY KEY,
+      slots_json TEXT NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
   `)
 }

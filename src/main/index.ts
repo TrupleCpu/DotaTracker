@@ -1,15 +1,17 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, globalShortcut } from 'electron'
 import { registerAssetProtocols, registerSchemesAsPrivileged } from './protocols/assetProtocols'
 import http from 'http'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createOverlayWindow } from './windows/overlayWindow'
 import { createControlWindow } from './windows/controlWindow'
+import { createGuideNotificationWindow } from './windows/guideNotificationWindow'
 import { createTray } from './tray/tray'
 import { registerIpcHandlers } from './ipc'
 import { startTracking } from './tracking/overlayTracking'
 import { createGSIServer } from './gsi-server'
 import { state } from './state'
 import { initDatabase } from './db'
+import { prewarmBenchmarks } from './benchmarkCache'
 
 registerSchemesAsPrivileged()
 
@@ -19,14 +21,28 @@ app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
 
   initDatabase()
+  prewarmBenchmarks()
   registerAssetProtocols()
 
   app.on('browser-window-created', (_, window) => optimizer.watchWindowShortcuts(window))
 
   createOverlayWindow()
   createControlWindow()
+  createGuideNotificationWindow()
   createTray()
   registerIpcHandlers()
+
+  globalShortcut.register('CmdOrCtrl+Shift+D', () => {
+    const win = state.controlWindow
+    if (!win) return
+    if (win.isVisible()) {
+      win.hide()
+    } else {
+      win.show()
+      win.focus()
+    }
+  })
+
   startTracking()
 
   gsiServer = createGSIServer((ui) => {
@@ -44,6 +60,7 @@ app.on('before-quit', () => {
 })
 
 app.on('will-quit', () => {
+  globalShortcut.unregisterAll()
   gsiServer?.close()
 })
 

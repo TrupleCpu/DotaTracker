@@ -5,7 +5,7 @@ import { pathToFileURL } from 'url'
 
 function resolveBasePath(subdir: string): string {
   return app.isPackaged
-    ? join(app.getAppPath().replace('app.asar', 'app.asar.unpacked'), 'src/main/data', subdir)
+    ? join(process.resourcesPath, 'data', subdir)
     : join(app.getAppPath(), 'src/main/data', subdir)
 }
 

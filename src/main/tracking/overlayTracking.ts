@@ -2,6 +2,7 @@ import { windowManager } from 'node-window-manager'
 import { basename } from 'path'
 import { state } from '../state'
 import { WIDGET_HEIGHT, WIDGET_WIDTH } from '../windows/overlayWindow'
+import { hideGuideNotification } from '../windows/guideNotificationWindow'
 
 type Bounds = { x: number; y: number; width: number; height: number }
 
@@ -37,12 +38,14 @@ export function startTracking(): void {
         const bounds = getSafeBounds(activeWindow as unknown as { getBounds: () => Bounds | null })
 
         if (bounds && state.mainWindow) {
-          state.mainWindow.setBounds({
-            x: bounds.x + 8,
+          const overlayBounds = {
+            x: bounds.x ,
             y: bounds.y + 125,
             width: WIDGET_WIDTH,
             height: WIDGET_HEIGHT
-          })
+          }
+          state.mainWindow.setBounds(overlayBounds)
+          state.overlayBounds = overlayBounds
         }
 
         if (state.mainWindow && !state.mainWindow.isVisible()) {
@@ -51,6 +54,7 @@ export function startTracking(): void {
         }
       } else {
         if (state.mainWindow?.isVisible()) state.mainWindow.hide()
+        hideGuideNotification()
       }
     } catch (err) {
       console.error('Overlay visibility check error:', err)

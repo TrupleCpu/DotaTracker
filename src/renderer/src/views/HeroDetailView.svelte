@@ -100,8 +100,11 @@
       else if (outcomeStr === 'LOST' || outcomeStr === 'STOMPED_AGAINST') laneResult = 'lost'
       else if (outcomeStr === 'DRAW') laneResult = 'tie'
 
+      const hero = playerData.heroId ? getHero(playerData.heroId) : null
+
       return {
         id: match.id,
+        hero: hero?.localized_name ?? `Hero #${playerData.heroId}`,
         outcome: playerData.isVictory ? 'win' : 'loss',
         laneResult,
         mode: formatGameMode(match.gameMode),

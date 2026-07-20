@@ -9,11 +9,11 @@ declare global {
       getOverlayStatus: () => Promise<boolean>
       onOverlayStatus: (cb: (visible: boolean) => void) => void
       onGsiStream: (cb: (data: unknown) => void) => void
-      steamLogin: () => Promise<string>
+      getPlayGuide: (heroId: number) => Promise<unknown>
+      savePlayGuide: (heroId: number, slots: unknown[]) => Promise<boolean>
       getLocalSteamId: () => Promise<{ steamId?: string; error?: string }>
-      fetchMatchHistory: (steamId: string) => Promise<unknown>
       fetchMatchDetails: (matchId: string) => Promise<unknown>
-      fetchPlayerData: (steamId: string) => Promise<unknown>
+      fetchPlayerData: (steamId: string, forceRefresh?: boolean) => Promise<unknown>
       fetchAllMatches: (steamId: string, options?: unknown) => Promise<unknown>
       fetchHeroMatches: (steamId: string, heroId: number, skip?: number, take?: number) => Promise<any>
       triggerStartupSync: (steamId: string) => Promise<void>
@@ -27,10 +27,21 @@ declare global {
       getConfig: () => Promise<unknown>
       setConfig: (config: unknown) => Promise<unknown>
       onConfigUpdate: (cb: (config: unknown) => void) => void
+      onGuideUpdated: (cb: (heroId: number) => void) => void
       minimizeWindow: () => void
       maximizeWindow: () => void
       closeWindow: () => void
       getAppVersion: () => Promise<string>
-    }
+      showGuideNotification: (data: { itemName: string; itemImg: string | null; targetMinute: number; acquiredAtClock: number; diffSeconds: number }) => void
+      onGuideNotification: (cb: (data: { itemName: string; itemImg: string | null; targetMinute: number; acquiredAtClock: number; diffSeconds: number }) => void) => void
+      getBenchmarks: () => Promise<unknown>
+      getStratzToken: () => Promise<string | null>
+      setStratzToken: (token: string) => Promise<boolean>
+      getLlmConfig: () => Promise<{ configured: boolean; provider: string | null }>
+      setLlmConfig: (config: { provider: string; apiKey: string; baseUrl?: string }) => Promise<boolean>
+      clearLlmConfig: () => Promise<boolean>
+      generateCoaching: (ctx: unknown) => Promise<unknown>
+      generateSessionReview: (matches: unknown[]) => Promise<unknown>
+      }
   }
 }

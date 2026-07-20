@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: com.dotatrack.app
 productName: dotatrack
 directories:
   buildResources: build
@@ -12,12 +12,13 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
 asarUnpack:
   - resources/**
-  - src/main/data/hero-assets/**
-  - src/main/data/item-assets/**
-  - src/main/data/hero-models/**
-  - src/main/data/abilities/**
+extraResources:
+  - from: src/main/data
+    to: data
+    filter:
+      - '**/*'
 win:
-  icon: build/icon.co
+  icon: build/icon.ico
   executableName: dotatrack
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
@@ -39,7 +40,7 @@ linux:
     - AppImage
     - snap
     - deb
-  maintainer: electronjs.org
+  maintainer: dotatrack
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}

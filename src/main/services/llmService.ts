@@ -81,27 +81,44 @@ function getProviderConfig(): ProviderConfig | null {
   }
 }
 
+function stripCodeFences(text: string): string {
+  return text.replace(/```(?:json)?\s*\n?/gi, '').trim()
+}
+
+function extractJsonArray(text: string): string | null {
+  const start = text.indexOf('[')
+  if (start === -1) return null
+  let depth = 0
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === '[') depth++
+    else if (text[i] === ']') {
+      depth--
+      if (depth === 0) return text.substring(start, i + 1)
+    }
+  }
+  return null
+}
+
+function extractJsonObject(text: string): string | null {
+  const start = text.indexOf('{')
+  if (start === -1) return null
+  let depth = 0
+  for (let i = start; i < text.length; i++) {
+    if (text[i] === '{') depth++
+    else if (text[i] === '}') {
+      depth--
+      if (depth === 0) return text.substring(start, i + 1)
+    }
+  }
+  return null
+}
+
 function extractJson(text: string): string {
-  const firstBrace = text.indexOf('{')
-  const firstBracket = text.indexOf('[')
-
-  let start = -1
-  let end = -1
-
-  if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) {
-    // Expected structure is JSON object
-    start = firstBrace
-    end = text.lastIndexOf('}')
-  } else if (firstBracket !== -1) {
-    // Expected structure is JSON array
-    start = firstBracket
-    end = text.lastIndexOf(']')
-  }
-
-  if (start !== -1 && end !== -1 && end > start) {
-    return text.substring(start, end + 1)
-  }
-
+  const cleaned = stripCodeFences(text)
+  const asArray = extractJsonArray(cleaned)
+  if (asArray) return asArray
+  const asObject = extractJsonObject(cleaned)
+  if (asObject) return asObject
   return text.trim()
 }
 
@@ -179,8 +196,19 @@ export interface CoachingPoint {
 export async function generateMatchCoaching(ctx: SingleMatchContext): Promise<CoachingPoint[]> {
   const text = await llmChat(buildSingleMatchPrompt(ctx))
   const cleaned = extractJson(text)
-  const parsed = JSON.parse(cleaned)
-  if (!Array.isArray(parsed)) throw new Error('Expected array')
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(cleaned)
+  } catch {
+    throw new Error('AI Coach returned invalid JSON. Try again or switch models.')
+  }
+  if (!Array.isArray(parsed)) {
+    if (parsed && typeof parsed === 'object' && 'coachingPoints' in (parsed as Record<string, unknown>)) {
+      const nested = (parsed as Record<string, unknown>).coachingPoints
+      if (Array.isArray(nested)) return nested.slice(0, 5)
+    }
+    throw new Error('AI Coach response was not in the expected format. Try again.')
+  }
   return parsed.slice(0, 5)
 }
 

@@ -10,6 +10,7 @@ export type ViewId =
   | 'settings'
   | 'match-detail'
   | 'hero-detail'
+  | 'play-guide'
 
 class UiStore {
   currentView = $state<ViewId>('dashboard')
@@ -65,5 +66,6 @@ export const VIEW_TITLES: Record<ViewId, string> = {
   settings: 'Settings',
   teammates: 'Teammates',
   'match-detail': 'Match Detail',
-  'hero-detail': 'Hero Detail'
+  'hero-detail': 'Hero Detail',
+  'play-guide': 'Play Guide'
 }
