@@ -3,7 +3,8 @@ import { heroMap } from './benchmarkCache'
 import { handleGsiStateChange } from './services/syncManager'
 import { getActiveSteamId } from './ipc/steam'
 import itemsData from './data/items.json'
-const AUTH_TOKEN = "@@@!!!aBcasdc"
+import type { RawGSIData, GSIUIState } from './types/gsi'
+const AUTH_TOKEN = '@@@!!!aBcasdc'
 
 let roshanStatus = 'Alive'
 let roshanDeathTime: number | null = null
@@ -26,19 +27,14 @@ function getItemId(name: string | unknown): number {
   return itemKeyToId[key] ?? 0
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function processGSI(data: Record<string, any>): Record<string, any> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ui: Record<string, any> = {}
+function processGSI(data: RawGSIData): GSIUIState {
+  const ui: Partial<GSIUIState> = {}
 
-  if (data.map && typeof data.map === 'object') {
-    const map = data.map as Record<string, unknown>
-    const clock = (map.clock_time as number) ?? 0
-    const state = (map.game_state as string) ?? 'unknown'
-    const currDire = (map.dire_score as number) ?? 0
-    const previously = data.previously as Record<string, unknown> | undefined
-    const prevDire =
-      ((previously?.map as unknown as Record<string, unknown>)?.dire_score as number) ?? null
+  if (data.map) {
+    const clock = data.map.clock_time ?? 0
+    const state = data.map.game_state ?? ''
+    const currDire = data.map.dire_score ?? 0
+    const prevDire = data.previously?.map?.dire_score ?? null
 
     if (prevDire !== null && currDire > prevDire) {
       roshanDeathTime = clock
@@ -63,35 +59,33 @@ function processGSI(data: Record<string, any>): Record<string, any> {
   }
 
   if (data.player) {
-    const p = data.player
     ui.player = {
-      gold: p.gold ?? 0,
-      net_worth: p.net_worth ?? 0,
-      kills: p.kills ?? 0,
-      deaths: p.deaths ?? 0,
-      assists: p.assists ?? 0,
-      gpm: p.gpm ?? 0,
-      xpm: p.xpm ?? 0,
-      lh: p.last_hits ?? 0,
-      denies: p.denies ?? 0,
-      team: (p.team_name as string) ?? 'unknown'
+      gold: data.player.gold ?? 0,
+      net_worth: data.player.net_worth ?? 0,
+      kills: data.player.kills ?? 0,
+      deaths: data.player.deaths ?? 0,
+      assists: data.player.assists ?? 0,
+      gpm: data.player.gpm ?? 0,
+      xpm: data.player.xpm ?? 0,
+      lh: data.player.last_hits ?? 0,
+      denies: data.player.denies ?? 0,
+      team: data.player.team_name ?? 'unknown'
     }
   }
 
-  if (data.hero) {
-    const h = data.hero
-    const heroId = heroMap.get(h.name) ?? null
+  if (data.hero?.name) {
+    const heroId = heroMap.get(data.hero.name) ?? null
 
     ui.hero = {
       id: heroId,
-      name: (h.name ?? '').replace('npc_dota_hero_', '').replace(/_/g, ' '),
-      health: h.health ?? 0,
-      max_health: h.max_health ?? 0,
-      mana: h.mana ?? 0,
-      max_mana: h.max_mana ?? 0,
-      level: h.level ?? 0,
-      alive: h.alive ?? true,
-      respawn_seconds: h.respawn_seconds ?? 0
+      name: (data.hero.name ?? '').replace('npc_dota_hero_', '').replace(/_/g, ' '),
+      health: data.hero.health ?? 0,
+      max_health: data.hero.max_health ?? 0,
+      mana: data.hero.mana ?? 0,
+      max_mana: data.hero.max_mana ?? 0,
+      level: data.hero.level ?? 0,
+      alive: data.hero.alive ?? true,
+      respawn_seconds: data.hero.respawn_seconds ?? 0
     }
   }
 
@@ -116,13 +110,12 @@ function processGSI(data: Record<string, any>): Record<string, any> {
       teleport: sanitizeItemName(data.items.slot9?.name),
       neutral: sanitizeItemName(data.items.neutral0?.name)
     }
-    if (process.env.DEBUG) console.log('[GSI] Items:', JSON.stringify(inventoryIds))
   }
 
-  return ui
+  return ui as GSIUIState
 }
 
-export function createGSIServer(onData: (ui: Record<string, unknown>) => void): http.Server {
+export function createGSIServer(onData: (ui: GSIUIState) => void): http.Server {
   const server = http.createServer((req, res) => {
     if (req.method !== 'POST') {
       res.writeHead(405)
@@ -143,7 +136,6 @@ export function createGSIServer(onData: (ui: Record<string, unknown>) => void): 
         }
 
         const data = JSON.parse(body)
-        if (process.env.DEBUG) console.log(data)
 
         if (!data.auth || data.auth.token !== AUTH_TOKEN) {
           res.writeHead(403)
@@ -152,11 +144,11 @@ export function createGSIServer(onData: (ui: Record<string, unknown>) => void): 
         }
 
         const ui = processGSI(data)
-        
+
         // GSI does not provide steamId directly in a reliable way, we should grab the logged-in steamId
         getActiveSteamId().then((result) => {
           if ('steamId' in result && data.map && data.map.game_state) {
-            handleGsiStateChange(data.map.game_state, String(result.steamId))
+            handleGsiStateChange(data.map.game_state, result.steamId)
           }
         })
 
@@ -172,9 +164,7 @@ export function createGSIServer(onData: (ui: Record<string, unknown>) => void): 
     })
   })
 
-  server.listen(4000, '127.0.0.1', () => {
-    console.log('[GSI] Server running on port 4000')
-  })
+  server.listen(4000, '127.0.0.1')
 
   return server
 }

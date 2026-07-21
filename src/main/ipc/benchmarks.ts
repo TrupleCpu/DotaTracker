@@ -1,8 +1,8 @@
 import { ipcMain } from 'electron'
-import { getBenchmarksData } from '../benchmarkCache'
+import { getHeroBenchmarks } from '../benchmarkCache'
 
 export function registerBenchmarkHandlers(): void {
-  ipcMain.handle('get-benchmarks', async () => {
-    return getBenchmarksData()
+  ipcMain.handle('get-benchmarks', async (_e, heroId: number) => {
+    return getHeroBenchmarks(heroId)
   })
 }

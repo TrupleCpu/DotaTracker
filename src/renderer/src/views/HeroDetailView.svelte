@@ -10,6 +10,8 @@
   } from '../utils/matchHelper'
   import LoadingSpinner from '../lib/ui/LoadingSpinner.svelte'
   import ToolTip from '../lib/ui/ToolTip.svelte'
+  import type { RawHeroMatch, RawMatchPlayer } from '../types/api'
+  import type { Match, HeroStat } from '../types'
 
   let { heroId } = $props<{ heroId: number }>()
 
@@ -23,7 +25,7 @@
 
   // Find the aggregate stats for this hero from playerStore
   let heroStats = $derived.by(() => {
-    return playerStore.allHeroStats.find((h: any) => h.heroId === heroId) || { matchCount: 0, winCount: 0, avgKills: 0, avgDeaths: 0, avgAssists: 0 }
+    return playerStore.allHeroStats.find((h: HeroStat) => h.heroId === heroId) || { matchCount: 0, winCount: 0, avgKills: 0, avgDeaths: 0, avgAssists: 0 }
   })
 
   let winrate = $derived(heroStats.matchCount > 0 ? ((heroStats.winCount / heroStats.matchCount) * 100).toFixed(1) : '0')
@@ -39,7 +41,7 @@
     if (result && typeof result === 'object' && 'err' in result) {
       throw new Error((result as { err: string }).err)
     }
-    const rawMatches = (result as any)?.player?.matches
+    const rawMatches = (result as { player?: { matches?: RawHeroMatch[] } })?.player?.matches
     if (!Array.isArray(rawMatches)) throw new Error('Unexpected response from server.')
     return mapMatches(rawMatches)
   }
@@ -74,7 +76,7 @@
     }
   }
 
-  function getLaneOutcome(m: any) {
+  function getLaneOutcome(m: RawHeroMatch & RawMatchPlayer) {
     if (!m.lane) return null
     if (m.lane === 'POSITION_1' || m.lane === 'POSITION_5') {
       return m.isRadiant ? m.bottomLaneOutcome : m.topLaneOutcome
@@ -86,8 +88,8 @@
     return null
   }
 
-  function mapMatches(rawMatches: any[]): any[] {
-    return rawMatches.map((match: any) => {
+  function mapMatches(rawMatches: RawHeroMatch[]): Match[] {
+    return rawMatches.map((match: RawHeroMatch) => {
       const playerData = match.players?.[0] ?? {}
       const items = ['item0Id', 'item1Id', 'item2Id', 'item3Id', 'item4Id', 'item5Id']
         .map((slot) => playerData[slot])

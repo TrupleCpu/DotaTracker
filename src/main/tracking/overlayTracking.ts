@@ -16,8 +16,7 @@ function getSafeBounds(activeWindow: { getBounds: () => Bounds | null }): Bounds
       width: Math.floor(raw.width),
       height: Math.floor(raw.height)
     }
-  } catch (err) {
-    console.error('Failed to get safe bounds:', err)
+  } catch {
     return null
   }
 }
@@ -56,8 +55,7 @@ export function startTracking(): void {
         if (state.mainWindow?.isVisible()) state.mainWindow.hide()
         hideGuideNotification()
       }
-    } catch (err) {
-      console.error('Overlay visibility check error:', err)
+    } catch {
     }
   }, 250)
 }

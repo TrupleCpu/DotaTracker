@@ -1,11 +1,12 @@
 <script lang="ts">
   import abilitiesData from '../../../../main/data/abilities.json'
+  import type { AbilityHeroData, AbilityHeroEntry } from '../../types/matchDetail'
 
-  let { abilities, heroId }: { abilities: any[]; heroId: number } = $props()
+  let { abilities, heroId }: { abilities: AbilityHeroEntry[]; heroId: number } = $props()
 
-  const heroData = $derived(abilitiesData.find((h: any) => h.id === heroId))
+  const heroData = $derived(abilitiesData.find((h: AbilityHeroData) => h.id === heroId))
   const talentSlots = $derived(heroData?.talents ?? [])
-  const talentSlotMap = $derived(new Map(talentSlots.map((t: any) => [t.abilityId, t.slot])))
+  const talentSlotMap = $derived(new Map(talentSlots.map((t: { abilityId: number; slot: number }) => [t.abilityId, t.slot])))
 
 
   const DOT_PATHS = [

@@ -1,16 +1,10 @@
 import { fetchFromStratz } from '../stratz/client'
 import { HERO_ITEM_PURCHASES_QUERY } from '../stratz/graphql/queries/heroItemPurchases'
 import { getHeroTimingsCache, setHeroTimingsCache, getMostPlayedPosition } from '../db/matchesRepo'
+import type { HeroTimingItem } from '../../renderer/src/types/matchDetail'
 
-const CACHE_TTL_SEC = 86400
+const CACHE_TTL_MS = 86400000
 const BRACKET_IDS = ['LEGEND_ANCIENT']
-
-export interface HeroTimingItem {
-  itemId: number
-  avgTimeMin: number
-  winRate: number
-  matchCount: number
-}
 
 interface PurchaseBucket {
   itemId: number
@@ -28,13 +22,13 @@ export async function getHeroTimings(
   const bracketKey = BRACKET_IDS.join(',')
 
   const cached = getHeroTimingsCache(heroId, bracketKey, position)
-  const now = Math.floor(Date.now() / 1000)
+  const now = Date.now()
 
-  if (cached && now - cached.fetched_at < CACHE_TTL_SEC) {
+  if (cached && now - cached.fetched_at < CACHE_TTL_MS) {
     return { items: JSON.parse(cached.data_json), position }
   }
 
-  const variables: Record<string, any> = {
+  const variables: { heroId: number; bracketBasicIds: string[]; positionIds?: string[] } = {
     heroId,
     bracketBasicIds: BRACKET_IDS
   }
@@ -42,7 +36,9 @@ export async function getHeroTimings(
     variables.positionIds = [position]
   }
 
-  const data = await fetchFromStratz(HERO_ITEM_PURCHASES_QUERY, variables)
+  const data = await fetchFromStratz(HERO_ITEM_PURCHASES_QUERY, variables) as {
+    heroStats?: { itemFullPurchase?: PurchaseBucket[] }
+  }
   const raw: PurchaseBucket[] = data?.heroStats?.itemFullPurchase || []
 
   const bucketsByItem = new Map<number, PurchaseBucket[]>()

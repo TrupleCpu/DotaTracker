@@ -11,9 +11,10 @@
   } from '../utils/matchHelper'
   import LoadingSpinner from '../lib/ui/LoadingSpinner.svelte'
   import ToolTip from '../lib/ui/ToolTip.svelte'
+  import LaneIcon from '../lib/dota/LaneIcon.svelte'
   import type { Match } from '../types'
-
-  const ROLE_OPTIONS = ['All Roles', 'Carry', 'Mid', 'Offlane', 'Soft Support', 'Hard Support']
+  import type { RawMatch } from '../types/api'
+  import { ROLE_OPTIONS, POSITION_LABELS, LANE_ROLE_LABELS } from '../utils/roleMap'
 
   let selectedHero = $state('All Heroes')
   let selectedResult = $state('All Results')
@@ -64,7 +65,7 @@
     if (result && typeof result === 'object' && 'err' in result) {
       throw new Error((result as { err: string }).err)
     }
-    const rawMatches = (result as any)?.player?.matches
+    const rawMatches = (result as { player?: { matches?: import('../../types/api').RawMatch[] } })?.player?.matches
     if (!Array.isArray(rawMatches)) throw new Error('Unexpected response from server.')
     return mapMatches(rawMatches, result)
   }
@@ -104,8 +105,8 @@
     }
   }
 
-  function mapMatches(rawMatches: any[], raw: unknown): Match[] {
-    return rawMatches.map((match: any) => {
+  function mapMatches(rawMatches: RawMatch[], raw: unknown): Match[] {
+    return rawMatches.map((match: RawMatch) => {
       const playerData = match.players?.[0] ?? {}
       const hero = playerData.heroId ? getHero(playerData.heroId) : null
       const items = ['item0Id', 'item1Id', 'item2Id', 'item3Id', 'item4Id', 'item5Id']
@@ -245,10 +246,9 @@
                   </ToolTip>
                 {/if}
                 <span class="text-sm font-bold truncate">{m.hero ?? 'Unknown'}</span>
-                <span
-                  class="text-xxs text-tx3 uppercase tracking-wide px-1.5 py-[1px] rounded bg-s2 shrink-0"
-                  >{m.role ?? 'Unknown'}</span
-                >
+                <ToolTip text={m.role ?? 'Unknown'}>
+                  <LaneIcon lane={m.lane} size="w-5 h-5" />
+                </ToolTip>
               </div>
               <div class="text-xs text-tx3 mt-[2px]">{m.mode ?? 'Unknown'}</div>
             </div>

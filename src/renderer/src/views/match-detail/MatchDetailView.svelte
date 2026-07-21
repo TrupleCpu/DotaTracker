@@ -9,8 +9,24 @@
   import { getCachedCoaching, setCachedCoaching } from '../../lib/cache/llmCache'
   import TalentTree from '../../lib/dota/TalentTree.svelte'
 
+  import type {
+    DetailedMatchResponse,
+    MatchSummary,
+    ItemPurchaseEvent,
+    KillEvent,
+    DeathEvent,
+    WardEvent,
+    RuneEvent,
+    CreepLocation,
+    AbilityEvent,
+    MatchPlayerDetailed,
+    ItemData,
+    AbilityHeroData
+  } from '../../types/matchDetail'
+  import type { CoachingPoint } from '../../../main/services/llmService'
+
   interface Props {
-    match: any
+    match: MatchSummary
   }
   let { match }: Props = $props()
 
@@ -36,7 +52,7 @@
 
   let activeSubTab = $state('insights')
 
-  let detailedMatch = $state<any>(null)
+  let detailedMatch = $state<DetailedMatchResponse | null>(null)
 
   let loading = $state<boolean>(true)
   let error = $state<string | null>(null)
@@ -70,13 +86,6 @@
   const focusedPlayer = $derived(players[selectedPlayerIndex])
   const heroInfo = $derived(focusedPlayer ? getHero(focusedPlayer.heroId) : null)
 
-  interface HeroTimingItem {
-    itemId: number
-    avgTimeMin: number
-    winRate: number
-    matchCount: number
-  }
-
   let heroTimingsMap = $state<Map<number, HeroTimingItem>>(new Map())
 
   $effect(() => {
@@ -87,9 +96,9 @@
     }
     const steamId = playerStore.steamId
     if (!steamId) return
-    window.api.getHeroTimings(player.heroId, steamId).then((result: any) => {
+    window.api.getHeroTimings(player.heroId, steamId).then((result) => {
       const map = new Map<number, HeroTimingItem>()
-      for (const item of (result.items as HeroTimingItem[]) || []) {
+      for (const item of result.items || []) {
         map.set(item.itemId, item)
       }
       heroTimingsMap = map
@@ -130,7 +139,7 @@
   }
 
   // ── AI Coaching ──────────────────────────────────────────────────────
-  let aiCoachingPoints = $state<any[] | null>(null)
+  let aiCoachingPoints = $state<CoachingPoint[] | null>(null)
   let aiCoachingLoading = $state(false)
   let aiCoachingError = $state<string | null>(null)
   let llmConfigured = $state(false)
@@ -153,7 +162,7 @@
     )
     const wards = player.stats?.wards?.length || 0
     const hero = heroInfo?.localized_name || `Hero ${player.heroId}`
-    const items = (player.stats?.itemPurchases || []).map((p: any) => ({
+    const items = (player.stats?.itemPurchases || []).map((p: ItemPurchaseEvent) => ({
       name: 'item_' + p.itemId,
       time: p.time,
       cost: p.cost || 0
@@ -182,8 +191,8 @@
     aiCoachingLoading = true
     aiCoachingError = null
 
-    window.api.generateCoaching(ctx).then((result: any) => {
-      if (result?.err) {
+    window.api.generateCoaching(ctx).then((result: CoachingPoint[] | { err: string }) => {
+      if ('err' in result) {
         aiCoachingError = result.err
         aiCoachingPoints = null
       } else {
@@ -191,7 +200,7 @@
         setCachedCoaching(match.id, selectedPlayerIndex, ctx, result)
         aiCoachingError = null
       }
-    }).catch((e: any) => {
+    }).catch((e: Error) => {
       aiCoachingError = e?.message ?? 'Failed to generate coaching'
     }).finally(() => {
       aiCoachingLoading = false
@@ -261,7 +270,7 @@
 
   const positionOrder = ['POSITION_1', 'POSITION_2', 'POSITION_3', 'POSITION_4', 'POSITION_5']
 
-  function computePlayerGrade(player: any): { grade: string; color: string; label: string } {
+  function computePlayerGrade(player: MatchPlayerDetailed): { grade: string; color: string; label: string } {
     const gpm = player.goldPerMinute
     const deaths = player.deaths
     const kills = player.kills
@@ -292,29 +301,20 @@
   }
 
   // ── Item resolution ─────────────────────────────────────────────────
-  interface ItemInfo {
-    id: number
-    dname: string
-    img: string
-    cost: number
-    isRecipe: boolean
-  }
-
-  const itemMap = new Map<number, ItemInfo>()
+  const itemMap = new Map<number, ItemData>()
   for (const [key, value] of Object.entries(itemsData)) {
-    const val = value as any
+    const val = value as ItemData
     if (val && typeof val.id === 'number') {
       itemMap.set(val.id, {
         id: val.id,
         dname: val.dname || key,
         img: val.img,
-        cost: val.cost || 0,
-        isRecipe: key.startsWith('recipe_') || (val.dname && val.dname.includes('Recipe'))
+        cost: val.cost || 0
       })
     }
   }
 
-  function getItem(id: number | null | undefined): ItemInfo | null {
+  function getItem(id: number | null | undefined): ItemData | null {
     if (id == null) return null
     return itemMap.get(id) ?? null
   }
@@ -325,7 +325,7 @@
 
   // ── Ability resolution ──────────────────────────────────────────────
   const abilityMap = new Map<number, string>()
-  for (const hero of abilitiesData as any[]) {
+  for (const hero of abilitiesData as AbilityHeroData[]) {
     const prefix = (hero.shortName || '') + '_'
     for (const entry of hero.abilities || []) {
       const ab = entry.ability
@@ -349,7 +349,7 @@
   function getPurchaseTime(itemId: number | null | undefined): number | null {
     if (itemId == null) return null
     const matches = (focusedPlayer.stats.itemPurchases || []).filter(
-      (p: any) => p.itemId === itemId
+      (p: ItemPurchaseEvent) => p.itemId === itemId
     )
     if (matches.length === 0) return null
     return matches[matches.length - 1].time
@@ -905,8 +905,8 @@
     rawY: s.y,
     w: s.w,
     h: s.h,
-    team: s.team as any,
-    type: s.type as any,
+    team: s.team as StaticStructure['team'],
+    type: s.type as StaticStructure['type'],
     content: s.content
   }))
 
@@ -932,7 +932,7 @@
     const hName = hero?.localized_name || `Hero ${p.heroId}`
     const hIcon = hero ? getHeroImgUrl(hero.icon) : ''
 
-    ;(p.stats.killEvents || []).forEach((e: any) => {
+    ;(p.stats.killEvents || []).forEach((e: KillEvent) => {
       const x = scaleCoordinateX(e.positionX)
       const y = scaleCoordinateY(e.positionY)
       list.push({
@@ -948,7 +948,7 @@
         char: '+'
       })
     })
-    ;(p.stats.deathEvents || []).forEach((e: any) => {
+    ;(p.stats.deathEvents || []).forEach((e: DeathEvent) => {
       const x = scaleCoordinateX(e.positionX)
       const y = scaleCoordinateY(e.positionY)
       list.push({
@@ -964,7 +964,7 @@
         char: '×'
       })
     })
-    ;(p.stats.wards || []).forEach((e: any) => {
+    ;(p.stats.wards || []).forEach((e: WardEvent) => {
       const isObs = e.type === 1
       const x = scaleCoordinateX(e.positionX)
       const y = scaleCoordinateY(e.positionY)
@@ -978,10 +978,10 @@
         details: `${hName} placed ${isObs ? 'an Observer' : 'a Sentry'} Ward`,
         landmark: nearestLandmark(x, y),
         color: isObs ? 'var(--color-gd)' : 'var(--color-bl)',
-        char: isObs ? '★' : '✚'
+        char: isObs ? 'ward_obs' : 'ward_sent'
       })
     })
-    ;(p.stats.runes || []).forEach((e: any) => {
+    ;(p.stats.runes || []).forEach((e: RuneEvent) => {
       if (e.action !== 'PICKUP') return
       const x = scaleCoordinateX(e.positionX)
       const y = scaleCoordinateY(e.positionY)
@@ -1017,8 +1017,8 @@
 
   const visionSummary = $derived.by(() => {
     const wards = focusedPlayer.stats.wards || []
-    const observers = wards.filter((w: any) => w.type === 1).length
-    const sentries = wards.filter((w: any) => w.type === 0).length
+    const observers = wards.filter((w: WardEvent) => w.type === 1).length
+    const sentries = wards.filter((w: WardEvent) => w.type === 0).length
     return { observers, sentries, total: wards.length }
   })
 
@@ -1028,9 +1028,9 @@
   // hides.
   const wardTimingSummary = $derived.by(() => {
     const wards = focusedPlayer.stats.wards || []
-    const early = wards.filter((w: any) => w.time < 600).length
-    const mid = wards.filter((w: any) => w.time >= 600 && w.time < 1500).length
-    const late = wards.filter((w: any) => w.time >= 1500).length
+    const early = wards.filter((w: WardEvent) => w.time < 600).length
+    const mid = wards.filter((w: WardEvent) => w.time >= 600 && w.time < 1500).length
+    const late = wards.filter((w: WardEvent) => w.time >= 1500).length
     return { early, mid, late, total: wards.length }
   })
 
@@ -1158,11 +1158,11 @@
   function farmInsightNote(): string {
     const pos = focusedPlayer.position
     const list = focusedPlayer.stats.farmDistributionReport?.creepLocation || []
-    const totalXP = list.reduce((sum: number, c: any) => sum + (c.xp || 0), 0)
+    const totalXP = list.reduce((sum: number, c: CreepLocation) => sum + (c.xp || 0), 0)
     if (totalXP === 0) return 'No creep data recorded.'
 
     let jungleXP = 0
-    list.forEach((c: any) => {
+    list.forEach((c: CreepLocation) => {
       const name = getFarmLocationName(c.id)
       if (!name.includes('Lane') && !name.includes('River') && !name.includes('Rosh')) {
         jungleXP += c.xp || 0
@@ -1256,7 +1256,7 @@
     }
   })
 
-  function seriesFor(player: any, metric: EconomyMetric): number[] {
+  function seriesFor(player: MatchPlayerDetailed, metric: EconomyMetric): number[] {
     const stats = player.stats
     switch (metric) {
       case 'networth':
@@ -1575,12 +1575,12 @@
   // real killEvents/deathEvents timestamps, not fabricated.
   const hoverKills = $derived.by(() => {
     if (hoverIdx === null) return focusedPlayer.kills
-    return (focusedPlayer.stats.killEvents || []).filter((k: any) => k.time <= hoverIdx! * 60)
+    return (focusedPlayer.stats.killEvents || []).filter((k: KillEvent) => k.time <= hoverIdx! * 60)
       .length
   })
   const hoverDeaths = $derived.by(() => {
     if (hoverIdx === null) return focusedPlayer.deaths
-    return (focusedPlayer.stats.deathEvents || []).filter((k: any) => k.time <= hoverIdx! * 60)
+    return (focusedPlayer.stats.deathEvents || []).filter((k: DeathEvent) => k.time <= hoverIdx! * 60)
       .length
   })
 
@@ -1609,13 +1609,13 @@
 
   const itemChartMarkers = $derived.by((): ItemChartMarker[] => {
     const purchases = (focusedPlayer.stats.itemPurchases || [])
-      .filter((p: any) => {
+      .filter((p: ItemPurchaseEvent) => {
         const item = getItem(p.itemId)
         return item && item.cost >= 1000 && p.time >= 0
       })
-      .sort((a: any, b: any) => a.time - b.time)
+      .sort((a: ItemPurchaseEvent, b: ItemPurchaseEvent) => a.time - b.time)
 
-    return purchases.map((p: any) => {
+    return purchases.map((p: ItemPurchaseEvent) => {
       const item = getItem(p.itemId)!
       return {
         minuteIdx: Math.round(p.time / 60),
@@ -1657,14 +1657,14 @@
 
   const farmDistributionList = $derived.by(() => {
     const list = focusedPlayer.stats.farmDistributionReport?.creepLocation || []
-    const totalXP = list.reduce((sum: number, c: any) => sum + (c.xp || 0), 0)
+    const totalXP = list.reduce((sum: number, c: CreepLocation) => sum + (c.xp || 0), 0)
     return list
-      .map((c: any) => ({
+      .map((c: CreepLocation) => ({
         name: getFarmLocationName(c.id),
         count: c.count,
         percent: totalXP > 0 ? Math.round(((c.xp || 0) / totalXP) * 100) : 0
       }))
-      .sort((a: any, b: any) => b.count - a.count)
+      .sort((a: { count: number }, b: { count: number }) => b.count - a.count)
       .slice(0, 5)
   })
 
@@ -1682,7 +1682,7 @@
     name: string,
     thresholds: [number, number]
   ): GameplayMilestone | null {
-    const timing = focusedPlayer.stats.itemPurchases?.find((p: any) => p.itemId === itemId)
+    const timing = focusedPlayer.stats.itemPurchases?.find((p: ItemPurchaseEvent) => p.itemId === itemId)
     if (!timing) return null
     const minutes = timing.time / 60
     let status: 'ontime' | 'delayed' | 'late' = 'ontime'
@@ -1717,7 +1717,7 @@
   const gameplayMilestones = $derived.by(() => {
     const purchases = (focusedPlayer.stats.itemPurchases || [])
       .slice()
-      .sort((a: any, b: any) => a.time - b.time)
+      .sort((a: ItemPurchaseEvent, b: ItemPurchaseEvent) => a.time - b.time)
       
     const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(focusedPlayer.position)
     
@@ -2086,7 +2086,7 @@
       })
     }
 
-    ;(focusedPlayer.stats.wards || []).forEach((w: any) => {
+    ;(focusedPlayer.stats.wards || []).forEach((w: WardEvent) => {
       const isObs = w.type === 1
       entries.push({
         kind: 'ward',
@@ -2094,10 +2094,10 @@
         label: `Placed ${isObs ? 'Observer' : 'Sentry'} Ward`,
         sub: nearestLandmark(scaleCoordinateX(w.positionX), scaleCoordinateY(w.positionY)),
         color: isObs ? 'var(--color-gd)' : 'var(--color-bl)',
-        icon: isObs ? '★' : '✚'
+        icon: isObs ? 'ward_obs' : 'ward_sent'
       })
     })
-    ;(focusedPlayer.stats.runes || []).forEach((r: any) => {
+    ;(focusedPlayer.stats.runes || []).forEach((r: RuneEvent) => {
       entries.push({
         kind: 'rune',
         time: r.time,
@@ -2107,7 +2107,7 @@
         icon: '♦'
       })
     })
-    ;(focusedPlayer.stats.itemPurchases || []).forEach((p: any) => {
+    ;(focusedPlayer.stats.itemPurchases || []).forEach((p: ItemPurchaseEvent) => {
       const item = getItem(p.itemId)
       if (!item || item.cost < 500) return // keep the feed readable: only meaningful purchases
       entries.push({
@@ -2119,7 +2119,7 @@
         icon: '$'
       })
     })
-    ;(focusedPlayer.abilities || []).forEach((a: any) => {
+    ;(focusedPlayer.abilities || []).forEach((a: AbilityEvent) => {
       const name = abilityMap.get(a.abilityId) || `Ability ${a.abilityId}`
       entries.push({
         kind: 'ability',
@@ -3001,6 +3001,27 @@
                           class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
                           onmouseenter={() => showTooltip(ev)}
                         />
+                      {:else if ev.type === 'ward_obs'}
+                        <g
+                          transform="translate({svgX}, {svgY})"
+                          class="cursor-pointer transition-all duration-150 marker"
+                          onmouseenter={() => showTooltip(ev)}
+                        >
+                          <circle r="12" cx="0" cy="0" stroke="hsl(144,52%,47%)" fill="hsl(144,52%,47%)" fill-opacity="0.4" opacity="0.7"/>
+                           <g transform="translate(-7, -7)">
+                             <svg width="14" height="14" viewBox="0 0 24 24"><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911z" fill="hsl(144,52%,47%)"/><path d="M2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(0,0%,0%)"/></svg>
+                          </g>
+                        </g>
+                      {:else if ev.type === 'ward_sent'}
+                        <g
+                          transform="translate({svgX}, {svgY})"
+                          class="cursor-pointer transition-all duration-150 marker"
+                          onmouseenter={() => showTooltip(ev)}
+                        >
+                          <g transform="translate(-7, -7)">
+                            <svg width="14" height="14" viewBox="0 0 24 24"><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911z" fill="hsl(217,70%,55%)"/><path d="M2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(0,0%,0%)"/></svg>
+                          </g>
+                        </g>
                       {:else}
                         <circle
                           cx={svgX}
@@ -3140,9 +3161,9 @@
                       bind:checked={showObserverWards}
                       class="rounded border-zinc-800 bg-zinc-950"
                     /><span class="flex items-center gap-1"
-                      ><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"
-                        ><circle cx="5" cy="5" r="4" fill="#f59e0b" /></svg
-                      > Observers (★)</span
+                      ><svg class="w-3 h-3" viewBox="0 0 24 24"
+                        ><circle cx="12" cy="12" r="10" stroke="hsl(144,52%,47%)" fill="hsl(144,52%,47%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(144,52%,47%)"/></svg
+                      > Observers</span
                     >
                   </label>
                   <label
@@ -3153,9 +3174,9 @@
                       bind:checked={showSentryWards}
                       class="rounded border-zinc-800 bg-zinc-950"
                     /><span class="flex items-center gap-1"
-                      ><svg class="w-2.5 h-2.5" viewBox="0 0 10 10"
-                        ><circle cx="5" cy="5" r="4" fill="#3b82f6" /></svg
-                      > Sentries (✚)</span
+                      ><svg class="w-3 h-3" viewBox="0 0 24 24"
+                        ><circle cx="12" cy="12" r="10" stroke="hsl(217,70%,55%)" fill="hsl(217,70%,55%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(217,70%,55%)"/></svg
+                      > Sentries</span
                     >
                   </label>
                   <label
@@ -3194,13 +3215,13 @@
               <!-- Vision summary (real counts only — no destroyed/lifetime/score) -->
               <div class="grid grid-cols-3 gap-2 text-center">
                 <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg p-2">
-                  <div class="font-mono text-lg font-extrabold text-amber-400">
+                  <div class="font-mono text-lg font-extrabold" style="color:hsl(144,52%,47%)">
                     {visionSummary.observers}
                   </div>
                   <div class="text-xxs text-zinc-500 uppercase tracking-wider">Observers</div>
                 </div>
                 <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg p-2">
-                  <div class="font-mono text-lg font-extrabold text-sky-400">
+                  <div class="font-mono text-lg font-extrabold" style="color:hsl(217,70%,55%)">
                     {visionSummary.sentries}
                   </div>
                   <div class="text-xxs text-zinc-500 uppercase tracking-wider">Sentries</div>
@@ -3256,9 +3277,15 @@
                     onmouseenter={() => (cursorTime = ev.time)}
                   >
                     <span class="flex items-center gap-2 min-w-0">
-                      <span class="w-4 text-center shrink-0" style="color:{ev.color}"
-                        >{ev.char}</span
-                      >
+                      <span class="w-4 text-center shrink-0" style="color:{ev.color}">
+                        {#if ev.type === 'ward_obs'}
+                          <svg class="w-3 h-3 inline-block" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="hsl(144,52%,47%)" fill="hsl(144,52%,47%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(144,52%,47%)"/></svg>
+                        {:else if ev.type === 'ward_sent'}
+                          <svg class="w-3 h-3 inline-block" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="hsl(217,70%,55%)" fill="hsl(217,70%,55%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(217,70%,55%)"/></svg>
+                        {:else}
+                          {ev.char}
+                        {/if}
+                      </span>
                       <span class="text-zinc-300 truncate">{ev.details}</span>
                     </span>
                     <span class="font-mono text-zinc-500 shrink-0">{formatTime(ev.time)}</span>
@@ -4100,6 +4127,10 @@
                         <span class="text-[12px] font-bold text-zinc-200 flex items-center gap-1.5">
                           {#if entry.imgUrl}
                             <img src={entry.imgUrl} class="w-4 h-4 rounded shrink-0" alt="" />
+                          {:else if entry.icon === 'ward_obs'}
+                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="hsl(144,52%,47%)" fill="hsl(144,52%,47%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(144,52%,47%)"/></svg>
+                          {:else if entry.icon === 'ward_sent'}
+                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="hsl(217,70%,55%)" fill="hsl(217,70%,55%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(217,70%,55%)"/></svg>
                           {:else if entry.icon}
                             {entry.icon}
                           {/if}
@@ -4133,8 +4164,8 @@
   :root {
     --color-gr: #22c55e;
     --color-rd: #ef4444;
-    --color-bl: #3b82f6;
-    --color-gd: #eab308;
+    --color-bl: hsl(217,70%,55%);
+    --color-gd: hsl(144,52%,47%);
     --color-pu: #a855f7;
   }
 

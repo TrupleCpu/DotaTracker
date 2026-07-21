@@ -1,6 +1,8 @@
 import heroesData from '../../../main/data/heroes.json'
 import { formatDuration, formatGameMode, formatTimeAgo } from '../utils/matchHelper'
+import { POSITION_LABELS } from '../utils/roleMap'
 import type { PlayerStats, Match, Teammate, HeroStat } from '../types'
+import type { HeroGroupByEntry, RawRecentMatch, PeerEntry } from '../types/api'
 
 interface HeroData {
   id: number
@@ -87,7 +89,7 @@ class PlayerStore {
       const simpleAvg = (key: string) => {
         const val =
           heroStats.length > 0
-            ? heroStats.reduce((sum: number, h: any) => sum + h[key], 0) / heroStats.length
+            ? heroStats.reduce((sum: number, h: HeroGroupByEntry) => sum + h[key], 0) / heroStats.length
             : 0
         return Math.floor(val)
       }
@@ -105,11 +107,11 @@ class PlayerStore {
         avatar: raw.player?.steamAccount?.avatar ?? ''
       }
 
-      this.detailedMatches = (raw.player.recentMatches ?? []).map((m: any) => {
+      this.detailedMatches = (raw.player.recentMatches ?? []).map((m: RawRecentMatch) => {
         const player = m.targetPlayer?.[0]
         const hero = heroMap.get(player?.heroId)
         const partyCount = player?.partyId
-          ? m.allPlayers?.filter((p: any) => p.partyId === player.partyId).length
+          ? m.allPlayers?.filter((p: { partyId: number }) => p.partyId === player.partyId).length
           : 0
 
         return {
@@ -140,27 +142,20 @@ class PlayerStore {
       })
 
       this.allTeammates = (raw?.stratz?.page?.player?.peers ?? [])
-        .map((p: any) => ({
+        .map((p: PeerEntry) => ({
           steamAccountId: p.steamAccount?.id ?? 0,
           name: p.steamAccount?.name ?? 'Unknown',
           avatar: p.steamAccount?.avatar ?? null,
           matches: p.matchCount ?? 1,
           winrate: parseFloat((((p.winCount ?? 0) / (p.matchCount ?? 1)) * 100).toFixed(1))
         }))
-        .sort((a: any, b: any) => b.matches - a.matches)
+        .sort((a: Teammate, b: Teammate) => b.matches - a.matches)
         .slice(1)
 
       this.allHeroStats = (raw.player.heroesGroupBy ?? [])
-        .filter((h: any) => h.matchCount > 0)
-        .sort((a: any, b: any) => b.matchCount - a.matchCount)
+        .filter((h: HeroGroupByEntry) => h.matchCount > 0)
+        .sort((a: HeroGroupByEntry, b: HeroGroupByEntry) => b.matchCount - a.matchCount)
 
-      const POSITION_LABELS: Record<string, string> = {
-        POSITION_1: 'Carry',
-        POSITION_2: 'Mid',
-        POSITION_3: 'Offlane',
-        POSITION_4: 'Soft Support',
-        POSITION_5: 'Hard Support'
-      }
       const perfCounts: Record<number, Record<string, number>> = {}
       for (const p of raw.player.heroesPerformanceGroupBy ?? []) {
         if (!perfCounts[p.heroId]) perfCounts[p.heroId] = {}

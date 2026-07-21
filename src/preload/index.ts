@@ -1,6 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { FetchMatchesOptions } from '../main/stratz/services/fetchMatches'
+import type { SingleMatchContext, SessionMatchSummary, SessionReview } from '../main/services/llmService'
+import type { AppConfig } from '../main/config'
 // Custom APIs for renderer
 const api = {
   toggleOverlay: (): void => ipcRenderer.send('toggle-overlay'),
@@ -23,7 +25,7 @@ const api = {
   savePlayGuide: (heroId: number, slots: unknown[]): Promise<boolean> =>
     ipcRenderer.invoke('save-play-guide', heroId, slots),
 
-  getLocalSteamId: (): Promise<{ steamId?: string; error?: string }> =>
+  getLocalSteamId: (): Promise<{ steamId?: number; err?: string }> =>
     ipcRenderer.invoke('get-local-steam-id'),
 
   fetchMatchDetails: (matchId: string): Promise<unknown> =>
@@ -34,10 +36,10 @@ const api = {
   fetchAllMatches: (steamId: string, options: FetchMatchesOptions = {}): Promise<unknown> =>
     ipcRenderer.invoke('fetch-all-matches', steamId, options),
 
-  fetchHeroMatches: (steamId: string, heroId: number, skip?: number, take?: number): Promise<any> =>
+  fetchHeroMatches: (steamId: string, heroId: number, skip?: number, take?: number): Promise<unknown> =>
     ipcRenderer.invoke('fetch-hero-matches', steamId, heroId, skip, take),
 
-  triggerStartupSync: (steamId: string): Promise<void> =>
+  triggerStartupSync: (steamId: number): Promise<void> =>
     ipcRenderer.invoke('trigger-startup-sync', steamId),
 
   startFullSync: (steamId: number): Promise<void> =>
@@ -70,11 +72,9 @@ const api = {
   getHeroTimings: (heroId: number, steamId: number): Promise<{ items: { itemId: number; avgTimeMin: number; winRate: number; matchCount: number }[]; position: string | null }> =>
     ipcRenderer.invoke('get-hero-timings', heroId, steamId),
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getConfig: (): Promise<any> => ipcRenderer.invoke('get-config'),
+  getConfig: (): Promise<AppConfig> => ipcRenderer.invoke('get-config'),
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setConfig: (config: any): Promise<any> => ipcRenderer.invoke('set-config', config),
+  setConfig: (config: Partial<AppConfig>): Promise<AppConfig> => ipcRenderer.invoke('set-config', config),
 
   getStratzToken: (): Promise<string | null> => ipcRenderer.invoke('get-stratz-token'),
   setStratzToken: (token: string): Promise<boolean> => ipcRenderer.invoke('set-stratz-token', token),
@@ -85,8 +85,8 @@ const api = {
     ipcRenderer.invoke('set-llm-config', config),
   clearLlmConfig: (): Promise<boolean> => ipcRenderer.invoke('clear-llm-config'),
 
-  generateCoaching: (ctx: any): Promise<any> => ipcRenderer.invoke('generate-coaching', ctx),
-  generateSessionReview: (matches: any[]): Promise<any> => ipcRenderer.invoke('generate-session-review', matches),
+  generateCoaching: (ctx: SingleMatchContext): Promise<unknown> => ipcRenderer.invoke('generate-coaching', ctx),
+  generateSessionReview: (matches: SessionMatchSummary[]): Promise<SessionReview> => ipcRenderer.invoke('generate-session-review', matches),
 
   onConfigUpdate: (cb: (config: unknown) => void): void => {
     ipcRenderer.on('config-updated', (_e, config) => cb(config))
@@ -95,6 +95,7 @@ const api = {
   onGuideUpdated: (cb: (heroId: number) => void): void => {
     ipcRenderer.on('guide-updated', (_e, heroId) => cb(heroId))
   },
+  minimizeWindow: (): void => ipcRenderer.send('win-minimize'),
   maximizeWindow: (): void => ipcRenderer.send('win-maximize'),
   closeWindow: (): void => ipcRenderer.send('win-close'),
 
@@ -107,7 +108,7 @@ const api = {
     ipcRenderer.on('guide-notification-data', (_e, data) => cb(data))
   },
 
-  getBenchmarks: (): Promise<unknown> => ipcRenderer.invoke('get-benchmarks')
+  getBenchmarks: (heroId: number): Promise<unknown> => ipcRenderer.invoke('get-benchmarks', heroId)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -1,11 +1,11 @@
 import { fetchMatches } from '../stratz/services/fetchMatches'
-import { insertMatch } from '../db/matchesRepo'
+import { insertMatch, type Match } from '../db/matchesRepo'
 import { loadConfig } from '../config'
 import { state } from '../state'
 
 let previousState = ''
 
-export function handleGsiStateChange(currentState: string, steamId: string) {
+export function handleGsiStateChange(currentState: string, steamId: number) {
   if (previousState === 'DOTA_GAMERULES_STATE_GAME_IN_PROGRESS' && 
       (currentState === 'DOTA_GAMERULES_STATE_POST_GAME' || currentState === 'DOTA_GAMERULES_STATE_DISCONNECT')) {
       
@@ -17,16 +17,16 @@ export function handleGsiStateChange(currentState: string, steamId: string) {
   previousState = currentState
 }
 
-export async function runSync(steamId: string) {
+export async function runSync(steamId: number) {
   try {
     const config = loadConfig()
     if (!config.autoSyncMatches) return
 
-    const data = await fetchMatches(steamId, { take: 5 })
+    const data = await fetchMatches(steamId, { take: 5 }) as { player?: { matches?: import('../../renderer/src/types/api').RawMatch[] } }
     const matches = data?.player?.matches || []
     
     matches.forEach(m => {
-      insertMatch(m, Number(steamId))
+      insertMatch(m as Match, steamId)
     })
 
     if (state.mainWindow) {

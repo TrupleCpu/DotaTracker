@@ -12,6 +12,7 @@ interface GuideAcquiredInfo {
   name: string
 }
 
+import type { GSIUIState } from '../../../main/types/gsi'
 import itemsData from '../../../main/data/items.json'
 
 function lookupItemImg(itemId: number): string | null {
@@ -42,13 +43,13 @@ class OverlayStore {
   minutes = $derived(this.clock > 0 ? this.clock / 60 : 0)
   kpm_calc = $derived(this.minutes > 0 ? this.kills / this.minutes : 0)
 
-  gpm_percentile = $derived(this.calcPercentile('gold_per_min', this.gpm, this.currentHeroId ?? 0))
-  xpm_percentile = $derived(this.calcPercentile('xp_per_min', this.xpm, this.currentHeroId ?? 0))
-  kpm_percentile = $derived(this.calcPercentile('kills_per_min', this.kpm_calc, this.currentHeroId ?? 0))
+  gpm_percentile = $derived(this.calcPercentile('gold_per_min', this.gpm))
+  xpm_percentile = $derived(this.calcPercentile('xp_per_min', this.xpm))
+  kpm_percentile = $derived(this.calcPercentile('kills_per_min', this.kpm_calc))
 
-  gpm_diff = $derived(this.calcDiff('gold_per_min', this.gpm, this.currentHeroId ?? 0))
-  xpm_diff = $derived(this.calcDiff('xp_per_min', this.xpm, this.currentHeroId ?? 0))
-  kpm_diff = $derived(this.calcDiff('kills_per_min', this.kpm_calc, this.currentHeroId ?? 0))
+  gpm_diff = $derived(this.calcDiff('gold_per_min', this.gpm))
+  xpm_diff = $derived(this.calcDiff('xp_per_min', this.xpm))
+  kpm_diff = $derived(this.calcDiff('kills_per_min', this.kpm_calc))
 
   gpm_status = $derived(this.gpm_diff >= 0 ? 'up' : 'down')
   xpm_status = $derived(this.xpm_diff >= 0 ? 'up' : 'down')
@@ -64,7 +65,7 @@ class OverlayStore {
     this.acquiredItems = new Map()
   }
 
-  updateFromGsi(data: any): void {
+  updateFromGsi(data: GSIUIState): void {
     if (data.player) {
       this.gpm = data.player.gpm ?? 0
       this.xpm = data.player.xpm ?? 0
@@ -73,14 +74,13 @@ class OverlayStore {
     if (data.hero) {
       if (data.hero.id != null) {
         this.currentHeroId = data.hero.id
-        if (!this.benchmarks) this.loadBenchmarks()
+        this.loadBenchmarks(data.hero.id)
       }
     }
     if (typeof data.clock === 'number') {
       const newClock = data.clock
       const isNewGame = this.lastClock > 60 && (newClock <= 5 || newClock < this.lastClock - 30)
       if (isNewGame) {
-        console.log('[Guide] Game restart detected, resetting acquisition state')
         this.prevInventoryIds = []
         this.acquiredItems = new Map()
       }
@@ -94,7 +94,6 @@ class OverlayStore {
 
   private detectNewAcquisitions(currentIds: number[], names: string[]): void {
     if (this.prevInventoryIds.length === 0) {
-      console.log('[Guide] Initialized inventory baseline:', currentIds)
       this.prevInventoryIds = [...currentIds]
       return
     }
@@ -103,12 +102,10 @@ class OverlayStore {
       const id = currentIds[i]
       if (id === 0) continue
       if (!this.prevInventoryIds.includes(id) && !this.acquiredItems.has(id)) {
-        console.log('[Guide] Detected new item in slot', i, 'id:', id, 'name:', names[i])
         const guideSlot = this.guideSlots.find((s) => s.itemId === id)
         if (guideSlot) {
           const targetSec = guideSlot.targetMinute * 60 + (guideSlot.targetSecond ?? 0)
           const diffSeconds = this.clock - targetSec
-          console.log('[Guide] Item matches guide slot! diff:', diffSeconds, 'clock:', this.clock, 'target:', guideSlot.targetMinute)
           this.acquiredItems.set(id, {
             acquiredAtClock: this.clock,
             targetMinute: guideSlot.targetMinute,
@@ -122,8 +119,6 @@ class OverlayStore {
             acquiredAtClock: this.clock,
             diffSeconds
           })
-        } else {
-          console.log('[Guide] Item', id, 'not in guide slots')
         }
       }
     }
@@ -131,21 +126,17 @@ class OverlayStore {
     this.prevInventoryIds = [...currentIds]
   }
 
-  async loadBenchmarks(): Promise<void> {
-    if (this.benchmarks) return
+  async loadBenchmarks(heroId: number): Promise<void> {
     try {
-      this.benchmarks = (await window.api.getBenchmarks()) as Record<string, unknown>
-      console.log('[Benchmark] Loaded benchmark data')
+      this.benchmarks = (await window.api.getBenchmarks(heroId)) as Record<string, unknown>
     } catch (err) {
       console.error('[Benchmark] Failed to load:', err)
     }
   }
 
-  private calcPercentile(stat: string, value: number, heroId: number): string {
-    if (!this.benchmarks || !heroId) return '—'
-    const heroData = (this.benchmarks as any)?.[String(heroId)]
-    if (!heroData) return '—'
-    const buckets = (heroData as any)?.result?.[stat] as Array<{ percentile: number; value: number }> | undefined
+  private calcPercentile(stat: string, value: number): string {
+    if (!this.benchmarks) return '—'
+    const buckets = ((this.benchmarks as Record<string, unknown>)?.result as Record<string, Array<{ percentile: number; value: number }>> | undefined)?.[stat]
     if (!buckets || !buckets.length) return '—'
     let label = 'P0'
     for (const b of buckets) {
@@ -154,16 +145,14 @@ class OverlayStore {
     return label
   }
 
-  private getMedian(stat: string, heroId: number): number {
-    if (!this.benchmarks || !heroId) return 0
-    const heroData = (this.benchmarks as any)?.[String(heroId)]
-    if (!heroData) return 0
-    const buckets = (heroData as any)?.result?.[stat] as Array<{ percentile: number; value: number }> | undefined
+  private getMedian(stat: string): number {
+    if (!this.benchmarks) return 0
+    const buckets = ((this.benchmarks as Record<string, unknown>)?.result as Record<string, Array<{ percentile: number; value: number }>> | undefined)?.[stat]
     return buckets?.find((b) => b.percentile === 0.5)?.value ?? 0
   }
 
-  private calcDiff(stat: string, value: number, heroId: number): number {
-    const median = this.getMedian(stat, heroId)
+  private calcDiff(stat: string, value: number): number {
+    const median = this.getMedian(stat)
     if (median <= 0) return 0
     return ((value - median) / median) * 100
   }

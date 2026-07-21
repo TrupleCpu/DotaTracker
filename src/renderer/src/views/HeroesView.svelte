@@ -6,6 +6,7 @@
   import ProgressBar from '../lib/ui/ProgressBar.svelte'
   import Toast from '../lib/ui/Toast.svelte'
   import { uiStore } from '../stores/uiStore.svelte'
+  import type { HeroGroupByEntry } from '../types/api'
 
   let searchQuery = $state('')
   let selectedRole = $state('All Roles')
@@ -21,7 +22,7 @@
   }
 
   let heroList = $derived.by(() => {
-    return playerStore.allHeroStats.map((h: any) => {
+    return playerStore.allHeroStats.map((h: HeroGroupByEntry) => {
       const hero = heroMap.get(h.heroId)
       const winrate = h.matchCount > 0 ? +((h.winCount / h.matchCount) * 100).toFixed(1) : 0
       const kda =
@@ -57,7 +58,7 @@
   })
 
   let unplayedHeroes = $derived.by(() => {
-    const playedIds = new Set(playerStore.allHeroStats.map((h: any) => h.heroId))
+    const playedIds = new Set(playerStore.allHeroStats.map((h: HeroGroupByEntry) => h.heroId))
     return [...heroMap.values()].filter((h) => !playedIds.has(h.id))
   })
 </script>

@@ -3,7 +3,7 @@ import { app } from 'electron'
 import path from 'path'
 
 const dbPath = path.join(app.getPath('userData'), 'dota_cache.sqlite')
-export const db = new Database(dbPath)
+export const db: Database.Database = new Database(dbPath)
 
 export function initDatabase() {
   db.exec(`

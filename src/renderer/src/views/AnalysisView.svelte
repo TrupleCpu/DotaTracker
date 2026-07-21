@@ -6,6 +6,7 @@
   import { formatRole } from '../utils/matchHelper'
   import LoadingSpinner from '../lib/ui/LoadingSpinner.svelte'
   import ProgressBar from '../lib/ui/ProgressBar.svelte'
+  import type { HeroGroupByEntry } from '../types/api'
 
   let winRate = $derived.by(() => {
     const s = playerStore.playerStats
@@ -97,10 +98,10 @@
 
   let bestHeroes = $derived.by(() =>
     [...playerStore.allHeroStats]
-      .filter((h: any) => h.matchCount >= 10)
-      .sort((a: any, b: any) => b.winCount / b.matchCount - a.winCount / a.matchCount)
+      .filter((h: HeroGroupByEntry) => h.matchCount >= 10)
+      .sort((a: HeroGroupByEntry, b: HeroGroupByEntry) => b.winCount / b.matchCount - a.winCount / a.matchCount)
       .slice(0, 5)
-      .map((h: any) => ({
+      .map((h: HeroGroupByEntry) => ({
         heroId: h.heroId,
         name: heroMap.get(h.heroId)?.localized_name ?? `Hero #${h.heroId}`,
         img: heroMap.get(h.heroId)?.img ?? '',
@@ -111,11 +112,11 @@
 
   let worstHeroes = $derived.by(() =>
     [...playerStore.allHeroStats]
-      .filter((h: any) => h.matchCount >= 10)
-      .sort((a: any, b: any) => a.winCount / a.matchCount - b.winCount / b.matchCount)
+      .filter((h: HeroGroupByEntry) => h.matchCount >= 10)
+      .sort((a: HeroGroupByEntry, b: HeroGroupByEntry) => a.winCount / a.matchCount - b.winCount / b.matchCount)
       .slice(0, 5)
-      .map((h: any) => ({ ...(bestHeroes.find((bh: any) => bh.heroId === h.heroId) ?? {}), ...h }))
-      .map((h: any) => ({
+      .map((h: HeroGroupByEntry) => ({ ...(bestHeroes.find((bh: HeroGroupByEntry) => bh.heroId === h.heroId) ?? {}), ...h }))
+      .map((h: HeroGroupByEntry) => ({
         heroId: h.heroId,
         name: heroMap.get(h.heroId)?.localized_name ?? `Hero #${h.heroId}`,
         img: heroMap.get(h.heroId)?.img ?? '',

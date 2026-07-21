@@ -1,3 +1,5 @@
+import { POSITION_LABELS, LANE_ROLE_LABELS } from './roleMap'
+
 export function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60)
   const s = seconds % 60
@@ -53,24 +55,10 @@ export function getLaneOutcome(match: {
 
 export function formatRole(role: string | null, lane?: string | null): string {
   if (role) {
-    const map: Record<string, string> = {
-      POSITION_1: 'Carry',
-      POSITION_2: 'Mid',
-      POSITION_3: 'Offlane',
-      POSITION_4: 'Soft Support',
-      POSITION_5: 'Hard Support'
-    }
-    return map[role] ?? 'Unknown'
+    return POSITION_LABELS[role] ?? 'Unknown'
   }
   if (lane) {
-    const laneMap: Record<string, string> = {
-      SAFE_LANE: 'Carry',
-      MID_LANE: 'Mid',
-      OFF_LANE: 'Offlane',
-      LIGHT_SUPPORT: 'Soft Support',
-      HARD_SUPPORT: 'Hard Support'
-    }
-    return laneMap[lane] ?? 'Unknown'
+    return LANE_ROLE_LABELS[lane] ?? 'Unknown'
   }
   return 'Unknown'
 }

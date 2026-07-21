@@ -1,29 +1,20 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { overlayStore } from '../../stores/overlayStore.svelte'
+  import type { GSIUIState } from '../../../main/types/gsi'
 
   let lastLoadedHeroId: number | null = null
   let loadTimeout: ReturnType<typeof setTimeout> | null = null
 
   $effect(() => {
     if (overlayStore.benchmarks && overlayStore.currentHeroId) {
-      console.log('[Benchmark Debug] Ready', {
-        heroes: Object.keys(overlayStore.benchmarks).length,
-        heroId: overlayStore.currentHeroId,
-        gpm: overlayStore.gpm,
-        gpm_diff: overlayStore.gpm_diff,
-        gpm_percentile: overlayStore.gpm_percentile
-      })
     }
   })
 
   onMount(() => {
-    overlayStore.loadBenchmarks()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    window.api.onGsiStream((data: any) => {
+    window.api.onGsiStream((data: GSIUIState) => {
       overlayStore.updateFromGsi(data)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const heroId = (data as any).hero?.id ?? null
+      const heroId = data.hero?.id ?? null
       if (heroId && heroId !== lastLoadedHeroId) {
         scheduleGuideLoad(heroId)
       }

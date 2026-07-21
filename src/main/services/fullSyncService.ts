@@ -1,11 +1,20 @@
 import { fetchFromStratz } from '../stratz/client'
 import { FETCH_MATCH_QUERY } from '../stratz/graphql/queries/fetchMatches'
-import { insertMatchBatch, upsertSyncState, getSyncState, countLocalMatches } from '../db/matchesRepo'
+import { insertMatchBatch, upsertSyncState, getSyncState } from '../db/matchesRepo'
 import { state } from '../state'
+import type { RawMatch } from '../../renderer/src/types/api'
+import type { Match } from '../db/matchesRepo'
+
+interface FetchMatchesResponse {
+  player?: {
+    matches?: RawMatch[]
+    matchCount?: number
+  }
+}
 
 const BATCH_SIZE = 100
-const PARALLEL_CALLS = 7
-const BATCH_DELAY_MS = 1500
+const PARALLEL_CALLS = 3
+const BATCH_DELAY_MS = 3000
 
 let isSyncing = false
 
@@ -24,13 +33,9 @@ export async function startFullSync(steamId: number): Promise<void> {
     let syncedCount = existing?.synced_count ?? 0
 
     if (existing?.status === 'complete') {
-      const localCount = countLocalMatches(steamId)
-      if (localCount >= totalCount) {
-        isSyncing = false
-        return
-      }
       cursor = 0
       syncedCount = 0
+      totalCount = 0
     }
 
     upsertSyncState({
@@ -45,7 +50,7 @@ export async function startFullSync(steamId: number): Promise<void> {
     emit('sync-progress', { synced: syncedCount, total: totalCount, status: 'syncing' })
 
     while (true) {
-      const batchPromises: Promise<any>[] = []
+      const batchPromises: Promise<unknown>[] = []
       for (let i = 0; i < PARALLEL_CALLS; i++) {
         const skip = cursor + i * BATCH_SIZE
         batchPromises.push(
@@ -62,18 +67,20 @@ export async function startFullSync(steamId: number): Promise<void> {
       const results = await Promise.all(batchPromises)
 
       let allEmpty = true
-      for (const data of results) {
+      for (const raw of results) {
+        const data = raw as FetchMatchesResponse | null
         if (!data?.player?.matches) continue
-        const matches: any[] = data.player.matches
+        const matches: RawMatch[] = data.player.matches
         if (matches.length === 0) continue
         allEmpty = false
-        syncedCount += insertMatchBatch(matches, steamId)
+        syncedCount += insertMatchBatch(matches as Match[], steamId)
       }
 
       if (allEmpty) break
 
-      if (totalCount === 0 && results[0]?.player?.matchCount) {
-        totalCount = results[0].player.matchCount
+      const firstResult = results[0] as FetchMatchesResponse | null | undefined
+      if (totalCount === 0 && firstResult?.player?.matchCount) {
+        totalCount = firstResult.player.matchCount
       }
 
       cursor += PARALLEL_CALLS * BATCH_SIZE

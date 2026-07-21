@@ -27,15 +27,6 @@
   let slots = $state<SlotData[]>([...Array(SLOT_COUNT)].map(() => ({ itemId: 0, targetMinute: 0, targetSecond: 0 })))
   let isSaving = $state(false)
   let isLoading = $state(false)
-  let searchHero = $state('')
-
-  const filteredHeroes = $derived(
-    searchHero
-      ? heroes.filter((h) =>
-          h.localized_name.toLowerCase().includes(searchHero.toLowerCase())
-        )
-      : heroes
-  )
 
   onMount(() => {
     if (heroes.length > 0 && heroes[0]?.id) {
@@ -100,21 +91,13 @@
     <div class="flex items-center gap-3">
       <h2 class="text-sm font-bold text-tx">Play Guide</h2>
       <div class="flex items-center gap-2">
-        <div class="relative">
-          <input
-            type="text"
-            placeholder="Search hero..."
-            bind:value={searchHero}
-            class="w-36 bg-s2 border border-bd rounded px-2 py-1 text-xs text-tx outline-none placeholder:text-tx3 focus:border-pu/50"
-          />
-        </div>
         <select
           value={selectedHeroId ?? ''}
           onchange={handleHeroSelect}
           class="bg-s2 border border-bd rounded px-2 py-1 text-xs text-tx outline-none focus:border-pu/50"
         >
           <option value="" disabled>Select hero...</option>
-          {#each filteredHeroes as hero (hero.id)}
+          {#each heroes as hero (hero.id)}
             <option value={hero.id}>{hero.localized_name}</option>
           {/each}
         </select>

@@ -187,7 +187,7 @@
               </div>
             {/if}
             {#each section.items as { id, label, icon: Icon } (id)}
-              {@const active = uiStore.currentView === id}
+              {@const active = uiStore.activeTab === id}
               <button
                 class="w-full flex items-center gap-3 px-3 py-2 text-lg font-semibold transition-all cursor-pointer relative
                 {active ? 'text-tx bg-pub shadow-sm' : 'text-tx2 hover:text-tx hover:bg-white/4'}
@@ -252,8 +252,8 @@
             {#if uiStore.currentView === 'match-detail'}
               <button
                 class="cursor-pointer hover:text-tx transition-colors bg-transparent border-none p-0 text-inherit text-xs"
-                onclick={() => uiStore.gotoView(uiStore.prevView)}
-                >{VIEW_TITLES[uiStore.prevView] || uiStore.prevView}</button
+                onclick={() => uiStore.gotoView(uiStore.prevView === 'hero-detail' ? 'heroes' : uiStore.prevView)}
+                >{uiStore.prevView === 'hero-detail' ? 'Heroes' : (VIEW_TITLES[uiStore.prevView] || uiStore.prevView)}</button
               >
               <span class="text-tx3 text-[10px]">/</span>
               <span class="text-tx text-sm"
@@ -262,8 +262,8 @@
             {:else if uiStore.currentView === 'hero-detail'}
               <button
                 class="cursor-pointer hover:text-tx transition-colors bg-transparent border-none p-0 text-inherit text-xs"
-                onclick={() => uiStore.gotoView(uiStore.prevView)}
-                >{VIEW_TITLES[uiStore.prevView] || uiStore.prevView}</button
+                onclick={() => uiStore.gotoView('heroes')}
+                >Heroes</button
               >
               <span class="text-tx3 text-[10px]">/</span>
               <span class="text-tx text-sm">Hero Matches</span>

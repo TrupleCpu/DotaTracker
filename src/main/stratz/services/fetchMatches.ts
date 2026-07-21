@@ -1,6 +1,6 @@
 import { fetchFromStratz } from '../client'
 import { FETCH_MATCH_QUERY } from '../graphql/queries/fetchMatches'
-import { getLocalMatches, getLocalHeroMatches, insertMatch } from '../../db/matchesRepo'
+import { getLocalMatches, getLocalHeroMatches, insertMatchBatch } from '../../db/matchesRepo'
 import { loadConfig } from '../../config'
 
 const CACHE_TTL_MS = 5 * 60 * 1000
@@ -58,12 +58,10 @@ export async function fetchMatches(
   const data = await fetchFromStratz(FETCH_MATCH_QUERY, {
     steamAccountId,
     request
-  })
+  }) as { player?: { matches?: import('../../../renderer/src/types/api').RawMatch[] } }
 
-  // Cache to DB if it's a basic fetch
   if (config.autoSyncMatches && !hasComplexFilters && data?.player?.matches) {
-    const matches: any[] = data.player.matches
-    matches.forEach(m => insertMatch(m, numId))
+    insertMatchBatch(data.player.matches as any, numId)
   }
 
   if (skip === 0) lastFetchMap.set(numId, Date.now())
@@ -101,11 +99,10 @@ export async function fetchHeroMatches(
   const data = await fetchFromStratz(FETCH_HERO_MATCHES_QUERY, {
     steamId: numId,
     request
-  })
+  }) as { player?: { matches?: import('../../../renderer/src/types/api').RawMatch[] } }
 
   if (config.autoSyncMatches && data?.player?.matches) {
-    const matches: any[] = data.player.matches
-    matches.forEach(m => insertMatch(m, numId))
+    insertMatchBatch(data.player.matches as any, numId)
   }
 
   if (skip === 0) lastFetchMap.set(numId, Date.now())

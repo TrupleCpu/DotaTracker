@@ -1,5 +1,7 @@
 let toastTimer: ReturnType<typeof setTimeout>
 
+import type { MatchSummary } from '../types/matchDetail'
+
 export type ViewId =
   | 'dashboard'
   | 'matches'
@@ -12,9 +14,12 @@ export type ViewId =
   | 'hero-detail'
   | 'play-guide'
 
+const TAB_VIEWS: ViewId[] = ['dashboard', 'matches', 'heroes', 'analysis', 'roles', 'teammates', 'settings', 'play-guide']
+
 class UiStore {
   currentView = $state<ViewId>('dashboard')
   prevView = $state<ViewId>('dashboard')
+  activeTab = $state<ViewId>('dashboard')
   sidebarCollapsed = $state(false)
   selectedMatch = $state<any>(null)
   selectedHeroId = $state<number | null>(null)
@@ -35,13 +40,12 @@ class UiStore {
   gotoView(view: ViewId, settingsTab?: string) {
     this.prevView = this.currentView
     this.currentView = view
-    this.selectedMatch = null
-    this.selectedHeroId = null
+    if (TAB_VIEWS.includes(view)) this.activeTab = view
     if (settingsTab) this.settingsTab = settingsTab
     else this.settingsTab = 'sg'
   }
 
-  openMatchDetail(match: any) {
+  openMatchDetail(match: MatchSummary) {
     this.prevView = this.currentView
     this.selectedMatch = match
     this.currentView = 'match-detail'

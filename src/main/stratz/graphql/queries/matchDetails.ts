@@ -18,6 +18,7 @@ query MatchDetails($matchId: Long!) {
       lane
       item0Id
       item1Id
+      item2Id
       item3Id
       item4Id
       item5Id

@@ -84,8 +84,7 @@ export function registerMatchHandlers(): void {
     }
   })
 
-  // Start background sync
-  ipcMain.handle('trigger-startup-sync', async (_e, steamId: string) => {
+  ipcMain.handle('trigger-startup-sync', async (_e, steamId: number) => {
     runSync(steamId)
   })
 }

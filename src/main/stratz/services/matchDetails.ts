@@ -15,13 +15,13 @@ export async function getMatchDetails(matchId: number | string) {
 
   const data = await fetchFromStratz(MATCH_DETAILS_QUERY, {
     matchId
-  })
+  }) as { match?: import('../../../renderer/src/types/api').RawMatch }
 
   if (config.autoSyncMatches && data?.match) {
     const match = data.match
     const steamId = match.players?.[0]?.steamAccountId
     if (steamId) {
-      insertMatch(match, steamId)
+      insertMatch(match as any, steamId)
     }
   }
 

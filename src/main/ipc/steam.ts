@@ -7,7 +7,7 @@ type ActiveSteamTypes =
       steamId: number
     }
   | {
-      error: string
+      err: string
     }
 
 export async function getActiveSteamId(): Promise<ActiveSteamTypes> {
@@ -19,7 +19,7 @@ export async function getActiveSteamId(): Promise<ActiveSteamTypes> {
         'reg query "HKCU\\Software\\Valve\\Steam\\ActiveProcess" /v ActiveUser',
         (err, stdout) => {
           if (err) {
-            return resolve({ error: 'Steam registry branch missing.' })
+            return resolve({ err: 'Steam registry branch missing.' })
           }
 
           const match = stdout.match(/ActiveUser\s+REG_DWORD\s+(0x[0-9a-fA-F]+)/)
@@ -29,21 +29,21 @@ export async function getActiveSteamId(): Promise<ActiveSteamTypes> {
 
             if (accountId === 0) {
               return resolve({
-                error: 'Steam is open but no user is active.'
+                err: 'Steam is open but no user is active.'
               })
             }
 
             return resolve({ steamId: accountId })
           }
 
-          resolve({ error: 'Failed to read registry output.' })
+          resolve({ err: 'Failed to read registry output.' })
         }
       )
     })
   }
 
   return {
-    error: 'Unsupported operating system.'
+    err: 'Unsupported operating system.'
   }
 }
 
@@ -51,7 +51,7 @@ export function registerSteamHandlers(): void {
   ipcMain.handle('get-local-steam-id', async () => {
     const result = await getActiveSteamId()
 
-    if ('error' in result) {
+    if ('err' in result) {
       return result
     }
 

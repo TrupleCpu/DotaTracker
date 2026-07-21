@@ -1,10 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { playerStore, heroMap } from '../stores/playerStore.svelte'
-  import { getHeroImgUrl } from '../utils/heroMap'
-  import { rankToString } from '../utils/rankMap'
   import ToolTip from '../lib/ui/ToolTip.svelte'
-  import { formatRole, getLaneOutcome } from '../utils/matchHelper'
+  import { getLaneOutcome } from '../utils/matchHelper'
+  import { LANE_LABELS } from '../utils/roleMap'
   import { uiStore } from '../stores/uiStore.svelte'
   import HeroIcon from '../lib/dota/HeroIcon.svelte'
   import LaneIcon from '../lib/dota/LaneIcon.svelte'
@@ -13,6 +12,8 @@
   import ImpactBar from '../lib/dota/ImpactBar.svelte'
   import RankBadge from '../lib/dota/RankBadge.svelte'
   import { getCachedSessionReview, setCachedSessionReview } from '../lib/cache/llmCache'
+  import type { SessionReview } from '../../../main/services/llmService'
+  import type { DetailedMatchResponse } from '../types/matchDetail'
 
   const rankImages = import.meta.glob('../assets/ranks/*.png', { eager: true, import: 'default' })
 
@@ -40,7 +41,7 @@
         ]
   )
 
-  let sessionReview = $state<any | null>(null)
+  let sessionReview = $state<SessionReview | null>(null)
   let sessionReviewLoading = $state(false)
   let sessionReviewError = $state<string | null>(null)
   let llmConfigured = $state(false)
@@ -73,7 +74,7 @@
     sessionReview = null
     sessionReviewLoading = true
     sessionReviewError = null
-    window.api.generateSessionReview(matches).then((result: any) => {
+    window.api.generateSessionReview(matches).then((result: SessionReview) => {
       if (result?.err) {
         sessionReviewError = result.err
         sessionReview = null
@@ -82,7 +83,7 @@
         setCachedSessionReview(matches, result)
         sessionReviewError = null
       }
-    }).catch((e: any) => {
+    }).catch((e: Error) => {
       sessionReviewError = e?.message ?? 'Failed to generate session review'
     }).finally(() => {
       sessionReviewLoading = false
@@ -101,7 +102,7 @@
       if (!m.id || warmed.has(m.id)) continue
       warmed.add(m.id)
       const attempt = (): void => {
-        window.api.fetchMatchDetails(m.id).then((data: any) => {
+        window.api.fetchMatchDetails(m.id).then((data: DetailedMatchResponse) => {
           if (data && typeof data === 'object' && !('err' in data) && data?.match === null) {
             setTimeout(attempt, 10000)
           }
@@ -130,17 +131,7 @@
   }
 
   function laneLabel(lane: string): string {
-    return (
-      (
-        {
-          SAFE_LANE: 'Safe Lane (Carry)',
-          MID_LANE: 'Mid Lane',
-          OFF_LANE: 'Off Lane',
-          LIGHT_SUPPORT: 'Soft Support',
-          HARD_SUPPORT: 'Hard Support'
-        } as Record<string, string>
-      )[lane] ?? lane
-    )
+    return LANE_LABELS[lane] ?? lane
   }
 </script>
 

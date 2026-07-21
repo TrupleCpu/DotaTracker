@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron'
-import { loadLlmConfig, saveLlmConfig, clearLlmConfig } from '../services/configService'
+import { loadLlmConfig, saveLlmConfig, clearLlmConfig, type LlmConfig } from '../services/configService'
 import { generateMatchCoaching, generateSessionReview, SingleMatchContext, SessionMatchSummary } from '../services/llmService'
 
 export function registerCoachingHandlers(): void {
@@ -8,9 +8,9 @@ export function registerCoachingHandlers(): void {
     return { configured: cfg !== null, provider: cfg?.provider ?? null, model: cfg?.model ?? null }
   })
 
-  ipcMain.handle('set-llm-config', (_e, config: { provider: string; apiKey: string; baseUrl?: string; model?: string }) => {
+  ipcMain.handle('set-llm-config', (_e, config: LlmConfig) => {
     saveLlmConfig({
-      provider: config.provider as any,
+      provider: config.provider,
       apiKey: config.apiKey,
       baseUrl: config.baseUrl,
       model: config.model

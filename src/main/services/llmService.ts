@@ -1,4 +1,5 @@
 import { loadLlmConfig } from './configService'
+import { ALL_HERO_NAMES } from '../data/heroNames'
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
@@ -9,7 +10,7 @@ interface ProviderConfig {
   baseUrl: string
   headers: Record<string, string>
   formatBody: (messages: ChatMessage[], model: string) => unknown
-  parseResponse: (json: any) => string
+  parseResponse: (json: Record<string, unknown>) => string
 }
 
 const DEFAULT_MODELS: Record<string, string> = {
@@ -280,28 +281,7 @@ function buildDraftSuggestionPrompt(
   const enemyHeroes = myTeam === 'Radiant' ? direHeroes : radiantHeroes
   const allPicked = [...myHeroes, ...enemyHeroes]
 
-  const VALID_HEROES = [
-    'Abaddon','Alchemist','Ancient Apparition','Anti-Mage','Arc Warden','Axe',
-    'Bane','Batrider','Beastmaster','Bloodseeker','Bounty Hunter','Brewmaster',
-    'Bristleback','Broodmother','Centaur Warrunner','Chaos Knight','Chen','Clinkz',
-    'Clockwerk','Crystal Maiden','Dark Seer','Dark Willow','Dawnbreaker','Dazzle',
-    'Death Prophet','Disruptor','Doom','Dragon Knight','Drow Ranger','Earth Spirit',
-    'Earthshaker','Elder Titan','Ember Spirit','Enchantress','Enigma','Faceless Void',
-    'Grimstroke','Gyrocopter','Hoodwink','Huskar','Invoker','Io','Jakiro',
-    'Juggernaut','Keeper of the Light','Kez','Kunkka','Largo','Legion Commander',
-    'Leshrac','Lich','Lifestealer','Lina','Lion','Lone Druid','Luna','Lycan',
-    'Magnus','Marci','Mars','Medusa','Meepo','Mirana','Monkey King','Morphling',
-    'Muerta','Naga Siren',"Nature's Prophet",'Necrophos','Night Stalker','Nyx Assassin',
-    'Ogre Magi','Omniknight','Oracle','Outworld Devourer','Pangolier','Phantom Assassin',
-    'Phantom Lancer','Phoenix','Primal Beast','Puck','Pudge','Pugna','Queen of Pain',
-    'Razor','Riki','Ring Master','Rubick','Sand King','Shadow Demon','Shadow Fiend',
-    'Shadow Shaman','Silencer','Skywrath Mage','Slardar','Slark','Snapfire','Sniper',
-    'Spectre','Spirit Breaker','Storm Spirit','Sven','Techies','Templar Assassin',
-    'Terrorblade','Tidehunter','Timbersaw','Tinker','Tiny','Treant Protector',
-    'Troll Warlord','Tusk','Underlord','Undying','Ursa','Vengeful Spirit',
-    'Venomancer','Viper','Visage','Void Spirit','Warlock','Weaver','Windranger',
-    'Winter Wyvern','Witch Doctor','Wraith King','Zeus'
-  ]
+  const VALID_HEROES = ALL_HERO_NAMES as readonly string[]
 
   return [
     {
@@ -346,28 +326,7 @@ export async function generateDraftSuggestion(
   direHeroes: string[],
   playerTeam: string
 ): Promise<DraftSuggestionResult> {
-  const VALID_HEROES = new Set([
-    'Abaddon','Alchemist','Ancient Apparition','Anti-Mage','Arc Warden','Axe',
-    'Bane','Batrider','Beastmaster','Bloodseeker','Bounty Hunter','Brewmaster',
-    'Bristleback','Broodmother','Centaur Warrunner','Chaos Knight','Chen','Clinkz',
-    'Clockwerk','Crystal Maiden','Dark Seer','Dark Willow','Dawnbreaker','Dazzle',
-    'Death Prophet','Disruptor','Doom','Dragon Knight','Drow Ranger','Earth Spirit',
-    'Earthshaker','Elder Titan','Ember Spirit','Enchantress','Enigma','Faceless Void',
-    'Grimstroke','Gyrocopter','Hoodwink','Huskar','Invoker','Io','Jakiro',
-    'Juggernaut','Keeper of the Light','Kez','Kunkka','Largo','Legion Commander',
-    'Leshrac','Lich','Lifestealer','Lina','Lion','Lone Druid','Luna','Lycan',
-    'Magnus','Marci','Mars','Medusa','Meepo','Mirana','Monkey King','Morphling',
-    'Muerta','Naga Siren',"Nature's Prophet",'Necrophos','Night Stalker','Nyx Assassin',
-    'Ogre Magi','Omniknight','Oracle','Outworld Devourer','Pangolier','Phantom Assassin',
-    'Phantom Lancer','Phoenix','Primal Beast','Puck','Pudge','Pugna','Queen of Pain',
-    'Razor','Riki','Ring Master','Rubick','Sand King','Shadow Demon','Shadow Fiend',
-    'Shadow Shaman','Silencer','Skywrath Mage','Slardar','Slark','Snapfire','Sniper',
-    'Spectre','Spirit Breaker','Storm Spirit','Sven','Techies','Templar Assassin',
-    'Terrorblade','Tidehunter','Timbersaw','Tinker','Tiny','Treant Protector',
-    'Troll Warlord','Tusk','Underlord','Undying','Ursa','Vengeful Spirit',
-    'Venomancer','Viper','Visage','Void Spirit','Warlock','Weaver','Windranger',
-    'Winter Wyvern','Witch Doctor','Wraith King','Zeus'
-  ])
+  const VALID_HEROES = new Set(ALL_HERO_NAMES)
 
   const text = await llmChat(buildDraftSuggestionPrompt(radiantHeroes, direHeroes, playerTeam))
   const cleaned = extractJson(text)

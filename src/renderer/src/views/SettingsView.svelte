@@ -38,8 +38,7 @@
           llmModel = (PROVIDER_MODELS[llmProvider] || [])[0] || ''
         }
       }
-    } catch (error) {
-      console.error(error)
+    } catch {
     }
   })
 
@@ -129,8 +128,7 @@
       const config = await window.api.getConfig()
       config.autoSyncMatches = autoSync
       await window.api.setConfig(config)
-    } catch (e) {
-      console.error(e)
+    } catch {
     }
     uiStore.showToast(`Auto-sync new matches: ${autoSync ? 'ON' : 'OFF'}`, 'ok')
   }

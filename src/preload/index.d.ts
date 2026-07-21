@@ -34,7 +34,7 @@ declare global {
       getAppVersion: () => Promise<string>
       showGuideNotification: (data: { itemName: string; itemImg: string | null; targetMinute: number; acquiredAtClock: number; diffSeconds: number }) => void
       onGuideNotification: (cb: (data: { itemName: string; itemImg: string | null; targetMinute: number; acquiredAtClock: number; diffSeconds: number }) => void) => void
-      getBenchmarks: () => Promise<unknown>
+      getBenchmarks: (heroId: number) => Promise<unknown>
       getStratzToken: () => Promise<string | null>
       setStratzToken: (token: string) => Promise<boolean>
       getLlmConfig: () => Promise<{ configured: boolean; provider: string | null }>

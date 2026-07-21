@@ -1,9 +1,52 @@
 import { db } from './index'
 
-export function insertMatch(match: any, steamId: number) {
-  if (!match || !match.players || match.players.length === 0) return;
+export interface MatchPlayer {
+  steamAccountId: number
+  heroId: number
+  isVictory: boolean
+  position?: string
 
-  const p = match.players.find((player: any) => player.steamAccountId === steamId) || match.players[0]
+  item0Id?: number
+  item1Id?: number
+  item2Id?: number
+  item3Id?: number
+  item4Id?: number
+  item5Id?: number
+}
+
+export interface Match {
+  id: number
+  durationSeconds: number
+  endDateTime: number
+  players: MatchPlayer[]
+}
+
+interface CacheEntry<T> {
+  data: T
+  ts: number
+}
+
+const QUERY_CACHE_TTL_MS = 5 * 60 * 1000
+const queryCache = new Map<string, CacheEntry<unknown>>()
+
+function cacheGet<T>(key: string): T | null {
+  const entry = queryCache.get(key)
+  if (!entry) return null
+  if (Date.now() - entry.ts > QUERY_CACHE_TTL_MS) {
+    queryCache.delete(key)
+    return null
+  }
+  return entry.data as T
+}
+
+function cacheSet<T>(key: string, data: T): void {
+  queryCache.set(key, { data, ts: Date.now() })
+}
+
+export function insertMatch(match: Match, steamId: number) {
+  if (!match || !match.players || match.players.length === 0) return
+
+  const p = match.players.find((player) => player.steamAccountId === steamId) ?? match.players[0]
 
   const stmt = db.prepare(`
     INSERT OR IGNORE INTO matches (match_id, steam_account_id, hero_id, is_win, duration_seconds, start_date_time, json_data)
@@ -20,7 +63,7 @@ export function insertMatch(match: any, steamId: number) {
   )
 }
 
-export function insertMatchBatch(matches: any[], steamId: number): number {
+export function insertMatchBatch(matches: Match[], steamId: number): number {
   const insert = db.prepare(`
     INSERT OR IGNORE INTO matches (match_id, steam_account_id, hero_id, is_win, duration_seconds, start_date_time, json_data)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -29,7 +72,8 @@ export function insertMatchBatch(matches: any[], steamId: number): number {
   const tx = db.transaction(() => {
     for (const match of matches) {
       if (!match || !match.players || match.players.length === 0) continue
-      const p = match.players.find((player: any) => player.steamAccountId === steamId) || match.players[0]
+      const p =
+        match.players.find((player) => player.steamAccountId === steamId) ?? match.players[0]
       const result = insert.run(
         match.id,
         steamId,
@@ -46,10 +90,12 @@ export function insertMatchBatch(matches: any[], steamId: number): number {
   return count
 }
 
-export function getLocalMatches(steamId: number, limit = 50, skip = 0) {
-  const stmt = db.prepare('SELECT json_data FROM matches WHERE steam_account_id = ? ORDER BY start_date_time DESC LIMIT ? OFFSET ?')
-  const rows = stmt.all(steamId, limit, skip)
-  return rows.map((r: any) => JSON.parse(r.json_data))
+export function getLocalMatches(steamId: number, limit = 50, skip = 0): Match[] {
+  const stmt = db.prepare(
+    'SELECT json_data FROM matches WHERE steam_account_id = ? ORDER BY start_date_time DESC LIMIT ? OFFSET ?'
+  )
+  const rows = stmt.all(steamId, limit, skip) as { json_data: string }[]
+  return rows.map((r) => JSON.parse(r.json_data) as Match)
 }
 
 export function countLocalMatches(steamId: number) {
@@ -58,22 +104,29 @@ export function countLocalMatches(steamId: number) {
   return row.c
 }
 
-export function getLocalHeroMatches(steamId: number, heroId: number, limit = 20, skip = 0) {
+export function getLocalHeroMatches(
+  steamId: number,
+  heroId: number,
+  limit = 20,
+  skip = 0
+): Match[] {
   const stmt = db.prepare(
     'SELECT json_data FROM matches WHERE steam_account_id = ? AND hero_id = ? ORDER BY start_date_time DESC LIMIT ? OFFSET ?'
   )
-  const rows = stmt.all(steamId, heroId, limit, skip)
-  return rows.map((r: any) => JSON.parse(r.json_data))
+  const rows = stmt.all(steamId, heroId, limit, skip) as { json_data: string }[]
+  return rows.map((r) => JSON.parse(r.json_data) as Match)
 }
 
-export function getLocalMatchById(matchId: number) {
+export function getLocalMatchById(matchId: number): Match | null {
   const stmt = db.prepare('SELECT json_data FROM matches WHERE match_id = ?')
   const row = stmt.get(matchId) as { json_data: string } | undefined
-  return row ? JSON.parse(row.json_data) : null
+  return row ? (JSON.parse(row.json_data) as Match) : null
 }
 
 export function getEarliestMatchDate(steamId: number): number | null {
-  const stmt = db.prepare('SELECT MIN(start_date_time) as earliest FROM matches WHERE steam_account_id = ?')
+  const stmt = db.prepare(
+    'SELECT MIN(start_date_time) as earliest FROM matches WHERE steam_account_id = ?'
+  )
   const row = stmt.get(steamId) as { earliest: number | null }
   return row.earliest ?? null
 }
@@ -98,7 +151,14 @@ export function upsertSyncState(state: SyncState) {
       total_count = excluded.total_count,
       last_synced_at = excluded.last_synced_at
   `)
-  stmt.run(state.steam_id, state.status, state.cursor_skip, state.synced_count, state.total_count, state.last_synced_at ?? null)
+  stmt.run(
+    state.steam_id,
+    state.status,
+    state.cursor_skip,
+    state.synced_count,
+    state.total_count,
+    state.last_synced_at ?? null
+  )
 }
 
 export function getSyncState(steamId: number): SyncState | null {
@@ -107,17 +167,27 @@ export function getSyncState(steamId: number): SyncState | null {
   return row ?? null
 }
 
-export function getHeroItemFrequency(steamId: number, heroId: number): { itemId: number; count: number }[] {
+export function getHeroItemFrequency(
+  steamId: number,
+  heroId: number
+): { itemId: number; count: number }[] {
+  const cacheKey = `freq:${steamId}:${heroId}`
+  const cached = cacheGet<{ itemId: number; count: number }[]>(cacheKey)
+  if (cached) return cached
+
   const stmt = db.prepare(
-    'SELECT json_data FROM matches WHERE steam_account_id = ? AND hero_id = ? ORDER BY start_date_time DESC'
+    `SELECT json_extract(json_data, '$.players') as players_json
+     FROM matches WHERE steam_account_id = ? AND hero_id = ?
+     ORDER BY start_date_time DESC`
   )
-  const rows = stmt.all(steamId, heroId) as { json_data: string }[]
+  const rows = stmt.all(steamId, heroId) as { players_json: string | null }[]
 
   const freq = new Map<number, number>()
 
   for (const row of rows) {
-    const match = JSON.parse(row.json_data)
-    const player = match.players?.find((p: any) => p.steamAccountId === steamId)
+    if (!row.players_json) continue
+    const players = JSON.parse(row.players_json) as MatchPlayer[]
+    const player = players.find((p) => p.steamAccountId === steamId)
     if (!player) continue
 
     const slots = [
@@ -140,20 +210,28 @@ export function getHeroItemFrequency(steamId: number, heroId: number): { itemId:
     result.push({ itemId, count })
   }
   result.sort((a, b) => b.count - a.count)
+  cacheSet(cacheKey, result)
   return result
 }
 
 export function getMostPlayedPosition(steamId: number, heroId: number): string | null {
+  const cacheKey = `pos:${steamId}:${heroId}`
+  const cached = cacheGet<string | null>(cacheKey)
+  if (cached !== null) return cached
+
   const stmt = db.prepare(
-    'SELECT json_data FROM matches WHERE steam_account_id = ? AND hero_id = ? ORDER BY start_date_time DESC'
+    `SELECT json_extract(json_data, '$.players') as players_json
+     FROM matches WHERE steam_account_id = ? AND hero_id = ?
+     ORDER BY start_date_time DESC`
   )
-  const rows = stmt.all(steamId, heroId) as { json_data: string }[]
+  const rows = stmt.all(steamId, heroId) as { players_json: string | null }[]
 
   const posCount = new Map<string, number>()
 
   for (const row of rows) {
-    const match = JSON.parse(row.json_data)
-    const player = match.players?.find((p: any) => p.steamAccountId === steamId)
+    if (!row.players_json) continue
+    const players = JSON.parse(row.players_json) as MatchPlayer[]
+    const player = players.find((p) => p.steamAccountId === steamId)
     if (!player?.position) continue
     posCount.set(player.position, (posCount.get(player.position) || 0) + 1)
   }
@@ -166,6 +244,7 @@ export function getMostPlayedPosition(steamId: number, heroId: number): string |
       best = pos
     }
   }
+  cacheSet(cacheKey, best)
   return best
 }
 
@@ -185,16 +264,16 @@ export function getHeroTimingsCache(
 
 const PLAYER_CACHE_TTL_MS = 5 * 60 * 1000
 
-export function getPlayerCache(steamId: number): { data: any; fetchedAt: number } | null {
+export function getPlayerCache<T>(steamId: number): { data: T; fetchedAt: number } | null {
   const stmt = db.prepare('SELECT data_json, fetched_at FROM player_cache WHERE steam_id = ?')
   const row = stmt.get(steamId) as { data_json: string; fetched_at: number } | undefined
   if (!row) return null
   const age = Date.now() - row.fetched_at
   if (age > PLAYER_CACHE_TTL_MS) return null
-  return { data: JSON.parse(row.data_json), fetchedAt: row.fetched_at }
+  return { data: JSON.parse(row.data_json) as T, fetchedAt: row.fetched_at }
 }
 
-export function setPlayerCache(steamId: number, data: any): void {
+export function setPlayerCache<T>(steamId: number, data: T): void {
   const stmt = db.prepare(`
     INSERT OR REPLACE INTO player_cache (steam_id, data_json, fetched_at)
     VALUES (?, ?, ?)
@@ -212,5 +291,5 @@ export function setHeroTimingsCache(
     INSERT OR REPLACE INTO hero_timings_cache (hero_id, bracket_ids, position_id, data_json, fetched_at)
     VALUES (?, ?, ?, ?, ?)
   `)
-  stmt.run(heroId, bracketIds, positionId, dataJson, Math.floor(Date.now() / 1000))
+  stmt.run(heroId, bracketIds, positionId, dataJson, Date.now())
 }
