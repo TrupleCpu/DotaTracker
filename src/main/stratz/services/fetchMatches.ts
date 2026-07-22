@@ -1,10 +1,8 @@
 import { fetchFromStratz } from '../client'
 import { FETCH_MATCH_QUERY } from '../graphql/queries/fetchMatches'
 import { getLocalMatches, getLocalHeroMatches, insertMatchBatch } from '../../db/matchesRepo'
+import type { Match } from '../../db/matchesRepo'
 import { loadConfig } from '../../config'
-
-const CACHE_TTL_MS = 5 * 60 * 1000
-const lastFetchMap = new Map<number, number>()
 
 export interface FetchMatchesOptions {
   take?: number
@@ -19,7 +17,7 @@ export interface FetchMatchesOptions {
 export async function fetchMatches(
   steamAccountId: number | string,
   options: FetchMatchesOptions = {}
-) {
+): Promise<unknown> {
   const {
     take = 20,
     skip = 0,
@@ -36,16 +34,10 @@ export async function fetchMatches(
 
   if (config.autoSyncMatches && !hasComplexFilters) {
     const localMatches = getLocalMatches(numId, take, skip)
-
     if (localMatches.length > 0) {
-      if (skip === 0) {
-        const lastFetch = lastFetchMap.get(numId)
-        const isFresh = lastFetch && (Date.now() - lastFetch) < CACHE_TTL_MS
-        if (isFresh) return { player: { matches: localMatches } }
-      } else {
-        return { player: { matches: localMatches } }
-      }
+      return { player: { matches: localMatches } }
     }
+    return { player: { matches: [] } }
   }
 
   const request: Record<string, unknown> = { take, skip }
@@ -61,10 +53,8 @@ export async function fetchMatches(
   }) as { player?: { matches?: import('../../../renderer/src/types/api').RawMatch[] } }
 
   if (config.autoSyncMatches && !hasComplexFilters && data?.player?.matches) {
-    insertMatchBatch(data.player.matches as any, numId)
+    insertMatchBatch(data.player.matches as Match[], numId)
   }
-
-  if (skip === 0) lastFetchMap.set(numId, Date.now())
 
   return data
 }
@@ -76,22 +66,16 @@ export async function fetchHeroMatches(
   heroId: number,
   skip: number = 0,
   take: number = 20
-) {
+): Promise<unknown> {
   const config = loadConfig()
   const numId = Number(steamAccountId)
 
   if (config.autoSyncMatches) {
     const localMatches = getLocalHeroMatches(numId, heroId, take, skip)
-
     if (localMatches.length > 0) {
-      if (skip === 0) {
-        const lastFetch = lastFetchMap.get(numId)
-        const isFresh = lastFetch && (Date.now() - lastFetch) < CACHE_TTL_MS
-        if (isFresh) return { player: { matches: localMatches } }
-      } else {
-        return { player: { matches: localMatches } }
-      }
+      return { player: { matches: localMatches } }
     }
+    return { player: { matches: [] } }
   }
 
   const request: Record<string, unknown> = { heroIds: [heroId], skip, take }
@@ -102,10 +86,8 @@ export async function fetchHeroMatches(
   }) as { player?: { matches?: import('../../../renderer/src/types/api').RawMatch[] } }
 
   if (config.autoSyncMatches && data?.player?.matches) {
-    insertMatchBatch(data.player.matches as any, numId)
+    insertMatchBatch(data.player.matches as Match[], numId)
   }
-
-  if (skip === 0) lastFetchMap.set(numId, Date.now())
 
   return data
 }

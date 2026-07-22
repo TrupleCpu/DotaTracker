@@ -43,13 +43,13 @@ function cacheSet<T>(key: string, data: T): void {
   queryCache.set(key, { data, ts: Date.now() })
 }
 
-export function insertMatch(match: Match, steamId: number) {
+export function insertMatch(match: Match, steamId: number): void {
   if (!match || !match.players || match.players.length === 0) return
 
   const p = match.players.find((player) => player.steamAccountId === steamId) ?? match.players[0]
 
   const stmt = db.prepare(`
-    INSERT OR IGNORE INTO matches (match_id, steam_account_id, hero_id, is_win, duration_seconds, start_date_time, json_data)
+    INSERT OR REPLACE INTO matches (match_id, steam_account_id, hero_id, is_win, duration_seconds, start_date_time, json_data)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `)
   stmt.run(
@@ -65,7 +65,7 @@ export function insertMatch(match: Match, steamId: number) {
 
 export function insertMatchBatch(matches: Match[], steamId: number): number {
   const insert = db.prepare(`
-    INSERT OR IGNORE INTO matches (match_id, steam_account_id, hero_id, is_win, duration_seconds, start_date_time, json_data)
+    INSERT OR REPLACE INTO matches (match_id, steam_account_id, hero_id, is_win, duration_seconds, start_date_time, json_data)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `)
   let count = 0
@@ -98,7 +98,7 @@ export function getLocalMatches(steamId: number, limit = 50, skip = 0): Match[] 
   return rows.map((r) => JSON.parse(r.json_data) as Match)
 }
 
-export function countLocalMatches(steamId: number) {
+export function countLocalMatches(steamId: number): number {
   const stmt = db.prepare('SELECT COUNT(*) as c FROM matches WHERE steam_account_id = ?')
   const row = stmt.get(steamId) as { c: number }
   return row.c
@@ -140,7 +140,7 @@ export interface SyncState {
   last_synced_at: number | null
 }
 
-export function upsertSyncState(state: SyncState) {
+export function upsertSyncState(state: SyncState): void {
   const stmt = db.prepare(`
     INSERT INTO sync_state (steam_id, status, cursor_skip, synced_count, total_count, last_synced_at)
     VALUES (?, ?, ?, ?, ?, ?)

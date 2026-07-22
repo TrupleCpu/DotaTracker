@@ -1,15 +1,18 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { overlayStore } from '../../stores/overlayStore.svelte'
-  import type { GSIUIState } from '../../../main/types/gsi'
+  import type { GSIUIState } from '../../types/gsi'
+
+  type PlayGuideSlot = {
+    slotIndex: number
+    itemId: number
+    targetMinute: number
+    targetSecond?: number
+    phase?: string
+  }
 
   let lastLoadedHeroId: number | null = null
   let loadTimeout: ReturnType<typeof setTimeout> | null = null
-
-  $effect(() => {
-    if (overlayStore.benchmarks && overlayStore.currentHeroId) {
-    }
-  })
 
   onMount(() => {
     window.api.onGsiStream((data: GSIUIState) => {
@@ -34,7 +37,7 @@
       try {
         const guide = await window.api.getPlayGuide(heroId)
         if (guide && (guide as { slots: unknown }).slots) {
-          overlayStore.setGuideSlots((guide as { slots: unknown[] }).slots)
+          overlayStore.setGuideSlots((guide as { slots: PlayGuideSlot[] }).slots)
         } else {
           overlayStore.setGuideSlots([])
         }
@@ -50,53 +53,83 @@
   role="complementary"
   aria-label="Real-time performance metrics overlay"
 >
-{#if overlayStore.benchmarks && overlayStore.currentHeroId}
-  <div class="stat {overlayStore.gpm_status}" role="group" aria-label="GPM metric">
-    <span class="label">GPM</span>
-    <span class="value font-mono font-tabular">{overlayStore.gpm}</span>
-    <span class="diff">{overlayStore.gpm_diff > 0 ? '+' : ''}{overlayStore.gpm_diff.toFixed(1)}%</span>
-    <span class="badge icon">{overlayStore.gpm_label === 'High' ? '▲' : overlayStore.gpm_label === 'Above' ? '▲' : overlayStore.gpm_label === 'Low' ? '▼' : '—'}</span>
-  </div>
+  {#if overlayStore.benchmarks && overlayStore.currentHeroId}
+    <div class="stat {overlayStore.gpm_status}" role="group" aria-label="GPM metric">
+      <span class="label">GPM</span>
+      <span class="value font-mono font-tabular">{overlayStore.gpm}</span>
+      <span class="diff"
+        >{overlayStore.gpm_diff > 0 ? '+' : ''}{overlayStore.gpm_diff.toFixed(1)}%</span
+      >
+      <span class="badge icon"
+        >{overlayStore.gpm_label === 'High'
+          ? '▲'
+          : overlayStore.gpm_label === 'Above'
+            ? '▲'
+            : overlayStore.gpm_label === 'Low'
+              ? '▼'
+              : '—'}</span
+      >
+    </div>
 
-  <div class="stat {overlayStore.xpm_status}" role="group" aria-label="XPM metric">
-    <span class="label">XPM</span>
-    <span class="value font-mono font-tabular">{overlayStore.xpm}</span>
-    <span class="diff">{overlayStore.xpm_diff > 0 ? '+' : ''}{overlayStore.xpm_diff.toFixed(1)}%</span>
-    <span class="badge icon">{overlayStore.xpm_label === 'High' ? '▲' : overlayStore.xpm_label === 'Above' ? '▲' : overlayStore.xpm_label === 'Low' ? '▼' : '—'}</span>
-  </div>
+    <div class="stat {overlayStore.xpm_status}" role="group" aria-label="XPM metric">
+      <span class="label">XPM</span>
+      <span class="value font-mono font-tabular">{overlayStore.xpm}</span>
+      <span class="diff"
+        >{overlayStore.xpm_diff > 0 ? '+' : ''}{overlayStore.xpm_diff.toFixed(1)}%</span
+      >
+      <span class="badge icon"
+        >{overlayStore.xpm_label === 'High'
+          ? '▲'
+          : overlayStore.xpm_label === 'Above'
+            ? '▲'
+            : overlayStore.xpm_label === 'Low'
+              ? '▼'
+              : '—'}</span
+      >
+    </div>
 
-  <div class="divider" role="separator" aria-hidden="true"></div>
+    <div class="divider" role="separator" aria-hidden="true"></div>
 
-  <div class="stat {overlayStore.kpm_status}" role="group" aria-label="KPM metric">
-    <span class="label">KPM</span>
-    <span class="value font-mono font-tabular">{overlayStore.kpm_calc.toFixed(2)}</span>
-    <span class="diff">{overlayStore.kpm_diff > 0 ? '+' : ''}{overlayStore.kpm_diff.toFixed(1)}%</span>
-    <span class="badge icon">{overlayStore.kpm_label === 'High' ? '▲' : overlayStore.kpm_label === 'Above' ? '▲' : overlayStore.kpm_label === 'Low' ? '▼' : '—'}</span>
-  </div>
-{:else}
-  <div class="stat" role="group" aria-label="GPM metric">
-    <span class="label">GPM</span>
-    <span class="value font-mono font-tabular">{overlayStore.gpm}</span>
-    <span class="diff">—</span>
-    <span class="badge">—</span>
-  </div>
+    <div class="stat {overlayStore.kpm_status}" role="group" aria-label="KPM metric">
+      <span class="label">KPM</span>
+      <span class="value font-mono font-tabular">{overlayStore.kpm_calc.toFixed(2)}</span>
+      <span class="diff"
+        >{overlayStore.kpm_diff > 0 ? '+' : ''}{overlayStore.kpm_diff.toFixed(1)}%</span
+      >
+      <span class="badge icon"
+        >{overlayStore.kpm_label === 'High'
+          ? '▲'
+          : overlayStore.kpm_label === 'Above'
+            ? '▲'
+            : overlayStore.kpm_label === 'Low'
+              ? '▼'
+              : '—'}</span
+      >
+    </div>
+  {:else}
+    <div class="stat" role="group" aria-label="GPM metric">
+      <span class="label">GPM</span>
+      <span class="value font-mono font-tabular">{overlayStore.gpm}</span>
+      <span class="diff">—</span>
+      <span class="badge">—</span>
+    </div>
 
-  <div class="stat" role="group" aria-label="XPM metric">
-    <span class="label">XPM</span>
-    <span class="value font-mono font-tabular">{overlayStore.xpm}</span>
-    <span class="diff">—</span>
-    <span class="badge">—</span>
-  </div>
+    <div class="stat" role="group" aria-label="XPM metric">
+      <span class="label">XPM</span>
+      <span class="value font-mono font-tabular">{overlayStore.xpm}</span>
+      <span class="diff">—</span>
+      <span class="badge">—</span>
+    </div>
 
-  <div class="divider" role="separator" aria-hidden="true"></div>
+    <div class="divider" role="separator" aria-hidden="true"></div>
 
-  <div class="stat" role="group" aria-label="KPM metric">
-    <span class="label">KPM</span>
-    <span class="value font-mono font-tabular">{overlayStore.kpm_calc.toFixed(2)}</span>
-    <span class="diff">—</span>
-    <span class="badge">—</span>
-  </div>
-{/if}
+    <div class="stat" role="group" aria-label="KPM metric">
+      <span class="label">KPM</span>
+      <span class="value font-mono font-tabular">{overlayStore.kpm_calc.toFixed(2)}</span>
+      <span class="diff">—</span>
+      <span class="badge">—</span>
+    </div>
+  {/if}
 </div>
 
 <style>

@@ -1,13 +1,15 @@
 <script lang="ts">
   import itemsData from '../../../../main/data/items.json'
   import abilitiesData from '../../../../main/data/abilities.json'
-  import { onMount } from 'svelte'
-  import { getHero } from '../../utils/heroMap.ts'
+  import { onMount, untrack } from 'svelte'
+  import { SvelteMap, SvelteSet } from 'svelte/reactivity'
+  import { getHero } from '../../utils/heroMap'
   import { uiStore } from '../../stores/uiStore.svelte'
   import { playerStore } from '../../stores/playerStore.svelte'
   import MinimapImage from '../../assets/minimap_geometry_current.png'
   import { getCachedCoaching, setCachedCoaching } from '../../lib/cache/llmCache'
   import TalentTree from '../../lib/dota/TalentTree.svelte'
+  import Skeleton from '../../lib/ui/Skeleton.svelte'
 
   import type {
     DetailedMatchResponse,
@@ -21,34 +23,14 @@
     AbilityEvent,
     MatchPlayerDetailed,
     ItemData,
-    AbilityHeroData
+    HeroTimingItem
   } from '../../types/matchDetail'
-  import type { CoachingPoint } from '../../../main/services/llmService'
+  import type { CoachingPoint } from '../../types/llm'
 
   interface Props {
     match: MatchSummary
   }
   let { match }: Props = $props()
-
-  // ──────────────────────────────────────────────────────────────────────
-  // NOTE ON SCOPE
-  // This component only surfaces fields that actually exist in
-  // detailedMatches.json: itemPurchases, farmDistributionReport,
-  // networthPerMinute, killEvents, deathEvents, heroDamagePerMinute,
-  // heroDamageReceivedPerMinute, campStack, wards, healPerMinute,
-  // towerDamagePerMinute, runes. There is no match-level object (no
-  // matchId/duration/rank/partySize/mmr), no per-minute XP series, no
-  // Roshan/tower-kill/smoke events, no ward-destroy timestamps, and no
-  // gold/xp-per-kill or buyback data. Anything that would require those
-  // is intentionally left out rather than approximated.
-  //
-  // GOAL: "How can we improve through stats" — the Insights tab is the
-  // primary surface of this component. Every other tab (Map, Economy,
-  // Combat, Timeline) exists to let the person drill into *evidence* for
-  // a finding raised in Insights, not the other way around. Anywhere we
-  // show a number that isn't directly from the data (e.g. estimated gold
-  // lost while dead), it is explicitly labeled as an estimate.
-  // ──────────────────────────────────────────────────────────────────────
 
   let activeSubTab = $state('insights')
 
@@ -56,19 +38,19 @@
 
   let loading = $state<boolean>(true)
   let error = $state<string | null>(null)
-  let detailGen = 0
+  let detailGen = $state(0)
 
   $effect(() => {
-    const gen = ++detailGen
+    const gen = untrack(() => ++detailGen)
     loading = true
     error = null
     detailedMatch = null
 
     window.api
       .fetchMatchDetails(match.id)
-      .then((data) => {
+      .then((data: unknown) => {
         if (gen !== detailGen) return
-        detailedMatch = data
+        detailedMatch = data as DetailedMatchResponse | null
       })
       .catch((e) => {
         if (gen !== detailGen) return
@@ -97,7 +79,7 @@
     const steamId = playerStore.steamId
     if (!steamId) return
     window.api.getHeroTimings(player.heroId, steamId).then((result) => {
-      const map = new Map<number, HeroTimingItem>()
+      const map = new SvelteMap<number, HeroTimingItem>()
       for (const item of result.items || []) {
         map.set(item.itemId, item)
       }
@@ -116,7 +98,7 @@
   // ── Keyboard shortcuts ───────────────────────────────────────────────
   const subTabOrder = ['insights', 'map', 'economy', 'combat', 'timeline']
 
-  function handleKeydown(e: KeyboardEvent) {
+  function handleKeydown(e: KeyboardEvent): void {
     if (
       e.target instanceof HTMLInputElement ||
       e.target instanceof HTMLTextAreaElement ||
@@ -158,30 +140,31 @@
       return
     }
     const totalDamage = (player.stats?.heroDamagePerMinute || []).reduce(
-      (a: number, b: number) => a + b, 0
+      (a: number, b: number) => a + b,
+      0
     )
     const wards = player.stats?.wards?.length || 0
     const hero = heroInfo?.localized_name || `Hero ${player.heroId}`
     const items = (player.stats?.itemPurchases || []).map((p: ItemPurchaseEvent) => ({
-      name: 'item_' + p.itemId,
-      time: p.time,
-      cost: p.cost || 0
+      n: p.itemId,
+      t: p.time,
+      c: getItem(p.itemId)?.cost ?? 0
     }))
     const ctx = {
-      heroName: hero,
-      position: player.position,
-      kills: player.kills,
-      deaths: player.deaths,
-      assists: player.assists,
-      gpm: player.goldPerMinute,
-      networth: player.networth,
-      isVictory: player.isVictory,
-      items,
-      totalDamage,
-      wardsPlaced: wards
+      h: hero,
+      p: player.position,
+      k: player.kills,
+      d: player.deaths,
+      a: player.assists,
+      g: player.goldPerMinute,
+      nw: player.networth,
+      w: player.isVictory,
+      i: items,
+      td: totalDamage,
+      wp: wards
     }
 
-    const cached = getCachedCoaching(match.id, selectedPlayerIndex, ctx)
+    const cached = getCachedCoaching(match.id, selectedPlayerIndex, ctx) as CoachingPoint[] | null
     if (cached) {
       aiCoachingPoints = cached
       return
@@ -191,28 +174,31 @@
     aiCoachingLoading = true
     aiCoachingError = null
 
-    window.api.generateCoaching(ctx).then((result: CoachingPoint[] | { err: string }) => {
-      if ('err' in result) {
-        aiCoachingError = result.err
-        aiCoachingPoints = null
-      } else {
-        aiCoachingPoints = result
-        setCachedCoaching(match.id, selectedPlayerIndex, ctx, result)
-        aiCoachingError = null
-      }
-    }).catch((e: Error) => {
-      aiCoachingError = e?.message ?? 'Failed to generate coaching'
-    }).finally(() => {
-      aiCoachingLoading = false
-    })
+    window.api
+      .generateCoaching(ctx)
+      .then((result) => {
+        if (!result || 'err' in result) {
+          aiCoachingError =
+            (result as { err?: string } | null)?.err ?? 'Failed to generate coaching'
+          aiCoachingPoints = null
+        } else {
+          aiCoachingPoints = result as CoachingPoint[]
+          setCachedCoaching(match.id, selectedPlayerIndex, ctx, result as CoachingPoint[])
+          aiCoachingError = null
+        }
+      })
+      .catch((e: Error) => {
+        aiCoachingError = e?.message ?? 'Failed to generate coaching'
+      })
+      .finally(() => {
+        aiCoachingLoading = false
+      })
   })
 
   $effect(() => {
     if (players.length === 0) return
 
-    const userPlayerIdx = players.findIndex(
-      (p) => p.steamAccountId === playerStore.steamId
-    )
+    const userPlayerIdx = players.findIndex((p) => p.steamAccountId === playerStore.steamId)
 
     if (userPlayerIdx !== -1) {
       selectedPlayerIndex = userPlayerIdx
@@ -270,7 +256,11 @@
 
   const positionOrder = ['POSITION_1', 'POSITION_2', 'POSITION_3', 'POSITION_4', 'POSITION_5']
 
-  function computePlayerGrade(player: MatchPlayerDetailed): { grade: string; color: string; label: string } {
+  function computePlayerGrade(player: MatchPlayerDetailed): {
+    grade: string
+    color: string
+    label: string
+  } {
     const gpm = player.goldPerMinute
     const deaths = player.deaths
     const kills = player.kills
@@ -301,7 +291,7 @@
   }
 
   // ── Item resolution ─────────────────────────────────────────────────
-  const itemMap = new Map<number, ItemData>()
+  const itemMap = new SvelteMap<number, ItemData>()
   for (const [key, value] of Object.entries(itemsData)) {
     const val = value as ItemData
     if (val && typeof val.id === 'number') {
@@ -309,7 +299,8 @@
         id: val.id,
         dname: val.dname || key,
         img: val.img,
-        cost: val.cost || 0
+        cost: val.cost || 0,
+        created: val.created === true
       })
     }
   }
@@ -324,18 +315,10 @@
   }
 
   // ── Ability resolution ──────────────────────────────────────────────
-  const abilityMap = new Map<number, string>()
-  for (const hero of abilitiesData as AbilityHeroData[]) {
-    const prefix = (hero.shortName || '') + '_'
-    for (const entry of hero.abilities || []) {
-      const ab = entry.ability
-      if (ab && typeof ab.id === 'number') {
-        const cleaned = ab.name
-          .replace(prefix, '')
-          .replace(/_/g, ' ')
-          .replace(/\b\w/g, (c: string) => c.toUpperCase())
-        abilityMap.set(ab.id, cleaned)
-      }
+  const abilityMap = new SvelteMap<number, string>()
+  for (const ab of abilitiesData as { id: number; language: { displayName: string | null } }[]) {
+    if (ab.language?.displayName) {
+      abilityMap.set(ab.id, ab.language.displayName)
     }
   }
 
@@ -392,6 +375,7 @@
     return maxLen * 60
   })
 
+  // eslint-disable-next-line svelte/prefer-writable-derived
   let timeSliderValue = $state(0)
   $effect(() => {
     timeSliderValue = matchDurationSeconds
@@ -408,7 +392,7 @@
     late: { label: 'Late (25m+)', min: 1500, max: Infinity }
   }
 
-  function setPhase(phase: MatchPhase) {
+  function setPhase(phase: MatchPhase): void {
     activePhase = phase
     const range = phaseRanges[phase]
     if (phase === 'all') {
@@ -424,7 +408,7 @@
   let playbackRafId: number | null = null
   let lastPlaybackTick = $state(0)
 
-  function togglePlayback() {
+  function togglePlayback(): void {
     if (playbackPlaying) {
       stopPlayback()
     } else {
@@ -432,7 +416,7 @@
     }
   }
 
-  function startPlayback() {
+  function startPlayback(): void {
     if (timeSliderValue >= matchDurationSeconds) {
       timeSliderValue = 0
     }
@@ -441,7 +425,7 @@
     playbackRafId = requestAnimationFrame(playbackTick)
   }
 
-  function stopPlayback() {
+  function stopPlayback(): void {
     playbackPlaying = false
     if (playbackRafId !== null) {
       cancelAnimationFrame(playbackRafId)
@@ -449,7 +433,7 @@
     }
   }
 
-  function playbackTick(now: number) {
+  function playbackTick(now: number): void {
     if (!playbackPlaying) return
     const elapsed = now - lastPlaybackTick
     const advanceSec = (elapsed / 1000) * playbackSpeed // seconds per real second at speed
@@ -463,12 +447,12 @@
     playbackRafId = requestAnimationFrame(playbackTick)
   }
 
-  function setPlaybackSpeed(speed: number) {
+  function setPlaybackSpeed(speed: number): void {
     playbackSpeed = speed
   }
 
   // Stop playback when user manually scrubs
-  function onScrub() {
+  function onScrub(): void {
     if (playbackPlaying) stopPlayback()
   }
 
@@ -1037,7 +1021,7 @@
   let tooltipEvent = $state<MapEvent | null>(null)
   let tooltipStyle = $state('')
 
-  function showTooltip(ev: MapEvent) {
+  function showTooltip(ev: MapEvent): void {
     tooltipEvent = ev
     cursorTime = ev.time
     const left = (ev.x / 100) * 300
@@ -1045,7 +1029,7 @@
     tooltipStyle = `left: ${left}px; top: ${top}px;`
   }
 
-  function showStructureTooltip(struct: StaticStructure) {
+  function showStructureTooltip(struct: StaticStructure): void {
     tooltipEvent = {
       type: 'rune',
       time: 0,
@@ -1063,7 +1047,7 @@
     tooltipStyle = `left: ${left}px; top: ${top}px;`
   }
 
-  function hideTooltip() {
+  function hideTooltip(): void {
     tooltipEvent = null
   }
 
@@ -1249,7 +1233,9 @@
   onMount(() => {
     if (uiStore.animatedCharts) {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => { chartReady = true })
+        requestAnimationFrame(() => {
+          chartReady = true
+        })
       })
     } else {
       chartReady = true
@@ -1528,13 +1514,12 @@
   })
 
   const biggestGap = $derived(mirrorGaps.length > 0 ? mirrorGaps[0] : null)
-  const strongestEdge = $derived(mirrorGaps.length > 0 ? mirrorGaps[mirrorGaps.length - 1] : null)
 
   // Interactive chart hover state — drives the floating tooltip, the
   // snapped cursor dot, and the shared cursorTime used elsewhere.
   let hoverIdx = $state<number | null>(null)
 
-  function chartHover(e: MouseEvent, svgEl: SVGSVGElement, data: number[]) {
+  function chartHover(e: MouseEvent, svgEl: SVGSVGElement, data: number[]): void {
     const rect = svgEl.getBoundingClientRect()
     const relX = ((e.clientX - rect.left) / rect.width) * 500
     const minuteIdx = Math.max(
@@ -1545,7 +1530,7 @@
     cursorTime = minuteIdx * 60
   }
 
-  function chartLeave() {
+  function chartLeave(): void {
     hoverIdx = null
     cursorTime = null
   }
@@ -1575,13 +1560,14 @@
   // real killEvents/deathEvents timestamps, not fabricated.
   const hoverKills = $derived.by(() => {
     if (hoverIdx === null) return focusedPlayer.kills
-    return (focusedPlayer.stats.killEvents || []).filter((k: KillEvent) => k.time <= hoverIdx! * 60)
+    return (focusedPlayer.stats.killEvents || []).filter((k: KillEvent) => k.time <= hoverIdx * 60)
       .length
   })
   const hoverDeaths = $derived.by(() => {
     if (hoverIdx === null) return focusedPlayer.deaths
-    return (focusedPlayer.stats.deathEvents || []).filter((k: DeathEvent) => k.time <= hoverIdx! * 60)
-      .length
+    return (focusedPlayer.stats.deathEvents || []).filter(
+      (k: DeathEvent) => k.time <= hoverIdx * 60
+    ).length
   })
 
   // A handful of evenly-spaced hero-portrait markers along the focus line.
@@ -1615,17 +1601,20 @@
       })
       .sort((a: ItemPurchaseEvent, b: ItemPurchaseEvent) => a.time - b.time)
 
-    return purchases.map((p: ItemPurchaseEvent) => {
-      const item = getItem(p.itemId)!
-      return {
-        minuteIdx: Math.round(p.time / 60),
-        time: p.time,
-        itemId: p.itemId,
-        name: item.dname,
-        cost: item.cost,
-        imgUrl: getItemImgUrl(item.img)
-      }
-    })
+    return purchases
+      .map((p: ItemPurchaseEvent) => {
+        const item = getItem(p.itemId)
+        if (!item) return null
+        return {
+          minuteIdx: Math.round(p.time / 60),
+          time: p.time,
+          itemId: p.itemId,
+          name: item.dname,
+          cost: item.cost,
+          imgUrl: getItemImgUrl(item.img)
+        }
+      })
+      .filter(Boolean)
   })
 
   // ── Alive/dead GPM ───────────────────────────────────────────────────
@@ -1677,37 +1666,6 @@
     itemIcon: string
   }
 
-  function buildMilestone(
-    itemId: number,
-    name: string,
-    thresholds: [number, number]
-  ): GameplayMilestone | null {
-    const timing = focusedPlayer.stats.itemPurchases?.find((p: ItemPurchaseEvent) => p.itemId === itemId)
-    if (!timing) return null
-    const minutes = timing.time / 60
-    let status: 'ontime' | 'delayed' | 'late' = 'ontime'
-    let statusText = `Excellent (Under ${thresholds[0]}m)`
-    let color = 'text-gr'
-    if (minutes > thresholds[1]) {
-      status = 'late'
-      statusText = `Late (Over ${thresholds[1]}m)`
-      color = 'text-rd'
-    } else if (minutes > thresholds[0]) {
-      status = 'delayed'
-      statusText = `Delayed (${thresholds[0]}m–${thresholds[1]}m)`
-      color = 'text-gd'
-    }
-    const item = getItem(itemId)
-    return {
-      name,
-      time: timing.time,
-      status,
-      statusText,
-      color,
-      itemIcon: item ? getItemImgUrl(item.img) : ''
-    }
-  }
-
   // Hero-specific power-spike items (only meaningful for a handful of
   // heroes/positions) plus two role-general milestones — first item back
   // and boots timing — so every player gets at least one timing data
@@ -1718,36 +1676,36 @@
     const purchases = (focusedPlayer.stats.itemPurchases || [])
       .slice()
       .sort((a: ItemPurchaseEvent, b: ItemPurchaseEvent) => a.time - b.time)
-      
+
     const isCore = ['POSITION_1', 'POSITION_2', 'POSITION_3'].includes(focusedPlayer.position)
-    
+
     // Boot IDs
     const bootIds = new Set([29, 48, 50, 63, 180, 214, 220, 231, 931])
-    
+
     // Pure components that shouldn't show up as separate milestone cards
     const componentIds = new Set([
-      3,   // Broadsword
-      5,   // Claymore
-      8,   // Mithril Hammer
-      21,  // Ogre Axe
-      22,  // Blade of Alacrity
-      23,  // Staff of Wizardry
-      24,  // Ultimate Orb
-      38,  // Sacred Relic
-      39,  // Reaver
-      40,  // Eaglesong
-      41,  // Mystic Staff
-      42,  // Demon Edge
-      43,  // Hyperstone
-      60,  // Point Booster
-      61,  // Vitality Booster
+      3, // Broadsword
+      5, // Claymore
+      8, // Mithril Hammer
+      21, // Ogre Axe
+      22, // Blade of Alacrity
+      23, // Staff of Wizardry
+      24, // Ultimate Orb
+      38, // Sacred Relic
+      39, // Reaver
+      40, // Eaglesong
+      41, // Mystic Staff
+      42, // Demon Edge
+      43, // Hyperstone
+      60, // Point Booster
+      61, // Vitality Booster
       485, // Blitz Knuckles
-      1122,// Diadem
+      1122, // Diadem
       1802 // Tiara of Selemene
     ])
 
     const milestones: GameplayMilestone[] = []
-    
+
     // Helper to get estimated thresholds based on item cost and role
     function getItemThresholds(cost: number): [number, number] {
       if (isCore) {
@@ -1765,44 +1723,59 @@
       }
     }
 
-    function evalBenchmark(minutes: number, itemId: number): { status: 'ontime' | 'delayed' | 'late'; statusText: string; color: string } | null {
+    function evalBenchmark(
+      minutes: number,
+      itemId: number
+    ): { status: 'ontime' | 'delayed' | 'late'; statusText: string; color: string } | null {
       const bm = heroTimingsMap.get(itemId)
       if (!bm || bm.matchCount === 0) return null
       const pctDiff = ((minutes - bm.avgTimeMin) / bm.avgTimeMin) * 100
       const avgStr = formatTime(bm.avgTimeMin * 60)
       const pctStr = `${Math.abs(Math.round(pctDiff))}%`
       if (pctDiff < -10) {
-        return { status: 'ontime', statusText: `${pctStr} faster than avg (${avgStr})`, color: 'text-gr' }
+        return {
+          status: 'ontime',
+          statusText: `${pctStr} faster than avg (${avgStr})`,
+          color: 'text-gr'
+        }
       } else if (pctDiff > 15) {
-        return { status: 'late', statusText: `${pctStr} slower than avg (${avgStr})`, color: 'text-rd' }
+        return {
+          status: 'late',
+          statusText: `${pctStr} slower than avg (${avgStr})`,
+          color: 'text-rd'
+        }
       } else {
         const dir = pctDiff < 0 ? 'faster' : 'slower'
-        return { status: 'delayed', statusText: `${pctStr} ${dir} than avg (${avgStr})`, color: 'text-gd' }
+        return {
+          status: 'delayed',
+          statusText: `${pctStr} ${dir} than avg (${avgStr})`,
+          color: 'text-gd'
+        }
       }
     }
 
-    const addedItemIds = new Set<number>()
+    const addedItemIds = new SvelteSet<number>()
 
     for (const p of purchases) {
       if (addedItemIds.has(p.itemId)) continue
-      
+
       const item = getItem(p.itemId)
       if (!item) continue
-      if (item.isRecipe) continue
-      
+      if (!item.created) continue
+
       const isBoot = bootIds.has(p.itemId)
       const isComponent = componentIds.has(p.itemId)
-      
+
       // We show boots, or any item with cost >= 1000 that is not a raw component
       if (isBoot || (item.cost >= 1000 && !isComponent)) {
         const minutes = p.time / 60
-        
+
         const benchmarkResult = isBoot ? null : evalBenchmark(minutes, p.itemId)
-        
+
         let status: 'ontime' | 'delayed' | 'late'
         let statusText: string
         let color: string
-        
+
         if (benchmarkResult) {
           status = benchmarkResult.status
           statusText = benchmarkResult.statusText
@@ -1814,7 +1787,7 @@
           } else {
             thresholds = getItemThresholds(item.cost)
           }
-          
+
           status = 'ontime'
           statusText = `Excellent (Under ${thresholds[0]}m)`
           color = 'text-gr'
@@ -1828,7 +1801,7 @@
             color = 'text-gd'
           }
         }
-        
+
         milestones.push({
           name: isBoot ? 'First Boots Timing' : `${item.dname} Timing`,
           time: p.time,
@@ -1837,9 +1810,9 @@
           color,
           itemIcon: getItemImgUrl(item.img)
         })
-        
+
         addedItemIds.add(p.itemId)
-        
+
         if (isBoot) {
           for (const bid of bootIds) {
             addedItemIds.add(bid)
@@ -1861,7 +1834,7 @@
   }
 
   const deathClusters = $derived.by((): DeathCluster[] => {
-    const byLandmark = new Map<string, number[]>()
+    const byLandmark = new SvelteMap<string, number[]>()
     for (const ev of focusedPlayerEvents) {
       if (ev.type !== 'death') continue
       const list = byLandmark.get(ev.landmark) || []
@@ -1897,7 +1870,9 @@
       )
   )
   const playerTeamIsRadiant = $derived(
-    players.length < 10 ? true : players.slice(0, 5).some((p) => p.steamAccountId === playerStore.steamId)
+    players.length < 10
+      ? true
+      : players.slice(0, 5).some((p) => p.steamAccountId === playerStore.steamId)
   )
 
   const displayOrder = $derived([
@@ -1936,7 +1911,7 @@
       }
       entries.push({
         time: ev.time,
-        type: ev.type,
+        type: ev.type as 'kill' | 'death',
         streak: ev.type === 'kill' && killStreak >= 2 ? killStreak : undefined,
         spree: ev.type === 'death' && deathSpree >= 2 ? deathSpree : undefined,
         heroName: ev.heroName,
@@ -2027,7 +2002,7 @@
   let tlShowAbilities = $state(true)
 
   // Persist timeline filters to localStorage
-  const TL_FILTER_KEY = 'dotatracker_timeline_filters'
+  const TL_FILTER_KEY = 'ancienteye_timeline_filters'
   $effect(() => {
     const filters = {
       kills: tlShowKills,
@@ -2058,7 +2033,7 @@
 
   const timelinePhaseGroups = $derived.by((): TimelinePhaseGroup[] => {
     const groups: TimelinePhaseGroup[] = [
-      { id: 'early', label: 'Early Game', rangeLabel: '0–10m', min: 0, max: 600, entries: [] },
+      { id: 'early', label: 'Early Game', rangeLabel: '0–10m', min: -120, max: 600, entries: [] },
       { id: 'midgame', label: 'Mid Game', rangeLabel: '10–25m', min: 600, max: 1500, entries: [] },
       { id: 'late', label: 'Late Game', rangeLabel: '25m+', min: 1500, max: Infinity, entries: [] }
     ]
@@ -2146,9 +2121,34 @@
   })
 </script>
 
+<svelte:window onkeydown={handleKeydown} />
+
 {#if loading}
-  <div class="flex-1 flex items-center justify-center bg-black text-zinc-400 text-sm font-semibold">
-    Loading match details…
+  <div class="flex-1 flex flex-col bg-black p-6 gap-6">
+    <div class="flex items-center gap-3">
+      <Skeleton width="48px" height="48px" />
+      <div class="flex-1"><Skeleton width="40%" height="20px" /></div>
+      <Skeleton width="100px" height="32px" />
+    </div>
+    <div class="flex gap-4">
+      <div class="flex-1 space-y-3">
+        <Skeleton width="100%" height="180px" />
+        <Skeleton width="100%" height="120px" />
+      </div>
+      <div class="w-72 space-y-3">
+        <Skeleton width="100%" height="180px" />
+        <Skeleton width="100%" height="120px" />
+      </div>
+    </div>
+    <div class="flex gap-2">
+      {#each { length: 5 } as _, idx (idx)}
+        <Skeleton width="100%" height="60px" />
+      {/each}
+    </div>
+    <div class="space-y-3">
+      <Skeleton width="100%" height="200px" />
+      <Skeleton width="100%" height="200px" />
+    </div>
   </div>
 {:else if error}
   <div class="flex-1 flex items-center justify-center bg-black text-rose-400 text-sm font-semibold">
@@ -2170,11 +2170,7 @@
     <span class="text-xxs text-zinc-600">STRATZ is still processing this replay</span>
   </div>
 {:else}
-  <div
-    class="flex-1 overflow-hidden flex flex-col select-none bg-black"
-    onkeydown={handleKeydown}
-    tabindex="-1"
-  >
+  <div class="flex-1 overflow-hidden flex flex-col select-none bg-black">
     <!-- Coaching Focus roster -->
     <div class="px-4 pt-3 pb-1.5 border-b border-zinc-800/40 bg-black shrink-0">
       <span class="text-xxs text-zinc-500 uppercase tracking-wider font-extrabold"
@@ -2183,11 +2179,13 @@
       <div class="flex items-stretch gap-2 overflow-x-auto pb-0.5 mt-1">
         <!-- Your Team -->
         <div class="flex flex-col gap-1 shrink-0">
-          <span class="text-xxxs uppercase tracking-wider font-bold {playerTeamIsRadiant ? 'text-emerald-500/70' : 'text-rose-500/70'}"
-            >Your Team</span
+          <span
+            class="text-xxxs uppercase tracking-wider font-bold {playerTeamIsRadiant
+              ? 'text-emerald-500/70'
+              : 'text-rose-500/70'}">Your Team</span
           >
           <div class="flex items-stretch gap-1">
-            {#each (playerTeamIsRadiant ? radiantPlayers : direPlayers) as entry}
+            {#each playerTeamIsRadiant ? radiantPlayers : direPlayers as entry (entry.originalIdx)}
               {@const p = entry.player}
               {@const hero = getHero(p.heroId)}
               {@const grade = computePlayerGrade(p)}
@@ -2197,6 +2195,9 @@
                 entry.originalIdx
                   ? 'bg-zinc-800/60 ring-1 ring-zinc-600'
                   : 'hover:bg-zinc-900/50'}"
+                role="button"
+                tabindex="0"
+                onkeydown={(e) => e.key === 'Enter' && (selectedPlayerIndex = entry.originalIdx)}
                 onclick={() => (selectedPlayerIndex = entry.originalIdx)}
                 title={`${hero?.localized_name || 'Unknown'} — ${roleShortLabel(p.position)} | KDA: ${kda} | IMP: ${p.imp} | ${grade.label}`}
               >
@@ -2215,7 +2216,7 @@
                   {/if}
                   {#if isYou(p.heroId)}
                     <span
-                      class="absolute bottom-[-2px] left-1/2 -translate-x-1/2 text-xxs bg-white text-black font-extrabold px-1 rounded-full leading-[10px]"
+                      class="absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-xxs bg-white text-black font-extrabold px-1 rounded-full leading-2.5"
                       >YOU</span
                     >
                   {/if}
@@ -2234,7 +2235,7 @@
                   >
                   <span class="text-[10px] font-bold {grade.color}">{grade.grade}</span>
                 </div>
-                <span class="text-[9px] font-mono text-zinc-500 whitespace-nowrap">{kda} KDA</span>
+                <span class="text-xxs font-mono text-zinc-500 whitespace-nowrap">{kda} KDA</span>
               </div>
             {/each}
           </div>
@@ -2244,11 +2245,13 @@
 
         <!-- Enemy Team -->
         <div class="flex flex-col gap-1 shrink-0">
-          <span class="text-xxxs uppercase tracking-wider font-bold {playerTeamIsRadiant ? 'text-rose-500/70' : 'text-emerald-500/70'}"
-            >Enemy Team</span
+          <span
+            class="text-xxxs uppercase tracking-wider font-bold {playerTeamIsRadiant
+              ? 'text-rose-500/70'
+              : 'text-emerald-500/70'}">Enemy Team</span
           >
           <div class="flex items-stretch gap-1">
-            {#each (playerTeamIsRadiant ? direPlayers : radiantPlayers) as entry}
+            {#each playerTeamIsRadiant ? direPlayers : radiantPlayers as entry (entry.originalIdx)}
               {@const p = entry.player}
               {@const hero = getHero(p.heroId)}
               {@const grade = computePlayerGrade(p)}
@@ -2258,6 +2261,9 @@
                 entry.originalIdx
                   ? 'bg-zinc-800/60 ring-1 ring-zinc-600'
                   : 'hover:bg-zinc-900/50'}"
+                role="button"
+                tabindex="0"
+                onkeydown={(e) => e.key === 'Enter' && (selectedPlayerIndex = entry.originalIdx)}
                 onclick={() => (selectedPlayerIndex = entry.originalIdx)}
                 title={`${hero?.localized_name || 'Unknown'} — ${roleShortLabel(p.position)} | KDA: ${kda} | IMP: ${p.imp} | ${grade.label}`}
               >
@@ -2276,7 +2282,7 @@
                   {/if}
                   {#if isYou(p.heroId)}
                     <span
-                      class="absolute bottom-[-2px] left-1/2 -translate-x-1/2 text-xxs bg-white text-black font-extrabold px-1 rounded-full leading-[10px]"
+                      class="absolute -bottom-0.5 left-1/2 -translate-x-1/2 text-xxs bg-white text-black font-extrabold px-1 rounded-full leading-2.5"
                       >YOU</span
                     >
                   {/if}
@@ -2295,7 +2301,7 @@
                   >
                   <span class="text-[10px] font-bold {grade.color}">{grade.grade}</span>
                 </div>
-                <span class="text-[9px] font-mono text-zinc-500 whitespace-nowrap">{kda} KDA</span>
+                <span class="text-xxs font-mono text-zinc-500 whitespace-nowrap">{kda} KDA</span>
               </div>
             {/each}
           </div>
@@ -2326,12 +2332,12 @@
                 <span class="text-white">{heroInfo?.localized_name || 'Solo Carry'}</span>
                 {#if isYou(focusedPlayer.heroId)}
                   <span
-                    class="text-xxs bg-white/10 border border-white/20 text-white px-1.5 py-0.25 rounded font-bold uppercase tracking-wider"
+                    class="text-xxs bg-white/10 border border-white/20 text-white px-1.5 py-px rounded font-bold uppercase tracking-wider"
                     >YOU</span
                   >
                 {/if}
                 <span
-                  class="text-xxs px-1.5 py-0.25 rounded font-bold uppercase tracking-wider {focusedPlayer.isVictory
+                  class="text-xxs px-1.5 py-px rounded font-bold uppercase tracking-wider {focusedPlayer.isVictory
                     ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
                     : 'bg-rose-500/15 text-rose-400 border border-rose-500/25'}"
                 >
@@ -2352,7 +2358,7 @@
                 <span class="text-xxs text-zinc-500 font-extrabold uppercase tracking-[0.6px]"
                   >Game Grade</span
                 >
-                <span class="text-xs text-zinc-300 font-semibold truncate max-w-[120px]"
+                <span class="text-xs text-zinc-300 font-semibold truncate max-w-30"
                   >{performanceGrade.label}</span
                 >
               </div>
@@ -2362,7 +2368,6 @@
                 {performanceGrade.grade}
               </div>
             </div>
-
           </div>
         </div>
 
@@ -2409,7 +2414,7 @@
             >Loadout</span
           >
           <div class="flex gap-1.5 shrink-0">
-            {#each inventoryIds as itemId}
+            {#each inventoryIds as itemId, id (id)}
               {@const item = getItem(itemId)}
               {@const purchaseTime = getPurchaseTime(itemId)}
               <div
@@ -2461,7 +2466,7 @@
             {/if}
           </div>
           <div class="flex gap-1.5 shrink-0">
-            {#each backpackIds as itemId}
+            {#each backpackIds as itemId, id (id)}
               {@const item = getItem(itemId)}
               <div
                 class="w-9 h-6 rounded bg-zinc-900 border border-zinc-800 overflow-hidden relative group cursor-help transition-all hover:border-zinc-500"
@@ -2492,7 +2497,7 @@
     <!-- SUBTABS — Insights first: this is the "how do I improve" answer,
        everything else is supporting evidence you drill into from here. -->
     <div class="flex gap-2 border-b border-zinc-800/60 p-2.5 shrink-0 bg-black">
-      {#each [{ id: 'insights', label: 'Insights' }, { id: 'map', label: 'Map' }, { id: 'economy', label: 'Economy' }, { id: 'combat', label: 'Combat' }, { id: 'timeline', label: 'Timeline' }] as tab}
+      {#each [{ id: 'insights', label: 'Insights' }, { id: 'map', label: 'Map' }, { id: 'economy', label: 'Economy' }, { id: 'combat', label: 'Combat' }, { id: 'timeline', label: 'Timeline' }] as tab (tab.id)}
         <button
           class="p-[6px_12px] text-sm font-bold rounded-md transition-all cursor-pointer border flex items-center gap-1.5 {activeSubTab ===
           tab.id
@@ -2547,7 +2552,7 @@
               </div>
               <div class="text-xs text-zinc-500 italic">{gameSnapshot.outcomeQuality}</div>
               <div class="grid grid-cols-3 gap-2 pt-1">
-                {#each gameSnapshot.topStats as stat}
+                {#each gameSnapshot.topStats as stat, id (id)}
                   <div
                     class="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-center"
                   >
@@ -2629,7 +2634,7 @@
                   >
                   {#if biggestGap.pct < 0}
                     <button
-                      class="shrink-0 text-[9px] font-bold text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded px-2 py-0.5 cursor-pointer transition-colors"
+                      class="shrink-0 text-xxs font-bold text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 rounded px-2 py-0.5 cursor-pointer transition-colors"
                       onclick={() => {
                         activeSubTab = 'map'
                         cursorTime = null
@@ -2641,7 +2646,7 @@
             {/if}
 
             <div class="grid grid-cols-1 gap-2">
-              {#each mirrorGaps as gap}
+              {#each mirrorGaps as gap, id (id)}
                 <div
                   class="bg-zinc-950/60 border border-zinc-800/60 rounded-lg px-3.5 py-2.5 flex flex-col gap-1.5"
                 >
@@ -2681,7 +2686,7 @@
               class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm"
             >
               <div class="grid grid-cols-1 gap-2">
-                {#each farmDistributionList.slice(0, 3) as farm}
+                {#each farmDistributionList.slice(0, 3) as farm, id (id)}
                   <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-zinc-200 truncate">{farm.name}</span>
                     <div class="flex items-center gap-2">
@@ -2713,7 +2718,7 @@
               Repeated Death Pattern
             </div>
             <div class="flex flex-col gap-2">
-              {#each deathClusters as cluster}
+              {#each deathClusters as cluster, id (id)}
                 <button
                   class="flex items-center justify-between gap-3 bg-zinc-950/60 border border-rose-500/20 rounded-lg px-3.5 py-2.5 text-left hover:bg-zinc-900 transition-colors"
                   onclick={() => {
@@ -2783,7 +2788,7 @@
             Item Timing Milestones
           </div>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {#each gameplayMilestones as milestone}
+            {#each gameplayMilestones as milestone, id (id)}
               <div
                 class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 flex flex-col gap-3 shadow-sm"
               >
@@ -2839,35 +2844,46 @@
             </div>
           {:else if aiCoachingLoading}
             <div class="flex flex-col gap-3">
-              {#each [1, 2, 3] as _}
-                <div
-                  class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 animate-pulse"
-                >
-                  <div class="h-4 bg-zinc-800 rounded w-1/3 mb-2"></div>
-                  <div class="h-3 bg-zinc-800 rounded w-full mb-1"></div>
-                  <div class="h-3 bg-zinc-800 rounded w-2/3"></div>
+              {#each { length: 3 } as _, idx (idx)}
+                <div class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4">
+                  <Skeleton width="33%" height="16px" />
+                  <Skeleton width="100%" height="12px" />
+                  <Skeleton width="66%" height="12px" />
                 </div>
               {/each}
             </div>
           {:else if aiCoachingError}
-            <div
-              class="bg-zinc-950/40 border border-rose-800/40 rounded-xl p-4 text-center"
-            >
+            <div class="bg-zinc-950/40 border border-rose-800/40 rounded-xl p-4 text-center">
               <div class="text-xs text-rose-400 font-semibold">AI Coach Error</div>
               <div class="text-xs text-zinc-400 mt-1">{aiCoachingError}</div>
             </div>
           {:else if aiCoachingPoints && aiCoachingPoints.length > 0}
             <div class="flex flex-col gap-3">
-              {#each aiCoachingPoints as point, idx}
+              {#each aiCoachingPoints as point, idx (idx)}
                 <div
                   class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-4 transition-all duration-200"
                 >
                   <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-2">
                       {#if point.status === 'ontime'}
-                        <svg class="w-4 h-4 shrink-0 text-emerald-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.3 2.7L5.3 13.3 2 10" /></svg>
+                        <svg
+                          class="w-4 h-4 shrink-0 text-emerald-400"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"><path d="M13.3 2.7L5.3 13.3 2 10" /></svg
+                        >
                       {:else}
-                        <svg class="w-4 h-4 shrink-0 text-rose-400" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4L4 12M4 4l8 8" /></svg>
+                        <svg
+                          class="w-4 h-4 shrink-0 text-rose-400"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"><path d="M12 4L4 12M4 4l8 8" /></svg
+                        >
                       {/if}
                       <span class="text-[13px] font-extrabold text-white">{point.title}</span>
                     </div>
@@ -2890,10 +2906,10 @@
                     >Position Telemetry</span
                   >
                   <div class="flex gap-1 ml-1">
-                    {#each ['all', 'laning', 'midgame', 'late'] as phaseId}
+                    {#each ['all', 'laning', 'midgame', 'late'] as phaseId (phaseId)}
                       {@const phase = phaseRanges[phaseId as MatchPhase]}
                       <button
-                        class="text-[9px] font-bold uppercase tracking-wider rounded px-1.5 py-0.5 border transition-all cursor-pointer {activePhase ===
+                        class="text-xxs font-bold uppercase tracking-wider rounded px-1.5 py-0.5 border transition-all cursor-pointer {activePhase ===
                         phaseId
                           ? 'bg-zinc-800 border-zinc-700 text-white'
                           : 'bg-zinc-950/40 border-zinc-800/60 text-zinc-500 hover:text-zinc-300 hover:border-zinc-700'}"
@@ -2921,7 +2937,9 @@
               </div>
 
               <div
-                class="relative w-[300px] h-[300px] border border-bd rounded-lg overflow-hidden bg-sb/90 flex items-center justify-center select-none shadow-lg"
+                class="relative w-75 h-75 border border-bd rounded-lg overflow-hidden bg-sb/90 flex items-center justify-center select-none shadow-lg"
+                role="region"
+                aria-label="Match minimap"
                 onmouseleave={hideTooltip}
               >
                 <img
@@ -2933,14 +2951,14 @@
                 <svg viewBox="0 0 255 255" class="absolute inset-0 w-full h-full">
                   {#if heatmapMode}
                     <defs>
-                      {#each visibleEvents as ev, i}
+                      {#each visibleEvents as ev, i (i)}
                         <radialGradient id={`heat-${i}`}>
                           <stop offset="0%" stop-color={ev.color} stop-opacity="0.55" />
                           <stop offset="100%" stop-color={ev.color} stop-opacity="0" />
                         </radialGradient>
                       {/each}
                     </defs>
-                    {#each visibleEvents as ev, i}
+                    {#each visibleEvents as ev, i (i)}
                       <circle
                         cx={(ev.x / 100) * 255}
                         cy={(ev.y / 100) * 255}
@@ -2951,7 +2969,7 @@
                   {/if}
 
                   {#if showStructures}
-                    {#each staticStructures as struct}
+                    {#each staticStructures as struct, id (id)}
                       <svg
                         x={struct.rawX}
                         y={struct.rawY}
@@ -2963,18 +2981,18 @@
                           : struct.team === 'dire'
                             ? '#ef4444'
                             : '#eab308'}
-                        class="transition-all duration-100 hover:brightness-150 hover:scale-115 origin-center cursor-help z-0 [&_*]:pointer-events-none"
+                        class="transition-all duration-100 hover:brightness-150 hover:scale-115 origin-center cursor-help z-0 **:pointer-events-none"
                         onmouseenter={() => showStructureTooltip(struct)}
                         role="img"
-                        tabindex="0"
                       >
+                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                         {@html struct.content}
                       </svg>
                     {/each}
                   {/if}
 
                   {#if !heatmapMode}
-                    {#each visibleEvents as ev}
+                    {#each visibleEvents as ev, id (id)}
                       {@const svgX = (ev.x / 100) * 255}
                       {@const svgY = (ev.y / 100) * 255}
                       {@const isCursor = cursorTime !== null && Math.abs(ev.time - cursorTime) < 15}
@@ -2989,6 +3007,8 @@
                           stroke={isCursor ? '#fff' : 'black'}
                           stroke-width={isCursor ? 1.5 : 0.75}
                           class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
+                          role="graphics-symbol"
+                          aria-label="Death"
                           onmouseenter={() => showTooltip(ev)}
                         />
                       {:else if ev.type === 'rune'}
@@ -2999,27 +3019,57 @@
                           stroke={isCursor ? '#fff' : 'black'}
                           stroke-width={isCursor ? 1.5 : 0.75}
                           class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
+                          role="graphics-symbol"
+                          aria-label="Rune"
                           onmouseenter={() => showTooltip(ev)}
                         />
                       {:else if ev.type === 'ward_obs'}
                         <g
                           transform="translate({svgX}, {svgY})"
                           class="cursor-pointer transition-all duration-150 marker"
+                          role="graphics-symbol"
+                          aria-label="Observer ward"
                           onmouseenter={() => showTooltip(ev)}
                         >
-                          <circle r="12" cx="0" cy="0" stroke="hsl(144,52%,47%)" fill="hsl(144,52%,47%)" fill-opacity="0.4" opacity="0.7"/>
-                           <g transform="translate(-7, -7)">
-                             <svg width="14" height="14" viewBox="0 0 24 24"><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911z" fill="hsl(144,52%,47%)"/><path d="M2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(0,0%,0%)"/></svg>
+                          <circle
+                            r="12"
+                            cx="0"
+                            cy="0"
+                            stroke="hsl(144,52%,47%)"
+                            fill="hsl(144,52%,47%)"
+                            fill-opacity="0.4"
+                            opacity="0.7"
+                          />
+                          <g transform="translate(-7, -7)">
+                            <svg width="14" height="14" viewBox="0 0 24 24"
+                              ><path
+                                d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911z"
+                                fill="hsl(144,52%,47%)"
+                              /><path
+                                d="M2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
+                                fill="hsl(0,0%,0%)"
+                              /></svg
+                            >
                           </g>
                         </g>
                       {:else if ev.type === 'ward_sent'}
                         <g
                           transform="translate({svgX}, {svgY})"
                           class="cursor-pointer transition-all duration-150 marker"
+                          role="graphics-symbol"
+                          aria-label="Sentry ward"
                           onmouseenter={() => showTooltip(ev)}
                         >
                           <g transform="translate(-7, -7)">
-                            <svg width="14" height="14" viewBox="0 0 24 24"><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911z" fill="hsl(217,70%,55%)"/><path d="M2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(0,0%,0%)"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24"
+                              ><path
+                                d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911z"
+                                fill="hsl(217,70%,55%)"
+                              /><path
+                                d="M2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
+                                fill="hsl(0,0%,0%)"
+                              /></svg
+                            >
                           </g>
                         </g>
                       {:else}
@@ -3031,6 +3081,8 @@
                           stroke={isCursor ? '#fff' : 'black'}
                           stroke-width={isCursor ? 1.5 : 0.75}
                           class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
+                          role="graphics-symbol"
+                          aria-label="Kill"
                           onmouseenter={() => showTooltip(ev)}
                         />
                       {/if}
@@ -3093,9 +3145,9 @@
                         {/if}
                       </button>
                       <div class="flex gap-1">
-                        {#each [1, 2, 4, 8] as speed}
+                        {#each [1, 2, 4, 8] as speed (speed)}
                           <button
-                            class="text-[9px] font-bold border rounded px-1.5 py-0.5 cursor-pointer transition-all {playbackSpeed ===
+                            class="text-xxs font-bold border rounded px-1.5 py-0.5 cursor-pointer transition-all {playbackSpeed ===
                             speed
                               ? 'bg-zinc-800 border-zinc-700 text-white'
                               : 'bg-zinc-950/40 border-zinc-800/80 text-zinc-500 hover:text-white hover:border-zinc-600'}"
@@ -3162,7 +3214,18 @@
                       class="rounded border-zinc-800 bg-zinc-950"
                     /><span class="flex items-center gap-1"
                       ><svg class="w-3 h-3" viewBox="0 0 24 24"
-                        ><circle cx="12" cy="12" r="10" stroke="hsl(144,52%,47%)" fill="hsl(144,52%,47%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(144,52%,47%)"/></svg
+                        ><circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="hsl(144,52%,47%)"
+                          fill="hsl(144,52%,47%)"
+                          fill-opacity="0.2"
+                          opacity="0.7"
+                        /><path
+                          d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
+                          fill="hsl(144,52%,47%)"
+                        /></svg
                       > Observers</span
                     >
                   </label>
@@ -3175,7 +3238,18 @@
                       class="rounded border-zinc-800 bg-zinc-950"
                     /><span class="flex items-center gap-1"
                       ><svg class="w-3 h-3" viewBox="0 0 24 24"
-                        ><circle cx="12" cy="12" r="10" stroke="hsl(217,70%,55%)" fill="hsl(217,70%,55%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(217,70%,55%)"/></svg
+                        ><circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="hsl(217,70%,55%)"
+                          fill="hsl(217,70%,55%)"
+                          fill-opacity="0.2"
+                          opacity="0.7"
+                        /><path
+                          d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
+                          fill="hsl(217,70%,55%)"
+                        /></svg
                       > Sentries</span
                     >
                   </label>
@@ -3246,7 +3320,7 @@
                   {expectedFarmNote(focusedPlayer.position)}
                 </span>
                 <div class="flex flex-col gap-2.5 mt-2">
-                  {#each farmDistributionList as farm, idx}
+                  {#each farmDistributionList as farm, idx (idx)}
                     <div class="flex flex-col gap-1">
                       <div class="flex justify-between text-sm font-bold">
                         <span class="text-zinc-200">{farm.name}</span>
@@ -3269,9 +3343,9 @@
                 Recent Events
               </div>
               <div
-                class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-2 max-h-[260px] overflow-y-auto flex flex-col gap-1"
+                class="bg-zinc-950/60 border border-zinc-800/60 rounded-xl p-2 max-h-65 overflow-y-auto flex flex-col gap-1"
               >
-                {#each visibleEvents.slice(-14).reverse() as ev}
+                {#each visibleEvents.slice(-14).reverse() as ev (ev)}
                   <button
                     class="flex items-center justify-between gap-2 text-left px-2.5 py-1.5 rounded-lg hover:bg-zinc-900 transition-colors text-sm"
                     onmouseenter={() => (cursorTime = ev.time)}
@@ -3279,9 +3353,35 @@
                     <span class="flex items-center gap-2 min-w-0">
                       <span class="w-4 text-center shrink-0" style="color:{ev.color}">
                         {#if ev.type === 'ward_obs'}
-                          <svg class="w-3 h-3 inline-block" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="hsl(144,52%,47%)" fill="hsl(144,52%,47%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(144,52%,47%)"/></svg>
+                          <svg class="w-3 h-3 inline-block" viewBox="0 0 24 24"
+                            ><circle
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="hsl(144,52%,47%)"
+                              fill="hsl(144,52%,47%)"
+                              fill-opacity="0.2"
+                              opacity="0.7"
+                            /><path
+                              d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
+                              fill="hsl(144,52%,47%)"
+                            /></svg
+                          >
                         {:else if ev.type === 'ward_sent'}
-                          <svg class="w-3 h-3 inline-block" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="hsl(217,70%,55%)" fill="hsl(217,70%,55%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(217,70%,55%)"/></svg>
+                          <svg class="w-3 h-3 inline-block" viewBox="0 0 24 24"
+                            ><circle
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="hsl(217,70%,55%)"
+                              fill="hsl(217,70%,55%)"
+                              fill-opacity="0.2"
+                              opacity="0.7"
+                            /><path
+                              d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
+                              fill="hsl(217,70%,55%)"
+                            /></svg
+                          >
                         {:else}
                           {ev.char}
                         {/if}
@@ -3300,7 +3400,7 @@
       {:else if activeSubTab === 'economy'}
         <div class="p-5 flex flex-col gap-5">
           <div class="flex flex-wrap gap-2">
-            {#each Object.entries(metricConfig) as [key, cfg]}
+            {#each Object.entries(metricConfig) as [key, cfg], id (id)}
               <button
                 class="px-3 py-1.5 rounded-lg text-sm font-bold border transition-all {selectedMetric ===
                 key
@@ -3345,6 +3445,8 @@
                 viewBox="0 0 500 120"
                 class="w-full h-auto mt-2 overflow-visible cursor-crosshair"
                 class:chart-animate={uiStore.animatedCharts}
+                role="img"
+                aria-label="Economy chart"
                 onmousemove={(e) => chartHover(e, e.currentTarget as SVGSVGElement, focusSeries)}
                 onmouseleave={chartLeave}
               >
@@ -3361,7 +3463,7 @@
                       stop-opacity="0"
                     />
                   </linearGradient>
-                  {#each heroMarkerIndices as _, i}
+                  {#each heroMarkerIndices as _, i (i)}
                     <clipPath id={`hero-clip-${i}`}><circle cx="0" cy="0" r="6.5" /></clipPath>
                   {/each}
                 </defs>
@@ -3414,7 +3516,10 @@
                 >
 
                 {#if focusChartPaths.line}
-                  <path d={chartReady ? focusChartPaths.area : zeroFocusPath.area} fill="url(#metricgrad)" />
+                  <path
+                    d={chartReady ? focusChartPaths.area : zeroFocusPath.area}
+                    fill="url(#metricgrad)"
+                  />
                   <path
                     d={chartReady ? focusChartPaths.line : zeroFocusPath.line}
                     fill="none"
@@ -3434,7 +3539,7 @@
 
                 <!-- Hero-portrait markers sampled along the focus line -->
                 {#if chartReady && heroInfo}
-                  {#each heroMarkerIndices as idx, i}
+                  {#each heroMarkerIndices as idx, i (i)}
                     {@const mx = 30 + (idx / Math.max(1, focusSeries.length - 1)) * 450}
                     {@const my = 100 - (((focusSeries[idx] ?? 0) - chartMin) / chartRange) * 90}
                     <g transform="translate({mx},{my})" class="pointer-events-none">
@@ -3459,7 +3564,7 @@
                 {/if}
 
                 {#if chartReady && selectedMetric === 'networth' && focusSeries.length > 0}
-                  {#each itemChartMarkers as marker}
+                  {#each itemChartMarkers as marker, id (id)}
                     {@const ix =
                       30 + (marker.minuteIdx / Math.max(1, focusSeries.length - 1)) * 450}
                     <line
@@ -3520,7 +3625,7 @@
                 {@const leftPct = (hoverCx / 500) * 100}
                 {@const topPct = (hoverCy / 120) * 100}
                 <div
-                  class="absolute z-30 pointer-events-none bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl px-3.5 py-3 min-w-[168px] -translate-x-1/2 animate-fade-in"
+                  class="absolute z-30 pointer-events-none bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl px-3.5 py-3 min-w-42 -translate-x-1/2 animate-fade-in"
                   style="left: {leftPct}%; top: {Math.max(
                     topPct - 6,
                     4
@@ -3575,7 +3680,7 @@
 
             <!-- Side gauge: hero level ring, honest to real data -->
             <div
-              class="hidden sm:flex flex-col items-center justify-center gap-1.5 w-[92px] shrink-0 border border-zinc-800/60 rounded-xl bg-zinc-950/60 p-3 shadow-sm"
+              class="hidden sm:flex flex-col items-center justify-center gap-1.5 w-23 shrink-0 border border-zinc-800/60 rounded-xl bg-zinc-950/60 p-3 shadow-sm"
             >
               <div class="relative w-14 h-14">
                 <svg viewBox="0 0 56 56" class="w-full h-full -rotate-90">
@@ -3813,17 +3918,17 @@
             Combat Feed
           </div>
           <div class="flex flex-col gap-5">
-            {#each combatPhaseGroups as group}
+            {#each combatPhaseGroups as group (group.id)}
               <div class="flex flex-col">
                 <div class="flex items-center gap-2 mb-2">
                   <span class="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.5px]"
                     >{group.label}</span
                   >
-                  <span class="text-[9px] font-mono text-zinc-600">{group.rangeLabel}</span>
-                  <span class="text-[9px] text-zinc-600">· {group.entries.length} events</span>
+                  <span class="text-xxs font-mono text-zinc-600">{group.rangeLabel}</span>
+                  <span class="text-xxs text-zinc-600">· {group.entries.length} events</span>
                 </div>
                 <div class="flex flex-col gap-1">
-                  {#each group.entries as ev}
+                  {#each group.entries as ev, id (id)}
                     <button
                       class="flex items-center justify-between gap-3 text-left px-3 py-2 rounded-lg transition-colors {ev.type ===
                       'kill'
@@ -3945,7 +4050,7 @@
                   fill="var(--color-gr)"
                   fill-opacity="0.25"
                 />
-                {#each focusedPlayer.stats.deathEvents as death, idx}
+                {#each focusedPlayer.stats.deathEvents as death, idx (idx)}
                   {@const startPct = (death.time / matchDurationSeconds) * 500}
                   {@const respawnSec = Math.min(100, 10 + death.time / 30)}
                   {@const endPct = Math.min(
@@ -4003,7 +4108,7 @@
                 and stop accumulating Net Worth.
               </div>
               <div class="flex flex-col gap-2">
-                {#each focusedPlayer.stats.deathEvents as death, idx}
+                {#each focusedPlayer.stats.deathEvents as death, idx (idx)}
                   <div
                     class="flex items-center justify-between text-[11.5px] p-2.5 px-3.5 bg-zinc-900 border border-zinc-800 rounded-lg"
                   >
@@ -4098,18 +4203,18 @@
           </div>
 
           <div class="flex flex-col gap-5">
-            {#each timelinePhaseGroups as group}
+            {#each timelinePhaseGroups as group (group.id)}
               <div class="flex flex-col">
                 <div class="flex items-center gap-2 mb-2">
                   <span class="text-[10px] font-extrabold text-zinc-400 uppercase tracking-[0.5px]"
                     >{group.label}</span
                   >
-                  <span class="text-[9px] font-mono text-zinc-600">{group.rangeLabel}</span>
-                  <span class="text-[9px] text-zinc-600">· {group.entries.length} events</span>
+                  <span class="text-xxs font-mono text-zinc-600">{group.rangeLabel}</span>
+                  <span class="text-xxs text-zinc-600">· {group.entries.length} events</span>
                 </div>
                 <div class="relative pl-5">
-                  <div class="absolute left-[7px] top-1 bottom-1 w-px bg-zinc-800"></div>
-                  {#each group.entries as entry}
+                  <div class="absolute left-1.75 top-1 bottom-1 w-px bg-zinc-800"></div>
+                  {#each group.entries as entry, id (id)}
                     <button
                       class="relative flex items-start gap-3 py-1.5 text-left group"
                       onmouseenter={() => (cursorTime = entry.time)}
@@ -4128,9 +4233,35 @@
                           {#if entry.imgUrl}
                             <img src={entry.imgUrl} class="w-4 h-4 rounded shrink-0" alt="" />
                           {:else if entry.icon === 'ward_obs'}
-                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="hsl(144,52%,47%)" fill="hsl(144,52%,47%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(144,52%,47%)"/></svg>
+                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24"
+                              ><circle
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="hsl(144,52%,47%)"
+                                fill="hsl(144,52%,47%)"
+                                fill-opacity="0.2"
+                                opacity="0.7"
+                              /><path
+                                d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
+                                fill="hsl(144,52%,47%)"
+                              /></svg
+                            >
                           {:else if entry.icon === 'ward_sent'}
-                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="hsl(217,70%,55%)" fill="hsl(217,70%,55%)" fill-opacity="0.2" opacity="0.7"/><path d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z" fill="hsl(217,70%,55%)"/></svg>
+                            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24"
+                              ><circle
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="hsl(217,70%,55%)"
+                                fill="hsl(217,70%,55%)"
+                                fill-opacity="0.2"
+                                opacity="0.7"
+                              /><path
+                                d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
+                                fill="hsl(217,70%,55%)"
+                              /></svg
+                            >
                           {:else if entry.icon}
                             {entry.icon}
                           {/if}
@@ -4164,8 +4295,8 @@
   :root {
     --color-gr: #22c55e;
     --color-rd: #ef4444;
-    --color-bl: hsl(217,70%,55%);
-    --color-gd: hsl(144,52%,47%);
+    --color-bl: hsl(217, 70%, 55%);
+    --color-gd: hsl(144, 52%, 47%);
     --color-pu: #a855f7;
   }
 

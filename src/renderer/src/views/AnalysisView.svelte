@@ -99,7 +99,10 @@
   let bestHeroes = $derived.by(() =>
     [...playerStore.allHeroStats]
       .filter((h: HeroGroupByEntry) => h.matchCount >= 10)
-      .sort((a: HeroGroupByEntry, b: HeroGroupByEntry) => b.winCount / b.matchCount - a.winCount / a.matchCount)
+      .sort(
+        (a: HeroGroupByEntry, b: HeroGroupByEntry) =>
+          b.winCount / b.matchCount - a.winCount / a.matchCount
+      )
       .slice(0, 5)
       .map((h: HeroGroupByEntry) => ({
         heroId: h.heroId,
@@ -113,9 +116,15 @@
   let worstHeroes = $derived.by(() =>
     [...playerStore.allHeroStats]
       .filter((h: HeroGroupByEntry) => h.matchCount >= 10)
-      .sort((a: HeroGroupByEntry, b: HeroGroupByEntry) => a.winCount / a.matchCount - b.winCount / b.matchCount)
+      .sort(
+        (a: HeroGroupByEntry, b: HeroGroupByEntry) =>
+          a.winCount / a.matchCount - b.winCount / b.matchCount
+      )
       .slice(0, 5)
-      .map((h: HeroGroupByEntry) => ({ ...(bestHeroes.find((bh: HeroGroupByEntry) => bh.heroId === h.heroId) ?? {}), ...h }))
+      .map((h: HeroGroupByEntry) => ({
+        ...(bestHeroes.find((bh) => bh.heroId === h.heroId) ?? ({} as Record<string, never>)),
+        ...h
+      }))
       .map((h: HeroGroupByEntry) => ({
         heroId: h.heroId,
         name: heroMap.get(h.heroId)?.localized_name ?? `Hero #${h.heroId}`,
@@ -250,7 +259,7 @@
               >
             </svg>
           </div>
-          <div class="flex-1 min-w-0 flex flex-col gap-[9px]">
+          <div class="flex-1 min-w-0 flex flex-col gap-2.25">
             {#each roleStats as r, i (i)}
               {@const color =
                 r.winrate >= 55
@@ -279,7 +288,7 @@
             {#each partyStats as p, i (i)}
               <div class="flex items-center gap-3 py-1.5 border-b border-bd last:border-b-0">
                 <span class="text-xs font-bold text-tx2 w-16 shrink-0 tabular-nums">{p.label}</span>
-                <div class="flex-1 h-[6px] bg-s3 rounded-sm overflow-hidden">
+                <div class="flex-1 h-1.5 bg-s3 rounded-sm overflow-hidden">
                   <div
                     class="h-full rounded-sm"
                     style="width: {p.winrate}%; background: {p.winrate >= 55
@@ -320,7 +329,7 @@
                 />
               </div>
               <span class="text-xs font-semibold text-tx flex-1 truncate">{h.name}</span>
-              <div class="flex-1 h-[6px] bg-s3 rounded-sm overflow-hidden max-w-[100px]">
+              <div class="flex-1 h-1.5 bg-s3 rounded-sm overflow-hidden max-w-25">
                 <div
                   class="h-full rounded-sm"
                   style="background: {color}; width: {h.winrate}%"
@@ -349,7 +358,7 @@
                 />
               </div>
               <span class="text-xs font-semibold text-tx flex-1 truncate">{h.name}</span>
-              <div class="flex-1 h-[6px] bg-s3 rounded-sm overflow-hidden max-w-[100px]">
+              <div class="flex-1 h-1.5 bg-s3 rounded-sm overflow-hidden max-w-25">
                 <div
                   class="h-full rounded-sm"
                   style="background: {color}; width: {h.winrate}%"

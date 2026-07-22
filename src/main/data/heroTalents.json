@@ -1,0 +1,4667 @@
+[
+  {
+    "id": 1,
+    "displayName": "Anti-Mage",
+    "talents": [
+      {
+        "abilityId": 1495,
+        "slot": 0
+      },
+      {
+        "abilityId": 966,
+        "slot": 1
+      },
+      {
+        "abilityId": 666,
+        "slot": 2
+      },
+      {
+        "abilityId": 6800,
+        "slot": 3
+      },
+      {
+        "abilityId": 665,
+        "slot": 4
+      },
+      {
+        "abilityId": 735,
+        "slot": 5
+      },
+      {
+        "abilityId": 6606,
+        "slot": 6
+      },
+      {
+        "abilityId": 6353,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "displayName": "Axe",
+    "talents": [
+      {
+        "abilityId": 1189,
+        "slot": 0
+      },
+      {
+        "abilityId": 9401,
+        "slot": 1
+      },
+      {
+        "abilityId": 6102,
+        "slot": 2
+      },
+      {
+        "abilityId": 974,
+        "slot": 3
+      },
+      {
+        "abilityId": 6145,
+        "slot": 4
+      },
+      {
+        "abilityId": 6991,
+        "slot": 5
+      },
+      {
+        "abilityId": 6608,
+        "slot": 6
+      },
+      {
+        "abilityId": 562,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "displayName": "Bane",
+    "talents": [
+      {
+        "abilityId": 720,
+        "slot": 0
+      },
+      {
+        "abilityId": 979,
+        "slot": 1
+      },
+      {
+        "abilityId": 978,
+        "slot": 2
+      },
+      {
+        "abilityId": 779,
+        "slot": 3
+      },
+      {
+        "abilityId": 476,
+        "slot": 4
+      },
+      {
+        "abilityId": 6141,
+        "slot": 5
+      },
+      {
+        "abilityId": 6069,
+        "slot": 6
+      },
+      {
+        "abilityId": 6609,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "displayName": "Bloodseeker",
+    "talents": [
+      {
+        "abilityId": 6034,
+        "slot": 0
+      },
+      {
+        "abilityId": 482,
+        "slot": 1
+      },
+      {
+        "abilityId": 6230,
+        "slot": 2
+      },
+      {
+        "abilityId": 6356,
+        "slot": 3
+      },
+      {
+        "abilityId": 6357,
+        "slot": 4
+      },
+      {
+        "abilityId": 5962,
+        "slot": 5
+      },
+      {
+        "abilityId": 819,
+        "slot": 6
+      },
+      {
+        "abilityId": 6809,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "displayName": "Crystal Maiden",
+    "talents": [
+      {
+        "abilityId": 5959,
+        "slot": 0
+      },
+      {
+        "abilityId": 5926,
+        "slot": 1
+      },
+      {
+        "abilityId": 956,
+        "slot": 2
+      },
+      {
+        "abilityId": 7654,
+        "slot": 3
+      },
+      {
+        "abilityId": 6623,
+        "slot": 4
+      },
+      {
+        "abilityId": 6520,
+        "slot": 5
+      },
+      {
+        "abilityId": 6072,
+        "slot": 6
+      },
+      {
+        "abilityId": 6234,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "displayName": "Drow Ranger",
+    "talents": [
+      {
+        "abilityId": 580,
+        "slot": 0
+      },
+      {
+        "abilityId": 6209,
+        "slot": 1
+      },
+      {
+        "abilityId": 6027,
+        "slot": 2
+      },
+      {
+        "abilityId": 486,
+        "slot": 3
+      },
+      {
+        "abilityId": 6202,
+        "slot": 4
+      },
+      {
+        "abilityId": 1088,
+        "slot": 5
+      },
+      {
+        "abilityId": 6280,
+        "slot": 6
+      },
+      {
+        "abilityId": 739,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "displayName": "Earthshaker",
+    "talents": [
+      {
+        "abilityId": 450,
+        "slot": 0
+      },
+      {
+        "abilityId": 744,
+        "slot": 1
+      },
+      {
+        "abilityId": 6511,
+        "slot": 2
+      },
+      {
+        "abilityId": 858,
+        "slot": 3
+      },
+      {
+        "abilityId": 6425,
+        "slot": 4
+      },
+      {
+        "abilityId": 918,
+        "slot": 5
+      },
+      {
+        "abilityId": 1208,
+        "slot": 6
+      },
+      {
+        "abilityId": 6035,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "displayName": "Juggernaut",
+    "talents": [
+      {
+        "abilityId": 628,
+        "slot": 0
+      },
+      {
+        "abilityId": 7021,
+        "slot": 1
+      },
+      {
+        "abilityId": 1489,
+        "slot": 2
+      },
+      {
+        "abilityId": 1192,
+        "slot": 3
+      },
+      {
+        "abilityId": 6662,
+        "slot": 4
+      },
+      {
+        "abilityId": 6105,
+        "slot": 5
+      },
+      {
+        "abilityId": 1013,
+        "slot": 6
+      },
+      {
+        "abilityId": 915,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "displayName": "Mirana",
+    "talents": [
+      {
+        "abilityId": 6397,
+        "slot": 0
+      },
+      {
+        "abilityId": 817,
+        "slot": 1
+      },
+      {
+        "abilityId": 702,
+        "slot": 2
+      },
+      {
+        "abilityId": 6013,
+        "slot": 3
+      },
+      {
+        "abilityId": 823,
+        "slot": 4
+      },
+      {
+        "abilityId": 1488,
+        "slot": 5
+      },
+      {
+        "abilityId": 6242,
+        "slot": 6
+      },
+      {
+        "abilityId": 6692,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "displayName": "Morphling",
+    "talents": [
+      {
+        "abilityId": 6138,
+        "slot": 0
+      },
+      {
+        "abilityId": 7060,
+        "slot": 1
+      },
+      {
+        "abilityId": 6062,
+        "slot": 2
+      },
+      {
+        "abilityId": 6027,
+        "slot": 3
+      },
+      {
+        "abilityId": 7056,
+        "slot": 4
+      },
+      {
+        "abilityId": 5929,
+        "slot": 5
+      },
+      {
+        "abilityId": 6383,
+        "slot": 6
+      },
+      {
+        "abilityId": 7135,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "displayName": "Shadow Fiend",
+    "talents": [
+      {
+        "abilityId": 999,
+        "slot": 0
+      },
+      {
+        "abilityId": 6876,
+        "slot": 1
+      },
+      {
+        "abilityId": 6875,
+        "slot": 2
+      },
+      {
+        "abilityId": 6070,
+        "slot": 3
+      },
+      {
+        "abilityId": 6670,
+        "slot": 4
+      },
+      {
+        "abilityId": 815,
+        "slot": 5
+      },
+      {
+        "abilityId": 1217,
+        "slot": 6
+      },
+      {
+        "abilityId": 1072,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "displayName": "Phantom Lancer",
+    "talents": [
+      {
+        "abilityId": 1536,
+        "slot": 0
+      },
+      {
+        "abilityId": 1056,
+        "slot": 4
+      },
+      {
+        "abilityId": 6850,
+        "slot": 6
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "displayName": "Puck",
+    "talents": [
+      {
+        "abilityId": 1057,
+        "slot": 0
+      },
+      {
+        "abilityId": 767,
+        "slot": 1
+      },
+      {
+        "abilityId": 6219,
+        "slot": 2
+      },
+      {
+        "abilityId": 407,
+        "slot": 3
+      },
+      {
+        "abilityId": 6402,
+        "slot": 4
+      },
+      {
+        "abilityId": 1058,
+        "slot": 5
+      },
+      {
+        "abilityId": 348,
+        "slot": 6
+      },
+      {
+        "abilityId": 1129,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "displayName": "Pudge",
+    "talents": [
+      {
+        "abilityId": 5932,
+        "slot": 0
+      },
+      {
+        "abilityId": 7142,
+        "slot": 1
+      },
+      {
+        "abilityId": 6565,
+        "slot": 2
+      },
+      {
+        "abilityId": 507,
+        "slot": 3
+      },
+      {
+        "abilityId": 408,
+        "slot": 4
+      },
+      {
+        "abilityId": 332,
+        "slot": 5
+      },
+      {
+        "abilityId": 6506,
+        "slot": 6
+      },
+      {
+        "abilityId": 6023,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "displayName": "Razor",
+    "talents": [
+      {
+        "abilityId": 6861,
+        "slot": 0
+      },
+      {
+        "abilityId": 6564,
+        "slot": 1
+      },
+      {
+        "abilityId": 6028,
+        "slot": 2
+      },
+      {
+        "abilityId": 5928,
+        "slot": 3
+      },
+      {
+        "abilityId": 1137,
+        "slot": 4
+      },
+      {
+        "abilityId": 6408,
+        "slot": 5
+      },
+      {
+        "abilityId": 1064,
+        "slot": 6
+      },
+      {
+        "abilityId": 1065,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "displayName": "Sand King",
+    "talents": [
+      {
+        "abilityId": 6530,
+        "slot": 0
+      },
+      {
+        "abilityId": 1537,
+        "slot": 1
+      },
+      {
+        "abilityId": 6409,
+        "slot": 2
+      },
+      {
+        "abilityId": 890,
+        "slot": 3
+      },
+      {
+        "abilityId": 498,
+        "slot": 4
+      },
+      {
+        "abilityId": 6872,
+        "slot": 5
+      },
+      {
+        "abilityId": 6207,
+        "slot": 6
+      },
+      {
+        "abilityId": 475,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "displayName": "Storm Spirit",
+    "talents": [
+      {
+        "abilityId": 1187,
+        "slot": 0
+      },
+      {
+        "abilityId": 7132,
+        "slot": 1
+      },
+      {
+        "abilityId": 5903,
+        "slot": 2
+      },
+      {
+        "abilityId": 6916,
+        "slot": 3
+      },
+      {
+        "abilityId": 6167,
+        "slot": 4
+      },
+      {
+        "abilityId": 762,
+        "slot": 5
+      },
+      {
+        "abilityId": 627,
+        "slot": 6
+      },
+      {
+        "abilityId": 6908,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "displayName": "Sven",
+    "talents": [
+      {
+        "abilityId": 673,
+        "slot": 0
+      },
+      {
+        "abilityId": 6045,
+        "slot": 1
+      },
+      {
+        "abilityId": 6911,
+        "slot": 2
+      },
+      {
+        "abilityId": 763,
+        "slot": 3
+      },
+      {
+        "abilityId": 1188,
+        "slot": 4
+      },
+      {
+        "abilityId": 716,
+        "slot": 5
+      },
+      {
+        "abilityId": 6910,
+        "slot": 6
+      },
+      {
+        "abilityId": 7112,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "displayName": "Tiny",
+    "talents": [
+      {
+        "abilityId": 6934,
+        "slot": 0
+      },
+      {
+        "abilityId": 5982,
+        "slot": 1
+      },
+      {
+        "abilityId": 558,
+        "slot": 2
+      },
+      {
+        "abilityId": 6153,
+        "slot": 3
+      },
+      {
+        "abilityId": 718,
+        "slot": 4
+      },
+      {
+        "abilityId": 7005,
+        "slot": 5
+      },
+      {
+        "abilityId": 6933,
+        "slot": 6
+      },
+      {
+        "abilityId": 6932,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "displayName": "Vengeful Spirit",
+    "talents": [
+      {
+        "abilityId": 1068,
+        "slot": 0
+      },
+      {
+        "abilityId": 1067,
+        "slot": 1
+      },
+      {
+        "abilityId": 6977,
+        "slot": 2
+      },
+      {
+        "abilityId": 6310,
+        "slot": 3
+      },
+      {
+        "abilityId": 6978,
+        "slot": 4
+      },
+      {
+        "abilityId": 1197,
+        "slot": 5
+      },
+      {
+        "abilityId": 6237,
+        "slot": 6
+      },
+      {
+        "abilityId": 790,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "displayName": "Windranger",
+    "talents": [
+      {
+        "abilityId": 1195,
+        "slot": 0
+      },
+      {
+        "abilityId": 5920,
+        "slot": 1
+      },
+      {
+        "abilityId": 6992,
+        "slot": 2
+      },
+      {
+        "abilityId": 6562,
+        "slot": 3
+      },
+      {
+        "abilityId": 7062,
+        "slot": 4
+      },
+      {
+        "abilityId": 7889,
+        "slot": 5
+      },
+      {
+        "abilityId": 1071,
+        "slot": 6
+      },
+      {
+        "abilityId": 6413,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "displayName": "Zeus",
+    "talents": [
+      {
+        "abilityId": 6157,
+        "slot": 0
+      },
+      {
+        "abilityId": 5959,
+        "slot": 1
+      },
+      {
+        "abilityId": 611,
+        "slot": 2
+      },
+      {
+        "abilityId": 1615,
+        "slot": 3
+      },
+      {
+        "abilityId": 6501,
+        "slot": 4
+      },
+      {
+        "abilityId": 6518,
+        "slot": 5
+      },
+      {
+        "abilityId": 8038,
+        "slot": 6
+      },
+      {
+        "abilityId": 1539,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "displayName": "Kunkka",
+    "talents": [
+      {
+        "abilityId": 1015,
+        "slot": 0
+      },
+      {
+        "abilityId": 6666,
+        "slot": 1
+      },
+      {
+        "abilityId": 766,
+        "slot": 2
+      },
+      {
+        "abilityId": 6385,
+        "slot": 3
+      },
+      {
+        "abilityId": 1175,
+        "slot": 4
+      },
+      {
+        "abilityId": 1241,
+        "slot": 5
+      },
+      {
+        "abilityId": 1446,
+        "slot": 6
+      },
+      {
+        "abilityId": 6667,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "displayName": "Lina",
+    "talents": [
+      {
+        "abilityId": 6009,
+        "slot": 0
+      },
+      {
+        "abilityId": 6212,
+        "slot": 1
+      },
+      {
+        "abilityId": 6509,
+        "slot": 2
+      },
+      {
+        "abilityId": 6388,
+        "slot": 3
+      },
+      {
+        "abilityId": 844,
+        "slot": 4
+      },
+      {
+        "abilityId": 6313,
+        "slot": 5
+      },
+      {
+        "abilityId": 961,
+        "slot": 6
+      },
+      {
+        "abilityId": 1442,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "displayName": "Lion",
+    "talents": [
+      {
+        "abilityId": 465,
+        "slot": 0
+      },
+      {
+        "abilityId": 5918,
+        "slot": 1
+      },
+      {
+        "abilityId": 401,
+        "slot": 2
+      },
+      {
+        "abilityId": 781,
+        "slot": 3
+      },
+      {
+        "abilityId": 541,
+        "slot": 4
+      },
+      {
+        "abilityId": 777,
+        "slot": 5
+      },
+      {
+        "abilityId": 6389,
+        "slot": 6
+      },
+      {
+        "abilityId": 6678,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "displayName": "Shadow Shaman",
+    "talents": [
+      {
+        "abilityId": 468,
+        "slot": 0
+      },
+      {
+        "abilityId": 6926,
+        "slot": 1
+      },
+      {
+        "abilityId": 793,
+        "slot": 2
+      },
+      {
+        "abilityId": 760,
+        "slot": 3
+      },
+      {
+        "abilityId": 6295,
+        "slot": 4
+      },
+      {
+        "abilityId": 6052,
+        "slot": 5
+      },
+      {
+        "abilityId": 6502,
+        "slot": 6
+      },
+      {
+        "abilityId": 6521,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "displayName": "Slardar",
+    "talents": [
+      {
+        "abilityId": 852,
+        "slot": 0
+      },
+      {
+        "abilityId": 695,
+        "slot": 1
+      },
+      {
+        "abilityId": 5993,
+        "slot": 2
+      },
+      {
+        "abilityId": 6889,
+        "slot": 3
+      },
+      {
+        "abilityId": 6211,
+        "slot": 4
+      },
+      {
+        "abilityId": 504,
+        "slot": 5
+      },
+      {
+        "abilityId": 7871,
+        "slot": 6
+      },
+      {
+        "abilityId": 6890,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "displayName": "Tidehunter",
+    "talents": [
+      {
+        "abilityId": 6946,
+        "slot": 0
+      },
+      {
+        "abilityId": 754,
+        "slot": 1
+      },
+      {
+        "abilityId": 6945,
+        "slot": 2
+      },
+      {
+        "abilityId": 6151,
+        "slot": 5
+      },
+      {
+        "abilityId": 7978,
+        "slot": 6
+      },
+      {
+        "abilityId": 964,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "displayName": "Witch Doctor",
+    "talents": [
+      {
+        "abilityId": 6995,
+        "slot": 0
+      },
+      {
+        "abilityId": 5959,
+        "slot": 1
+      },
+      {
+        "abilityId": 6524,
+        "slot": 2
+      },
+      {
+        "abilityId": 555,
+        "slot": 3
+      },
+      {
+        "abilityId": 5998,
+        "slot": 4
+      },
+      {
+        "abilityId": 6298,
+        "slot": 5
+      },
+      {
+        "abilityId": 417,
+        "slot": 6
+      },
+      {
+        "abilityId": 6996,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "displayName": "Lich",
+    "talents": [
+      {
+        "abilityId": 775,
+        "slot": 0
+      },
+      {
+        "abilityId": 530,
+        "slot": 1
+      },
+      {
+        "abilityId": 6292,
+        "slot": 2
+      },
+      {
+        "abilityId": 6387,
+        "slot": 3
+      },
+      {
+        "abilityId": 531,
+        "slot": 4
+      },
+      {
+        "abilityId": 7360,
+        "slot": 5
+      },
+      {
+        "abilityId": 6039,
+        "slot": 6
+      },
+      {
+        "abilityId": 1543,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "displayName": "Riki",
+    "talents": [
+      {
+        "abilityId": 474,
+        "slot": 0
+      },
+      {
+        "abilityId": 782,
+        "slot": 1
+      },
+      {
+        "abilityId": 6865,
+        "slot": 3
+      },
+      {
+        "abilityId": 6330,
+        "slot": 4
+      },
+      {
+        "abilityId": 6867,
+        "slot": 5
+      },
+      {
+        "abilityId": 347,
+        "slot": 6
+      },
+      {
+        "abilityId": 795,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "displayName": "Enigma",
+    "talents": [
+      {
+        "abilityId": 346,
+        "slot": 0
+      },
+      {
+        "abilityId": 461,
+        "slot": 1
+      },
+      {
+        "abilityId": 5903,
+        "slot": 2
+      },
+      {
+        "abilityId": 7658,
+        "slot": 3
+      },
+      {
+        "abilityId": 620,
+        "slot": 4
+      },
+      {
+        "abilityId": 6649,
+        "slot": 5
+      },
+      {
+        "abilityId": 6510,
+        "slot": 6
+      },
+      {
+        "abilityId": 6065,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "displayName": "Tinker",
+    "talents": [
+      {
+        "abilityId": 1266,
+        "slot": 0
+      },
+      {
+        "abilityId": 1675,
+        "slot": 1
+      },
+      {
+        "abilityId": 8039,
+        "slot": 2
+      },
+      {
+        "abilityId": 6152,
+        "slot": 3
+      },
+      {
+        "abilityId": 1267,
+        "slot": 4
+      },
+      {
+        "abilityId": 413,
+        "slot": 5
+      },
+      {
+        "abilityId": 7898,
+        "slot": 6
+      },
+      {
+        "abilityId": 1534,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "displayName": "Sniper",
+    "talents": [
+      {
+        "abilityId": 7396,
+        "slot": 0
+      },
+      {
+        "abilityId": 928,
+        "slot": 1
+      },
+      {
+        "abilityId": 7892,
+        "slot": 2
+      },
+      {
+        "abilityId": 6305,
+        "slot": 3
+      },
+      {
+        "abilityId": 6897,
+        "slot": 4
+      },
+      {
+        "abilityId": 1455,
+        "slot": 5
+      },
+      {
+        "abilityId": 6198,
+        "slot": 6
+      },
+      {
+        "abilityId": 6896,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "displayName": "Necrophos",
+    "talents": [
+      {
+        "abilityId": 820,
+        "slot": 0
+      },
+      {
+        "abilityId": 1049,
+        "slot": 1
+      },
+      {
+        "abilityId": 7110,
+        "slot": 2
+      },
+      {
+        "abilityId": 7111,
+        "slot": 3
+      },
+      {
+        "abilityId": 1050,
+        "slot": 4
+      },
+      {
+        "abilityId": 350,
+        "slot": 5
+      },
+      {
+        "abilityId": 6703,
+        "slot": 6
+      },
+      {
+        "abilityId": 6010,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "displayName": "Warlock",
+    "talents": [
+      {
+        "abilityId": 6982,
+        "slot": 0
+      },
+      {
+        "abilityId": 1038,
+        "slot": 1
+      },
+      {
+        "abilityId": 845,
+        "slot": 2
+      },
+      {
+        "abilityId": 764,
+        "slot": 3
+      },
+      {
+        "abilityId": 6053,
+        "slot": 4
+      },
+      {
+        "abilityId": 6412,
+        "slot": 5
+      },
+      {
+        "abilityId": 6505,
+        "slot": 6
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "displayName": "Beastmaster",
+    "talents": [
+      {
+        "abilityId": 6611,
+        "slot": 0
+      },
+      {
+        "abilityId": 901,
+        "slot": 1
+      },
+      {
+        "abilityId": 506,
+        "slot": 2
+      },
+      {
+        "abilityId": 6612,
+        "slot": 3
+      },
+      {
+        "abilityId": 6517,
+        "slot": 4
+      },
+      {
+        "abilityId": 613,
+        "slot": 5
+      },
+      {
+        "abilityId": 1007,
+        "slot": 6
+      },
+      {
+        "abilityId": 722,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "displayName": "Queen of Pain",
+    "talents": [
+      {
+        "abilityId": 1279,
+        "slot": 0
+      },
+      {
+        "abilityId": 6115,
+        "slot": 1
+      },
+      {
+        "abilityId": 629,
+        "slot": 2
+      },
+      {
+        "abilityId": 5939,
+        "slot": 3
+      },
+      {
+        "abilityId": 6856,
+        "slot": 4
+      },
+      {
+        "abilityId": 590,
+        "slot": 5
+      },
+      {
+        "abilityId": 751,
+        "slot": 6
+      },
+      {
+        "abilityId": 965,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "displayName": "Venomancer",
+    "talents": [
+      {
+        "abilityId": 6979,
+        "slot": 0
+      },
+      {
+        "abilityId": 859,
+        "slot": 1
+      },
+      {
+        "abilityId": 811,
+        "slot": 2
+      },
+      {
+        "abilityId": 6532,
+        "slot": 3
+      },
+      {
+        "abilityId": 6980,
+        "slot": 4
+      },
+      {
+        "abilityId": 548,
+        "slot": 5
+      },
+      {
+        "abilityId": 6981,
+        "slot": 6
+      },
+      {
+        "abilityId": 6058,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "displayName": "Faceless Void",
+    "talents": [
+      {
+        "abilityId": 856,
+        "slot": 0
+      },
+      {
+        "abilityId": 867,
+        "slot": 1
+      },
+      {
+        "abilityId": 6807,
+        "slot": 2
+      },
+      {
+        "abilityId": 868,
+        "slot": 3
+      },
+      {
+        "abilityId": 6128,
+        "slot": 4
+      },
+      {
+        "abilityId": 7388,
+        "slot": 5
+      },
+      {
+        "abilityId": 7001,
+        "slot": 6
+      },
+      {
+        "abilityId": 6651,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "displayName": "Wraith King",
+    "talents": [
+      {
+        "abilityId": 6088,
+        "slot": 0
+      },
+      {
+        "abilityId": 1545,
+        "slot": 1
+      },
+      {
+        "abilityId": 809,
+        "slot": 2
+      },
+      {
+        "abilityId": 6195,
+        "slot": 3
+      },
+      {
+        "abilityId": 6020,
+        "slot": 4
+      },
+      {
+        "abilityId": 1547,
+        "slot": 5
+      },
+      {
+        "abilityId": 741,
+        "slot": 6
+      },
+      {
+        "abilityId": 6566,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "displayName": "Death Prophet",
+    "talents": [
+      {
+        "abilityId": 5907,
+        "slot": 0
+      },
+      {
+        "abilityId": 6299,
+        "slot": 1
+      },
+      {
+        "abilityId": 1458,
+        "slot": 2
+      },
+      {
+        "abilityId": 6367,
+        "slot": 3
+      },
+      {
+        "abilityId": 5976,
+        "slot": 4
+      },
+      {
+        "abilityId": 6628,
+        "slot": 5
+      },
+      {
+        "abilityId": 698,
+        "slot": 6
+      },
+      {
+        "abilityId": 6191,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "displayName": "Phantom Assassin",
+    "talents": [
+      {
+        "abilityId": 483,
+        "slot": 0
+      },
+      {
+        "abilityId": 559,
+        "slot": 1
+      },
+      {
+        "abilityId": 6848,
+        "slot": 2
+      },
+      {
+        "abilityId": 491,
+        "slot": 3
+      },
+      {
+        "abilityId": 490,
+        "slot": 4
+      },
+      {
+        "abilityId": 1074,
+        "slot": 5
+      },
+      {
+        "abilityId": 6847,
+        "slot": 6
+      },
+      {
+        "abilityId": 6192,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 45,
+    "displayName": "Pugna",
+    "talents": [
+      {
+        "abilityId": 6448,
+        "slot": 0
+      },
+      {
+        "abilityId": 6859,
+        "slot": 1
+      },
+      {
+        "abilityId": 1191,
+        "slot": 2
+      },
+      {
+        "abilityId": 5903,
+        "slot": 3
+      },
+      {
+        "abilityId": 6220,
+        "slot": 4
+      },
+      {
+        "abilityId": 6541,
+        "slot": 5
+      },
+      {
+        "abilityId": 6238,
+        "slot": 6
+      },
+      {
+        "abilityId": 6403,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "displayName": "Templar Assassin",
+    "talents": [
+      {
+        "abilityId": 1548,
+        "slot": 0
+      },
+      {
+        "abilityId": 6938,
+        "slot": 1
+      },
+      {
+        "abilityId": 1060,
+        "slot": 2
+      },
+      {
+        "abilityId": 757,
+        "slot": 3
+      },
+      {
+        "abilityId": 6939,
+        "slot": 4
+      },
+      {
+        "abilityId": 1059,
+        "slot": 5
+      },
+      {
+        "abilityId": 7371,
+        "slot": 6
+      },
+      {
+        "abilityId": 6071,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "displayName": "Viper",
+    "talents": [
+      {
+        "abilityId": 6820,
+        "slot": 0
+      },
+      {
+        "abilityId": 984,
+        "slot": 1
+      },
+      {
+        "abilityId": 6819,
+        "slot": 2
+      },
+      {
+        "abilityId": 6156,
+        "slot": 3
+      },
+      {
+        "abilityId": 6165,
+        "slot": 4
+      },
+      {
+        "abilityId": 1540,
+        "slot": 5
+      },
+      {
+        "abilityId": 1549,
+        "slot": 6
+      },
+      {
+        "abilityId": 985,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "displayName": "Luna",
+    "talents": [
+      {
+        "abilityId": 847,
+        "slot": 0
+      },
+      {
+        "abilityId": 7047,
+        "slot": 1
+      },
+      {
+        "abilityId": 323,
+        "slot": 2
+      },
+      {
+        "abilityId": 6180,
+        "slot": 3
+      },
+      {
+        "abilityId": 770,
+        "slot": 4
+      },
+      {
+        "abilityId": 6127,
+        "slot": 5
+      },
+      {
+        "abilityId": 6682,
+        "slot": 6
+      },
+      {
+        "abilityId": 7055,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "displayName": "Dragon Knight",
+    "talents": [
+      {
+        "abilityId": 5938,
+        "slot": 0
+      },
+      {
+        "abilityId": 7113,
+        "slot": 1
+      },
+      {
+        "abilityId": 6635,
+        "slot": 2
+      },
+      {
+        "abilityId": 5993,
+        "slot": 3
+      },
+      {
+        "abilityId": 740,
+        "slot": 4
+      },
+      {
+        "abilityId": 1043,
+        "slot": 5
+      },
+      {
+        "abilityId": 6090,
+        "slot": 6
+      },
+      {
+        "abilityId": 742,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "displayName": "Dazzle",
+    "talents": [
+      {
+        "abilityId": 1018,
+        "slot": 0
+      },
+      {
+        "abilityId": 6926,
+        "slot": 1
+      },
+      {
+        "abilityId": 6232,
+        "slot": 2
+      },
+      {
+        "abilityId": 1552,
+        "slot": 4
+      },
+      {
+        "abilityId": 6528,
+        "slot": 5
+      },
+      {
+        "abilityId": 6049,
+        "slot": 6
+      },
+      {
+        "abilityId": 6626,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "displayName": "Clockwerk",
+    "talents": [
+      {
+        "abilityId": 850,
+        "slot": 0
+      },
+      {
+        "abilityId": 8290,
+        "slot": 1
+      },
+      {
+        "abilityId": 502,
+        "slot": 2
+      },
+      {
+        "abilityId": 6512,
+        "slot": 3
+      },
+      {
+        "abilityId": 7028,
+        "slot": 4
+      },
+      {
+        "abilityId": 6364,
+        "slot": 5
+      },
+      {
+        "abilityId": 614,
+        "slot": 6
+      },
+      {
+        "abilityId": 5977,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "displayName": "Leshrac",
+    "talents": [
+      {
+        "abilityId": 7132,
+        "slot": 0
+      },
+      {
+        "abilityId": 5931,
+        "slot": 1
+      },
+      {
+        "abilityId": 516,
+        "slot": 2
+      },
+      {
+        "abilityId": 7101,
+        "slot": 3
+      },
+      {
+        "abilityId": 9418,
+        "slot": 4
+      },
+      {
+        "abilityId": 6672,
+        "slot": 5
+      },
+      {
+        "abilityId": 1145,
+        "slot": 6
+      },
+      {
+        "abilityId": 6063,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 53,
+    "displayName": "Nature's Prophet",
+    "talents": [
+      {
+        "abilityId": 926,
+        "slot": 0
+      },
+      {
+        "abilityId": 470,
+        "slot": 1
+      },
+      {
+        "abilityId": 6500,
+        "slot": 2
+      },
+      {
+        "abilityId": 1620,
+        "slot": 3
+      },
+      {
+        "abilityId": 927,
+        "slot": 4
+      },
+      {
+        "abilityId": 6702,
+        "slot": 5
+      },
+      {
+        "abilityId": 6539,
+        "slot": 6
+      },
+      {
+        "abilityId": 6084,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "displayName": "Lifestealer",
+    "talents": [
+      {
+        "abilityId": 5920,
+        "slot": 0
+      },
+      {
+        "abilityId": 6676,
+        "slot": 1
+      },
+      {
+        "abilityId": 499,
+        "slot": 2
+      },
+      {
+        "abilityId": 464,
+        "slot": 3
+      },
+      {
+        "abilityId": 1034,
+        "slot": 4
+      },
+      {
+        "abilityId": 709,
+        "slot": 5
+      },
+      {
+        "abilityId": 7012,
+        "slot": 6
+      },
+      {
+        "abilityId": 6173,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 55,
+    "displayName": "Dark Seer",
+    "talents": [
+      {
+        "abilityId": 560,
+        "slot": 0
+      },
+      {
+        "abilityId": 420,
+        "slot": 1
+      },
+      {
+        "abilityId": 6365,
+        "slot": 2
+      },
+      {
+        "abilityId": 513,
+        "slot": 3
+      },
+      {
+        "abilityId": 736,
+        "slot": 4
+      },
+      {
+        "abilityId": 6047,
+        "slot": 5
+      },
+      {
+        "abilityId": 954,
+        "slot": 6
+      },
+      {
+        "abilityId": 6624,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 56,
+    "displayName": "Clinkz",
+    "talents": [
+      {
+        "abilityId": 6104,
+        "slot": 0
+      },
+      {
+        "abilityId": 523,
+        "slot": 1
+      },
+      {
+        "abilityId": 1614,
+        "slot": 2
+      },
+      {
+        "abilityId": 554,
+        "slot": 3
+      },
+      {
+        "abilityId": 495,
+        "slot": 4
+      },
+      {
+        "abilityId": 494,
+        "slot": 5
+      },
+      {
+        "abilityId": 7878,
+        "slot": 6
+      },
+      {
+        "abilityId": 6620,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "displayName": "Omniknight",
+    "talents": [
+      {
+        "abilityId": 404,
+        "slot": 0
+      },
+      {
+        "abilityId": 1488,
+        "slot": 1
+      },
+      {
+        "abilityId": 6300,
+        "slot": 2
+      },
+      {
+        "abilityId": 501,
+        "slot": 3
+      },
+      {
+        "abilityId": 1463,
+        "slot": 4
+      },
+      {
+        "abilityId": 472,
+        "slot": 5
+      },
+      {
+        "abilityId": 5981,
+        "slot": 6
+      },
+      {
+        "abilityId": 7010,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "displayName": "Enchantress",
+    "talents": [
+      {
+        "abilityId": 1174,
+        "slot": 0
+      },
+      {
+        "abilityId": 8432,
+        "slot": 1
+      },
+      {
+        "abilityId": 1541,
+        "slot": 2
+      },
+      {
+        "abilityId": 6648,
+        "slot": 3
+      },
+      {
+        "abilityId": 6086,
+        "slot": 4
+      },
+      {
+        "abilityId": 1130,
+        "slot": 5
+      },
+      {
+        "abilityId": 6515,
+        "slot": 6
+      },
+      {
+        "abilityId": 6379,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 59,
+    "displayName": "Huskar",
+    "talents": [
+      {
+        "abilityId": 6655,
+        "slot": 0
+      },
+      {
+        "abilityId": 7140,
+        "slot": 1
+      },
+      {
+        "abilityId": 6380,
+        "slot": 2
+      },
+      {
+        "abilityId": 433,
+        "slot": 3
+      },
+      {
+        "abilityId": 462,
+        "slot": 4
+      },
+      {
+        "abilityId": 688,
+        "slot": 5
+      },
+      {
+        "abilityId": 6204,
+        "slot": 6
+      },
+      {
+        "abilityId": 7143,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 60,
+    "displayName": "Night Stalker",
+    "talents": [
+      {
+        "abilityId": 505,
+        "slot": 0
+      },
+      {
+        "abilityId": 816,
+        "slot": 1
+      },
+      {
+        "abilityId": 480,
+        "slot": 2
+      },
+      {
+        "abilityId": 1048,
+        "slot": 3
+      },
+      {
+        "abilityId": 1312,
+        "slot": 4
+      },
+      {
+        "abilityId": 6145,
+        "slot": 5
+      },
+      {
+        "abilityId": 6704,
+        "slot": 6
+      },
+      {
+        "abilityId": 6129,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 61,
+    "displayName": "Broodmother",
+    "talents": [
+      {
+        "abilityId": 6361,
+        "slot": 0
+      },
+      {
+        "abilityId": 900,
+        "slot": 1
+      },
+      {
+        "abilityId": 6258,
+        "slot": 2
+      },
+      {
+        "abilityId": 1039,
+        "slot": 3
+      },
+      {
+        "abilityId": 8033,
+        "slot": 4
+      },
+      {
+        "abilityId": 6362,
+        "slot": 5
+      },
+      {
+        "abilityId": 6257,
+        "slot": 6
+      }
+    ]
+  },
+  {
+    "id": 62,
+    "displayName": "Bounty Hunter",
+    "talents": [
+      {
+        "abilityId": 869,
+        "slot": 0
+      },
+      {
+        "abilityId": 6009,
+        "slot": 1
+      },
+      {
+        "abilityId": 959,
+        "slot": 2
+      },
+      {
+        "abilityId": 7040,
+        "slot": 3
+      },
+      {
+        "abilityId": 878,
+        "slot": 4
+      },
+      {
+        "abilityId": 6018,
+        "slot": 5
+      },
+      {
+        "abilityId": 6358,
+        "slot": 6
+      },
+      {
+        "abilityId": 1172,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 63,
+    "displayName": "Weaver",
+    "talents": [
+      {
+        "abilityId": 6200,
+        "slot": 0
+      },
+      {
+        "abilityId": 6115,
+        "slot": 1
+      },
+      {
+        "abilityId": 6987,
+        "slot": 2
+      },
+      {
+        "abilityId": 6989,
+        "slot": 3
+      },
+      {
+        "abilityId": 6131,
+        "slot": 4
+      },
+      {
+        "abilityId": 6988,
+        "slot": 5
+      },
+      {
+        "abilityId": 796,
+        "slot": 6
+      },
+      {
+        "abilityId": 6990,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 64,
+    "displayName": "Jakiro",
+    "talents": [
+      {
+        "abilityId": 6661,
+        "slot": 0
+      },
+      {
+        "abilityId": 526,
+        "slot": 1
+      },
+      {
+        "abilityId": 6186,
+        "slot": 2
+      },
+      {
+        "abilityId": 303,
+        "slot": 3
+      },
+      {
+        "abilityId": 6064,
+        "slot": 4
+      },
+      {
+        "abilityId": 542,
+        "slot": 5
+      },
+      {
+        "abilityId": 6381,
+        "slot": 6
+      },
+      {
+        "abilityId": 6538,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 65,
+    "displayName": "Batrider",
+    "talents": [
+      {
+        "abilityId": 714,
+        "slot": 0
+      },
+      {
+        "abilityId": 6610,
+        "slot": 1
+      },
+      {
+        "abilityId": 5918,
+        "slot": 2
+      },
+      {
+        "abilityId": 658,
+        "slot": 3
+      },
+      {
+        "abilityId": 1496,
+        "slot": 4
+      },
+      {
+        "abilityId": 572,
+        "slot": 5
+      },
+      {
+        "abilityId": 512,
+        "slot": 6
+      },
+      {
+        "abilityId": 6229,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 66,
+    "displayName": "Chen",
+    "talents": [
+      {
+        "abilityId": 841,
+        "slot": 0
+      },
+      {
+        "abilityId": 6363,
+        "slot": 1
+      },
+      {
+        "abilityId": 7869,
+        "slot": 2
+      },
+      {
+        "abilityId": 529,
+        "slot": 3
+      },
+      {
+        "abilityId": 6535,
+        "slot": 5
+      },
+      {
+        "abilityId": 952,
+        "slot": 6
+      },
+      {
+        "abilityId": 6260,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 67,
+    "displayName": "Spectre",
+    "talents": [
+      {
+        "abilityId": 6148,
+        "slot": 0
+      },
+      {
+        "abilityId": 6900,
+        "slot": 1
+      },
+      {
+        "abilityId": 8040,
+        "slot": 3
+      },
+      {
+        "abilityId": 6195,
+        "slot": 4
+      },
+      {
+        "abilityId": 6901,
+        "slot": 5
+      },
+      {
+        "abilityId": 6902,
+        "slot": 6
+      },
+      {
+        "abilityId": 6903,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 68,
+    "displayName": "Ancient Apparition",
+    "talents": [
+      {
+        "abilityId": 7652,
+        "slot": 0
+      },
+      {
+        "abilityId": 973,
+        "slot": 1
+      },
+      {
+        "abilityId": 6352,
+        "slot": 2
+      },
+      {
+        "abilityId": 6214,
+        "slot": 3
+      },
+      {
+        "abilityId": 1141,
+        "slot": 4
+      },
+      {
+        "abilityId": 6291,
+        "slot": 5
+      },
+      {
+        "abilityId": 7106,
+        "slot": 6
+      },
+      {
+        "abilityId": 6810,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 69,
+    "displayName": "Doom",
+    "talents": [
+      {
+        "abilityId": 6369,
+        "slot": 0
+      },
+      {
+        "abilityId": 6370,
+        "slot": 1
+      },
+      {
+        "abilityId": 7123,
+        "slot": 2
+      },
+      {
+        "abilityId": 6314,
+        "slot": 3
+      },
+      {
+        "abilityId": 733,
+        "slot": 4
+      },
+      {
+        "abilityId": 6073,
+        "slot": 5
+      },
+      {
+        "abilityId": 970,
+        "slot": 6
+      },
+      {
+        "abilityId": 971,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 70,
+    "displayName": "Ursa",
+    "talents": [
+      {
+        "abilityId": 6975,
+        "slot": 0
+      },
+      {
+        "abilityId": 6926,
+        "slot": 1
+      },
+      {
+        "abilityId": 758,
+        "slot": 3
+      },
+      {
+        "abilityId": 6973,
+        "slot": 4
+      },
+      {
+        "abilityId": 6132,
+        "slot": 5
+      },
+      {
+        "abilityId": 6974,
+        "slot": 6
+      },
+      {
+        "abilityId": 424,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 71,
+    "displayName": "Spirit Breaker",
+    "talents": [
+      {
+        "abilityId": 7022,
+        "slot": 0
+      },
+      {
+        "abilityId": 5931,
+        "slot": 1
+      },
+      {
+        "abilityId": 6296,
+        "slot": 2
+      },
+      {
+        "abilityId": 6253,
+        "slot": 3
+      },
+      {
+        "abilityId": 6149,
+        "slot": 4
+      },
+      {
+        "abilityId": 8254,
+        "slot": 5
+      },
+      {
+        "abilityId": 6543,
+        "slot": 6
+      },
+      {
+        "abilityId": 830,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 72,
+    "displayName": "Gyrocopter",
+    "talents": [
+      {
+        "abilityId": 1332,
+        "slot": 0
+      },
+      {
+        "abilityId": 5902,
+        "slot": 1
+      },
+      {
+        "abilityId": 7141,
+        "slot": 2
+      },
+      {
+        "abilityId": 1012,
+        "slot": 3
+      },
+      {
+        "abilityId": 6312,
+        "slot": 4
+      },
+      {
+        "abilityId": 6652,
+        "slot": 5
+      },
+      {
+        "abilityId": 6216,
+        "slot": 6
+      },
+      {
+        "abilityId": 6654,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 73,
+    "displayName": "Alchemist",
+    "talents": [
+      {
+        "abilityId": 7144,
+        "slot": 0
+      },
+      {
+        "abilityId": 6101,
+        "slot": 1
+      },
+      {
+        "abilityId": 6604,
+        "slot": 2
+      },
+      {
+        "abilityId": 1002,
+        "slot": 3
+      },
+      {
+        "abilityId": 1003,
+        "slot": 4
+      },
+      {
+        "abilityId": 6350,
+        "slot": 5
+      },
+      {
+        "abilityId": 351,
+        "slot": 6
+      },
+      {
+        "abilityId": 7054,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 74,
+    "displayName": "Invoker",
+    "talents": [
+      {
+        "abilityId": 5761,
+        "slot": 0
+      },
+      {
+        "abilityId": 6099,
+        "slot": 1
+      },
+      {
+        "abilityId": 7148,
+        "slot": 3
+      },
+      {
+        "abilityId": 5762,
+        "slot": 4
+      },
+      {
+        "abilityId": 6657,
+        "slot": 5
+      },
+      {
+        "abilityId": 6098,
+        "slot": 6
+      },
+      {
+        "abilityId": 724,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 75,
+    "displayName": "Silencer",
+    "talents": [
+      {
+        "abilityId": 6184,
+        "slot": 0
+      },
+      {
+        "abilityId": 6016,
+        "slot": 1
+      },
+      {
+        "abilityId": 721,
+        "slot": 2
+      },
+      {
+        "abilityId": 1467,
+        "slot": 3
+      },
+      {
+        "abilityId": 7048,
+        "slot": 4
+      },
+      {
+        "abilityId": 6880,
+        "slot": 5
+      },
+      {
+        "abilityId": 6879,
+        "slot": 6
+      },
+      {
+        "abilityId": 1337,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 76,
+    "displayName": "Outworld Destroyer",
+    "talents": [
+      {
+        "abilityId": 957,
+        "slot": 0
+      },
+      {
+        "abilityId": 6094,
+        "slot": 1
+      },
+      {
+        "abilityId": 6711,
+        "slot": 2
+      },
+      {
+        "abilityId": 6712,
+        "slot": 3
+      },
+      {
+        "abilityId": 467,
+        "slot": 4
+      },
+      {
+        "abilityId": 7375,
+        "slot": 5
+      },
+      {
+        "abilityId": 6241,
+        "slot": 6
+      },
+      {
+        "abilityId": 750,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 77,
+    "displayName": "Lycan",
+    "talents": [
+      {
+        "abilityId": 1152,
+        "slot": 0
+      },
+      {
+        "abilityId": 6519,
+        "slot": 1
+      },
+      {
+        "abilityId": 794,
+        "slot": 2
+      },
+      {
+        "abilityId": 846,
+        "slot": 3
+      },
+      {
+        "abilityId": 6134,
+        "slot": 4
+      },
+      {
+        "abilityId": 6684,
+        "slot": 5
+      },
+      {
+        "abilityId": 6685,
+        "slot": 6
+      },
+      {
+        "abilityId": 6140,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 78,
+    "displayName": "Brewmaster",
+    "talents": [
+      {
+        "abilityId": 6359,
+        "slot": 0
+      },
+      {
+        "abilityId": 654,
+        "slot": 2
+      },
+      {
+        "abilityId": 6082,
+        "slot": 3
+      },
+      {
+        "abilityId": 478,
+        "slot": 5
+      },
+      {
+        "abilityId": 6614,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 79,
+    "displayName": "Shadow Demon",
+    "talents": [
+      {
+        "abilityId": 6873,
+        "slot": 0
+      },
+      {
+        "abilityId": 5982,
+        "slot": 1
+      },
+      {
+        "abilityId": 5919,
+        "slot": 2
+      },
+      {
+        "abilityId": 6542,
+        "slot": 3
+      },
+      {
+        "abilityId": 1004,
+        "slot": 4
+      },
+      {
+        "abilityId": 6208,
+        "slot": 5
+      },
+      {
+        "abilityId": 752,
+        "slot": 6
+      },
+      {
+        "abilityId": 7118,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 80,
+    "displayName": "Lone Druid",
+    "talents": [
+      {
+        "abilityId": 6262,
+        "slot": 0
+      },
+      {
+        "abilityId": 6261,
+        "slot": 1
+      },
+      {
+        "abilityId": 6268,
+        "slot": 2
+      },
+      {
+        "abilityId": 7386,
+        "slot": 3
+      },
+      {
+        "abilityId": 1351,
+        "slot": 4
+      },
+      {
+        "abilityId": 409,
+        "slot": 5
+      },
+      {
+        "abilityId": 6806,
+        "slot": 6
+      }
+    ]
+  },
+  {
+    "id": 81,
+    "displayName": "Chaos Knight",
+    "talents": [
+      {
+        "abilityId": 871,
+        "slot": 0
+      },
+      {
+        "abilityId": 6618,
+        "slot": 1
+      },
+      {
+        "abilityId": 872,
+        "slot": 2
+      },
+      {
+        "abilityId": 6137,
+        "slot": 3
+      },
+      {
+        "abilityId": 6619,
+        "slot": 4
+      },
+      {
+        "abilityId": 6133,
+        "slot": 5
+      },
+      {
+        "abilityId": 510,
+        "slot": 6
+      },
+      {
+        "abilityId": 870,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 82,
+    "displayName": "Meepo",
+    "talents": [
+      {
+        "abilityId": 6115,
+        "slot": 0
+      },
+      {
+        "abilityId": 6689,
+        "slot": 1
+      },
+      {
+        "abilityId": 5972,
+        "slot": 2
+      },
+      {
+        "abilityId": 7027,
+        "slot": 3
+      },
+      {
+        "abilityId": 7102,
+        "slot": 4
+      },
+      {
+        "abilityId": 618,
+        "slot": 5
+      },
+      {
+        "abilityId": 6195,
+        "slot": 6
+      },
+      {
+        "abilityId": 1357,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 83,
+    "displayName": "Treant Protector",
+    "talents": [
+      {
+        "abilityId": 339,
+        "slot": 0
+      },
+      {
+        "abilityId": 548,
+        "slot": 1
+      },
+      {
+        "abilityId": 6955,
+        "slot": 2
+      },
+      {
+        "abilityId": 340,
+        "slot": 3
+      },
+      {
+        "abilityId": 756,
+        "slot": 4
+      },
+      {
+        "abilityId": 6531,
+        "slot": 5
+      },
+      {
+        "abilityId": 1131,
+        "slot": 6
+      },
+      {
+        "abilityId": 7115,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 84,
+    "displayName": "Ogre Magi",
+    "talents": [
+      {
+        "abilityId": 403,
+        "slot": 0
+      },
+      {
+        "abilityId": 801,
+        "slot": 1
+      },
+      {
+        "abilityId": 442,
+        "slot": 2
+      },
+      {
+        "abilityId": 1181,
+        "slot": 3
+      },
+      {
+        "abilityId": 6708,
+        "slot": 4
+      },
+      {
+        "abilityId": 6183,
+        "slot": 5
+      },
+      {
+        "abilityId": 7030,
+        "slot": 6
+      },
+      {
+        "abilityId": 6707,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 85,
+    "displayName": "Undying",
+    "talents": [
+      {
+        "abilityId": 813,
+        "slot": 0
+      },
+      {
+        "abilityId": 807,
+        "slot": 1
+      },
+      {
+        "abilityId": 6155,
+        "slot": 2
+      },
+      {
+        "abilityId": 616,
+        "slot": 3
+      },
+      {
+        "abilityId": 6972,
+        "slot": 4
+      },
+      {
+        "abilityId": 6420,
+        "slot": 5
+      },
+      {
+        "abilityId": 6971,
+        "slot": 6
+      },
+      {
+        "abilityId": 6546,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 86,
+    "displayName": "Rubick",
+    "talents": [
+      {
+        "abilityId": 897,
+        "slot": 0
+      },
+      {
+        "abilityId": 6862,
+        "slot": 1
+      },
+      {
+        "abilityId": 518,
+        "slot": 2
+      },
+      {
+        "abilityId": 787,
+        "slot": 3
+      },
+      {
+        "abilityId": 6863,
+        "slot": 4
+      },
+      {
+        "abilityId": 6864,
+        "slot": 5
+      },
+      {
+        "abilityId": 6041,
+        "slot": 6
+      },
+      {
+        "abilityId": 6870,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 87,
+    "displayName": "Disruptor",
+    "talents": [
+      {
+        "abilityId": 5918,
+        "slot": 0
+      },
+      {
+        "abilityId": 1142,
+        "slot": 1
+      },
+      {
+        "abilityId": 788,
+        "slot": 2
+      },
+      {
+        "abilityId": 6215,
+        "slot": 3
+      },
+      {
+        "abilityId": 6812,
+        "slot": 4
+      },
+      {
+        "abilityId": 517,
+        "slot": 5
+      },
+      {
+        "abilityId": 6630,
+        "slot": 6
+      },
+      {
+        "abilityId": 737,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 88,
+    "displayName": "Nyx Assassin",
+    "talents": [
+      {
+        "abilityId": 402,
+        "slot": 0
+      },
+      {
+        "abilityId": 6814,
+        "slot": 1
+      },
+      {
+        "abilityId": 1171,
+        "slot": 2
+      },
+      {
+        "abilityId": 1368,
+        "slot": 3
+      },
+      {
+        "abilityId": 891,
+        "slot": 4
+      },
+      {
+        "abilityId": 6399,
+        "slot": 5
+      },
+      {
+        "abilityId": 6130,
+        "slot": 6
+      },
+      {
+        "abilityId": 435,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 89,
+    "displayName": "Naga Siren",
+    "talents": [
+      {
+        "abilityId": 1557,
+        "slot": 0
+      },
+      {
+        "abilityId": 6398,
+        "slot": 1
+      },
+      {
+        "abilityId": 7029,
+        "slot": 2
+      },
+      {
+        "abilityId": 6701,
+        "slot": 3
+      },
+      {
+        "abilityId": 601,
+        "slot": 4
+      },
+      {
+        "abilityId": 6205,
+        "slot": 5
+      },
+      {
+        "abilityId": 761,
+        "slot": 6
+      },
+      {
+        "abilityId": 6150,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 90,
+    "displayName": "Keeper of the Light",
+    "talents": [
+      {
+        "abilityId": 657,
+        "slot": 0
+      },
+      {
+        "abilityId": 1046,
+        "slot": 1
+      },
+      {
+        "abilityId": 527,
+        "slot": 2
+      },
+      {
+        "abilityId": 421,
+        "slot": 3
+      },
+      {
+        "abilityId": 664,
+        "slot": 4
+      },
+      {
+        "abilityId": 6527,
+        "slot": 5
+      },
+      {
+        "abilityId": 804,
+        "slot": 6
+      },
+      {
+        "abilityId": 6217,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 91,
+    "displayName": "Io",
+    "talents": [
+      {
+        "abilityId": 1559,
+        "slot": 0
+      },
+      {
+        "abilityId": 6115,
+        "slot": 1
+      },
+      {
+        "abilityId": 6659,
+        "slot": 2
+      },
+      {
+        "abilityId": 6265,
+        "slot": 3
+      },
+      {
+        "abilityId": 7073,
+        "slot": 4
+      },
+      {
+        "abilityId": 7070,
+        "slot": 5
+      },
+      {
+        "abilityId": 6808,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 92,
+    "displayName": "Visage",
+    "talents": [
+      {
+        "abilityId": 776,
+        "slot": 0
+      },
+      {
+        "abilityId": 626,
+        "slot": 1
+      },
+      {
+        "abilityId": 1148,
+        "slot": 2
+      },
+      {
+        "abilityId": 6522,
+        "slot": 3
+      },
+      {
+        "abilityId": 6983,
+        "slot": 4
+      },
+      {
+        "abilityId": 6031,
+        "slot": 5
+      },
+      {
+        "abilityId": 6985,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 93,
+    "displayName": "Slark",
+    "talents": [
+      {
+        "abilityId": 821,
+        "slot": 0
+      },
+      {
+        "abilityId": 6147,
+        "slot": 1
+      },
+      {
+        "abilityId": 6892,
+        "slot": 2
+      },
+      {
+        "abilityId": 921,
+        "slot": 3
+      },
+      {
+        "abilityId": 814,
+        "slot": 4
+      },
+      {
+        "abilityId": 892,
+        "slot": 5
+      },
+      {
+        "abilityId": 6893,
+        "slot": 6
+      },
+      {
+        "abilityId": 6894,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 94,
+    "displayName": "Medusa",
+    "talents": [
+      {
+        "abilityId": 1561,
+        "slot": 0
+      },
+      {
+        "abilityId": 1345,
+        "slot": 1
+      },
+      {
+        "abilityId": 6392,
+        "slot": 2
+      },
+      {
+        "abilityId": 7389,
+        "slot": 3
+      },
+      {
+        "abilityId": 6687,
+        "slot": 4
+      },
+      {
+        "abilityId": 6182,
+        "slot": 6
+      },
+      {
+        "abilityId": 1534,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 95,
+    "displayName": "Troll Warlord",
+    "talents": [
+      {
+        "abilityId": 1010,
+        "slot": 0
+      },
+      {
+        "abilityId": 6958,
+        "slot": 1
+      },
+      {
+        "abilityId": 492,
+        "slot": 2
+      },
+      {
+        "abilityId": 6959,
+        "slot": 3
+      },
+      {
+        "abilityId": 1011,
+        "slot": 4
+      },
+      {
+        "abilityId": 6154,
+        "slot": 5
+      },
+      {
+        "abilityId": 988,
+        "slot": 6
+      },
+      {
+        "abilityId": 6960,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 96,
+    "displayName": "Centaur Warrunner",
+    "talents": [
+      {
+        "abilityId": 5909,
+        "slot": 0
+      },
+      {
+        "abilityId": 5917,
+        "slot": 1
+      },
+      {
+        "abilityId": 6137,
+        "slot": 2
+      },
+      {
+        "abilityId": 6617,
+        "slot": 3
+      },
+      {
+        "abilityId": 6616,
+        "slot": 4
+      },
+      {
+        "abilityId": 453,
+        "slot": 5
+      },
+      {
+        "abilityId": 6322,
+        "slot": 6
+      },
+      {
+        "abilityId": 5988,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 97,
+    "displayName": "Magnus",
+    "talents": [
+      {
+        "abilityId": 7132,
+        "slot": 0
+      },
+      {
+        "abilityId": 525,
+        "slot": 1
+      },
+      {
+        "abilityId": 1037,
+        "slot": 2
+      },
+      {
+        "abilityId": 712,
+        "slot": 3
+      },
+      {
+        "abilityId": 6199,
+        "slot": 4
+      },
+      {
+        "abilityId": 1562,
+        "slot": 5
+      },
+      {
+        "abilityId": 6390,
+        "slot": 6
+      },
+      {
+        "abilityId": 6691,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 98,
+    "displayName": "Timbersaw",
+    "talents": [
+      {
+        "abilityId": 1185,
+        "slot": 0
+      },
+      {
+        "abilityId": 7132,
+        "slot": 1
+      },
+      {
+        "abilityId": 8482,
+        "slot": 2
+      },
+      {
+        "abilityId": 6948,
+        "slot": 3
+      },
+      {
+        "abilityId": 1563,
+        "slot": 4
+      },
+      {
+        "abilityId": 6951,
+        "slot": 5
+      },
+      {
+        "abilityId": 6223,
+        "slot": 6
+      },
+      {
+        "abilityId": 6949,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 99,
+    "displayName": "Bristleback",
+    "talents": [
+      {
+        "abilityId": 6016,
+        "slot": 0
+      },
+      {
+        "abilityId": 7132,
+        "slot": 1
+      },
+      {
+        "abilityId": 1078,
+        "slot": 2
+      },
+      {
+        "abilityId": 1079,
+        "slot": 3
+      },
+      {
+        "abilityId": 6308,
+        "slot": 4
+      },
+      {
+        "abilityId": 6360,
+        "slot": 5
+      },
+      {
+        "abilityId": 434,
+        "slot": 6
+      },
+      {
+        "abilityId": 6615,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 100,
+    "displayName": "Tusk",
+    "talents": [
+      {
+        "abilityId": 6961,
+        "slot": 0
+      },
+      {
+        "abilityId": 414,
+        "slot": 1
+      },
+      {
+        "abilityId": 6423,
+        "slot": 2
+      },
+      {
+        "abilityId": 6411,
+        "slot": 3
+      },
+      {
+        "abilityId": 6963,
+        "slot": 4
+      },
+      {
+        "abilityId": 6194,
+        "slot": 5
+      },
+      {
+        "abilityId": 6962,
+        "slot": 6
+      },
+      {
+        "abilityId": 7891,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 101,
+    "displayName": "Skywrath Mage",
+    "talents": [
+      {
+        "abilityId": 7132,
+        "slot": 0
+      },
+      {
+        "abilityId": 411,
+        "slot": 1
+      },
+      {
+        "abilityId": 6181,
+        "slot": 2
+      },
+      {
+        "abilityId": 1480,
+        "slot": 3
+      },
+      {
+        "abilityId": 6886,
+        "slot": 4
+      },
+      {
+        "abilityId": 6885,
+        "slot": 5
+      },
+      {
+        "abilityId": 6884,
+        "slot": 6
+      },
+      {
+        "abilityId": 6921,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "displayName": "Abaddon",
+    "talents": [
+      {
+        "abilityId": 972,
+        "slot": 0
+      },
+      {
+        "abilityId": 1165,
+        "slot": 1
+      },
+      {
+        "abilityId": 7340,
+        "slot": 2
+      },
+      {
+        "abilityId": 6601,
+        "slot": 3
+      },
+      {
+        "abilityId": 6100,
+        "slot": 4
+      },
+      {
+        "abilityId": 8251,
+        "slot": 5
+      },
+      {
+        "abilityId": 6602,
+        "slot": 6
+      },
+      {
+        "abilityId": 7335,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 103,
+    "displayName": "Elder Titan",
+    "talents": [
+      {
+        "abilityId": 917,
+        "slot": 0
+      },
+      {
+        "abilityId": 6016,
+        "slot": 1
+      },
+      {
+        "abilityId": 6378,
+        "slot": 2
+      },
+      {
+        "abilityId": 6171,
+        "slot": 3
+      },
+      {
+        "abilityId": 7350,
+        "slot": 4
+      },
+      {
+        "abilityId": 1016,
+        "slot": 5
+      },
+      {
+        "abilityId": 6720,
+        "slot": 6
+      },
+      {
+        "abilityId": 6827,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 104,
+    "displayName": "Legion Commander",
+    "talents": [
+      {
+        "abilityId": 1113,
+        "slot": 0
+      },
+      {
+        "abilityId": 1176,
+        "slot": 1
+      },
+      {
+        "abilityId": 463,
+        "slot": 2
+      },
+      {
+        "abilityId": 6671,
+        "slot": 3
+      },
+      {
+        "abilityId": 7395,
+        "slot": 4
+      },
+      {
+        "abilityId": 6526,
+        "slot": 5
+      },
+      {
+        "abilityId": 880,
+        "slot": 6
+      },
+      {
+        "abilityId": 925,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 105,
+    "displayName": "Techies",
+    "talents": [
+      {
+        "abilityId": 6000,
+        "slot": 0
+      },
+      {
+        "abilityId": 6997,
+        "slot": 1
+      },
+      {
+        "abilityId": 6282,
+        "slot": 2
+      },
+      {
+        "abilityId": 6160,
+        "slot": 3
+      },
+      {
+        "abilityId": 6552,
+        "slot": 4
+      },
+      {
+        "abilityId": 412,
+        "slot": 5
+      },
+      {
+        "abilityId": 703,
+        "slot": 6
+      },
+      {
+        "abilityId": 6998,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 106,
+    "displayName": "Ember Spirit",
+    "talents": [
+      {
+        "abilityId": 6159,
+        "slot": 0
+      },
+      {
+        "abilityId": 6172,
+        "slot": 1
+      },
+      {
+        "abilityId": 6647,
+        "slot": 2
+      },
+      {
+        "abilityId": 6176,
+        "slot": 3
+      },
+      {
+        "abilityId": 1394,
+        "slot": 4
+      },
+      {
+        "abilityId": 353,
+        "slot": 5
+      },
+      {
+        "abilityId": 7050,
+        "slot": 6
+      },
+      {
+        "abilityId": 7051,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 107,
+    "displayName": "Earth Spirit",
+    "talents": [
+      {
+        "abilityId": 7662,
+        "slot": 0
+      },
+      {
+        "abilityId": 324,
+        "slot": 1
+      },
+      {
+        "abilityId": 7661,
+        "slot": 3
+      },
+      {
+        "abilityId": 977,
+        "slot": 4
+      },
+      {
+        "abilityId": 6203,
+        "slot": 5
+      },
+      {
+        "abilityId": 6514,
+        "slot": 6
+      },
+      {
+        "abilityId": 7657,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 108,
+    "displayName": "Underlord",
+    "talents": [
+      {
+        "abilityId": 663,
+        "slot": 0
+      },
+      {
+        "abilityId": 710,
+        "slot": 1
+      },
+      {
+        "abilityId": 557,
+        "slot": 2
+      },
+      {
+        "abilityId": 556,
+        "slot": 3
+      },
+      {
+        "abilityId": 6969,
+        "slot": 4
+      },
+      {
+        "abilityId": 6968,
+        "slot": 5
+      },
+      {
+        "abilityId": 6019,
+        "slot": 6
+      },
+      {
+        "abilityId": 805,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 109,
+    "displayName": "Terrorblade",
+    "talents": [
+      {
+        "abilityId": 6942,
+        "slot": 0
+      },
+      {
+        "abilityId": 7861,
+        "slot": 1
+      },
+      {
+        "abilityId": 1186,
+        "slot": 2
+      },
+      {
+        "abilityId": 924,
+        "slot": 3
+      },
+      {
+        "abilityId": 6168,
+        "slot": 4
+      },
+      {
+        "abilityId": 479,
+        "slot": 5
+      },
+      {
+        "abilityId": 6107,
+        "slot": 6
+      },
+      {
+        "abilityId": 6943,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 110,
+    "displayName": "Phoenix",
+    "talents": [
+      {
+        "abilityId": 406,
+        "slot": 0
+      },
+      {
+        "abilityId": 1566,
+        "slot": 1
+      },
+      {
+        "abilityId": 6401,
+        "slot": 2
+      },
+      {
+        "abilityId": 6308,
+        "slot": 3
+      },
+      {
+        "abilityId": 6915,
+        "slot": 4
+      },
+      {
+        "abilityId": 6085,
+        "slot": 5
+      },
+      {
+        "abilityId": 6227,
+        "slot": 6
+      },
+      {
+        "abilityId": 6852,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 111,
+    "displayName": "Oracle",
+    "talents": [
+      {
+        "abilityId": 6540,
+        "slot": 0
+      },
+      {
+        "abilityId": 791,
+        "slot": 1
+      },
+      {
+        "abilityId": 1182,
+        "slot": 2
+      },
+      {
+        "abilityId": 681,
+        "slot": 3
+      },
+      {
+        "abilityId": 471,
+        "slot": 4
+      },
+      {
+        "abilityId": 405,
+        "slot": 5
+      },
+      {
+        "abilityId": 544,
+        "slot": 6
+      },
+      {
+        "abilityId": 6206,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 112,
+    "displayName": "Winter Wyvern",
+    "talents": [
+      {
+        "abilityId": 418,
+        "slot": 0
+      },
+      {
+        "abilityId": 6164,
+        "slot": 1
+      },
+      {
+        "abilityId": 684,
+        "slot": 2
+      },
+      {
+        "abilityId": 6297,
+        "slot": 3
+      },
+      {
+        "abilityId": 6106,
+        "slot": 4
+      },
+      {
+        "abilityId": 719,
+        "slot": 5
+      },
+      {
+        "abilityId": 6523,
+        "slot": 6
+      },
+      {
+        "abilityId": 6994,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 113,
+    "displayName": "Arc Warden",
+    "talents": [
+      {
+        "abilityId": 7120,
+        "slot": 0
+      },
+      {
+        "abilityId": 5959,
+        "slot": 1
+      },
+      {
+        "abilityId": 7105,
+        "slot": 2
+      },
+      {
+        "abilityId": 7104,
+        "slot": 3
+      },
+      {
+        "abilityId": 6287,
+        "slot": 4
+      },
+      {
+        "abilityId": 1112,
+        "slot": 5
+      },
+      {
+        "abilityId": 1111,
+        "slot": 6
+      },
+      {
+        "abilityId": 975,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 114,
+    "displayName": "Monkey King",
+    "talents": [
+      {
+        "abilityId": 6696,
+        "slot": 0
+      },
+      {
+        "abilityId": 748,
+        "slot": 1
+      },
+      {
+        "abilityId": 7038,
+        "slot": 2
+      },
+      {
+        "abilityId": 6421,
+        "slot": 3
+      },
+      {
+        "abilityId": 747,
+        "slot": 4
+      },
+      {
+        "abilityId": 802,
+        "slot": 5
+      },
+      {
+        "abilityId": 822,
+        "slot": 6
+      },
+      {
+        "abilityId": 7025,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 119,
+    "displayName": "Dark Willow",
+    "talents": [
+      {
+        "abilityId": 515,
+        "slot": 0
+      },
+      {
+        "abilityId": 5965,
+        "slot": 1
+      },
+      {
+        "abilityId": 7655,
+        "slot": 2
+      },
+      {
+        "abilityId": 780,
+        "slot": 3
+      },
+      {
+        "abilityId": 6464,
+        "slot": 4
+      },
+      {
+        "abilityId": 7859,
+        "slot": 5
+      },
+      {
+        "abilityId": 6465,
+        "slot": 6
+      },
+      {
+        "abilityId": 1133,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 120,
+    "displayName": "Pangolier",
+    "talents": [
+      {
+        "abilityId": 1054,
+        "slot": 0
+      },
+      {
+        "abilityId": 9063,
+        "slot": 1
+      },
+      {
+        "abilityId": 9061,
+        "slot": 2
+      },
+      {
+        "abilityId": 1053,
+        "slot": 3
+      },
+      {
+        "abilityId": 9135,
+        "slot": 4
+      },
+      {
+        "abilityId": 1694,
+        "slot": 5
+      },
+      {
+        "abilityId": 9060,
+        "slot": 6
+      },
+      {
+        "abilityId": 9062,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 121,
+    "displayName": "Grimstroke",
+    "talents": [
+      {
+        "abilityId": 774,
+        "slot": 0
+      },
+      {
+        "abilityId": 705,
+        "slot": 1
+      },
+      {
+        "abilityId": 1019,
+        "slot": 2
+      },
+      {
+        "abilityId": 508,
+        "slot": 3
+      },
+      {
+        "abilityId": 8002,
+        "slot": 4
+      },
+      {
+        "abilityId": 8004,
+        "slot": 5
+      },
+      {
+        "abilityId": 8001,
+        "slot": 6
+      },
+      {
+        "abilityId": 8003,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 123,
+    "displayName": "Hoodwink",
+    "talents": [
+      {
+        "abilityId": 9511,
+        "slot": 0
+      },
+      {
+        "abilityId": 5902,
+        "slot": 1
+      },
+      {
+        "abilityId": 1568,
+        "slot": 2
+      },
+      {
+        "abilityId": 9513,
+        "slot": 3
+      },
+      {
+        "abilityId": 1569,
+        "slot": 4
+      },
+      {
+        "abilityId": 7383,
+        "slot": 5
+      },
+      {
+        "abilityId": 9509,
+        "slot": 6
+      },
+      {
+        "abilityId": 1134,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 126,
+    "displayName": "Void Spirit",
+    "talents": [
+      {
+        "abilityId": 7132,
+        "slot": 0
+      },
+      {
+        "abilityId": 7709,
+        "slot": 1
+      },
+      {
+        "abilityId": 7707,
+        "slot": 3
+      },
+      {
+        "abilityId": 1070,
+        "slot": 4
+      },
+      {
+        "abilityId": 7706,
+        "slot": 5
+      },
+      {
+        "abilityId": 7714,
+        "slot": 6
+      },
+      {
+        "abilityId": 7708,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 128,
+    "displayName": "Snapfire",
+    "talents": [
+      {
+        "abilityId": 384,
+        "slot": 0
+      },
+      {
+        "abilityId": 6479,
+        "slot": 1
+      },
+      {
+        "abilityId": 6487,
+        "slot": 2
+      },
+      {
+        "abilityId": 6489,
+        "slot": 3
+      },
+      {
+        "abilityId": 500,
+        "slot": 4
+      },
+      {
+        "abilityId": 382,
+        "slot": 6
+      },
+      {
+        "abilityId": 6485,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 129,
+    "displayName": "Mars",
+    "talents": [
+      {
+        "abilityId": 1020,
+        "slot": 0
+      },
+      {
+        "abilityId": 1567,
+        "slot": 1
+      },
+      {
+        "abilityId": 545,
+        "slot": 2
+      },
+      {
+        "abilityId": 6759,
+        "slot": 3
+      },
+      {
+        "abilityId": 1542,
+        "slot": 4
+      },
+      {
+        "abilityId": 6584,
+        "slot": 5
+      },
+      {
+        "abilityId": 6756,
+        "slot": 6
+      },
+      {
+        "abilityId": 1417,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 131,
+    "displayName": "Ringmaster",
+    "talents": [
+      {
+        "abilityId": 396,
+        "slot": 0
+      },
+      {
+        "abilityId": 1630,
+        "slot": 1
+      },
+      {
+        "abilityId": 1492,
+        "slot": 2
+      },
+      {
+        "abilityId": 707,
+        "slot": 3
+      },
+      {
+        "abilityId": 1493,
+        "slot": 4
+      },
+      {
+        "abilityId": 399,
+        "slot": 5
+      },
+      {
+        "abilityId": 400,
+        "slot": 6
+      },
+      {
+        "abilityId": 398,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 135,
+    "displayName": "Dawnbreaker",
+    "talents": [
+      {
+        "abilityId": 1570,
+        "slot": 0
+      },
+      {
+        "abilityId": 7942,
+        "slot": 1
+      },
+      {
+        "abilityId": 7937,
+        "slot": 2
+      },
+      {
+        "abilityId": 7938,
+        "slot": 3
+      },
+      {
+        "abilityId": 7930,
+        "slot": 4
+      },
+      {
+        "abilityId": 7940,
+        "slot": 5
+      },
+      {
+        "abilityId": 7931,
+        "slot": 6
+      },
+      {
+        "abilityId": 7934,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 136,
+    "displayName": "Marci",
+    "talents": [
+      {
+        "abilityId": 1572,
+        "slot": 0
+      },
+      {
+        "abilityId": 1573,
+        "slot": 1
+      },
+      {
+        "abilityId": 8246,
+        "slot": 2
+      },
+      {
+        "abilityId": 1138,
+        "slot": 3
+      },
+      {
+        "abilityId": 8238,
+        "slot": 4
+      },
+      {
+        "abilityId": 1042,
+        "slot": 5
+      },
+      {
+        "abilityId": 1430,
+        "slot": 6
+      },
+      {
+        "abilityId": 1139,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 137,
+    "displayName": "Primal Beast",
+    "talents": [
+      {
+        "abilityId": 5939,
+        "slot": 0
+      },
+      {
+        "abilityId": 1081,
+        "slot": 1
+      },
+      {
+        "abilityId": 1082,
+        "slot": 2
+      },
+      {
+        "abilityId": 7744,
+        "slot": 3
+      },
+      {
+        "abilityId": 7742,
+        "slot": 4
+      },
+      {
+        "abilityId": 7740,
+        "slot": 5
+      },
+      {
+        "abilityId": 1132,
+        "slot": 6
+      },
+      {
+        "abilityId": 7743,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 138,
+    "displayName": "Muerta",
+    "talents": [
+      {
+        "abilityId": 5757,
+        "slot": 0
+      },
+      {
+        "abilityId": 5906,
+        "slot": 1
+      },
+      {
+        "abilityId": 1438,
+        "slot": 2
+      },
+      {
+        "abilityId": 1439,
+        "slot": 3
+      },
+      {
+        "abilityId": 1629,
+        "slot": 4
+      },
+      {
+        "abilityId": 5758,
+        "slot": 5
+      },
+      {
+        "abilityId": 5759,
+        "slot": 6
+      },
+      {
+        "abilityId": 5755,
+        "slot": 7
+      }
+    ]
+  },
+  {
+    "id": 145,
+    "displayName": "Kez",
+    "talents": [
+      {
+        "abilityId": 6299,
+        "slot": 0
+      }
+    ]
+  },
+  {
+    "id": 155,
+    "displayName": "Largo",
+    "talents": []
+  }
+]

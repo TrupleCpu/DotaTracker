@@ -1,9 +1,7 @@
 <script lang="ts">
   import AppLogo from '../assets/logo/AppLogo.png'
 
-  export let handleSteamLogin: () => Promise<void>
-  export let errorMessage: string
-  export let isLoading: boolean = false // ✅ add this
+  let { handleSteamLogin, errorMessage, isLoading = false }: { handleSteamLogin: () => Promise<void>; errorMessage: string; isLoading?: boolean } = $props()
 </script>
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-bg gap-5 select-none">
@@ -21,7 +19,7 @@
   </div>
 
   <button
-    on:click={handleSteamLogin}
+    onclick={handleSteamLogin}
     disabled={isLoading}
     class="flex items-center gap-3 px-6 py-3 rounded-lg
            bg-transparent border border-bd

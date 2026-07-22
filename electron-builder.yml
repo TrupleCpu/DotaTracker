@@ -1,5 +1,5 @@
-appId: com.dotatrack.app
-productName: dotatrack
+appId: com.ancienteye.app
+productName: AncientEye
 directories:
   buildResources: build
 files:
@@ -19,7 +19,7 @@ extraResources:
       - '**/*'
 win:
   icon: build/icon.ico
-  executableName: dotatrack
+  executableName: ancienteye
 nsis:
   oneClick: false
   perMachine: true
@@ -27,6 +27,9 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
+  installerHeader: build/installer-header.bmp
+  installerSidebar: build/installer-sidebar.bmp
+  uninstallerIcon: build/icon.ico
   include: build/installer.nsh
 mac:
   entitlementsInherit: build/entitlements.mac.plist
@@ -43,7 +46,7 @@ linux:
     - AppImage
     - snap
     - deb
-  maintainer: dotatrack
+  maintainer: ancienteye
   category: Utility
 appImage:
   artifactName: ${name}-${version}.${ext}

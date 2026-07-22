@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { playerStore, heroMap } from '../stores/playerStore.svelte'
+  import { playerStore } from '../stores/playerStore.svelte'
   import { getHeroByName, getHeroImgUrl } from '../utils/heroMap'
   import { formatRole } from '../utils/matchHelper'
   import { uiStore } from '../stores/uiStore.svelte'
@@ -11,7 +11,11 @@
   }
   let { initialRole }: Props = $props()
 
-  let selectedRole = $state<string | null>(initialRole ?? null)
+  // eslint-disable-next-line svelte/prefer-writable-derived
+  let selectedRole = $state<string | null>(null)
+  $effect(() => {
+    selectedRole = initialRole ?? null
+  })
 
   let roleStats = $derived.by(() => {
     const groups: Record<string, { matches: Match[] }> = {}
@@ -59,7 +63,7 @@
 
 <div class="flex-1 overflow-y-auto overflow-x-hidden p-4 select-none">
   <div class="grid grid-cols-5 gap-3 mb-5">
-    {#each roleStats as role}
+    {#each roleStats as role (role.id)}
       {@const meta = roleMeta[role.id] ?? { color: 'text-pu2' }}
       <button
         class="bg-s1 border rounded-lg p-4 flex flex-col items-center gap-2.5 cursor-pointer transition-all hover:border-bd2 hover:bg-s2 {selectedRole ===
@@ -99,9 +103,12 @@
         >
       </div>
       <div class="flex flex-col p-2.5 gap-1.5">
-        {#each filteredMatches as m}
+        {#each filteredMatches as m (m.id)}
           <div
             class="flex items-center gap-2.5 bg-s2 border border-bd rounded-lg p-[7px_10px] cursor-pointer transition-all hover:border-bd2 hover:bg-s3"
+            role="button"
+            tabindex="0"
+            onkeydown={(e) => e.key === 'Enter' && uiStore.openMatchDetail(m)}
             onclick={() => uiStore.openMatchDetail(m)}
           >
             <div class="w-9 h-9 rounded bg-s3 shrink-0 overflow-hidden">
@@ -118,18 +125,16 @@
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
               <div
-                class="text-xs font-semibold text-tx2 font-mono tabular-nums leading-tight text-right w-[48px]"
+                class="text-xs font-semibold text-tx2 font-mono tabular-nums leading-tight text-right w-12"
               >
                 {m.k}/{m.d}/{m.a}
               </div>
-              <div
-                class="text-xs font-semibold text-tx2 font-mono tabular-nums text-right w-[32px]"
-              >
+              <div class="text-xs font-semibold text-tx2 font-mono tabular-nums text-right w-8">
                 {m.gpm}
               </div>
-              <div class="text-xs text-tx3 font-mono tabular-nums text-right w-[40px]">{m.dur}</div>
+              <div class="text-xs text-tx3 font-mono tabular-nums text-right w-10">{m.dur}</div>
             </div>
-            <div class="text-xxs text-tx3 w-[56px] text-right shrink-0">{m.timeAgo}</div>
+            <div class="text-xxs text-tx3 w-14 text-right shrink-0">{m.timeAgo}</div>
             <div class="text-tx3 text-sm shrink-0 hover:text-pu2">›</div>
           </div>
         {/each}

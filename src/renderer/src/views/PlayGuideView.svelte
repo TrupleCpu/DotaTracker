@@ -24,7 +24,9 @@
 
   let selectedHeroId = $state<number | null>(null)
   const selectedHero = $derived(heroes.find((h) => h.id === selectedHeroId))
-  let slots = $state<SlotData[]>([...Array(SLOT_COUNT)].map(() => ({ itemId: 0, targetMinute: 0, targetSecond: 0 })))
+  let slots = $state<SlotData[]>(
+    [...Array(SLOT_COUNT)].map(() => ({ itemId: 0, targetMinute: 0, targetSecond: 0 }))
+  )
   let isSaving = $state(false)
   let isLoading = $state(false)
 
@@ -62,7 +64,12 @@
     isSaving = true
     try {
       const filled = slots
-        .map((s, i) => ({ slotIndex: i, itemId: s.itemId, targetMinute: s.targetMinute, targetSecond: s.targetSecond }))
+        .map((s, i) => ({
+          slotIndex: i,
+          itemId: s.itemId,
+          targetMinute: s.targetMinute,
+          targetSecond: s.targetSecond
+        }))
         .filter((s) => s.itemId !== 0)
       await window.api.savePlayGuide(selectedHeroId, filled)
       uiStore.showToast('Guide saved')
@@ -125,7 +132,7 @@
   </div>
 
   <div class="flex flex-1 overflow-hidden">
-    <div class="w-[260px] shrink-0 border-r border-bd">
+    <div class="w-65 shrink-0 border-r border-bd">
       <ItemBrowser />
     </div>
 
@@ -136,13 +143,15 @@
         </div>
       {:else if selectedHero}
         <div class="flex gap-6">
-          <div class="flex flex-col items-center shrink-0 w-[140px] pt-2">
+          <div class="flex flex-col items-center shrink-0 w-35 pt-2">
             <img
               src="hero-model://{selectedHero.id}.png"
               alt={selectedHero.localized_name}
               class="w-full h-auto rounded-lg"
             />
-            <span class="text-sm font-bold text-tx mt-2 text-center">{selectedHero.localized_name}</span>
+            <span class="text-sm font-bold text-tx mt-2 text-center"
+              >{selectedHero.localized_name}</span
+            >
           </div>
           <div class="grid grid-cols-4 gap-4 flex-1">
             {#each slots as slot, i (i)}

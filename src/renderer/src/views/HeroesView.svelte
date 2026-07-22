@@ -10,10 +10,21 @@
 
   let searchQuery = $state('')
   let selectedRole = $state('All Roles')
-  let sortBy = $state('matches')
+  type HeroListEntry = {
+    id: number
+    icon: string
+    name: string
+    matches: number
+    winrate: number
+    kda: number
+    gpm: number
+    role: string
+  }
+
+  let sortBy = $state<keyof HeroListEntry>('matches')
   let sortDir = $state(-1)
 
-  function toggleSort(field: string) {
+  function toggleSort(field: keyof HeroListEntry): void {
     if (sortBy === field) sortDir = -sortDir
     else {
       sortBy = field
@@ -49,8 +60,8 @@
       return matchQuery && matchRole
     })
     list.sort((a, b) => {
-      const valA = a[sortBy as keyof typeof a]
-      const valB = b[sortBy as keyof typeof b]
+      const valA = a[sortBy]
+      const valB = b[sortBy]
       if (typeof valA === 'number' && typeof valB === 'number') return (valA - valB) * sortDir
       return String(valA).localeCompare(String(valB)) * sortDir
     })
@@ -124,7 +135,7 @@
             class="border-b border-bd last:border-b-0 group cursor-pointer"
             onclick={() => uiStore.openHeroDetail(h.id)}
           >
-            <td class="p-[10px_14px] text-sm group-hover:bg-white/[0.02]">
+            <td class="p-[10px_14px] text-sm group-hover:bg-white/2">
               <div class="flex items-center gap-2.5">
                 <div class="w-10 h-10 rounded bg-s2 border border-bd/40 overflow-hidden shrink-0">
                   {#if h.icon}
@@ -138,10 +149,10 @@
                 <strong>{h.name}</strong>
               </div>
             </td>
-            <td class="p-[10px_14px] text-sm group-hover:bg-white/[0.02]"
+            <td class="p-[10px_14px] text-sm group-hover:bg-white/2"
               ><strong>{h.matches}</strong></td
             >
-            <td class="p-[10px_14px] text-sm group-hover:bg-white/[0.02]">
+            <td class="p-[10px_14px] text-sm group-hover:bg-white/2">
               <WinrateBadge value={h.winrate} />
               <ProgressBar
                 value={h.winrate}
@@ -153,14 +164,14 @@
               />
             </td>
             <td
-              class="p-[10px_14px] text-sm group-hover:bg-white/[0.02] font-mono font-bold text-pu2 font-tabular"
+              class="p-[10px_14px] text-sm group-hover:bg-white/2 font-mono font-bold text-pu2 font-tabular"
               >{h.kda}</td
             >
             <td
-              class="p-[10px_14px] text-sm group-hover:bg-white/[0.02] font-mono font-bold text-gd font-tabular"
+              class="p-[10px_14px] text-sm group-hover:bg-white/2 font-mono font-bold text-gd font-tabular"
               >{h.gpm}</td
             >
-            <td class="p-[10px_14px] text-sm group-hover:bg-white/[0.02]"
+            <td class="p-[10px_14px] text-sm group-hover:bg-white/2"
               ><span class="badge">{h.role}</span></td
             >
           </tr>
@@ -180,7 +191,7 @@
         {#each unplayedHeroes as hero (hero.id)}
           <div class="w-10 h-10 rounded bg-s2 border border-bd/40 overflow-hidden">
             <img
-              src={getHeroImgUrl(hero.icon)}
+              src={getHeroImgUrl(hero.img)}
               alt={hero.localized_name}
               class="w-full h-full object-contain opacity-60 p-0.5"
             />

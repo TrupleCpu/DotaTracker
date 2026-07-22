@@ -1,13 +1,17 @@
 <script lang="ts">
-  import abilitiesData from '../../../../main/data/abilities.json'
-  import type { AbilityHeroData, AbilityHeroEntry } from '../../types/matchDetail'
+  import talentSlots from '../../../../main/data/heroTalents.json'
+  import type { AbilityHeroEntry } from '../../types/matchDetail'
+  import { SvelteSet } from 'svelte/reactivity'
 
   let { abilities, heroId }: { abilities: AbilityHeroEntry[]; heroId: number } = $props()
 
-  const heroData = $derived(abilitiesData.find((h: AbilityHeroData) => h.id === heroId))
-  const talentSlots = $derived(heroData?.talents ?? [])
-  const talentSlotMap = $derived(new Map(talentSlots.map((t: { abilityId: number; slot: number }) => [t.abilityId, t.slot])))
-
+  const heroTalents = $derived(
+    (talentSlots as { id: number; talents: { abilityId: number; slot: number }[] }[])
+      .find((h) => h.id === heroId)?.talents ?? []
+  )
+  const talentSlotMap = $derived(
+    new Map(heroTalents.map((t) => [t.abilityId, t.slot]))
+  )
 
   const DOT_PATHS = [
     'M3.258 23.38c.295-.22.624-.303.992-.238.362.057.651.235.868.536.217.3.298.634.243 1.002-.05.376-.225.67-.52.891a1.24 1.24 0 01-1.002.244 1.275 1.275 0 01-.868-.535 1.315 1.315 0 01-.242-1.002c.05-.377.225-.671.529-.898z',
@@ -31,18 +35,50 @@
   const DOT_SLOTS = [0, 1, 2, 3, 4, 5, 6]
 
   const BRANCHES = [
-    { slot: 0, d: 'M51,44.716c0,0-6.586,6.584-9.823,6.805c-3.235,0.224-7.032,0-7.032,0s-7.024,1.732-7.024,7.368V63 l-3.195-0.014c0,0,0-3.782,0-5.571c0-6.857,10.052-7.567,10.052-7.567S39.057,41.979,51,44.716z', chosenFill: 'url(#:r1:r_1)' },
-    { slot: 1, d: 'M0.013,44.716c0,0,6.586,6.584,9.823,6.805c3.236,0.224,7.033,0,7.033,0s7.024,1.732,7.024,7.368V63 l3.195-0.014c0,0,0-3.782,0-5.571c0-6.857-10.053-7.567-10.053-7.567S11.957,41.979,0.013,44.716z', chosenFill: 'url(#:r1:l_1)' },
-    { slot: 2, d: 'M51,30.326c0,0-5.745,9.07-9.517,9.495c-3.1,0.348-6.542,0.107-8.12,0.262 c-3.069,0.301-6.257,1.351-6.257,5.667V63h-3.182c0,0,0-17.488,0-18.454c0-0.964,0.006-5.235,7.093-6.584 c1.208-0.232,3.688-0.281,4.913-0.281C35.931,37.681,40.451,29.951,51,30.326z', chosenFill: 'url(#:r1:r_2)' },
-    { slot: 3, d: 'M0,30.326c0,0,5.744,9.07,9.516,9.495c3.1,0.348,6.542,0.107,8.122,0.262 c3.068,0.301,6.256,1.351,6.256,5.667V63h3.181c0,0,0-17.488,0-18.454c0-0.964,0.006-5.235,7.093-6.584 c-1.207-0.232-3.687-0.281-4.913-0.281C15.068,37.681,10.547,29.951,0,30.326z', chosenFill: 'url(#:r1:l_2)' },
-    { slot: 4, d: 'M46.969,16.042c0,0-0.669,3.435-2.898,6.315c-2.232,2.878-4.147,4.891-6.489,4.891 c-2.344,0-6.208-0.01-7.68,0.868c-1.837,1.095-2.803,3.213-2.803,5.373c0,0.976,0,29.511,0,29.511h-3.174V33.489 c0,0,0.086-3.859,3.103-6.426c1.651-1.405,2.911-2.141,5.295-2.141c0.907,0,2.041-0.019,2.041-0.019s1.785-4.153,5.187-6.203 C42.954,16.651,46.969,16.042,46.969,16.042z', chosenFill: 'url(#:r1:r_3)' },
-    { slot: 5, d: 'M4.031,16.042c0,0,0.669,3.435,2.899,6.315c2.232,2.878,4.147,4.891,6.489,4.891 c2.344,0,6.208-0.01,7.68,0.868c1.837,1.095,2.803,3.213,2.803,5.373c0,0.976,0,29.511,0,29.511h3.173V33.489 c0,0-0.085-3.859-3.102-6.426c-1.651-1.405-2.911-2.141-5.294-2.141c-0.908,0-2.041-0.019-2.041-0.019s-1.785-4.153-5.188-6.203 C8.046,16.651,4.031,16.042,4.031,16.042z', chosenFill: 'url(#:r1:l_3)' },
-    { slot: 6, d: 'M39.967,0c0,0,0.803,7.891-2.625,11.654c-3.426,3.761-5.551,2.683-7.765,3.097 c-1.969,0.369-2.479,1.772-2.479,3.984c0,2.212,0,44.209,0,44.209h-3.101c0,0-0.073-43.305-0.073-44.209 c0-0.905,0.02-4.906,3.793-6.115c1.592-0.509,2.335-0.376,2.917-2.293C31.218,8.408,33.04,1.99,39.967,0z', chosenFill: 'url(#:r1:r_4)' },
-    { slot: 7, d: 'M11.033,0c0,0-0.802,7.891,2.625,11.654c3.426,3.761,5.55,2.683,7.765,3.097 c1.969,0.369,2.479,1.772,2.479,3.984c0,2.212,0,44.209,0,44.209h3.101c0,0,0.072-43.305,0.072-44.209 c0-0.905-0.019-4.906-3.792-6.115c-1.592-0.509-2.334-0.376-2.918-2.293C19.782,8.408,17.96,1.99,11.033,0z', chosenFill: 'url(#copper.mainGradient)' }
+    {
+      slot: 0,
+      d: 'M51,44.716c0,0-6.586,6.584-9.823,6.805c-3.235,0.224-7.032,0-7.032,0s-7.024,1.732-7.024,7.368V63 l-3.195-0.014c0,0,0-3.782,0-5.571c0-6.857,10.052-7.567,10.052-7.567S39.057,41.979,51,44.716z',
+      chosenFill: 'url(#:r1:r_1)'
+    },
+    {
+      slot: 1,
+      d: 'M0.013,44.716c0,0,6.586,6.584,9.823,6.805c3.236,0.224,7.033,0,7.033,0s7.024,1.732,7.024,7.368V63 l3.195-0.014c0,0,0-3.782,0-5.571c0-6.857-10.053-7.567-10.053-7.567S11.957,41.979,0.013,44.716z',
+      chosenFill: 'url(#:r1:l_1)'
+    },
+    {
+      slot: 2,
+      d: 'M51,30.326c0,0-5.745,9.07-9.517,9.495c-3.1,0.348-6.542,0.107-8.12,0.262 c-3.069,0.301-6.257,1.351-6.257,5.667V63h-3.182c0,0,0-17.488,0-18.454c0-0.964,0.006-5.235,7.093-6.584 c1.208-0.232,3.688-0.281,4.913-0.281C35.931,37.681,40.451,29.951,51,30.326z',
+      chosenFill: 'url(#:r1:r_2)'
+    },
+    {
+      slot: 3,
+      d: 'M0,30.326c0,0,5.744,9.07,9.516,9.495c3.1,0.348,6.542,0.107,8.122,0.262 c3.068,0.301,6.256,1.351,6.256,5.667V63h3.181c0,0,0-17.488,0-18.454c0-0.964,0.006-5.235,7.093-6.584 c-1.207-0.232-3.687-0.281-4.913-0.281C15.068,37.681,10.547,29.951,0,30.326z',
+      chosenFill: 'url(#:r1:l_2)'
+    },
+    {
+      slot: 4,
+      d: 'M46.969,16.042c0,0-0.669,3.435-2.898,6.315c-2.232,2.878-4.147,4.891-6.489,4.891 c-2.344,0-6.208-0.01-7.68,0.868c-1.837,1.095-2.803,3.213-2.803,5.373c0,0.976,0,29.511,0,29.511h-3.174V33.489 c0,0,0.086-3.859,3.103-6.426c1.651-1.405,2.911-2.141,5.295-2.141c0.907,0,2.041-0.019,2.041-0.019s1.785-4.153,5.187-6.203 C42.954,16.651,46.969,16.042,46.969,16.042z',
+      chosenFill: 'url(#:r1:r_3)'
+    },
+    {
+      slot: 5,
+      d: 'M4.031,16.042c0,0,0.669,3.435,2.899,6.315c2.232,2.878,4.147,4.891,6.489,4.891 c2.344,0,6.208-0.01,7.68,0.868c1.837,1.095,2.803,3.213,2.803,5.373c0,0.976,0,29.511,0,29.511h3.173V33.489 c0,0-0.085-3.859-3.102-6.426c-1.651-1.405-2.911-2.141-5.294-2.141c-0.908,0-2.041-0.019-2.041-0.019s-1.785-4.153-5.188-6.203 C8.046,16.651,4.031,16.042,4.031,16.042z',
+      chosenFill: 'url(#:r1:l_3)'
+    },
+    {
+      slot: 6,
+      d: 'M39.967,0c0,0,0.803,7.891-2.625,11.654c-3.426,3.761-5.551,2.683-7.765,3.097 c-1.969,0.369-2.479,1.772-2.479,3.984c0,2.212,0,44.209,0,44.209h-3.101c0,0-0.073-43.305-0.073-44.209 c0-0.905,0.02-4.906,3.793-6.115c1.592-0.509,2.335-0.376,2.917-2.293C31.218,8.408,33.04,1.99,39.967,0z',
+      chosenFill: 'url(#:r1:r_4)'
+    },
+    {
+      slot: 7,
+      d: 'M11.033,0c0,0-0.802,7.891,2.625,11.654c3.426,3.761,5.55,2.683,7.765,3.097 c1.969,0.369,2.479,1.772,2.479,3.984c0,2.212,0,44.209,0,44.209h3.101c0,0,0.072-43.305,0.072-44.209 c0-0.905-0.019-4.906-3.792-6.115c-1.592-0.509-2.334-0.376-2.918-2.293C19.782,8.408,17.96,1.99,11.033,0z',
+      chosenFill: 'url(#copper.mainGradient)'
+    }
   ]
 
   const selectedSlots = $derived.by(() => {
-    const slots = new Set<number>()
+    const slots = new SvelteSet<number>()
     for (const a of abilities ?? []) {
       const isTalent = a.isTalent ?? a.abilityType?.isTalent ?? false
       if (!isTalent) continue
@@ -52,116 +88,178 @@
     return slots
   })
 
-  const talentDots = $derived(DOT_SLOTS.map(s => selectedSlots.has(s)))
+  const talentDots = $derived(DOT_SLOTS.map((s) => selectedSlots.has(s)))
 </script>
 
 <svg viewBox="0 0 32 32" height="40">
   <svg viewBox="0 0 51 63" height="23" y="4.45" style="width: 100%; height: 100%;">
-        <linearGradient id="copper.mainGradient" gradientUnits="userSpaceOnUse" x1="-43.2212" y1="40.4932" x2="-20.5475" y2="63.1668" gradientTransform="matrix(1 0 0 1 47.457 0)">
-          <stop offset="0.1257" style="stop-color: rgb(231, 189, 118);"></stop>
-          <stop offset="0.1298" style="stop-color: rgb(230, 187, 116);"></stop>
-          <stop offset="0.2466" style="stop-color: rgb(212, 142, 78);"></stop>
-          <stop offset="0.3335" style="stop-color: rgb(204, 117, 59);"></stop>
-          <stop offset="0.3803" style="stop-color: rgb(201, 108, 53);"></stop>
-          <stop offset="0.8908" style="stop-color: rgb(201, 109, 52);"></stop>
-          <stop offset="0.9078" style="stop-color: rgb(204, 116, 57);"></stop>
-          <stop offset="0.9366" style="stop-color: rgb(210, 134, 71);"></stop>
-          <stop offset="0.9734" style="stop-color: rgb(222, 167, 99);"></stop>
-          <stop offset="0.9891" style="stop-color: rgb(229, 185, 114);"></stop>
-        </linearGradient>
-        <linearGradient id=":r1:r_1" gradientUnits="userSpaceOnUse" x1="-19.9316" y1="40.4932" x2="2.7414" y2="63.1662" gradientTransform="matrix(-1 0 0 1 26.8457 0)">
-          <stop offset="0.1257" style="stop-color: rgb(231, 189, 118);"></stop>
-          <stop offset="0.1298" style="stop-color: rgb(230, 187, 116);"></stop>
-          <stop offset="0.2466" style="stop-color: rgb(212, 142, 78);"></stop>
-          <stop offset="0.3335" style="stop-color: rgb(204, 117, 59);"></stop>
-          <stop offset="0.3803" style="stop-color: rgb(201, 108, 53);"></stop>
-          <stop offset="0.8908" style="stop-color: rgb(201, 109, 52);"></stop>
-          <stop offset="0.9078" style="stop-color: rgb(204, 116, 57);"></stop>
-          <stop offset="0.9366" style="stop-color: rgb(210, 134, 71);"></stop>
-          <stop offset="0.9734" style="stop-color: rgb(222, 167, 99);"></stop>
-          <stop offset="0.9891" style="stop-color: rgb(229, 185, 114);"></stop>
-        </linearGradient>
-        <linearGradient id=":r1:r_2" gradientUnits="userSpaceOnUse" x1="-21.8032" y1="28.7007" x2="8.0713" y2="58.5753" gradientTransform="matrix(-1 0 0 1 27.5703 0)">
-          <stop offset="0.0938" style="stop-color: rgb(231, 189, 118);"></stop>
-          <stop offset="0.3301" style="stop-color: rgb(201, 108, 53);"></stop>
-          <stop offset="0.5241" style="stop-color: rgb(201, 110, 54);"></stop>
-          <stop offset="0.6135" style="stop-color: rgb(203, 115, 57);"></stop>
-          <stop offset="0.6814" style="stop-color: rgb(206, 124, 64);"></stop>
-          <stop offset="0.7385" style="stop-color: rgb(210, 136, 74);"></stop>
-          <stop offset="0.7888" style="stop-color: rgb(217, 154, 89);"></stop>
-          <stop offset="0.8337" style="stop-color: rgb(226, 178, 108);"></stop>
-          <stop offset="0.844" style="stop-color: rgb(229, 185, 114);"></stop>
-          <stop offset="1" style="stop-color: rgb(242, 214, 139);"></stop>
-        </linearGradient>
-        <linearGradient id=":r1:l_3" gradientUnits="userSpaceOnUse" x1="6.6157" y1="14.5508" x2="32.7095" y2="59.7465">
-          <stop offset="0.0938" style="stop-color: rgb(231, 189, 118);"></stop>
-          <stop offset="0.2261" style="stop-color: rgb(201, 108, 53);"></stop>
-          <stop offset="0.3757" style="stop-color: rgb(201, 110, 54);"></stop>
-          <stop offset="0.4915" style="stop-color: rgb(204, 117, 59);"></stop>
-          <stop offset="0.5961" style="stop-color: rgb(208, 129, 67);"></stop>
-          <stop offset="0.694" style="stop-color: rgb(213, 145, 81);"></stop>
-          <stop offset="0.7864" style="stop-color: rgb(222, 169, 101);"></stop>
-          <stop offset="0.8335" style="stop-color: rgb(229, 185, 114);"></stop>
-          <stop offset="1" style="stop-color: rgb(242, 214, 139);"></stop>
-        </linearGradient>
-        <linearGradient id=":r1:r_4" gradientUnits="userSpaceOnUse" x1="-7.8799" y1="3.667" x2="23.3677" y2="57.7894" gradientTransform="matrix(-1 0 0 1 38.4375 0)">
-          <stop offset="0.0938" style="stop-color: rgb(231, 189, 118);"></stop>
-          <stop offset="0.2261" style="stop-color: rgb(201, 108, 53);"></stop>
-          <stop offset="0.3141" style="stop-color: rgb(202, 113, 56);"></stop>
-          <stop offset="0.4401" style="stop-color: rgb(207, 126, 65);"></stop>
-          <stop offset="0.5891" style="stop-color: rgb(215, 148, 84);"></stop>
-          <stop offset="0.7544" style="stop-color: rgb(228, 183, 113);"></stop>
-          <stop offset="0.7585" style="stop-color: rgb(229, 185, 114);"></stop>
-          <stop offset="1" style="stop-color: rgb(242, 214, 139);"></stop>
-        </linearGradient>
-        <linearGradient id=":r1:l_1" gradientUnits="userSpaceOnUse" x1="-43.2212" y1="40.4932" x2="-20.5475" y2="63.1668" gradientTransform="matrix(1 0 0 1 47.457 0)">
-          <stop offset="0.1257" style="stop-color: rgb(231, 189, 118);"></stop>
-          <stop offset="0.1298" style="stop-color: rgb(230, 187, 116);"></stop>
-          <stop offset="0.2466" style="stop-color: rgb(212, 142, 78);"></stop>
-          <stop offset="0.3335" style="stop-color: rgb(204, 117, 59);"></stop>
-          <stop offset="0.3803" style="stop-color: rgb(201, 108, 53);"></stop>
-          <stop offset="0.8908" style="stop-color: rgb(201, 109, 52);"></stop>
-          <stop offset="0.9078" style="stop-color: rgb(204, 116, 57);"></stop>
-          <stop offset="0.9366" style="stop-color: rgb(210, 134, 71);"></stop>
-          <stop offset="0.9734" style="stop-color: rgb(222, 167, 99);"></stop>
-          <stop offset="0.9891" style="stop-color: rgb(229, 185, 114);"></stop>
-        </linearGradient>
-        <linearGradient id=":r1:l_2" gradientUnits="userSpaceOnUse" x1="1.6265" y1="28.7007" x2="31.5003" y2="58.5746">
-          <stop offset="0.0938" style="stop-color: rgb(231, 189, 118);"></stop>
-          <stop offset="0.2261" style="stop-color: rgb(201, 108, 53);"></stop>
-          <stop offset="0.3757" style="stop-color: rgb(201, 110, 54);"></stop>
-          <stop offset="0.4915" style="stop-color: rgb(204, 117, 59);"></stop>
-          <stop offset="0.5961" style="stop-color: rgb(208, 129, 67);"></stop>
-          <stop offset="0.694" style="stop-color: rgb(213, 145, 81);"></stop>
-          <stop offset="0.7864" style="stop-color: rgb(222, 169, 101);"></stop>
-          <stop offset="0.8335" style="stop-color: rgb(229, 185, 114);"></stop>
-          <stop offset="1" style="stop-color: rgb(242, 214, 139);"></stop>
-        </linearGradient>
-        <linearGradient id=":r1:r_3" gradientUnits="userSpaceOnUse" x1="-12.814" y1="14.5498" x2="13.2803" y2="59.7464" gradientTransform="matrix(-1 0 0 1 31.5703 0)">
-          <stop offset="0.0938" style="stop-color: rgb(231, 189, 118);"></stop>
-          <stop offset="0.2261" style="stop-color: rgb(201, 108, 53);"></stop>
-          <stop offset="0.3757" style="stop-color: rgb(201, 110, 54);"></stop>
-          <stop offset="0.4915" style="stop-color: rgb(204, 117, 59);"></stop>
-          <stop offset="0.5961" style="stop-color: rgb(208, 129, 67);"></stop>
-          <stop offset="0.694" style="stop-color: rgb(213, 145, 81);"></stop>
-          <stop offset="0.7864" style="stop-color: rgb(222, 169, 101);"></stop>
-          <stop offset="0.8335" style="stop-color: rgb(229, 185, 114);"></stop>
-          <stop offset="1" style="stop-color: rgb(242, 214, 139);"></stop>
-        </linearGradient>
+    <linearGradient
+      id="copper.mainGradient"
+      gradientUnits="userSpaceOnUse"
+      x1="-43.2212"
+      y1="40.4932"
+      x2="-20.5475"
+      y2="63.1668"
+      gradientTransform="matrix(1 0 0 1 47.457 0)"
+    >
+      <stop offset="0.1257" style="stop-color: rgb(231, 189, 118);"></stop>
+      <stop offset="0.1298" style="stop-color: rgb(230, 187, 116);"></stop>
+      <stop offset="0.2466" style="stop-color: rgb(212, 142, 78);"></stop>
+      <stop offset="0.3335" style="stop-color: rgb(204, 117, 59);"></stop>
+      <stop offset="0.3803" style="stop-color: rgb(201, 108, 53);"></stop>
+      <stop offset="0.8908" style="stop-color: rgb(201, 109, 52);"></stop>
+      <stop offset="0.9078" style="stop-color: rgb(204, 116, 57);"></stop>
+      <stop offset="0.9366" style="stop-color: rgb(210, 134, 71);"></stop>
+      <stop offset="0.9734" style="stop-color: rgb(222, 167, 99);"></stop>
+      <stop offset="0.9891" style="stop-color: rgb(229, 185, 114);"></stop>
+    </linearGradient>
+    <linearGradient
+      id=":r1:r_1"
+      gradientUnits="userSpaceOnUse"
+      x1="-19.9316"
+      y1="40.4932"
+      x2="2.7414"
+      y2="63.1662"
+      gradientTransform="matrix(-1 0 0 1 26.8457 0)"
+    >
+      <stop offset="0.1257" style="stop-color: rgb(231, 189, 118);"></stop>
+      <stop offset="0.1298" style="stop-color: rgb(230, 187, 116);"></stop>
+      <stop offset="0.2466" style="stop-color: rgb(212, 142, 78);"></stop>
+      <stop offset="0.3335" style="stop-color: rgb(204, 117, 59);"></stop>
+      <stop offset="0.3803" style="stop-color: rgb(201, 108, 53);"></stop>
+      <stop offset="0.8908" style="stop-color: rgb(201, 109, 52);"></stop>
+      <stop offset="0.9078" style="stop-color: rgb(204, 116, 57);"></stop>
+      <stop offset="0.9366" style="stop-color: rgb(210, 134, 71);"></stop>
+      <stop offset="0.9734" style="stop-color: rgb(222, 167, 99);"></stop>
+      <stop offset="0.9891" style="stop-color: rgb(229, 185, 114);"></stop>
+    </linearGradient>
+    <linearGradient
+      id=":r1:r_2"
+      gradientUnits="userSpaceOnUse"
+      x1="-21.8032"
+      y1="28.7007"
+      x2="8.0713"
+      y2="58.5753"
+      gradientTransform="matrix(-1 0 0 1 27.5703 0)"
+    >
+      <stop offset="0.0938" style="stop-color: rgb(231, 189, 118);"></stop>
+      <stop offset="0.3301" style="stop-color: rgb(201, 108, 53);"></stop>
+      <stop offset="0.5241" style="stop-color: rgb(201, 110, 54);"></stop>
+      <stop offset="0.6135" style="stop-color: rgb(203, 115, 57);"></stop>
+      <stop offset="0.6814" style="stop-color: rgb(206, 124, 64);"></stop>
+      <stop offset="0.7385" style="stop-color: rgb(210, 136, 74);"></stop>
+      <stop offset="0.7888" style="stop-color: rgb(217, 154, 89);"></stop>
+      <stop offset="0.8337" style="stop-color: rgb(226, 178, 108);"></stop>
+      <stop offset="0.844" style="stop-color: rgb(229, 185, 114);"></stop>
+      <stop offset="1" style="stop-color: rgb(242, 214, 139);"></stop>
+    </linearGradient>
+    <linearGradient
+      id=":r1:l_3"
+      gradientUnits="userSpaceOnUse"
+      x1="6.6157"
+      y1="14.5508"
+      x2="32.7095"
+      y2="59.7465"
+    >
+      <stop offset="0.0938" style="stop-color: rgb(231, 189, 118);"></stop>
+      <stop offset="0.2261" style="stop-color: rgb(201, 108, 53);"></stop>
+      <stop offset="0.3757" style="stop-color: rgb(201, 110, 54);"></stop>
+      <stop offset="0.4915" style="stop-color: rgb(204, 117, 59);"></stop>
+      <stop offset="0.5961" style="stop-color: rgb(208, 129, 67);"></stop>
+      <stop offset="0.694" style="stop-color: rgb(213, 145, 81);"></stop>
+      <stop offset="0.7864" style="stop-color: rgb(222, 169, 101);"></stop>
+      <stop offset="0.8335" style="stop-color: rgb(229, 185, 114);"></stop>
+      <stop offset="1" style="stop-color: rgb(242, 214, 139);"></stop>
+    </linearGradient>
+    <linearGradient
+      id=":r1:r_4"
+      gradientUnits="userSpaceOnUse"
+      x1="-7.8799"
+      y1="3.667"
+      x2="23.3677"
+      y2="57.7894"
+      gradientTransform="matrix(-1 0 0 1 38.4375 0)"
+    >
+      <stop offset="0.0938" style="stop-color: rgb(231, 189, 118);"></stop>
+      <stop offset="0.2261" style="stop-color: rgb(201, 108, 53);"></stop>
+      <stop offset="0.3141" style="stop-color: rgb(202, 113, 56);"></stop>
+      <stop offset="0.4401" style="stop-color: rgb(207, 126, 65);"></stop>
+      <stop offset="0.5891" style="stop-color: rgb(215, 148, 84);"></stop>
+      <stop offset="0.7544" style="stop-color: rgb(228, 183, 113);"></stop>
+      <stop offset="0.7585" style="stop-color: rgb(229, 185, 114);"></stop>
+      <stop offset="1" style="stop-color: rgb(242, 214, 139);"></stop>
+    </linearGradient>
+    <linearGradient
+      id=":r1:l_1"
+      gradientUnits="userSpaceOnUse"
+      x1="-43.2212"
+      y1="40.4932"
+      x2="-20.5475"
+      y2="63.1668"
+      gradientTransform="matrix(1 0 0 1 47.457 0)"
+    >
+      <stop offset="0.1257" style="stop-color: rgb(231, 189, 118);"></stop>
+      <stop offset="0.1298" style="stop-color: rgb(230, 187, 116);"></stop>
+      <stop offset="0.2466" style="stop-color: rgb(212, 142, 78);"></stop>
+      <stop offset="0.3335" style="stop-color: rgb(204, 117, 59);"></stop>
+      <stop offset="0.3803" style="stop-color: rgb(201, 108, 53);"></stop>
+      <stop offset="0.8908" style="stop-color: rgb(201, 109, 52);"></stop>
+      <stop offset="0.9078" style="stop-color: rgb(204, 116, 57);"></stop>
+      <stop offset="0.9366" style="stop-color: rgb(210, 134, 71);"></stop>
+      <stop offset="0.9734" style="stop-color: rgb(222, 167, 99);"></stop>
+      <stop offset="0.9891" style="stop-color: rgb(229, 185, 114);"></stop>
+    </linearGradient>
+    <linearGradient
+      id=":r1:l_2"
+      gradientUnits="userSpaceOnUse"
+      x1="1.6265"
+      y1="28.7007"
+      x2="31.5003"
+      y2="58.5746"
+    >
+      <stop offset="0.0938" style="stop-color: rgb(231, 189, 118);"></stop>
+      <stop offset="0.2261" style="stop-color: rgb(201, 108, 53);"></stop>
+      <stop offset="0.3757" style="stop-color: rgb(201, 110, 54);"></stop>
+      <stop offset="0.4915" style="stop-color: rgb(204, 117, 59);"></stop>
+      <stop offset="0.5961" style="stop-color: rgb(208, 129, 67);"></stop>
+      <stop offset="0.694" style="stop-color: rgb(213, 145, 81);"></stop>
+      <stop offset="0.7864" style="stop-color: rgb(222, 169, 101);"></stop>
+      <stop offset="0.8335" style="stop-color: rgb(229, 185, 114);"></stop>
+      <stop offset="1" style="stop-color: rgb(242, 214, 139);"></stop>
+    </linearGradient>
+    <linearGradient
+      id=":r1:r_3"
+      gradientUnits="userSpaceOnUse"
+      x1="-12.814"
+      y1="14.5498"
+      x2="13.2803"
+      y2="59.7464"
+      gradientTransform="matrix(-1 0 0 1 31.5703 0)"
+    >
+      <stop offset="0.0938" style="stop-color: rgb(231, 189, 118);"></stop>
+      <stop offset="0.2261" style="stop-color: rgb(201, 108, 53);"></stop>
+      <stop offset="0.3757" style="stop-color: rgb(201, 110, 54);"></stop>
+      <stop offset="0.4915" style="stop-color: rgb(204, 117, 59);"></stop>
+      <stop offset="0.5961" style="stop-color: rgb(208, 129, 67);"></stop>
+      <stop offset="0.694" style="stop-color: rgb(213, 145, 81);"></stop>
+      <stop offset="0.7864" style="stop-color: rgb(222, 169, 101);"></stop>
+      <stop offset="0.8335" style="stop-color: rgb(229, 185, 114);"></stop>
+      <stop offset="1" style="stop-color: rgb(242, 214, 139);"></stop>
+    </linearGradient>
 
-        {#each BRANCHES as b}
-          <path d={b.d} fill={selectedSlots.has(b.slot) ? b.chosenFill : 'hsl(0,0%,28%)'} />
-        {/each}
-      </svg>
+    {#each BRANCHES as b (b.slot)}
+      <path d={b.d} fill={selectedSlots.has(b.slot) ? b.chosenFill : 'hsl(0,0%,28%)'} />
+    {/each}
+  </svg>
 
-      {#each DOT_PATHS as d, i}
-        <path {d} fill={talentDots[i] ? 'url(#copper.mainGradient)' : DOT_UNCHOSEN_FILL[i]} />
-      {/each}
+  {#each DOT_PATHS as d, i (i)}
+    <path {d} fill={talentDots[i] ? 'url(#copper.mainGradient)' : DOT_UNCHOSEN_FILL[i]} />
+  {/each}
 
-      <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
-        d="M1.974 21.886a15.733 15.733 0 01-1.307-6.302C.667 6.983 7.537 0 16 0c8.463 0 15.333 6.983 15.333 15.584 0 2.226-.46 4.343-1.288 6.259a3.35 3.35 0 00-.942-.549 14.626 14.626 0 001.152-5.71c0-7.996-6.387-14.488-14.255-14.488-7.867 0-14.255 6.492-14.255 14.488 0 2.042.417 3.986 1.169 5.75a3.36 3.36 0 00-.94.552z"
-        fill="hsla(0,0%,100%,0.12)"
-      />
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M1.974 21.886a15.733 15.733 0 01-1.307-6.302C.667 6.983 7.537 0 16 0c8.463 0 15.333 6.983 15.333 15.584 0 2.226-.46 4.343-1.288 6.259a3.35 3.35 0 00-.942-.549 14.626 14.626 0 001.152-5.71c0-7.996-6.387-14.488-14.255-14.488-7.867 0-14.255 6.492-14.255 14.488 0 2.042.417 3.986 1.169 5.75a3.36 3.36 0 00-.94.552z"
+    fill="hsla(0,0%,100%,0.12)"
+  />
 </svg>

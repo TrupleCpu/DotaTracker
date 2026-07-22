@@ -2,7 +2,7 @@
   import ToolTip from '../ui/ToolTip.svelte'
   import { rankToString } from '../../utils/rankMap'
 
-  const rankImages = import.meta.glob<{ default: string }>('../../assets/ranks/*.png', {
+  const rankImages = import.meta.glob<string>('../../assets/ranks/*.png', {
     eager: true,
     import: 'default'
   })
@@ -24,7 +24,7 @@
       rank === 70
         ? rank + 1
         : rank
-    return rankImages[`../../assets/ranks/${r}.png`] as string
+    return rankImages[`../../assets/ranks/${r}.png`]
   })
 </script>
 

@@ -1,10 +1,10 @@
 <script lang="ts">
   import AppLogo from '../assets/logo/AppLogo.png'
 
-  export let onSaved: () => void
-  let token = ''
-  let errorMessage = ''
-  let isSaving = false
+  let { onSaved }: { onSaved: () => void } = $props()
+  let token = $state('')
+  let errorMessage = $state('')
+  let isSaving = $state(false)
 
   async function handleSave() {
     if (!token.trim()) {
@@ -47,11 +47,11 @@
       class="w-full px-4 py-2.5 rounded-lg bg-s1 border border-bd text-tx text-sm 
              focus:outline-none focus:border-pu focus:ring-1 focus:ring-pu transition-all
              placeholder:text-tx3"
-      on:keydown={(e) => e.key === 'Enter' && handleSave()}
+      onkeydown={(e) => e.key === 'Enter' && handleSave()}
     />
     
     <button
-      on:click={handleSave}
+      onclick={handleSave}
       disabled={isSaving}
       class="w-full flex items-center justify-center gap-3 px-6 py-2.5 rounded-lg
              bg-pub border border-pu/30

@@ -2,7 +2,7 @@ import heroesData from '../../../main/data/heroes.json'
 import { formatDuration, formatGameMode, formatTimeAgo } from '../utils/matchHelper'
 import { POSITION_LABELS } from '../utils/roleMap'
 import type { PlayerStats, Match, Teammate, HeroStat } from '../types'
-import type { HeroGroupByEntry, RawRecentMatch, PeerEntry } from '../types/api'
+import type { HeroGroupByEntry, RawRecentMatch, PeerEntry, HeroPerformanceEntry, PlayerDashboardResponse } from '../types/api'
 
 interface HeroData {
   id: number
@@ -23,7 +23,7 @@ class PlayerStore {
   allHeroStats = $state<HeroStat[]>([])
   topHeroes = $derived(this.allHeroStats.slice(0, 5))
   heroRoleMap = $state<Map<number, string>>(new Map())
-  heroPerformanceStats = $state<any[]>([])
+  heroPerformanceStats = $state<HeroPerformanceEntry[]>([])
   hasLoaded = $state(false)
   steamId = $state<number | null>(null)
 
@@ -72,13 +72,13 @@ class PlayerStore {
 
     try {
       const res = await window.api.getLocalSteamId()
-      this.steamId = res?.steamId ?? null
+      this.steamId = res?.steamId ? Number(res.steamId) : null
       if (!this.steamId) {
         this.error = 'Could not resolve Steam ID.'
         return
       }
 
-      const raw = await window.api.fetchPlayerData(res.steamId, forceRefersh)
+      const raw = await window.api.fetchPlayerData(res.steamId, forceRefersh) as PlayerDashboardResponse & { err?: string }
       if (raw?.err) {
         this.error = raw.err
         return
@@ -86,7 +86,8 @@ class PlayerStore {
 
       const heroStats = raw.player.heroesGroupBy ?? []
 
-      const simpleAvg = (key: string) => {
+      type AvgKey = 'avgKills' | 'avgDeaths' | 'avgAssists' | 'avgGoldPerMinute' | 'avgExperiencePerMinute'
+      const simpleAvg = (key: AvgKey) => {
         const val =
           heroStats.length > 0
             ? heroStats.reduce((sum: number, h: HeroGroupByEntry) => sum + h[key], 0) / heroStats.length
@@ -117,6 +118,7 @@ class PlayerStore {
         return {
           id: m.id,
           heroId: player?.heroId,
+          hero: hero?.localized_name ?? `Hero #${player?.heroId}`,
           heroName: hero?.localized_name ?? `Hero #${player?.heroId}`,
           heroImg: hero ? `hero-asset://${hero.img.replace(/^hero-assets\//, '')}` : null,
           outcome: player?.isVictory ? 'win' : 'loss',

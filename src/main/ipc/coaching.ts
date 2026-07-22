@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron'
 import { loadLlmConfig, saveLlmConfig, clearLlmConfig, type LlmConfig } from '../services/configService'
-import { generateMatchCoaching, generateSessionReview, SingleMatchContext, SessionMatchSummary } from '../services/llmService'
+import { generateMatchCoaching, generateSessionReview } from '../services/llmService'
+import type { SingleMatchContext, SessionMatchSummary } from '../services/llmService'
 
 export function registerCoachingHandlers(): void {
   ipcMain.handle('get-llm-config', () => {

@@ -12,21 +12,30 @@
   import ImpactBar from '../lib/dota/ImpactBar.svelte'
   import RankBadge from '../lib/dota/RankBadge.svelte'
   import { getCachedSessionReview, setCachedSessionReview } from '../lib/cache/llmCache'
-  import type { SessionReview } from '../../../main/services/llmService'
+  import type { SessionReview } from '../types/llm'
   import type { DetailedMatchResponse } from '../types/matchDetail'
+  import Skeleton from '../lib/ui/Skeleton.svelte'
 
   const rankImages = import.meta.glob('../assets/ranks/*.png', { eager: true, import: 'default' })
 
-  let rolesViewInitialRole = $state<string | null>(null)
-
-  function openRolesView(role: string) {
-    rolesViewInitialRole = role
+  function openRolesView(_role: string): void {
     uiStore.gotoView('roles')
   }
 
   function impTooltip(value: number): string {
     const imp = value ?? 0
-    const label = imp >= 50 ? 'High performance' : imp >= 20 ? 'Good performance' : imp >= 0 ? 'Average performance' : imp <= -50 ? 'Poor performance' : imp <= -20 ? 'Low performance' : 'Below average'
+    const label =
+      imp >= 50
+        ? 'High performance'
+        : imp >= 20
+          ? 'Good performance'
+          : imp >= 0
+            ? 'Average performance'
+            : imp <= -50
+              ? 'Poor performance'
+              : imp <= -20
+                ? 'Low performance'
+                : 'Below average'
     return label + ' (Impact: ' + (imp >= 0 ? '+' : '') + imp + ')'
   }
 
@@ -58,15 +67,15 @@
       return
     }
     const matches = playerStore.detailedMatches.slice(0, 20).map((m) => ({
-      heroName: m.heroName || `Hero #${m.heroId}`,
-      position: m.lane || '',
-      kills: m.k,
-      deaths: m.d,
-      assists: m.a,
-      gpm: m.gpm,
-      outcome: m.outcome
+      h: m.heroName || `Hero #${m.heroId}`,
+      p: m.lane || '',
+      k: m.k,
+      d: m.d,
+      a: m.a,
+      g: m.gpm,
+      o: m.outcome
     }))
-    const cached = getCachedSessionReview(matches)
+    const cached = getCachedSessionReview(matches) as SessionReview | null
     if (cached) {
       sessionReview = cached
       return
@@ -74,20 +83,24 @@
     sessionReview = null
     sessionReviewLoading = true
     sessionReviewError = null
-    window.api.generateSessionReview(matches).then((result: SessionReview) => {
-      if (result?.err) {
-        sessionReviewError = result.err
-        sessionReview = null
-      } else {
-        sessionReview = result
-        setCachedSessionReview(matches, result)
-        sessionReviewError = null
-      }
-    }).catch((e: Error) => {
-      sessionReviewError = e?.message ?? 'Failed to generate session review'
-    }).finally(() => {
-      sessionReviewLoading = false
-    })
+    window.api
+      .generateSessionReview(matches)
+      .then((result: SessionReview & { err?: string }) => {
+        if (result?.err) {
+          sessionReviewError = result.err
+          sessionReview = null
+        } else {
+          sessionReview = result
+          setCachedSessionReview(matches, result)
+          sessionReviewError = null
+        }
+      })
+      .catch((e: Error) => {
+        sessionReviewError = e?.message ?? 'Failed to generate session review'
+      })
+      .finally(() => {
+        sessionReviewLoading = false
+      })
   })
 
   onMount(() => {
@@ -97,16 +110,19 @@
   $effect(() => {
     const matches = playerStore.detailedMatches
     if (matches.length === 0) return
-    let warmed = new Set<number>()
+    let warmed = new Set<number>() // eslint-disable-line svelte/prefer-svelte-reactivity
     for (const m of matches) {
       if (!m.id || warmed.has(m.id)) continue
       warmed.add(m.id)
       const attempt = (): void => {
-        window.api.fetchMatchDetails(m.id).then((data: DetailedMatchResponse) => {
-          if (data && typeof data === 'object' && !('err' in data) && data?.match === null) {
-            setTimeout(attempt, 10000)
-          }
-        }).catch(() => {})
+        window.api
+          .fetchMatchDetails(m.id)
+          .then((data: DetailedMatchResponse) => {
+            if (data && typeof data === 'object' && !('err' in data) && data?.match === null) {
+              setTimeout(attempt, 10000)
+            }
+          })
+          .catch(() => {})
       }
       attempt()
     }
@@ -150,8 +166,8 @@
           </div>
           <div class="text-sm text-tx2">First Match: Apr 19, 2019</div>
         </div>
-        <div class="flex gap-[3px] h-[8px] w-full">
-          {#each Array(24) as _}<div class="flex-1 bg-gd rounded-[1px]"></div>{/each}
+        <div class="flex gap-0.75 h-2 w-full">
+          {#each Array(24) as _, index (index)}<div class="flex-1 bg-gd rounded-[1px]"></div>{/each}
         </div>
       </div>
       <div class="card p-4 flex flex-col justify-center gap-3 rounded-md">
@@ -177,7 +193,7 @@
             >
           </div>
         </div>
-        <div class="flex h-[8px] w-full bg-black/40 rounded-sm overflow-hidden gap-[2px]">
+        <div class="flex h-2 w-full bg-black/40 rounded-sm overflow-hidden gap-0.5">
           <div
             class="bg-gr h-full"
             style="width: {playerStore.playerStats
@@ -210,7 +226,7 @@
             >{playerStore.playerStats?.assistsAverage}
           </div>
         </div>
-        <div class="flex h-[6px] w-full bg-black/40 rounded-sm overflow-hidden gap-[1px]">
+        <div class="flex h-1.5 w-full bg-black/40 rounded-sm overflow-hidden gap-px">
           {#if playerStore.playerStats}
             {@const total =
               playerStore.playerStats.killsAverage +
@@ -239,7 +255,7 @@
             <span class="text-bl">{playerStore.playerStats?.xpmAverage}</span> XPM
           </div>
         </div>
-        <div class="flex h-[6px] w-full bg-black/40 rounded-sm overflow-hidden gap-[1px]">
+        <div class="flex h-1.5 w-full bg-black/40 rounded-sm overflow-hidden gap-px">
           {#if playerStore.playerStats}
             {@const total = playerStore.playerStats.gpmAverage + playerStore.playerStats.xpmAverage}
             <div
@@ -251,13 +267,13 @@
         </div>
       </div>
       <div
-        class="card flex items-center justify-center overflow-hidden p-1.5 h-full min-h-[70px] rounded-md"
+        class="card flex items-center justify-center overflow-hidden p-1.5 h-full min-h-17.5 rounded-md"
       >
         {#if playerStore.playerStats?.rank}
           <img
             src={getRankImage(playerStore.playerStats.rank)}
             alt="Rank badge"
-            class="h-[65px] object-contain drop-shadow-xl"
+            class="h-16.25 object-contain drop-shadow-xl"
           />
         {:else}
           <div class="text-tx3 text-xs">Unranked</div>
@@ -267,51 +283,49 @@
   </div>
 
   <div class="flex flex-col gap-1 mb-4">
-    {#each [{ left: roleData[0], right: roleData[1] }, { left: roleData[2], right: roleData[3] }] as row}
+    {#each [{ left: roleData[0], right: roleData[1] }, { left: roleData[2], right: roleData[3] }] as row, index (index)}
       <div class="flex items-center">
         <button
           class="flex-1 flex items-center gap-2 min-w-0 cursor-pointer transition-opacity hover:opacity-70"
           onclick={() => openRolesView(row.left.id)}
         >
           <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background: {row.left.hex}"></span>
-          <span class="text-xs font-bold text-tx3 w-[48px] shrink-0">{row.left.label}</span>
-          <div class="flex-1 h-[8px] bg-s3 rounded-sm overflow-hidden min-w-[60px]">
+          <span class="text-xs font-bold text-tx3 w-12 shrink-0">{row.left.label}</span>
+          <div class="flex-1 h-2 bg-s3 rounded-sm overflow-hidden min-w-15">
             <div
               class="h-full rounded-sm"
               style="width: {row.left.wr}%; background: {row.left.hex}"
             ></div>
           </div>
           <span
-            class="text-xs font-extrabold tabular-nums w-[32px] text-right shrink-0 {row.left.wr >=
-            50
+            class="text-xs font-extrabold tabular-nums w-8 text-right shrink-0 {row.left.wr >= 50
               ? 'text-gr'
               : 'text-rd'}">{row.left.wr}%</span
           >
-          <span class="text-xxs text-tx3 tabular-nums w-[28px] text-right shrink-0"
+          <span class="text-xxs text-tx3 tabular-nums w-7 text-right shrink-0"
             >{row.left.games}</span
           >
         </button>
-        <div class="w-px h-[18px] bg-bd mx-2 shrink-0"></div>
+        <div class="w-px h-4.5 bg-bd mx-2 shrink-0"></div>
         <button
           class="flex-1 flex items-center gap-2 min-w-0 cursor-pointer transition-opacity hover:opacity-70"
           onclick={() => openRolesView(row.right.id)}
         >
           <span class="w-1.5 h-1.5 rounded-full shrink-0" style="background: {row.right.hex}"
           ></span>
-          <span class="text-xs font-bold text-tx3 w-[48px] shrink-0">{row.right.label}</span>
-          <div class="flex-1 h-[8px] bg-s3 rounded-sm overflow-hidden min-w-[60px]">
+          <span class="text-xs font-bold text-tx3 w-12 shrink-0">{row.right.label}</span>
+          <div class="flex-1 h-2 bg-s3 rounded-sm overflow-hidden min-w-15">
             <div
               class="h-full rounded-sm"
               style="width: {row.right.wr}%; background: {row.right.hex}"
             ></div>
           </div>
           <span
-            class="text-xs font-extrabold tabular-nums w-[32px] text-right shrink-0 {row.right.wr >=
-            50
+            class="text-xs font-extrabold tabular-nums w-8 text-right shrink-0 {row.right.wr >= 50
               ? 'text-gr'
               : 'text-rd'}">{row.right.wr}%</span
           >
-          <span class="text-xxs text-tx3 tabular-nums w-[28px] text-right shrink-0"
+          <span class="text-xxs text-tx3 tabular-nums w-7 text-right shrink-0"
             >{row.right.games}</span
           >
         </button>
@@ -328,13 +342,27 @@
           >
           <span
             class="text-xs font-bold text-pu2 hover:text-pu cursor-pointer transition-colors"
+            role="link"
+            tabindex="0"
+            onkeydown={(e) => e.key === 'Enter' && uiStore.gotoView('matches')}
             onclick={() => uiStore.gotoView('matches')}>View all →</span
           >
         </div>
         <div class="flex flex-col min-w-0">
           {#if playerStore.isLoading}
-            <div class="flex items-center justify-center py-10">
-              <span class="text-sm text-tx3 animate-pulse">Loading matches…</span>
+            <div class="flex flex-col gap-3 px-3 py-4">
+              {#each { length: 5 } as _, idx (idx)}
+                <div class="flex items-center gap-4">
+                  <Skeleton width="55px" height="31px" />
+                  <Skeleton width="16px" height="16px" />
+                  <div class="flex-1"><Skeleton width="60%" height="14px" /></div>
+                  <Skeleton width="60px" height="14px" />
+                  <Skeleton width="40px" height="14px" />
+                  <Skeleton width="60px" height="14px" />
+                  <Skeleton width="28px" height="28px" />
+                  <Skeleton width="80px" height="28px" />
+                </div>
+              {/each}
             </div>
           {:else if playerStore.error}
             <div class="flex items-center justify-center py-10">
@@ -347,7 +375,10 @@
           {:else}
             {#each playerStore.detailedMatches as m (m.id)}
               <div
-                class="flex items-center gap-4 py-2 px-3 border-b border-bd last:border-b-0 cursor-pointer hover:bg-white/[0.03] transition-colors"
+                class="flex items-center gap-4 py-2 px-3 border-b border-bd last:border-b-0 cursor-pointer hover:bg-white/3 transition-colors"
+                role="button"
+                tabindex="0"
+                onkeydown={(e) => e.key === 'Enter' && uiStore.openMatchDetail(m)}
                 onclick={() => uiStore.openMatchDetail(m)}
               >
                 <HeroIcon
@@ -368,7 +399,7 @@
                     />
                     {#if m.previousOutcome}
                       <div
-                        class="w-[18px] h-[18px] rounded-full flex items-center justify-center text-xs font-extrabold {m.previousOutcome ===
+                        class="w-4.5 h-4.5 rounded-full flex items-center justify-center text-xs font-extrabold {m.previousOutcome ===
                         'win'
                           ? 'bg-grb text-gr'
                           : 'bg-rdb text-rd'}"
@@ -385,7 +416,7 @@
                   {m.k} / {m.d} / {m.a}
                 </div>
                 <div
-                  class="text-sm font-bold font-mono font-tabular w-[40px] text-right shrink-0 {m.impactValue !==
+                  class="text-sm font-bold font-mono font-tabular w-10 text-right shrink-0 {m.impactValue !==
                     undefined && m.impactValue >= 0
                     ? 'text-gr'
                     : 'text-rd'}"
@@ -395,11 +426,11 @@
                 {#if m.impactValue !== undefined}
                   <ImpactBar value={m.impactValue} />
                 {/if}
-                <div class="w-[20px] h-[20px] shrink-0 flex items-center justify-center">
+                <div class="w-5 h-5 shrink-0 flex items-center justify-center">
                   <AwardBadge award={m.award} />
                 </div>
                 <RankBadge rank={m.rank} size="w-7 h-7" />
-                <div class="text-tx3 text-right flex flex-col w-[80px] shrink-0 ml-auto">
+                <div class="text-tx3 text-right flex flex-col w-20 shrink-0 ml-auto">
                   <div class="text-sm font-medium font-mono font-tabular leading-tight">
                     {m.dur}
                   </div>
@@ -428,15 +459,15 @@
         </div>
 
         {#if !llmConfigured}
-          <div class="text-sm text-tx2 leading-relaxed text-center py-4 text-zinc-500">
+          <div class="text-sm leading-relaxed text-center py-4 text-zinc-500">
             Connect an AI provider in Settings to unlock session reviews.
           </div>
         {:else if sessionReviewLoading}
-          <div class="animate-pulse space-y-2">
-            <div class="h-4 bg-zinc-800 rounded w-3/4"></div>
-            <div class="h-3 bg-zinc-800 rounded w-full"></div>
-            <div class="h-3 bg-zinc-800 rounded w-2/3"></div>
-            <div class="h-3 bg-zinc-800 rounded w-1/2"></div>
+          <div class="space-y-2">
+            <Skeleton width="75%" height="16px" />
+            <Skeleton width="100%" height="12px" />
+            <Skeleton width="66%" height="12px" />
+            <Skeleton width="50%" height="12px" />
           </div>
         {:else if sessionReviewError}
           <div class="text-sm text-rose-400 leading-relaxed">{sessionReviewError}</div>
@@ -447,7 +478,7 @@
           {#if sessionReview.patterns?.length > 0}
             <div class="text-xs font-bold text-tx3 uppercase tracking-[0.5px] mb-1.5">Patterns</div>
             <ul class="text-sm text-tx2 space-y-1 mb-3">
-              {#each sessionReview.patterns as pattern}
+              {#each sessionReview.patterns as pattern, index (index)}
                 <li class="flex items-start gap-2">
                   <span class="text-gd mt-0.5">•</span>
                   <span>{pattern}</span>
@@ -456,9 +487,11 @@
             </ul>
           {/if}
           {#if sessionReview.recommendations?.length > 0}
-            <div class="text-xs font-bold text-tx3 uppercase tracking-[0.5px] mb-1.5">Recommendations</div>
+            <div class="text-xs font-bold text-tx3 uppercase tracking-[0.5px] mb-1.5">
+              Recommendations
+            </div>
             <ul class="text-sm text-tx2 space-y-1">
-              {#each sessionReview.recommendations as rec}
+              {#each sessionReview.recommendations as rec, index (index)}
                 <li class="flex items-start gap-2">
                   <span class="text-pu mt-0.5">→</span>
                   <span>{rec}</span>
@@ -474,7 +507,10 @@
       {#if playerStore.detailedMatches.length > 0}
         {@const m = playerStore.detailedMatches[0]}
         <div
-          class="card p-3 cursor-pointer hover:bg-white/[0.03] transition-colors select-none"
+          class="card p-3 cursor-pointer hover:bg-white/3 transition-colors select-none"
+          role="button"
+          tabindex="0"
+          onkeydown={(e) => e.key === 'Enter' && uiStore.openMatchDetail(m)}
           onclick={() => uiStore.openMatchDetail(m)}
         >
           <div class="flex items-center justify-between mb-3">
@@ -547,8 +583,26 @@
           </div>
         </div>
       {:else if playerStore.isLoading}
-        <div class="card p-3 flex items-center justify-center py-10">
-          <span class="text-sm text-tx3 animate-pulse">Loading match…</span>
+        <div class="card p-3 space-y-4">
+          <Skeleton width="60%" height="12px" />
+          <Skeleton width="100%" height="256px" />
+          <div class="flex justify-between">
+            <Skeleton width="40%" height="14px" />
+            <Skeleton width="24px" height="24px" />
+          </div>
+          <div class="flex justify-between">
+            <Skeleton width="30%" height="14px" />
+            <Skeleton width="80px" height="14px" />
+          </div>
+          <div class="flex justify-between">
+            <Skeleton width="20%" height="12px" />
+            <Skeleton width="24px" height="12px" />
+            <Skeleton width="24px" height="12px" />
+          </div>
+          <div class="flex justify-between">
+            <Skeleton width="40px" height="20px" />
+            <Skeleton width="80px" height="20px" />
+          </div>
         </div>
       {:else}
         <div class="card p-3 flex items-center justify-center py-10">
@@ -561,45 +615,67 @@
           <span class="text-xs font-bold uppercase tracking-wider text-tx3">Recent Teammates</span>
           <span
             class="text-xs text-pu2 font-semibold cursor-pointer hover:text-pu transition-colors"
+            role="link"
+            tabindex="0"
+            onkeydown={(e) => e.key === 'Enter' && uiStore.gotoView('teammates')}
             onclick={() => uiStore.gotoView('teammates')}>View all →</span
           >
         </div>
         <div class="flex flex-col gap-2">
-          {#each playerStore.recentTeammates as t (t.name)}
-            <div
-              class="flex items-center gap-3 p-2 bg-s2/40 hover:bg-s2/80 rounded-md border-l-2 border-l-bd/40 transition-all cursor-pointer min-w-0"
-              onclick={() => uiStore.gotoView('teammates')}
-            >
-              <div
-                class="w-11 h-11 rounded-md bg-s4 border border-bd flex items-center justify-center text-xl shrink-0 overflow-hidden"
-              >
-                {#if t.avatar}
-                  <img src={t.avatar} alt={t.name} class="w-full h-full object-cover" />
-                {:else}
-                  <span class="text-tx3 text-xs font-bold">{t.name.slice(0, 2).toUpperCase()}</span>
-                {/if}
+          {#if playerStore.isLoading}
+            {#each { length: 4 } as _, idx (idx)}
+              <div class="flex items-center gap-3 p-2">
+                <Skeleton width="44px" height="44px" />
+                <div class="flex-1 flex flex-col gap-1">
+                  <Skeleton width="50%" height="12px" />
+                  <Skeleton width="35%" height="10px" />
+                </div>
+                <Skeleton width="50px" height="20px" />
               </div>
-              <div class="flex-1 min-w-0 flex flex-col gap-0.5">
-                <div class="text-xs font-bold text-tx truncate">{t.name}</div>
-                <div class="text-xs text-tx3 font-semibold uppercase tracking-wide truncate">
-                  {t.matches} matches together
+            {/each}
+          {:else if playerStore.recentTeammates.length === 0}
+            <div class="text-xs text-tx3 text-center py-2">No teammate data yet.</div>
+          {:else}
+            {#each playerStore.recentTeammates as t (t.name)}
+              <div
+                class="flex items-center gap-3 p-2 bg-s2/40 hover:bg-s2/80 rounded-md border-l-2 border-l-bd/40 transition-all cursor-pointer min-w-0"
+                role="button"
+                tabindex="0"
+                onkeydown={(e) => e.key === 'Enter' && uiStore.gotoView('teammates')}
+                onclick={() => uiStore.gotoView('teammates')}
+              >
+                <div
+                  class="w-11 h-11 rounded-md bg-s4 border border-bd flex items-center justify-center text-xl shrink-0 overflow-hidden"
+                >
+                  {#if t.avatar}
+                    <img src={t.avatar} alt={t.name} class="w-full h-full object-cover" />
+                  {:else}
+                    <span class="text-tx3 text-xs font-bold"
+                      >{t.name.slice(0, 2).toUpperCase()}</span
+                    >
+                  {/if}
+                </div>
+                <div class="flex-1 min-w-0 flex flex-col gap-0.5">
+                  <div class="text-xs font-bold text-tx truncate">{t.name}</div>
+                  <div class="text-xs text-tx3 font-semibold uppercase tracking-wide truncate">
+                    {t.matches} matches together
+                  </div>
+                </div>
+                <span
+                  class="text-xs font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0 {t.winrate >=
+                  60
+                    ? 'bg-grb text-gr'
+                    : t.winrate >= 50
+                      ? 'bg-gdb text-gd'
+                      : 'bg-rdb text-rd'}">{t.winrate}%</span
+                >
+                <div
+                  class="text-tx3 text-sm font-semibold pl-1 transition-colors hover:text-pu2 shrink-0"
+                >
+                  ›
                 </div>
               </div>
-              <span
-                class="text-xs font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0 {t.winrate >=
-                60
-                  ? 'bg-grb text-gr'
-                  : t.winrate >= 50
-                    ? 'bg-gdb text-gd'
-                    : 'bg-rdb text-rd'}">{t.winrate}%</span
-              >
-              <div
-                class="text-tx3 text-sm font-semibold pl-1 transition-colors hover:text-pu2 shrink-0"
-              >
-                ›
-              </div>
-            </div>
-          {/each}
+            {/each}{/if}
         </div>
       </div>
 
@@ -609,39 +685,57 @@
           >
           <span
             class="text-xs text-pu2 font-semibold cursor-pointer hover:text-pu transition-colors"
+            role="link"
+            tabindex="0"
+            onkeydown={(e) => e.key === 'Enter' && uiStore.gotoView('heroes')}
             onclick={() => uiStore.gotoView('heroes')}>View all →</span
           >
         </div>
         <div class="flex flex-col gap-2">
-          {#each playerStore.topHeroes as h (h.heroId)}
-            {@const hero = heroMap.get(h.heroId)}
-            {@const winrate =
-              h.matchCount > 0 ? parseFloat(((h.winCount / h.matchCount) * 100).toFixed(1)) : 0}
-            <div
-              class="flex items-center gap-3 p-1.5 hover:bg-s2/40 rounded-md border border-transparent hover:border-bd/30 transition-all cursor-pointer"
-              onclick={() => uiStore.gotoView('heroes')}
-            >
-              <HeroIcon
-                heroId={h.heroId}
-                img={hero?.icon ? `hero-asset://${hero.icon.replace(/^hero-assets\//, '')}` : null}
-                size="w-10 h-10"
-              />
-              <div class="text-xs font-bold text-tx flex-1 truncate">
-                {hero?.localized_name ?? `Hero #${h.heroId}`}
+          {#if playerStore.isLoading}
+            {#each { length: 5 } as _, idx (idx)}
+              <div class="flex items-center gap-3 p-1.5">
+                <Skeleton width="40px" height="40px" />
+                <div class="flex-1"><Skeleton width="50%" height="12px" /></div>
+                <Skeleton width="40px" height="12px" />
+                <Skeleton width="50px" height="20px" />
               </div>
-              <div class="text-xs text-tx3 font-mono font-medium font-tabular w-10 text-right">
-                {h.matchCount}
-              </div>
-              <span
-                class="text-xs font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0 {winrate >=
-                60
-                  ? 'bg-grb text-gr'
-                  : winrate >= 50
-                    ? 'bg-gdb text-gd'
-                    : 'bg-rdb text-rd'}">{winrate}%</span
+            {/each}
+          {:else if playerStore.topHeroes.length === 0}
+            <div class="text-xs text-tx3 text-center py-2">No hero data yet.</div>
+          {:else}
+            {#each playerStore.topHeroes as h (h.heroId)}
+              {@const hero = heroMap.get(h.heroId)}
+              {@const winrate =
+                h.matchCount > 0 ? parseFloat(((h.winCount / h.matchCount) * 100).toFixed(1)) : 0}
+              <div
+                class="flex items-center gap-3 p-1.5 hover:bg-s2/40 rounded-md border border-transparent hover:border-bd/30 transition-all cursor-pointer"
+                role="button"
+                tabindex="0"
+                onkeydown={(e) => e.key === 'Enter' && uiStore.gotoView('heroes')}
+                onclick={() => uiStore.gotoView('heroes')}
               >
-            </div>
-          {/each}
+                <HeroIcon
+                  heroId={h.heroId}
+                  img={hero?.img ? `hero-asset://${hero.img.replace(/^hero-assets\//, '')}` : null}
+                  size="w-10 h-10"
+                />
+                <div class="text-xs font-bold text-tx flex-1 truncate">
+                  {hero?.localized_name ?? `Hero #${h.heroId}`}
+                </div>
+                <div class="text-xs text-tx3 font-mono font-medium font-tabular w-10 text-right">
+                  {h.matchCount}
+                </div>
+                <span
+                  class="text-xs font-extrabold px-2 py-0.5 rounded-full tracking-wide shrink-0 {winrate >=
+                  60
+                    ? 'bg-grb text-gr'
+                    : winrate >= 50
+                      ? 'bg-gdb text-gd'
+                      : 'bg-rdb text-rd'}">{winrate}%</span
+                >
+              </div>
+            {/each}{/if}
         </div>
       </div>
     </div>

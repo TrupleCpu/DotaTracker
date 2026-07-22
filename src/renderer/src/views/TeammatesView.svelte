@@ -5,10 +5,11 @@
   import ProgressBar from '../lib/ui/ProgressBar.svelte'
 
   let searchQuery = $state('')
-  let sortBy = $state('matches')
+  type TeammateSortKey = 'matches' | 'winrate' | 'name'
+  let sortBy = $state<TeammateSortKey>('matches')
   let sortDir = $state(-1)
 
-  function toggleSort(field: string) {
+  function toggleSort(field: TeammateSortKey): void {
     if (sortBy === field) {
       sortDir = -sortDir
     } else {
@@ -22,8 +23,11 @@
       t.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
     list.sort((a, b) => {
-      const valA = a[sortBy as keyof typeof a] as number
-      const valB = b[sortBy as keyof typeof b] as number
+      if (sortBy === 'name') {
+        return a.name.localeCompare(b.name) * sortDir
+      }
+      const valA = a[sortBy]
+      const valB = b[sortBy]
       return (valA - valB) * sortDir
     })
     return list
@@ -68,7 +72,7 @@
       <tbody>
         {#each sortedAndFiltered as t (t.steamAccountId)}
           <tr class="border-b border-bd last:border-b-0 group">
-            <td class="p-[10px_14px] text-sm group-hover:bg-white/[0.02]">
+            <td class="p-[10px_14px] text-sm group-hover:bg-white/2">
               <div class="flex items-center gap-2.5">
                 <div
                   class="w-8 h-8 rounded-md bg-s4 border border-bd flex items-center justify-center text-xs shrink-0 overflow-hidden"
@@ -84,10 +88,10 @@
                 <strong>{t.name}</strong>
               </div>
             </td>
-            <td class="p-[10px_14px] text-sm group-hover:bg-white/[0.02]"
+            <td class="p-[10px_14px] text-sm group-hover:bg-white/2"
               ><strong>{t.matches}</strong></td
             >
-            <td class="p-[10px_14px] text-sm group-hover:bg-white/[0.02]">
+            <td class="p-[10px_14px] text-sm group-hover:bg-white/2">
               <WinrateBadge value={t.winrate} />
               <ProgressBar
                 value={t.winrate}

@@ -37,9 +37,9 @@
 
 <ToolTip text={tooltipText}>
   <div
-    class="relative w-[100px] h-[6px] rounded-[3px] bg-black/20 border border-bd overflow-hidden shrink-0 {className}"
+    class="relative w-25 h-1.5 rounded-[3px] bg-black/20 border border-bd overflow-hidden shrink-0 {className}"
   >
-    <div class="absolute left-1/2 top-0 h-full w-[1px] bg-gray-400"></div>
+    <div class="absolute left-1/2 top-0 h-full w-px bg-gray-400"></div>
     <div class="absolute top-0 {barSide} h-full {barColor}" style="width: {barWidth}%"></div>
   </div>
 </ToolTip>

@@ -12,7 +12,7 @@ interface GuideAcquiredInfo {
   name: string
 }
 
-import type { GSIUIState } from '../../../main/types/gsi'
+import type { GSIUIState } from '../types/gsi'
 import itemsData from '../../../main/data/items.json'
 
 function lookupItemImg(itemId: number): string | null {
@@ -21,6 +21,16 @@ function lookupItemImg(itemId: number): string | null {
     if (v?.id === itemId) {
       const img = ((v.img as string) ?? '').replace('item-assets/', '')
       return img || null
+    }
+  }
+  return null
+}
+
+function lookupItemName(itemId: number): string | null {
+  for (const val of Object.values(itemsData)) {
+    const v = val as Record<string, unknown>
+    if (v?.id === itemId && typeof v.dname === 'string') {
+      return v.dname
     }
   }
   return null
@@ -79,7 +89,9 @@ class OverlayStore {
     }
     if (typeof data.clock === 'number') {
       const newClock = data.clock
-      const isNewGame = this.lastClock > 60 && (newClock <= 5 || newClock < this.lastClock - 30)
+      const isNewGame =
+        (this.lastClock > 60 && (newClock <= 5 || newClock < this.lastClock - 30))
+        || (this.prevInventoryIds.length > 0 && newClock === 0)
       if (isNewGame) {
         this.prevInventoryIds = []
         this.acquiredItems = new Map()
@@ -106,14 +118,15 @@ class OverlayStore {
         if (guideSlot) {
           const targetSec = guideSlot.targetMinute * 60 + (guideSlot.targetSecond ?? 0)
           const diffSeconds = this.clock - targetSec
+          const displayName = lookupItemName(id) || names[i] || `Item #${id}`
           this.acquiredItems.set(id, {
             acquiredAtClock: this.clock,
             targetMinute: guideSlot.targetMinute,
-            name: names[i] || `Item #${id}`
+            name: displayName
           })
-          this.showNotification(names[i] || `Item #${id}`, guideSlot.targetMinute, this.clock, diffSeconds)
+          this.showNotification(displayName, guideSlot.targetMinute, this.clock, diffSeconds)
           window.api.showGuideNotification({
-            itemName: names[i] || `Item #${id}`,
+            itemName: displayName,
             itemImg: lookupItemImg(id),
             targetMinute: guideSlot.targetMinute,
             acquiredAtClock: this.clock,

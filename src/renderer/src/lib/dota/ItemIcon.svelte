@@ -6,8 +6,9 @@
   }: { itemId: number; size?: string; className?: string } = $props()
 
   import itemsData from '../../../../main/data/items.json'
+  import { SvelteMap } from 'svelte/reactivity'
 
-  const itemMap = new Map<number, string>()
+  const itemMap = new SvelteMap<number, string>()
   for (const val of Object.values(itemsData) as Array<{ id: number; img: string }>) {
     if (val.id != null && val.img) {
       itemMap.set(val.id, val.img.replace('item-assets/', ''))

@@ -5,7 +5,7 @@ import path from 'path'
 const dbPath = path.join(app.getPath('userData'), 'dota_cache.sqlite')
 export const db: Database.Database = new Database(dbPath)
 
-export function initDatabase() {
+export function initDatabase(): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS matches (
       match_id INTEGER PRIMARY KEY,

@@ -1,4 +1,4 @@
-# dotatrack
+# AncientEye
 
 An Electron application with Svelte and TypeScript
 

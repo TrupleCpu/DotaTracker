@@ -5,7 +5,7 @@ import { execFileSync } from 'child_process'
 
 const CFG_FILENAME = 'gamestate_integration_myserver.cfg'
 const DOTA_RELATIVE = path.join('steamapps', 'common', 'dota 2 beta', 'game', 'dota', 'cfg', 'gamestate_integration')
-const REG_KEY = 'Software\\dotatrack'
+const REG_KEY = 'Software\\AncientEye'
 const REG_VALUE = 'InstallGsiConfig'
 
 function log(msg: string): void {

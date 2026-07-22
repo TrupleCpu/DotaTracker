@@ -62,8 +62,8 @@ export interface CreepLocation {
 }
 
 export interface PlayerStatsDetailed {
-  deniesPerMinute: number
-  impPerMinute: number
+  deniesPerMinute: number[]
+  impPerMinute: number[]
   itemPurchases: ItemPurchaseEvent[]
   farmDistributionReport: {
     creepLocation: CreepLocation[]
@@ -132,6 +132,7 @@ export interface ItemData {
   dname: string
   img: string
   cost: number
+  created: boolean
 }
 
 export interface AbilityHeroEntry {
@@ -144,13 +145,6 @@ export interface AbilityHeroEntry {
   }
   time: number
   level: number
-}
-
-export interface AbilityHeroData {
-  id: number
-  shortName?: string
-  abilities: { ability: { id: number; name: string } }[]
-  talents: { abilityId: number; slot: number }[]
 }
 
 export interface HeroTimingItem {

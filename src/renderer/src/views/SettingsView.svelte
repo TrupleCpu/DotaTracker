@@ -39,6 +39,7 @@
         }
       }
     } catch {
+      // Config not loaded yet, use defaults
     }
   })
 
@@ -122,13 +123,14 @@
     }
   }
 
-  async function toggleAutoSync() {
+  async function toggleAutoSync(): Promise<void> {
     autoSync = !autoSync
     try {
       const config = await window.api.getConfig()
       config.autoSyncMatches = autoSync
       await window.api.setConfig(config)
     } catch {
+      // Ignore config save errors
     }
     uiStore.showToast(`Auto-sync new matches: ${autoSync ? 'ON' : 'OFF'}`, 'ok')
   }
@@ -198,17 +200,17 @@
         model
       })
       const result = await window.api.generateCoaching({
-        heroName: 'Anti-Mage',
-        position: 'POSITION_1',
-        kills: 8,
-        deaths: 3,
-        assists: 12,
-        gpm: 620,
-        networth: 18500,
-        isVictory: true,
-        items: [],
-        totalDamage: 28000,
-        wardsPlaced: 2
+        h: 'Anti-Mage',
+        p: 'POSITION_1',
+        k: 8,
+        d: 3,
+        a: 12,
+        g: 620,
+        nw: 18500,
+        w: true,
+        i: [],
+        td: 28000,
+        wp: 2
       })
       if (result?.err) {
         llmTestResult = 'err'
@@ -235,7 +237,7 @@
   {#if activeTab === 'sg'}
     <div class="card">
       <div
-        class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0"
+        class="flex items-center justify-between py-3.25 border-b border-bd gap-4 last:border-b-0"
       >
         <div>
           <div class="text-base font-semibold">Auto-sync new matches</div>
@@ -244,7 +246,7 @@
           </div>
         </div>
         <div
-          class="w-[38px] h-[22px] rounded-[11px] relative cursor-pointer border transition-all after:content-[''] after:absolute after:top-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.4)] after:transition-[left]"
+          class="w-9.5 h-5.5 rounded-[11px] relative cursor-pointer border transition-all after:content-[''] after:absolute after:top-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.4)] after:transition-[left]"
           class:bg-pu={autoSync}
           class:bg-s4={!autoSync}
           class:border-transparent={autoSync}
@@ -253,13 +255,15 @@
           class:after:left-0.5={!autoSync}
           role="switch"
           aria-checked={autoSync}
+          tabindex="0"
+          onkeydown={(e) => e.key === 'Enter' && toggleAutoSync()}
           onclick={toggleAutoSync}
         ></div>
       </div>
     </div>
   {:else if activeTab === 'sllm'}
     <div class="card">
-      <div class="flex flex-col items-start py-[13px] border-b border-bd gap-2 last:border-b-0">
+      <div class="flex flex-col items-start py-3.25 border-b border-bd gap-2 last:border-b-0">
         <div>
           <div class="text-base font-semibold">AI Coach Configuration</div>
           <div class="text-xs text-tx2 mt-0.5 leading-relaxed">
@@ -273,10 +277,13 @@
         {/if}
       </div>
 
-      <div class="flex flex-col gap-3 py-[13px] border-b border-bd last:border-b-0">
+      <div class="flex flex-col gap-3 py-3.25 border-b border-bd last:border-b-0">
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]">Provider</label>
+          <label class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]" for="llm-provider"
+            >Provider</label
+          >
           <select
+            id="llm-provider"
             class="bg-s2 border border-bd rounded-lg text-tx px-3 py-2 text-sm focus:border-pu outline-hidden transition-colors"
             bind:value={llmProvider}
           >
@@ -289,8 +296,11 @@
         </div>
 
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]">Model</label>
+          <label class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]" for="llm-model"
+            >Model</label
+          >
           <select
+            id="llm-model"
             class="bg-s2 border border-bd rounded-lg text-tx px-3 py-2 text-sm focus:border-pu outline-hidden transition-colors"
             bind:value={llmModel}
           >
@@ -310,9 +320,12 @@
         </div>
 
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]">API Key</label>
+          <label class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]" for="llm-apikey"
+            >API Key</label
+          >
           <div class="flex gap-2">
             <input
+              id="llm-apikey"
               type={llmKeyVisible ? 'text' : 'password'}
               class="bg-s2 border border-bd rounded-lg text-tx px-3 py-2 text-sm flex-1 outline-hidden font-mono focus:border-pu transition-colors"
               bind:value={llmApiKey}
@@ -328,10 +341,11 @@
         </div>
 
         <div class="flex flex-col gap-1">
-          <label class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]">
+          <label class="text-xs font-bold text-tx2 uppercase tracking-[0.5px]" for="llm-baseurl">
             Base URL <span class="text-tx3 font-normal normal-case">(optional)</span>
           </label>
           <input
+            id="llm-baseurl"
             type="text"
             class="bg-s2 border border-bd rounded-lg text-tx px-3 py-2 text-sm outline-hidden font-mono focus:border-pu transition-colors"
             bind:value={llmBaseUrl}
@@ -377,15 +391,16 @@
     </div>
   {:else if activeTab === 'sapi'}
     <div class="card">
-      <div class="flex flex-col items-start py-[13px] border-b border-bd gap-2 last:border-b-0">
+      <div class="flex flex-col items-start py-3.25 border-b border-bd gap-2 last:border-b-0">
         <div>
-          <div class="text-base font-semibold">STRATZ API Key</div>
+          <label class="text-base font-semibold" for="stratz-api-key">STRATZ API Key</label>
           <div class="text-xs text-tx2 mt-0.5 leading-relaxed">
             Required to fetch match data. Get yours at stratz.com/api
           </div>
         </div>
         <div class="w-full flex gap-2">
           <input
+            id="stratz-api-key"
             type={apiVisible ? 'text' : 'password'}
             class="bg-s2 border border-bd rounded-lg color-tx p-[8px_12px] text-sm flex-1 outline-hidden font-mono focus:border-pu transition-colors"
             bind:value={token}
@@ -414,7 +429,7 @@
         {/if}
       </div>
       <div
-        class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0"
+        class="flex items-center justify-between py-3.25 border-b border-bd gap-4 last:border-b-0"
       >
         <div>
           <div class="text-base font-semibold">Disconnect API</div>
@@ -423,7 +438,7 @@
           </div>
         </div>
         <button
-          class="bg-rdb border border-rd text-rd rounded-lg px-[14px] py-1.5 text-sm font-bold cursor-pointer transition-all hover:bg-rd hover:text-white"
+          class="bg-rdb border border-rd text-rd rounded-lg px-3.5 py-1.5 text-sm font-bold cursor-pointer transition-all hover:bg-rd hover:text-white"
           onclick={disconnectApi}>Disconnect</button
         >
       </div>
@@ -431,7 +446,7 @@
   {:else if activeTab === 'sapp'}
     <div class="card">
       <div
-        class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0"
+        class="flex items-center justify-between py-3.25 border-b border-bd gap-4 last:border-b-0"
       >
         <div>
           <div class="text-base font-semibold">Compact mode</div>
@@ -440,7 +455,7 @@
           </div>
         </div>
         <div
-          class="w-[38px] h-[22px] rounded-[11px] relative cursor-pointer border transition-all after:content-[''] after:absolute after:top-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.4)] after:transition-[left]"
+          class="w-9.5 h-5.5 rounded-[11px] relative cursor-pointer border transition-all after:content-[''] after:absolute after:top-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.4)] after:transition-[left]"
           class:bg-pu={uiStore.compactMode}
           class:bg-s4={!uiStore.compactMode}
           class:border-transparent={uiStore.compactMode}
@@ -449,11 +464,13 @@
           class:after:left-0.5={!uiStore.compactMode}
           role="switch"
           aria-checked={uiStore.compactMode}
+          tabindex="0"
+          onkeydown={(e) => e.key === 'Enter' && toggleCompact()}
           onclick={toggleCompact}
         ></div>
       </div>
       <div
-        class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0"
+        class="flex items-center justify-between py-3.25 border-b border-bd gap-4 last:border-b-0"
       >
         <div>
           <div class="text-base font-semibold">Animated charts</div>
@@ -462,7 +479,7 @@
           </div>
         </div>
         <div
-          class="w-[38px] h-[22px] rounded-[11px] relative cursor-pointer border transition-all after:content-[''] after:absolute after:top-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.4)] after:transition-[left]"
+          class="w-9.5 h-5.5 rounded-[11px] relative cursor-pointer border transition-all after:content-[''] after:absolute after:top-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.4)] after:transition-[left]"
           class:bg-pu={uiStore.animatedCharts}
           class:bg-s4={!uiStore.animatedCharts}
           class:border-transparent={uiStore.animatedCharts}
@@ -471,11 +488,13 @@
           class:after:left-0.5={!uiStore.animatedCharts}
           role="switch"
           aria-checked={uiStore.animatedCharts}
+          tabindex="0"
+          onkeydown={(e) => e.key === 'Enter' && toggleAnimated()}
           onclick={toggleAnimated}
         ></div>
       </div>
       <div
-        class="flex items-center justify-between py-[13px] border-b border-bd gap-4 last:border-b-0"
+        class="flex items-center justify-between py-3.25 border-b border-bd gap-4 last:border-b-0"
       >
         <div>
           <div class="text-base font-semibold">Always-on sidebar</div>
@@ -484,7 +503,7 @@
           </div>
         </div>
         <div
-          class="w-[38px] h-[22px] rounded-[11px] relative cursor-pointer border transition-all after:content-[''] after:absolute after:top-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.4)] after:transition-[left]"
+          class="w-9.5 h-5.5 rounded-[11px] relative cursor-pointer border transition-all after:content-[''] after:absolute after:top-0.5 after:w-4 after:h-4 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.4)] after:transition-[left]"
           class:bg-pu={alwaysOnSidebar}
           class:bg-s4={!alwaysOnSidebar}
           class:border-transparent={alwaysOnSidebar}
@@ -493,6 +512,8 @@
           class:after:left-0.5={!alwaysOnSidebar}
           role="switch"
           aria-checked={alwaysOnSidebar}
+          tabindex="0"
+          onkeydown={(e) => e.key === 'Enter' && toggleAlwaysOnSidebar()}
           onclick={toggleAlwaysOnSidebar}
         ></div>
       </div>

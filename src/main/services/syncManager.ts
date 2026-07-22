@@ -5,7 +5,7 @@ import { state } from '../state'
 
 let previousState = ''
 
-export function handleGsiStateChange(currentState: string, steamId: number) {
+export function handleGsiStateChange(currentState: string, steamId: number): void {
   if (previousState === 'DOTA_GAMERULES_STATE_GAME_IN_PROGRESS' && 
       (currentState === 'DOTA_GAMERULES_STATE_POST_GAME' || currentState === 'DOTA_GAMERULES_STATE_DISCONNECT')) {
       
@@ -17,7 +17,7 @@ export function handleGsiStateChange(currentState: string, steamId: number) {
   previousState = currentState
 }
 
-export async function runSync(steamId: number) {
+export async function runSync(steamId: number): Promise<void> {
   try {
     const config = loadConfig()
     if (!config.autoSyncMatches) return

@@ -1,9 +1,9 @@
 <script lang="ts">
   let {
-    value,
+    value = $bindable(''),
     placeholder = 'Search…',
     className = ''
-  }: { value: string; placeholder?: string; className?: string } = $props()
+  }: { value?: string; placeholder?: string; className?: string } = $props()
 </script>
 
 <div class="relative max-w-xs flex-1 {className}">
@@ -14,7 +14,7 @@
     class="w-full bg-s2 border border-bd rounded-[5px] text-tx2 p-[5px_10px_5px_26px] text-xs font-semibold outline-hidden focus:border-pu transition-colors placeholder:text-tx3"
   />
   <svg
-    class="absolute left-[8px] top-1/2 -translate-y-1/2"
+    class="absolute left-2 top-1/2 -translate-y-1/2"
     width="12"
     height="12"
     viewBox="0 0 16 16"

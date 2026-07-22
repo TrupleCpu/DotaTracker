@@ -21,7 +21,7 @@
   <div class="flex gap-0.5 bg-s2 rounded-lg p-0.75 w-fit">
     {#each tabs as tab (tab.id)}
       <button
-        class="px-[13px] py-1.25 rounded-md border-none bg-transparent text-tx2 text-sm font-medium cursor-pointer transition-all
+        class="px-3.25 py-1.25 rounded-md border-none bg-transparent text-tx2 text-sm font-medium cursor-pointer transition-all
           {active === tab.id ? 'bg-s4 text-tx' : 'hover:text-tx'}"
         onclick={() => onTabChange(tab.id)}
       >
@@ -33,7 +33,7 @@
   <div class="flex border-b border-bd">
     {#each tabs as tab (tab.id)}
       <button
-        class="px-[17px] py-[9px] text-base font-semibold transition-all border-b-2 bg-transparent cursor-pointer
+        class="px-4.25 py-2.25 text-base font-semibold transition-all border-b-2 bg-transparent cursor-pointer
           {active === tab.id ? 'text-tx border-pu' : 'text-tx2 border-transparent hover:text-tx'}"
         onclick={() => onTabChange(tab.id)}
       >

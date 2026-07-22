@@ -69,11 +69,7 @@
   <div class="slot-header">
     <span class="slot-label">Slot {slotIndex + 1}</span>
     {#if itemId !== 0}
-      <button
-        class="remove-btn"
-        onclick={handleRemove}
-        aria-label="Remove item"
-      >×</button>
+      <button class="remove-btn" onclick={handleRemove} aria-label="Remove item">×</button>
     {/if}
   </div>
 
@@ -93,7 +89,15 @@
       </div>
     {:else}
       <div class="empty-placeholder">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-tx3/40">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          class="text-tx3/40"
+        >
           <path d="M12 5v14M5 12h14" stroke-linecap="round" />
         </svg>
         <span>Drop item here</span>

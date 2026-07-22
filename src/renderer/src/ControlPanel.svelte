@@ -3,6 +3,7 @@
   import LoginScreen from './components/LoginScreen.svelte'
   import { playerStore } from './stores/playerStore.svelte'
   import { uiStore, VIEW_TITLES } from './stores/uiStore.svelte'
+  import type { ViewId } from './stores/uiStore.svelte'
   import { rankToString } from './utils/rankMap'
   import Toast from './lib/ui/Toast.svelte'
   import AppLogo from './assets/logo/AppLogo.png'
@@ -42,15 +43,11 @@
     },
     {
       heading: 'Analysis',
-      items: [
-        { id: 'analysis', label: 'Analysis', icon: ChartNoAxesCombined }
-      ]
+      items: [{ id: 'analysis', label: 'Analysis', icon: ChartNoAxesCombined }]
     },
     {
       heading: 'Tools',
-      items: [
-        { id: 'play-guide', label: 'Play Guide', icon: BookOpen }
-      ]
+      items: [{ id: 'play-guide', label: 'Play Guide', icon: BookOpen }]
     },
     { heading: 'Account', items: [{ id: 'settings', label: 'Settings', icon: Settings }] }
   ]
@@ -99,11 +96,6 @@
   }
 
   let rolesViewInitialRole = $state<string | null>(null)
-
-  function openRolesView(role: string): void {
-    rolesViewInitialRole = role
-    uiStore.gotoView('roles')
-  }
 </script>
 
 {#if checkingToken}
@@ -158,13 +150,18 @@
         >
           <div
             class="rounded-lg flex items-center justify-center text-base shrink-0"
-            class:w-12={!uiStore.sidebarCollapsed} class:h-12={!uiStore.sidebarCollapsed}
-            class:w-10={uiStore.sidebarCollapsed} class:h-10={uiStore.sidebarCollapsed}
+            class:w-12={!uiStore.sidebarCollapsed}
+            class:h-12={!uiStore.sidebarCollapsed}
+            class:w-10={uiStore.sidebarCollapsed}
+            class:h-10={uiStore.sidebarCollapsed}
           >
             <img
-              src={AppLogo} alt="Logo"
-              class:w-12={!uiStore.sidebarCollapsed} class:h-12={!uiStore.sidebarCollapsed}
-              class:w-10={uiStore.sidebarCollapsed} class:h-10={uiStore.sidebarCollapsed}
+              src={AppLogo}
+              alt="Logo"
+              class:w-12={!uiStore.sidebarCollapsed}
+              class:h-12={!uiStore.sidebarCollapsed}
+              class:w-10={uiStore.sidebarCollapsed}
+              class:h-10={uiStore.sidebarCollapsed}
             />
           </div>
           <div class:hidden={uiStore.sidebarCollapsed}>
@@ -192,7 +189,7 @@
                 class="w-full flex items-center gap-3 px-3 py-2 text-lg font-semibold transition-all cursor-pointer relative
                 {active ? 'text-tx bg-pub shadow-sm' : 'text-tx2 hover:text-tx hover:bg-white/4'}
                 {uiStore.sidebarCollapsed ? 'justify-center' : 'text-left'}"
-                onclick={() => uiStore.gotoView(id)}
+                onclick={() => uiStore.gotoView(id as ViewId)}
               >
                 {#if active}<div class="absolute left-0 top-0 bottom-0 w-1 bg-pu"></div>{/if}
                 <span class="w-5 text-center {active ? 'text-pu2' : 'text-tx3'}"
@@ -252,8 +249,13 @@
             {#if uiStore.currentView === 'match-detail'}
               <button
                 class="cursor-pointer hover:text-tx transition-colors bg-transparent border-none p-0 text-inherit text-xs"
-                onclick={() => uiStore.gotoView(uiStore.prevView === 'hero-detail' ? 'heroes' : uiStore.prevView)}
-                >{uiStore.prevView === 'hero-detail' ? 'Heroes' : (VIEW_TITLES[uiStore.prevView] || uiStore.prevView)}</button
+                onclick={() =>
+                  uiStore.gotoView(
+                    uiStore.prevView === 'hero-detail' ? 'heroes' : uiStore.prevView
+                  )}
+                >{uiStore.prevView === 'hero-detail'
+                  ? 'Heroes'
+                  : VIEW_TITLES[uiStore.prevView] || uiStore.prevView}</button
               >
               <span class="text-tx3 text-[10px]">/</span>
               <span class="text-tx text-sm"
@@ -262,8 +264,7 @@
             {:else if uiStore.currentView === 'hero-detail'}
               <button
                 class="cursor-pointer hover:text-tx transition-colors bg-transparent border-none p-0 text-inherit text-xs"
-                onclick={() => uiStore.gotoView('heroes')}
-                >Heroes</button
+                onclick={() => uiStore.gotoView('heroes')}>Heroes</button
               >
               <span class="text-tx3 text-[10px]">/</span>
               <span class="text-tx text-sm">Hero Matches</span>

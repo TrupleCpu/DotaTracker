@@ -44,7 +44,7 @@ function getProviderConfig(): ProviderConfig | null {
         formatBody: (messages, model) => ({
           model,
           messages,
-          max_tokens: 1024,
+          max_tokens: 2048,
           response_format: { type: 'json_object' }
         }),
         parseResponse: (json) => json.choices?.[0]?.message?.content ?? ''
@@ -57,7 +57,7 @@ function getProviderConfig(): ProviderConfig | null {
         formatBody: (messages, model) => {
           const system = messages.find((m) => m.role === 'system')?.content
           const msgs = messages.filter((m) => m.role !== 'system').map((m) => ({ role: m.role, content: m.content }))
-          return { model, messages: msgs, ...(system ? { system } : {}), max_tokens: 1024 }
+          return { model, messages: msgs, ...(system ? { system } : {}), max_tokens: 2048 }
         },
         parseResponse: (json) => json.content?.[0]?.text ?? ''
       }
@@ -71,7 +71,7 @@ function getProviderConfig(): ProviderConfig | null {
         formatBody: (messages, model) => ({
           model,
           messages,
-          max_tokens: 1024,
+          max_tokens: 2048,
           response_format: { type: 'json_object' }
         }),
         parseResponse: (json) => json.choices?.[0]?.message?.content ?? ''
@@ -100,27 +100,36 @@ function extractJsonArray(text: string): string | null {
   return null
 }
 
-function extractJsonObject(text: string): string | null {
-  const start = text.indexOf('{')
-  if (start === -1) return null
-  let depth = 0
-  for (let i = start; i < text.length; i++) {
-    if (text[i] === '{') depth++
-    else if (text[i] === '}') {
-      depth--
-      if (depth === 0) return text.substring(start, i + 1)
-    }
-  }
-  return null
-}
-
 function extractJson(text: string): string {
   const cleaned = stripCodeFences(text)
+
+  try { JSON.parse(cleaned); return cleaned } catch { /* fall through */ }
+
+  let pos = 0
+  while (true) {
+    const start = cleaned.indexOf('{', pos)
+    if (start === -1) break
+    let depth = 0
+    for (let i = start; i < cleaned.length; i++) {
+      if (cleaned[i] === '{') depth++
+      else if (cleaned[i] === '}') {
+        depth--
+        if (depth === 0) {
+          const candidate = cleaned.substring(start, i + 1)
+          try { JSON.parse(candidate); return candidate } catch { pos = start + 1; break }
+        }
+      }
+    }
+    if (depth !== 0) pos = start + 1
+    if (pos >= cleaned.length) break
+  }
+
   const asArray = extractJsonArray(cleaned)
-  if (asArray) return asArray
-  const asObject = extractJsonObject(cleaned)
-  if (asObject) return asObject
-  return text.trim()
+  if (asArray) {
+    try { JSON.parse(asArray); return asArray } catch { /* fall through */ }
+  }
+
+  return cleaned
 }
 
 async function llmChat(messages: ChatMessage[]): Promise<string> {
@@ -157,35 +166,29 @@ function buildSingleMatchPrompt(ctx: SingleMatchContext): ChatMessage[] {
     {
       role: 'system',
       content: `You are a Dota 2 coach. Analyze the match and provide 3-5 coaching points.
-Each point MUST be valid JSON with these fields:
-- title: string (short, e.g. "Farming Efficiency")
-- desc: string (1-2 sentences with specific actionable advice)
-- status: "ontime" | "late" (ontime = good, late = needs improvement)
-
+Each point is JSON: {"title":"short name","desc":"1-2 sentences actionable advice","status":"ontime|late"}
 Return ONLY a JSON array, no markdown, no code fences.
-
-Example:
-[{"title":"Farming Efficiency","desc":"At 480 GPM you're 15% below average for Anti-Mage. Focus on last-hitting under tower and stacking ancients.","status":"late"}]`
+Example: [{"title":"Farming","desc":"At 480 GPM you're 15% below average for Anti-Mage. Focus on last-hitting.","status":"late"}]`
     },
     {
       role: 'user',
-      content: JSON.stringify(ctx, null, 2)
+      content: JSON.stringify(ctx)
     }
   ]
 }
 
 export interface SingleMatchContext {
-  heroName: string
-  position: string
-  kills: number
-  deaths: number
-  assists: number
-  gpm: number
-  networth: number
-  isVictory: boolean
-  items: { name: string; time: number; cost: number }[]
-  totalDamage: number
-  wardsPlaced: number
+  h: string    // heroName
+  p: string    // position
+  k: number    // kills
+  d: number    // deaths
+  a: number    // assists
+  g: number    // gpm
+  nw: number   // networth
+  w: boolean   // isVictory
+  i: { n: number; t: number; c: number }[]  // items (id, time, cost)
+  td: number   // totalDamage
+  wp: number   // wardsPlaced
 }
 
 export interface CoachingPoint {
@@ -218,28 +221,32 @@ function buildSessionPrompt(matches: SessionMatchSummary[]): ChatMessage[] {
     {
       role: 'system',
       content: `You are a Dota 2 coach analyzing a player's last ${matches.length} matches.
-Return a JSON object with:
-- summary: string (1 sentence overall assessment)
-- patterns: string[] (3-4 specific patterns found across matches)
-- recommendations: string[] (2-3 actionable recommendations)
 
-Return ONLY valid JSON, no markdown, no code fences.`
+You MUST respond with ONLY a valid JSON object. No markdown, no code fences, no extra text.
+
+The JSON must have exactly these three fields:
+- "summary": string (1 sentence overall assessment)
+- "patterns": array of strings (3-4 specific patterns found across matches)
+- "recommendations": array of strings (2-3 actionable recommendations)
+
+Example:
+{"summary":"Strong performance on core heroes but struggles with positioning in late game.","patterns":["Pattern 1","Pattern 2","Pattern 3"],"recommendations":["Rec 1","Rec 2"]}`
     },
     {
       role: 'user',
-      content: JSON.stringify({ matches }, null, 2)
+      content: JSON.stringify({ matches })
     }
   ]
 }
 
 export interface SessionMatchSummary {
-  heroName: string
-  position: string
-  kills: number
-  deaths: number
-  assists: number
-  gpm: number
-  outcome: 'win' | 'loss'
+  h: string    // heroName
+  p: string    // position
+  k: number    // kills
+  d: number    // deaths
+  a: number    // assists
+  g: number    // gpm
+  o: string    // outcome ('win'|'loss')
 }
 
 export interface SessionReview {
@@ -251,9 +258,58 @@ export interface SessionReview {
 export async function generateSessionReview(matches: SessionMatchSummary[]): Promise<SessionReview> {
   const text = await llmChat(buildSessionPrompt(matches))
   const cleaned = extractJson(text)
-  const parsed = JSON.parse(cleaned)
-  if (!parsed.summary || !parsed.patterns || !parsed.recommendations) throw new Error('Invalid response shape')
-  return parsed as SessionReview
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(cleaned)
+  } catch {
+    throw new Error(`AI Coach returned invalid JSON. Try again or switch models. Raw: ${text.substring(0, 300)}`)
+  }
+
+  const result = findSessionReview(parsed)
+  if (result) return result
+
+  throw new Error(`AI Coach response was not in the expected format. Raw: ${text.substring(0, 300)}`)
+}
+
+function findSessionReview(value: unknown): SessionReview | null {
+  if (!value || typeof value !== 'object') return null
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const result = findSessionReview(item)
+      if (result) return result
+    }
+    return null
+  }
+
+  const obj = value as Record<string, unknown>
+
+  if (typeof obj.summary === 'string' || typeof obj.patterns !== 'undefined' || typeof obj.recommendations !== 'undefined') {
+    return normalizeSessionReview(obj)
+  }
+
+  for (const val of Object.values(obj)) {
+    if (val && typeof val === 'object') {
+      const result = findSessionReview(val)
+      if (result) return result
+    }
+  }
+
+  return null
+}
+
+function normalizeSessionReview(raw: Record<string, unknown>): SessionReview {
+  return {
+    summary: typeof raw.summary === 'string' ? raw.summary : String(raw.summary ?? ''),
+    patterns: coerceToStringArray(raw.patterns ?? raw.pattern ?? []),
+    recommendations: coerceToStringArray(raw.recommendations ?? raw.recommendation ?? raw.tips ?? []),
+  }
+}
+
+function coerceToStringArray(val: unknown): string[] {
+  if (Array.isArray(val)) return val.filter((v): v is string => typeof v === 'string')
+  if (typeof val === 'string') return [val]
+  return []
 }
 
 export function isLlmConfigured(): boolean {

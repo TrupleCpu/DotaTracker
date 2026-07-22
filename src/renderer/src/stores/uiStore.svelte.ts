@@ -21,7 +21,7 @@ class UiStore {
   prevView = $state<ViewId>('dashboard')
   activeTab = $state<ViewId>('dashboard')
   sidebarCollapsed = $state(false)
-  selectedMatch = $state<any>(null)
+  selectedMatch = $state<MatchSummary | null>(null)
   selectedHeroId = $state<number | null>(null)
   compactMode = $state(false)
   animatedCharts = $state(true)

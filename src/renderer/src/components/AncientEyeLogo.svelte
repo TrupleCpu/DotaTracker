@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let size = 80
+  let { size = 80 }: { size?: number } = $props()
 </script>
 
 <div class="eye-container" style="width: {size}px; height: {size}px;">

@@ -1,5 +1,5 @@
 {
-  "name": "dotatrack",
+  "name": "ancienteye",
   "version": "1.0.0",
   "description": "Dota 2 overlay tool with per-hero play guides, item timing notifications, and live GPM/XPM/KPM stats",
   "main": "./out/main/index.js",

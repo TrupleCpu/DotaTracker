@@ -24,11 +24,17 @@
     </div>
   </ToolTip>
   {#if laneOutcome}
-    <ToolTip text={laneOutcome === 'won' ? 'Lane won' : laneOutcome === 'tie' ? 'Lane tied' : 'Lane lost'}>
+    <ToolTip
+      text={laneOutcome === 'won' ? 'Lane won' : laneOutcome === 'tie' ? 'Lane tied' : 'Lane lost'}
+    >
       <div
         class="flex items-center justify-center rounded-[3px] text-[10px] font-extrabold leading-none
-          w-[14px] h-[14px]
-          {laneOutcome === 'won' ? 'text-gr bg-grb' : laneOutcome === 'tie' ? 'text-gd bg-gdb' : 'text-rd bg-rdb'}"
+          w-3.5 h-3.5
+          {laneOutcome === 'won'
+          ? 'text-gr bg-grb'
+          : laneOutcome === 'tie'
+            ? 'text-gd bg-gdb'
+            : 'text-rd bg-rdb'}"
       >
         {laneOutcome === 'won' ? '+' : laneOutcome === 'tie' ? '~' : '−'}
       </div>

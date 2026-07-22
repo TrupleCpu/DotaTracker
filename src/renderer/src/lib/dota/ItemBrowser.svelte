@@ -66,6 +66,8 @@
         <div
           draggable="true"
           ondragstart={(e) => handleDragStart(e, item.id)}
+          role="button"
+          tabindex="0"
           class="flex flex-col items-center gap-0.5 p-1.5 rounded-lg bg-s2 border border-bd/40 cursor-grab active:cursor-grabbing hover:bg-s3 hover:border-pu/30 transition-colors"
           title="{item.dname} ({item.cost}g)"
         >
@@ -77,7 +79,9 @@
               loading="lazy"
             />
           </div>
-          <span class="text-[8px] text-tx2 leading-tight text-center truncate w-full">{item.dname}</span>
+          <span class="text-[8px] text-tx2 leading-tight text-center truncate w-full"
+            >{item.dname}</span
+          >
           <span class="text-[7px] text-tx3 font-mono">{item.cost}g</span>
         </div>
       {/each}
@@ -89,7 +93,7 @@
 </div>
 
 <style>
-  input[type="checkbox"] {
+  input[type='checkbox'] {
     width: 12px;
     height: 12px;
   }

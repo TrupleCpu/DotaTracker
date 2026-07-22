@@ -105,6 +105,10 @@ export interface RawMatch {
   endDateTime: number
   statsDateTime?: number
   actualRank?: number
+  didRadiantWin?: boolean
+  midLaneOutcome?: string
+  bottomLaneOutcome?: string
+  topLaneOutcome?: string
   players: RawMatchPlayer[]
 }
 

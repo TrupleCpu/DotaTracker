@@ -40,6 +40,7 @@ export interface Match {
   topLaneOutcome?: string
   didRadiantWin?: boolean
   position?: string
+  laneResult?: 'won' | 'lost' | 'tie' | null
 }
 
 export interface PlayerStats {
