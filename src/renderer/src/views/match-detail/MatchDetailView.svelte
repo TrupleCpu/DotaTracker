@@ -2405,7 +2405,7 @@
             <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px] mt-0.5">Assists</div>
           </div>
           <div class="h-8 w-px bg-zinc-800/60 shrink-0"></div>
-          <TalentTree abilities={focusedPlayer.abilities ?? []} heroId={focusedPlayer.heroId} />
+          <TalentTree abilities={focusedPlayer.abilities ?? []} heroId={focusedPlayer.heroId} level={focusedPlayer.level} />
         </div>
 
         <!-- Item slots -->

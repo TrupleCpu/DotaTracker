@@ -96,8 +96,8 @@ class PlayerStore {
       }
 
       this.playerStats = {
-        matchCount: raw.player.matchCount,
-        winCount: raw.player.winCount,
+        matchCount: raw.player.matchCount ?? 0,
+        winCount: raw.player.winCount ?? 0,
         killsAverage: simpleAvg('avgKills'),
         deathsAverage: simpleAvg('avgDeaths'),
         assistsAverage: simpleAvg('avgAssists'),
