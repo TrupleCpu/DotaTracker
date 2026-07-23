@@ -30,6 +30,5 @@ export async function getMatchDetails(matchId: number | string): Promise<unknown
       insertMatch(match as Match, steamId)
     }
   }
-  console.log(JSON.stringify(data.match?.players?.map((p: { heroId?: number; abilities?: unknown[] }) => ({ heroId: p.heroId, abilityCount: p.abilities?.length, firstAbility: p.abilities?.[0] })), null, 2))
   return data
 }
