@@ -37,7 +37,6 @@ export async function fetchMatches(
     if (localMatches.length > 0) {
       return { player: { matches: localMatches } }
     }
-    return { player: { matches: [] } }
   }
 
   const request: Record<string, unknown> = { take, skip }
@@ -75,7 +74,6 @@ export async function fetchHeroMatches(
     if (localMatches.length > 0) {
       return { player: { matches: localMatches } }
     }
-    return { player: { matches: [] } }
   }
 
   const request: Record<string, unknown> = { heroIds: [heroId], skip, take }

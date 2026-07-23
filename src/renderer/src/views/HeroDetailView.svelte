@@ -241,7 +241,7 @@
 
             <div class="flex items-center gap-1.5 shrink-0">
               {#if m.items?.length}
-                {#each m.items.slice(0, 6) as item (item)}
+                {#each m.items.slice(0, 6) as item, i (i)}
                   <div class="w-7.5 h-7.5 rounded bg-s2 overflow-hidden border border-bd/40">
                     <img src={item} alt="" class="w-full h-full object-cover" />
                   </div>

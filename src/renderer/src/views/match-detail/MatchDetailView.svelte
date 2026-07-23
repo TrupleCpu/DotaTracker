@@ -1078,7 +1078,7 @@
 
   // Short form used for the role-mirrored comparison ("Enemy Carry",
   // "Enemy Offlane", "Enemy Hard Support", ...).
-  function roleShortLabel(pos: string): string {
+  function roleShortLabel(pos: string | null | undefined): string {
     switch (pos) {
       case 'POSITION_1':
         return 'Carry'
@@ -1091,7 +1091,7 @@
       case 'POSITION_5':
         return 'Hard Support'
       default:
-        return pos.replace('POSITION_', 'Pos ')
+        return pos?.replace('POSITION_', 'Pos ') ?? 'Unknown'
     }
   }
 
