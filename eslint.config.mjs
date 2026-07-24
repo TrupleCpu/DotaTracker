@@ -16,7 +16,13 @@ export default defineConfig(
     }
   },
   {
-    files: ['**/*.{tsx,svelte}'],
+    files: ['**/*.svelte.ts'],
+    languageOptions: {
+      parser: tseslint.parser
+    }
+  },
+  {
+    files: ['**/*.{tsx,svelte}', '**/*.svelte.ts'],
     languageOptions: {
       globals: {
         __BUILD_DATE__: 'readonly'
@@ -24,7 +30,10 @@ export default defineConfig(
     },
     rules: {
       'svelte/no-unused-svelte-ignore': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }]
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+      ]
     }
   },
   eslintConfigPrettier

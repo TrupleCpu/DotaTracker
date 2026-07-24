@@ -43,7 +43,13 @@ export function createGuideNotificationWindow(): BrowserWindow {
 }
 
 export function showGuideNotification(
-  data: { itemName: string; itemImg: string | null; targetMinute: number; acquiredAtClock: number; diffSeconds: number },
+  data: {
+    itemName: string
+    itemImg: string | null
+    targetMinute: number
+    acquiredAtClock: number
+    diffSeconds: number
+  },
   overlayBounds?: { x: number; y: number; width: number; height: number }
 ): void {
   if (!notificationWindow || notificationWindow.isDestroyed()) return

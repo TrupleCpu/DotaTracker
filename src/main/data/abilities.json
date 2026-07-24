@@ -23,9 +23,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Auto Deliver",
-      "description": [
-        "Toggle auto delivering of items."
-      ]
+      "description": ["Toggle auto delivering of items."]
     }
   },
   {
@@ -212,9 +210,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Eject",
-      "description": [
-        "Ejects the swallowed allied hero inside of you."
-      ]
+      "description": ["Ejects the swallowed allied hero inside of you."]
     }
   },
   {
@@ -422,9 +418,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Crack",
-      "description": [
-        "*CRACK*"
-      ]
+      "description": ["*CRACK*"]
     }
   },
   {
@@ -484,9 +478,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Souvenir Slot",
-      "description": [
-        "Gather souvenirs from kills and assists."
-      ]
+      "description": ["Gather souvenirs from kills and assists."]
     }
   },
   {
@@ -775,9 +767,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Swiftslash",
-      "description": [
-        "Performs a short Omnislash for 1 seconds."
-      ]
+      "description": ["Performs a short Omnislash for 1 seconds."]
     }
   },
   {
@@ -1811,9 +1801,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Primal Split Cancel",
-      "description": [
-        "Cancel the Primal Split."
-      ]
+      "description": ["Cancel the Primal Split."]
     }
   },
   {
@@ -1822,9 +1810,7 @@
     "isTalent": false,
     "language": {
       "displayName": null,
-      "description": [
-        "."
-      ]
+      "description": ["."]
     }
   },
   {
@@ -2154,9 +2140,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Focus Fire Cancel",
-      "description": [
-        "End your Focus Fire early."
-      ]
+      "description": ["End your Focus Fire early."]
     }
   },
   {
@@ -2259,9 +2243,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Debuff Immunity Inside Power Cogs",
-      "description": [
-        "Also provides 50% magic resistance while Debuff Immune."
-      ]
+      "description": ["Also provides 50% magic resistance while Debuff Immune."]
     }
   },
   {
@@ -2380,9 +2362,7 @@
     "isTalent": true,
     "language": {
       "displayName": "=2x Overload Attack Bounce",
-      "description": [
-        "Bouncing attacks deal {s:bonus_overload_damage_pct}% damage."
-      ]
+      "description": ["Bouncing attacks deal {s:bonus_overload_damage_pct}% damage."]
     }
   },
   {
@@ -2420,9 +2400,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Ghoul Frenzy",
-      "description": [
-        "Passively grants Lifestealer Movement and Attack Speed."
-      ]
+      "description": ["Passively grants Lifestealer Movement and Attack Speed."]
     }
   },
   {
@@ -2529,9 +2507,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Telekinesis Land",
-      "description": [
-        "Chooses the location you will land when Telekinesis finishes."
-      ]
+      "description": ["Chooses the location you will land when Telekinesis finishes."]
     }
   },
   {
@@ -2928,9 +2904,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Dive Bomb",
-      "description": [
-        "Flies towards the target enemy, dealing damage and rooting it."
-      ]
+      "description": ["Flies towards the target enemy, dealing damage and rooting it."]
     }
   },
   {
@@ -2950,9 +2924,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Moonlight Shadow gives +20% Evasion",
-      "description": [
-        "Evasion works at all times during the buff"
-      ]
+      "description": ["Evasion works at all times during the buff"]
     }
   },
   {
@@ -2997,9 +2969,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Debuff Immunity While Channeling Tame the Beasts",
-      "description": [
-        "Also grants 50% magic resistance."
-      ]
+      "description": ["Also grants 50% magic resistance."]
     }
   },
   {
@@ -3318,9 +3288,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+{s:bonus_ally_ms}% X Marks the Spot Move Speed",
-      "description": [
-        "Affects Allies positively and Enemies negatively"
-      ]
+      "description": ["Affects Allies positively and Enemies negatively"]
     }
   },
   {
@@ -3824,9 +3792,7 @@
     "isTalent": true,
     "language": {
       "displayName": "-1s Fireblast Cooldown",
-      "description": [
-        "Also reduces cooldown of Unrefined Fireblast"
-      ]
+      "description": ["Also reduces cooldown of Unrefined Fireblast"]
     }
   },
   {
@@ -3952,9 +3918,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+0.2s Requiem Fear per line",
-      "description": [
-        "Max Fear duration increased by +{s:bonus_requiem_slow_duration_max}s"
-      ]
+      "description": ["Max Fear duration increased by +{s:bonus_requiem_slow_duration_max}s"]
     }
   },
   {
@@ -4109,9 +4073,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+8 Upheaval Attack Speed per second on Allies",
-      "description": [
-        "Maximum of +70 Attack Speed"
-      ]
+      "description": ["Maximum of +70 Attack Speed"]
     }
   },
   {
@@ -4138,9 +4100,7 @@
     "isTalent": true,
     "language": {
       "displayName": "{s:bonus_glaives_fired} Moon Glaives fired on Lucent Beam",
-      "description": [
-        "Does not fire Glaives on Beams from Eclipse"
-      ]
+      "description": ["Does not fire Glaives on Beams from Eclipse"]
     }
   },
   {
@@ -4232,9 +4192,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Prospecting Aura",
-      "description": [
-        "Kobolds are adept at finding gold, increasing nearby allied heroes' GPM."
-      ]
+      "description": ["Kobolds are adept at finding gold, increasing nearby allied heroes' GPM."]
     }
   },
   {
@@ -4265,9 +4223,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Heal Amplification Aura",
-      "description": [
-        "Provides bonus Heal Amplification to all nearby allies."
-      ]
+      "description": ["Provides bonus Heal Amplification to all nearby allies."]
     }
   },
   {
@@ -4479,9 +4435,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Vex",
-      "description": [
-        "Silences target unit."
-      ]
+      "description": ["Silences target unit."]
     }
   },
   {
@@ -4499,9 +4453,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Break",
-      "description": [
-        "Whenever Hill Troll Berserker attacks a unit it applies break to it."
-      ]
+      "description": ["Whenever Hill Troll Berserker attacks a unit it applies break to it."]
     }
   },
   {
@@ -4537,9 +4489,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Rally",
-      "description": [
-        "Skeleton's allies gain bonus attack damage. This Aura stacks."
-      ]
+      "description": ["Skeleton's allies gain bonus attack damage. This Aura stacks."]
     }
   },
   {
@@ -4644,9 +4594,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Pulverize Pierces Magic Immunity",
-      "description": [
-        "Damage is changed to Pure"
-      ]
+      "description": ["Damage is changed to Pure"]
     }
   },
   {
@@ -4706,9 +4654,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Runty",
-      "description": [
-        "Runty Units Deal reduced damage to hero units."
-      ]
+      "description": ["Runty Units Deal reduced damage to hero units."]
     }
   },
   {
@@ -4793,9 +4739,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Magic Amplification Aura",
-      "description": [
-        "The Black Drakes' gaze make enemies more susceptible to Spell Damage."
-      ]
+      "description": ["The Black Drakes' gaze make enemies more susceptible to Spell Damage."]
     }
   },
   {
@@ -4813,9 +4757,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Press the Attack grants 1.5s Debuff Immunity",
-      "description": [
-        "Also increases magic resistance by 50%%"
-      ]
+      "description": ["Also increases magic resistance by 50%%"]
     }
   },
   {
@@ -4942,9 +4884,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Permanent Phase",
-      "description": [
-        "Provides the Brewling with phased movement and bonus Status Resistance."
-      ]
+      "description": ["Provides the Brewling with phased movement and bonus Status Resistance."]
     }
   },
   {
@@ -5331,9 +5271,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Begin Onslaught",
-      "description": [
-        "Begins the rush to the specified location."
-      ]
+      "description": ["Begins the rush to the specified location."]
     }
   },
   {
@@ -5455,9 +5393,7 @@
     "isTalent": true,
     "language": {
       "displayName": "No Wild Axes Cooldown",
-      "description": [
-        "Axes still must return to Beastmaster before they can be cast again."
-      ]
+      "description": ["Axes still must return to Beastmaster before they can be cast again."]
     }
   },
   {
@@ -5623,9 +5559,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+12 All Attributes per hero hit with Reverse Polarity",
-      "description": [
-        "Bonus Stats last for {s:bonus_stat_buff_duration}s"
-      ]
+      "description": ["Bonus Stats last for {s:bonus_stat_buff_duration}s"]
     }
   },
   {
@@ -5868,9 +5802,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Creates A Second Plasma Field Delayed By 0.8s",
-      "description": [
-        "The second plasma field does {s:bonus_second_ring_reduction}% less damage"
-      ]
+      "description": ["The second plasma field does {s:bonus_second_ring_reduction}% less damage"]
     }
   },
   {
@@ -5924,9 +5856,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Outer Dissimilate Ring",
-      "description": [
-        "Add a partial outer ring to Dissimilate"
-      ]
+      "description": ["Add a partial outer ring to Dissimilate"]
     }
   },
   {
@@ -5953,9 +5883,7 @@
     "isTalent": true,
     "language": {
       "displayName": "{s:bonus_bounce_count} Glaives of Wisdom Bounce",
-      "description": [
-        "Glaives of Wisdom Bounce to targets withing a {s:bonus_bounce_range} range."
-      ]
+      "description": ["Glaives of Wisdom Bounce to targets withing a {s:bonus_bounce_range} range."]
     }
   },
   {
@@ -6065,9 +5993,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Gust Reveals Invisible Units",
-      "description": [
-        "Does not reveal Wards"
-      ]
+      "description": ["Does not reveal Wards"]
     }
   },
   {
@@ -6296,9 +6222,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+150 Health / +25 Damage  for Enchantress and her units",
-      "description": [
-        "Requires at least 1 level of Enchant"
-      ]
+      "description": ["Requires at least 1 level of Enchant"]
     }
   },
   {
@@ -6463,9 +6387,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Detonate Tazer",
-      "description": [
-        "Detonate Reactive Tazer immediately."
-      ]
+      "description": ["Detonate Reactive Tazer immediately."]
     }
   },
   {
@@ -6537,9 +6459,7 @@
     "isTalent": false,
     "language": {
       "displayName": "One Man Army",
-      "description": [
-        "Axe gains Strength based on his armor as long as he's away from his allies."
-      ]
+      "description": ["Axe gains Strength based on his armor as long as he's away from his allies."]
     }
   },
   {
@@ -6597,9 +6517,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+5 Armor for Enchantress and her units",
-      "description": [
-        "Requires at least 1 level of Enchant"
-      ]
+      "description": ["Requires at least 1 level of Enchant"]
     }
   },
   {
@@ -6635,9 +6553,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+{s:bonus_target_crit_multiplier}% Crit On Targets Affected By Dragon Slave",
-      "description": [
-        "Only applies to Lina's attacks"
-      ]
+      "description": ["Only applies to Lina's attacks"]
     }
   },
   {
@@ -6861,9 +6777,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Blueheart Floe",
-      "description": [
-        "Crystal Maiden has 25 / 50 / 75 / 100% Mana Regeneration Amplification."
-      ]
+      "description": ["Crystal Maiden has 25 / 50 / 75 / 100% Mana Regeneration Amplification."]
     }
   },
   {
@@ -6892,9 +6806,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Vantage Point",
-      "description": [
-        "Drow deals 30% more damage when attacking from high ground."
-      ]
+      "description": ["Drow deals 30% more damage when attacking from high ground."]
     }
   },
   {
@@ -6974,9 +6886,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Selemene's Faithful",
-      "description": [
-        "Healing Lotuses are 50% more effective on Mirana and her allies."
-      ]
+      "description": ["Healing Lotuses are 50% more effective on Mirana and her allies."]
     }
   },
   {
@@ -7005,9 +6915,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Ebb",
-      "description": [
-        "Morphling's Primary Attribute is now <font color='#9acd32'>Agility</font>."
-      ]
+      "description": ["Morphling's Primary Attribute is now <font color='#9acd32'>Agility</font>."]
     }
   },
   {
@@ -7082,9 +6990,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Dynamo",
-      "description": [
-        "Razor gains 1.25% spell amplification for every 20 points of attack damage."
-      ]
+      "description": ["Razor gains 1.25% spell amplification for every 20 points of attack damage."]
     }
   },
   {
@@ -7153,9 +7059,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Vanquisher",
-      "description": [
-        "Sven's attacks deal 20% bonus damage to stunned enemies."
-      ]
+      "description": ["Sven's attacks deal 20% bonus damage to stunned enemies."]
     }
   },
   {
@@ -7173,9 +7077,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Wrath of God",
-      "description": [
-        "Sven gains additional attack damage from Strength."
-      ]
+      "description": ["Sven gains additional attack damage from Strength."]
     }
   },
   {
@@ -7204,9 +7106,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Soul Strike",
-      "description": [
-        "Vengeful Spirit's ranged attacks behave as if they were melee attacks."
-      ]
+      "description": ["Vengeful Spirit's ranged attacks behave as if they were melee attacks."]
     }
   },
   {
@@ -7226,9 +7126,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Easy Breezy",
-      "description": [
-        "Windranger's movement speed cannot be lower than 240 and can reach 600."
-      ]
+      "description": ["Windranger's movement speed cannot be lower than 240 and can reach 600."]
     }
   },
   {
@@ -7441,9 +7339,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Splitting Image",
-      "description": [
-        "Enigma spawns Eidolons upon receiving damage."
-      ]
+      "description": ["Enigma spawns Eidolons upon receiving damage."]
     }
   },
   {
@@ -7492,9 +7388,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Rearm Grants {s:bonus_magic_resistance}% Bonus Magic Resistance",
-      "description": [
-        "Lasts for {s:bonus_armor_duration}s."
-      ]
+      "description": ["Lasts for {s:bonus_armor_duration}s."]
     }
   },
   {
@@ -7521,9 +7415,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Keen Scope",
-      "description": [
-        "Increases Sniper's attack range."
-      ]
+      "description": ["Increases Sniper's attack range."]
     }
   },
   {
@@ -7552,9 +7444,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Flaming Fists",
-      "description": [
-        "Deals extra damage to nearby units when attacking."
-      ]
+      "description": ["Deals extra damage to nearby units when attacking."]
     }
   },
   {
@@ -7563,9 +7453,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Permanent Immolation",
-      "description": [
-        "Burns the Golem's nearby enemy units, dealing damage per second."
-      ]
+      "description": ["Burns the Golem's nearby enemy units, dealing damage per second."]
     }
   },
   {
@@ -7700,9 +7588,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Spirit Collector",
-      "description": [
-        "Hero deaths empower your next Exorcism."
-      ]
+      "description": ["Hero deaths empower your next Exorcism."]
     }
   },
   {
@@ -7733,9 +7619,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Oblivion Savant",
-      "description": [
-        "Pugna can cast spells and use items while channeling."
-      ]
+      "description": ["Pugna can cast spells and use items while channeling."]
     }
   },
   {
@@ -7804,9 +7688,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Armor Power",
-      "description": [
-        "Clockwerk's outgoing damage increases by 0.25% per point of armor."
-      ]
+      "description": ["Clockwerk's outgoing damage increases by 0.25% per point of armor."]
     }
   },
   {
@@ -7826,9 +7708,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Defilement",
-      "description": [
-        "Leshrac gains AoE per intelligence."
-      ]
+      "description": ["Leshrac gains AoE per intelligence."]
     }
   },
   {
@@ -7888,9 +7768,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Quick Wit",
-      "description": [
-        "Dark Seer also gains Attack Speed from Intelligence."
-      ]
+      "description": ["Dark Seer also gains Attack Speed from Intelligence."]
     }
   },
   {
@@ -7899,9 +7777,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Heart of Battle",
-      "description": [
-        "Dark Seer moves faster when near other heroes."
-      ]
+      "description": ["Dark Seer moves faster when near other heroes."]
     }
   },
   {
@@ -7921,9 +7797,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Bone and Arrow",
-      "description": [
-        "Clinkz summons a Skeleton Archer when he dies. "
-      ]
+      "description": ["Clinkz summons a Skeleton Archer when he dies. "]
     }
   },
   {
@@ -7932,9 +7806,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Healing Hammer",
-      "description": [
-        "Ability damage done to enemies by Omniknight heals him over time."
-      ]
+      "description": ["Ability damage done to enemies by Omniknight heals him over time."]
     }
   },
   {
@@ -7963,9 +7835,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Heart of Darkness",
-      "description": [
-        "During the night, Night Stalker's health regeneration is increased by 20%."
-      ]
+      "description": ["During the night, Night Stalker's health regeneration is increased by 20%."]
     }
   },
   {
@@ -8144,9 +8014,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Maul",
-      "description": [
-        "Ursa gains bonus damage equal to a percentage of his Current HP."
-      ]
+      "description": ["Ursa gains bonus damage equal to a percentage of his Current HP."]
     }
   },
   {
@@ -8155,9 +8023,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Bear Down",
-      "description": [
-        "Debuffs inflicted by Ursa last longer."
-      ]
+      "description": ["Debuffs inflicted by Ursa last longer."]
     }
   },
   {
@@ -8186,9 +8052,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Chop Shop",
-      "description": [
-        "Gyrocopter can disassemble most items."
-      ]
+      "description": ["Gyrocopter can disassemble most items."]
     }
   },
   {
@@ -8217,9 +8081,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Mastermind",
-      "description": [
-        "When Invoker denies a lane creep, he gets 25% of the XP."
-      ]
+      "description": ["When Invoker denies a lane creep, he gets 25% of the XP."]
     }
   },
   {
@@ -8228,9 +8090,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Brain Drain",
-      "description": [
-        "If Silencer kills an enemy hero, he permanently steals Intelligence."
-      ]
+      "description": ["If Silencer kills an enemy hero, he permanently steals Intelligence."]
     }
   },
   {
@@ -8257,9 +8117,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Ominous Discernment",
-      "description": [
-        "Outworld Destroyer gains an additional 2.5 mana per point of Intelligence."
-      ]
+      "description": ["Outworld Destroyer gains an additional 2.5 mana per point of Intelligence."]
     }
   },
   {
@@ -8279,9 +8137,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Shadow Servant",
-      "description": [
-        "Shadow Demon creates illusions of heroes that die near him."
-      ]
+      "description": ["Shadow Demon creates illusions of heroes that die near him."]
     }
   },
   {
@@ -8364,9 +8220,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Demolish",
-      "description": [
-        "Spirit Bear deals more damage to buildings."
-      ]
+      "description": ["Spirit Bear deals more damage to buildings."]
     }
   },
   {
@@ -8433,9 +8287,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Pack Rat",
-      "description": [
-        "All Meepos can use the item in the neutral item slot. "
-      ]
+      "description": ["All Meepos can use the item in the neutral item slot. "]
     }
   },
   {
@@ -8444,9 +8296,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Sticky Fingers",
-      "description": [
-        "Has an extra choice of neutral item to select from."
-      ]
+      "description": ["Has an extra choice of neutral item to select from."]
     }
   },
   {
@@ -8535,9 +8385,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Nyxth Sense",
-      "description": [
-        "Nyx Assassin can detect heroes within 400 units of himself."
-      ]
+      "description": ["Nyx Assassin can detect heroes within 400 units of himself."]
     }
   },
   {
@@ -8555,9 +8403,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Vendetta Applies Break",
-      "description": [
-        "Lasts for {s:bonus_break_duration} seconds."
-      ]
+      "description": ["Lasts for {s:bonus_break_duration} seconds."]
     }
   },
   {
@@ -8586,9 +8432,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Eelskin",
-      "description": [
-        "Naga Siren gets 8% evasion per other Naga Siren within 900 radius."
-      ]
+      "description": ["Naga Siren gets 8% evasion per other Naga Siren within 900 radius."]
     }
   },
   {
@@ -8673,9 +8517,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Horsepower",
-      "description": [
-        "Centaur Warrunner gains Movement Speed based on his Strength."
-      ]
+      "description": ["Centaur Warrunner gains Movement Speed based on his Strength."]
     }
   },
   {
@@ -8684,9 +8526,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Rawhide",
-      "description": [
-        "Permanently gain 25 max health every 120.0s."
-      ]
+      "description": ["Permanently gain 25 max health every 120.0s."]
     }
   },
   {
@@ -8726,9 +8566,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Exposure Therapy",
-      "description": [
-        "Whenever Timbersaw destroys a tree, he gains 4 / 6 / 8 / 10 mana."
-      ]
+      "description": ["Whenever Timbersaw destroys a tree, he gains 4 / 6 / 8 / 10 mana."]
     }
   },
   {
@@ -8770,9 +8608,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Ruin and Restoration",
-      "description": [
-        "Skywrath Mage has 25 / 30 / 35 / 40% Spell Lifesteal."
-      ]
+      "description": ["Skywrath Mage has 25 / 30 / 35 / 40% Spell Lifesteal."]
     }
   },
   {
@@ -8781,9 +8617,7 @@
     "isTalent": false,
     "language": {
       "displayName": "The Quickening",
-      "description": [
-        "Units dying nearby Abaddon lower his cooldowns."
-      ]
+      "description": ["Units dying nearby Abaddon lower his cooldowns."]
     }
   },
   {
@@ -8854,9 +8688,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Dark Unity",
-      "description": [
-        "Nearby Illusions created by Terrorblade have bonus attack damage."
-      ]
+      "description": ["Nearby Illusions created by Terrorblade have bonus attack damage."]
     }
   },
   {
@@ -8887,9 +8719,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Clairvoyant Curse",
-      "description": [
-        "Spell amplification increased by 1.0% per hero level."
-      ]
+      "description": ["Spell amplification increased by 1.0% per hero level."]
     }
   },
   {
@@ -8898,9 +8728,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Clairvoyant Cure",
-      "description": [
-        "Heal amplification increased by 0.75% per hero level."
-      ]
+      "description": ["Heal amplification increased by 0.75% per hero level."]
     }
   },
   {
@@ -8953,9 +8781,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Essence of the Blueheart",
-      "description": [
-        "Winter Wyvern's heals also restore mana."
-      ]
+      "description": ["Winter Wyvern's heals also restore mana."]
     }
   },
   {
@@ -8964,9 +8790,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Dragon Sight",
-      "description": [
-        "Winter Wyvern gains bonus damage when her attack range is over 400."
-      ]
+      "description": ["Winter Wyvern gains bonus damage when her attack range is over 400."]
     }
   },
   {
@@ -8975,9 +8799,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Runic Infusion",
-      "description": [
-        "Upon activating any rune, gain the Regeneration Rune buff for 4.0s."
-      ]
+      "description": ["Upon activating any rune, gain the Regeneration Rune buff for 4.0s."]
     }
   },
   {
@@ -8997,9 +8819,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Last Will",
-      "description": [
-        "Deals damage to the unit that kills the Necronomicon Warrior."
-      ]
+      "description": ["Deals damage to the unit that kills the Necronomicon Warrior."]
     }
   },
   {
@@ -9008,9 +8828,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Mana Break",
-      "description": [
-        "Mana burned per hit, a portion of which is dealt as damage."
-      ]
+      "description": ["Mana burned per hit, a portion of which is dealt as damage."]
     }
   },
   {
@@ -9019,9 +8837,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Archer Aura",
-      "description": [
-        "Increases movement of nearby units."
-      ]
+      "description": ["Increases movement of nearby units."]
     }
   },
   {
@@ -9147,9 +8963,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Mistwoods Wayfarer",
-      "description": [
-        "Hoodwink has a chance to redirect enemy attacks to a nearby tree."
-      ]
+      "description": ["Hoodwink has a chance to redirect enemy attacks to a nearby tree."]
     }
   },
   {
@@ -9238,9 +9052,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Colossal",
-      "description": [
-        "Primal Beast deals 40% more damage to buildings."
-      ]
+      "description": ["Primal Beast deals 40% more damage to buildings."]
     }
   },
   {
@@ -9289,9 +9101,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Destroy Ofrenda",
-      "description": [
-        "Destroy this Ofrenda, ensuring that Muerta will respawn in the fountain."
-      ]
+      "description": ["Destroy this Ofrenda, ensuring that Muerta will respawn in the fountain."]
     }
   },
   {
@@ -9300,9 +9110,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+3.0% Max HP Regen while inside The Calling",
-      "description": [
-        "Only applies to Muerta."
-      ]
+      "description": ["Only applies to Muerta."]
     }
   },
   {
@@ -9311,9 +9119,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+55 Gunslinger Damage",
-      "description": [
-        "Affects both shots."
-      ]
+      "description": ["Affects both shots."]
     }
   },
   {
@@ -9502,9 +9308,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Third Eye",
-      "description": [
-        "Templar Assassin and her teammates can see Roshan's respawn timer."
-      ]
+      "description": ["Templar Assassin and her teammates can see Roshan's respawn timer."]
     }
   },
   {
@@ -9938,9 +9742,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Cancel",
-      "description": [
-        "Stop blocking physical attacks."
-      ]
+      "description": ["Stop blocking physical attacks."]
     }
   },
   {
@@ -10183,9 +9985,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+30 Attack Speed for Enchantress and her units",
-      "description": [
-        "Requires at least 1 level of Enchant"
-      ]
+      "description": ["Requires at least 1 level of Enchant"]
     }
   },
   {
@@ -10212,9 +10012,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Chicken Fingers",
-      "description": [
-        "Your next attack on an enemy hero transforms them into a chicken for 1.0s."
-      ]
+      "description": ["Your next attack on an enemy hero transforms them into a chicken for 1.0s."]
     }
   },
   {
@@ -10310,9 +10108,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Destroy Ice Path",
-      "description": [
-        "Destroy the Ice Path, dealing damage and stunning enemies."
-      ]
+      "description": ["Destroy the Ice Path, dealing damage and stunning enemies."]
     }
   },
   {
@@ -10350,9 +10146,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Special Reserve",
-      "description": [
-        "Keeper of the Light cannot go below 75 mana."
-      ]
+      "description": ["Keeper of the Light cannot go below 75 mana."]
     }
   },
   {
@@ -10444,9 +10238,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Sharpshooter Provides Vision While Charging",
-      "description": [
-        "Also Grants True Sight. Does Not Reveal Wards."
-      ]
+      "description": ["Also Grants True Sight. Does Not Reveal Wards."]
     }
   },
   {
@@ -10596,9 +10388,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Suffer In Silence",
-      "description": [
-        "Silencer takes less damage from and deals more damage to silenced targets."
-      ]
+      "description": ["Silencer takes less damage from and deals more damage to silenced targets."]
     }
   },
   {
@@ -10616,9 +10406,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Wellspring",
-      "description": [
-        "Io regenerates from consumables and certain items 2x faster."
-      ]
+      "description": ["Io regenerates from consumables and certain items 2x faster."]
     }
   },
   {
@@ -10739,9 +10527,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Island Elixir",
-      "description": [
-        "Largo plays a song that heals nearby friendly heroes."
-      ]
+      "description": ["Largo plays a song that heals nearby friendly heroes."]
     }
   },
   {
@@ -10750,9 +10536,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Encore",
-      "description": [
-        "Buffs that Largo applies to himself or his team have extended duration."
-      ]
+      "description": ["Buffs that Largo applies to himself or his team have extended duration."]
     }
   },
   {
@@ -10779,9 +10563,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Jetpack Toggle",
-      "description": [
-        "Toggles Jetpack on and off."
-      ]
+      "description": ["Toggles Jetpack on and off."]
     }
   },
   {
@@ -11059,9 +10841,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Attacks",
-      "description": [
-        "Damage done by direct attacks."
-      ]
+      "description": ["Damage done by direct attacks."]
     }
   },
   {
@@ -11070,9 +10850,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Attribute Bonus",
-      "description": [
-        "Improves all attributes per point spent"
-      ]
+      "description": ["Improves all attributes per point spent"]
     }
   },
   {
@@ -11341,9 +11119,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Blade Dance",
-      "description": [
-        "Gives Juggernaut a chance to deal critical damage on each attack."
-      ]
+      "description": ["Gives Juggernaut a chance to deal critical damage on each attack."]
     }
   },
   {
@@ -11420,9 +11196,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Return",
-      "description": [
-        "Returns the marked hero to the X."
-      ]
+      "description": ["Returns the marked hero to the X."]
     }
   },
   {
@@ -11453,9 +11227,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Light Strike Array",
-      "description": [
-        "Summons a column of flames that damages and stuns enemies."
-      ]
+      "description": ["Summons a column of flames that damages and stuns enemies."]
     }
   },
   {
@@ -11640,9 +11412,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Morph Replicate",
-      "description": [
-        "Toggles Morphling's form between his own and the replicated enemy."
-      ]
+      "description": ["Toggles Morphling's form between his own and the replicated enemy."]
     }
   },
   {
@@ -11695,9 +11465,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Presence of the Dark Lord",
-      "description": [
-        "Shadow Fiend's presence reduces the armor of nearby enemies."
-      ]
+      "description": ["Shadow Fiend's presence reduces the armor of nearby enemies."]
     }
   },
   {
@@ -11774,9 +11542,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Ethereal Jaunt",
-      "description": [
-        "Teleports Puck to a flying Illusory Orb."
-      ]
+      "description": ["Teleports Puck to a flying Illusory Orb."]
     }
   },
   {
@@ -11862,9 +11628,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Ether Shock",
-      "description": [
-        "Creates a cone of ethereal energy that strikes multiple enemy units."
-      ]
+      "description": ["Creates a cone of ethereal energy that strikes multiple enemy units."]
     }
   },
   {
@@ -11928,9 +11692,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Unstable Current",
-      "description": [
-        "Passively increases Razor's movement speed by 1% per hero level."
-      ]
+      "description": ["Passively increases Razor's movement speed by 1% per hero level."]
     }
   },
   {
@@ -11972,9 +11734,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Mortal Strike",
-      "description": [
-        "Wraith King passively deals bonus damage on an attack with a cooldown."
-      ]
+      "description": ["Wraith King passively deals bonus damage on an attack with a cooldown."]
     }
   },
   {
@@ -12093,9 +11853,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Electric Vortex",
-      "description": [
-        "A vortex that pulls an enemy unit to Storm Spirit's location."
-      ]
+      "description": ["A vortex that pulls an enemy unit to Storm Spirit's location."]
     }
   },
   {
@@ -12280,9 +12038,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Bash of the Deep",
-      "description": [
-        "After 3 attacks, your next attack will bash the target."
-      ]
+      "description": ["After 3 attacks, your next attack will bash the target."]
     }
   },
   {
@@ -12348,9 +12104,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Magic Missile",
-      "description": [
-        "Fires a magic missile at an enemy unit, stunning and dealing damage."
-      ]
+      "description": ["Fires a magic missile at an enemy unit, stunning and dealing damage."]
     }
   },
   {
@@ -12359,9 +12113,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Vengeance Aura",
-      "description": [
-        "Vengeful Spirit's presence increases the damage of nearby friendly heroes."
-      ]
+      "description": ["Vengeful Spirit's presence increases the damage of nearby friendly heroes."]
     }
   },
   {
@@ -12392,9 +12144,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Crystal Nova",
-      "description": [
-        "A burst of damaging frost slows enemy movement in the targeted area."
-      ]
+      "description": ["A burst of damaging frost slows enemy movement in the targeted area."]
     }
   },
   {
@@ -12458,9 +12208,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Windrun",
-      "description": [
-        "Increases movement speed and adds evasion from all physical attacks."
-      ]
+      "description": ["Increases movement speed and adds evasion from all physical attacks."]
     }
   },
   {
@@ -12632,9 +12380,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Midnight Pulse",
-      "description": [
-        "Steeps an area in dark resonance, dealing damage to enemies every 0.5s."
-      ]
+      "description": ["Steeps an area in dark resonance, dealing damage to enemies every 0.5s."]
     }
   },
   {
@@ -12685,9 +12431,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Rearm",
-      "description": [
-        "CHANNELED - Resets the cooldown on Tinker's abilities."
-      ]
+      "description": ["CHANNELED - Resets the cooldown on Tinker's abilities."]
     }
   },
   {
@@ -12828,9 +12572,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Flaming Fists",
-      "description": [
-        "Deals extra damage to nearby units when attacking."
-      ]
+      "description": ["Deals extra damage to nearby units when attacking."]
     }
   },
   {
@@ -12839,9 +12581,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Permanent Immolation",
-      "description": [
-        "Burns the Golem's nearby enemy units, dealing damage per second."
-      ]
+      "description": ["Burns the Golem's nearby enemy units, dealing damage per second."]
     }
   },
   {
@@ -12879,9 +12619,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Poison",
-      "description": [
-        "Inflicts a poison that slows attack and movement speeds."
-      ]
+      "description": ["Inflicts a poison that slows attack and movement speeds."]
     }
   },
   {
@@ -13185,9 +12923,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Trap",
-      "description": [
-        "Springs the trap, slowing nearby enemies."
-      ]
+      "description": ["Springs the trap, slowing nearby enemies."]
     }
   },
   {
@@ -13196,9 +12932,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Last Will",
-      "description": [
-        "Deals damage to the unit that kills the Necronomicon Warrior."
-      ]
+      "description": ["Deals damage to the unit that kills the Necronomicon Warrior."]
     }
   },
   {
@@ -13207,9 +12941,7 @@
     "isTalent": false,
     "language": {
       "displayName": "True Sight",
-      "description": [
-        "Reveals invisible units."
-      ]
+      "description": ["Reveals invisible units."]
     }
   },
   {
@@ -13218,9 +12950,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Mana Break",
-      "description": [
-        "Mana burned per hit, a portion of which is dealt as damage."
-      ]
+      "description": ["Mana burned per hit, a portion of which is dealt as damage."]
     }
   },
   {
@@ -13240,9 +12970,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Archer Aura",
-      "description": [
-        "Increases movement of nearby units."
-      ]
+      "description": ["Increases movement of nearby units."]
     }
   },
   {
@@ -13251,9 +12979,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Return to Base",
-      "description": [
-        "Returns the courier to base"
-      ]
+      "description": ["Returns the courier to base"]
     }
   },
   {
@@ -13262,9 +12988,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Transfer Items",
-      "description": [
-        "Transfer items to hero"
-      ]
+      "description": ["Transfer items to hero"]
     }
   },
   {
@@ -13273,9 +12997,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Return Items",
-      "description": [
-        "Return items to stash"
-      ]
+      "description": ["Return items to stash"]
     }
   },
   {
@@ -13284,9 +13006,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Retrieve Items",
-      "description": [
-        "Retrieve items from stash"
-      ]
+      "description": ["Retrieve items from stash"]
     }
   },
   {
@@ -13295,9 +13015,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Shield",
-      "description": [
-        "Summons a protective shield around the courier"
-      ]
+      "description": ["Summons a protective shield around the courier"]
     }
   },
   {
@@ -13306,9 +13024,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Speed Burst",
-      "description": [
-        "The courier gains a burst of speed for 6 seconds"
-      ]
+      "description": ["The courier gains a burst of speed for 6 seconds"]
     }
   },
   {
@@ -13328,9 +13044,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Bash",
-      "description": [
-        "Roshan has a chance to stun on attack."
-      ]
+      "description": ["Roshan has a chance to stun on attack."]
     }
   },
   {
@@ -13733,9 +13447,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Consume",
-      "description": [
-        "Lifestealer eats the host body from the inside out, exploding from within."
-      ]
+      "description": ["Lifestealer eats the host body from the inside out, exploding from within."]
     }
   },
   {
@@ -13832,9 +13544,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Purification",
-      "description": [
-        "Instantly heals a friendly unit and damages all nearby enemy units."
-      ]
+      "description": ["Instantly heals a friendly unit and damages all nearby enemy units."]
     }
   },
   {
@@ -13852,9 +13562,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Degen Aura",
-      "description": [
-        "Degenerates the movement capabilities of enemy units that stray too near."
-      ]
+      "description": ["Degenerates the movement capabilities of enemy units that stray too near."]
     }
   },
   {
@@ -13900,9 +13608,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Nature's Attendants",
-      "description": [
-        "A cloud of wisps heals Enchantress and any friendly units nearby."
-      ]
+      "description": ["A cloud of wisps heals Enchantress and any friendly units nearby."]
     }
   },
   {
@@ -14054,9 +13760,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Spawn Spiderling",
-      "description": [
-        "Applies debuff on attack. If debuffed unit dies, a spiderling will spawn."
-      ]
+      "description": ["Applies debuff on attack. If debuffed unit dies, a spiderling will spawn."]
     }
   },
   {
@@ -14065,9 +13769,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Poison Sting",
-      "description": [
-        "Slows enemies with each attack."
-      ]
+      "description": ["Slows enemies with each attack."]
     }
   },
   {
@@ -14142,9 +13844,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Geminate Attack",
-      "description": [
-        "Allows Weaver to dispatch two attacks at once."
-      ]
+      "description": ["Allows Weaver to dispatch two attacks at once."]
     }
   },
   {
@@ -14221,9 +13921,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Ice Path",
-      "description": [
-        "Creates a path of ice that stuns and damages enemies that touch it."
-      ]
+      "description": ["Creates a path of ice that stuns and damages enemies that touch it."]
     }
   },
   {
@@ -14254,9 +13952,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Frost Attack",
-      "description": [
-        "The Ghost launches an eerie attack that chills her enemies to their bones."
-      ]
+      "description": ["The Ghost launches an eerie attack that chills her enemies to their bones."]
     }
   },
   {
@@ -14276,9 +13972,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Spell Immunity",
-      "description": [
-        "This creature does not feel the effects of most magical spells."
-      ]
+      "description": ["This creature does not feel the effects of most magical spells."]
     }
   },
   {
@@ -14498,9 +14192,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Splash Attack",
-      "description": [
-        "The Black Dragon's explosive attacks are felt by all nearby enemies."
-      ]
+      "description": ["The Black Dragon's explosive attacks are felt by all nearby enemies."]
     }
   },
   {
@@ -14644,9 +14336,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Reality",
-      "description": [
-        "Spectre assumes the target Shadow Step or Haunt illusion, destroying it."
-      ]
+      "description": ["Spectre assumes the target Shadow Step or Haunt illusion, destroying it."]
     }
   },
   {
@@ -14701,9 +14391,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Devoured Ability",
-      "description": [
-        "This slot will be replaced with abilities acquired using Devour."
-      ]
+      "description": ["This slot will be replaced with abilities acquired using Devour."]
     }
   },
   {
@@ -14712,9 +14400,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Devoured Ability",
-      "description": [
-        "This slot will be replaced with abilities acquired using Devour."
-      ]
+      "description": ["This slot will be replaced with abilities acquired using Devour."]
     }
   },
   {
@@ -14800,9 +14486,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Poison",
-      "description": [
-        "Inflicts a poison that slows attack and movement speeds."
-      ]
+      "description": ["Inflicts a poison that slows attack and movement speeds."]
     }
   },
   {
@@ -14965,9 +14649,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Unstable Concoction Throw",
-      "description": [
-        "Throw it before it blows up!"
-      ]
+      "description": ["Throw it before it blows up!"]
     }
   },
   {
@@ -15372,9 +15054,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Hurl Boulder",
-      "description": [
-        "Throws a boulder at a unit, doing damage and stunning it."
-      ]
+      "description": ["Throws a boulder at a unit, doing damage and stunning it."]
     }
   },
   {
@@ -15383,9 +15063,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Earth Element",
-      "description": [
-        "Magic, status, and slow resistance increased."
-      ]
+      "description": ["Magic, status, and slow resistance increased."]
     }
   },
   {
@@ -15394,9 +15072,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Demolish",
-      "description": [
-        "Deals bonus damage to buildings."
-      ]
+      "description": ["Deals bonus damage to buildings."]
     }
   },
   {
@@ -15451,9 +15127,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Permanent Immolation",
-      "description": [
-        "Burns nearby enemy units."
-      ]
+      "description": ["Burns nearby enemy units."]
     }
   },
   {
@@ -15545,9 +15219,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Demolish",
-      "description": [
-        "Spirit Bear deals more damage to buildings."
-      ]
+      "description": ["Spirit Bear deals more damage to buildings."]
     }
   },
   {
@@ -15861,9 +15533,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Telekinesis Land",
-      "description": [
-        "Chooses the location the target will land when Telekinesis finishes."
-      ]
+      "description": ["Chooses the location the target will land when Telekinesis finishes."]
     }
   },
   {
@@ -15903,9 +15573,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Stolen Spell",
-      "description": [
-        "Spells acquired with Spell Steal will replace this slot."
-      ]
+      "description": ["Spells acquired with Spell Steal will replace this slot."]
     }
   },
   {
@@ -15914,9 +15582,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Stolen Spell",
-      "description": [
-        "Spells acquired with Spell Steal will replace this slot."
-      ]
+      "description": ["Spells acquired with Spell Steal will replace this slot."]
     }
   },
   {
@@ -16161,9 +15827,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Release Illuminate",
-      "description": [
-        "Release the channel early."
-      ]
+      "description": ["Release the channel early."]
     }
   },
   {
@@ -16172,9 +15836,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Song of the Siren End",
-      "description": [
-        "Release enemy units from your song so they can be targeted again."
-      ]
+      "description": ["Release enemy units from your song so they can be targeted again."]
     }
   },
   {
@@ -16291,9 +15953,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Break Tether",
-      "description": [
-        "Break the link to the tethered unit."
-      ]
+      "description": ["Break the link to the tethered unit."]
     }
   },
   {
@@ -16302,9 +15962,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Spirits In",
-      "description": [
-        "Sends the spirits closer to you. Can be toggled on and off."
-      ]
+      "description": ["Sends the spirits closer to you. Can be toggled on and off."]
     }
   },
   {
@@ -16313,9 +15971,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Mana Aura",
-      "description": [
-        "Provides bonus mana regeneration to all nearby allies."
-      ]
+      "description": ["Provides bonus mana regeneration to all nearby allies."]
     }
   },
   {
@@ -16324,9 +15980,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Go To Secret Shop",
-      "description": [
-        "Sends the courier to your team's secret shop"
-      ]
+      "description": ["Sends the courier to your team's secret shop"]
     }
   },
   {
@@ -16335,9 +15989,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Spirits Out",
-      "description": [
-        "Sends the spirits farther away from you. Can be toggled on and off."
-      ]
+      "description": ["Sends the spirits farther away from you. Can be toggled on and off."]
     }
   },
   {
@@ -16410,9 +16062,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Invisibility",
-      "description": [
-        "Permanently invisible when not attacking."
-      ]
+      "description": ["Permanently invisible when not attacking."]
     }
   },
   {
@@ -16648,9 +16298,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Nightmare End",
-      "description": [
-        "Ends all ongoing Nightmares."
-      ]
+      "description": ["Ends all ongoing Nightmares."]
     }
   },
   {
@@ -16703,9 +16351,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Return Chakram",
-      "description": [
-        "Returns the Chakram to Timbersaw."
-      ]
+      "description": ["Returns the Chakram to Timbersaw."]
     }
   },
   {
@@ -17323,9 +16969,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Return Astral Spirit",
-      "description": [
-        "Returns the Astral Spirit to Elder Titan."
-      ]
+      "description": ["Returns the Astral Spirit to Elder Titan."]
     }
   },
   {
@@ -17490,9 +17134,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Activate Fire Remnant",
-      "description": [
-        "Select the Fire Remnant to arrive at."
-      ]
+      "description": ["Select the Fire Remnant to arrive at."]
     }
   },
   {
@@ -17627,9 +17269,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Conjure Image",
-      "description": [
-        "Creates an illusion of Terrorblade that deals damage."
-      ]
+      "description": ["Creates an illusion of Terrorblade that deals damage."]
     }
   },
   {
@@ -17671,9 +17311,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Stop Icarus Dive",
-      "description": [
-        "Immediately cancels the dive."
-      ]
+      "description": ["Immediately cancels the dive."]
     }
   },
   {
@@ -17704,9 +17342,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Stop Sun Ray",
-      "description": [
-        "Immediately stops the Sun Ray."
-      ]
+      "description": ["Immediately stops the Sun Ray."]
     }
   },
   {
@@ -17715,9 +17351,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Toggle Movement",
-      "description": [
-        "Toggles slow forward movement during Sun Ray firing."
-      ]
+      "description": ["Toggles slow forward movement during Sun Ray firing."]
     }
   },
   {
@@ -17770,9 +17404,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Focused Detonate",
-      "description": [
-        "Detonate all remote mines in the target area."
-      ]
+      "description": ["Detonate all remote mines in the target area."]
     }
   },
   {
@@ -17781,9 +17413,7 @@
     "isTalent": false,
     "language": {
       "displayName": "PINPOINT DETONATE",
-      "description": [
-        "Detonate all selected remote mines."
-      ]
+      "description": ["Detonate all selected remote mines."]
     }
   },
   {
@@ -17840,9 +17470,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Launch Snowball",
-      "description": [
-        "Launch the snowball toward the target."
-      ]
+      "description": ["Launch the snowball toward the target."]
     }
   },
   {
@@ -17860,9 +17488,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Destroy Spin Web",
-      "description": [
-        "Destroys the selected Spin Web."
-      ]
+      "description": ["Destroys the selected Spin Web."]
     }
   },
   {
@@ -17984,9 +17610,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Granite Aura",
-      "description": [
-        "Increases the health capacity of nearby units."
-      ]
+      "description": ["Increases the health capacity of nearby units."]
     }
   },
   {
@@ -18087,9 +17711,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Shard Split",
-      "description": [
-        "On death, Mud Golems shatter into several Shard Golems."
-      ]
+      "description": ["On death, Mud Golems shatter into several Shard Golems."]
     }
   },
   {
@@ -18116,9 +17738,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Hurl Boulder",
-      "description": [
-        "Hurls a boulder at the target, damaging and stunning them."
-      ]
+      "description": ["Hurls a boulder at the target, damaging and stunning them."]
     }
   },
   {
@@ -18147,9 +17767,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Unburrow",
-      "description": [
-        "Emerge from the burrow."
-      ]
+      "description": ["Emerge from the burrow."]
     }
   },
   {
@@ -18324,9 +17942,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Attribute Bonus",
-      "description": [
-        "Improves all attributes per point spent"
-      ]
+      "description": ["Improves all attributes per point spent"]
     }
   },
   {
@@ -18379,9 +17995,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Revert Form",
-      "description": [
-        "Reverts Monkey King's shape to his original form."
-      ]
+      "description": ["Reverts Monkey King's shape to his original form."]
     }
   },
   {
@@ -19965,9 +19579,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+0.4s Ice Path Stun Duration",
-      "description": [
-        "Increases both stun and path duration."
-      ]
+      "description": ["Increases both stun and path duration."]
     }
   },
   {
@@ -20464,9 +20076,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Prowler Aura",
-      "description": [
-        "Gives lifesteal and health regeneration to nearby allies."
-      ]
+      "description": ["Gives lifesteal and health regeneration to nearby allies."]
     }
   },
   {
@@ -20936,9 +20546,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+2s Stone Gaze Duration",
-      "description": [
-        "The duration of the stun is not affected."
-      ]
+      "description": ["The duration of the stun is not affected."]
     }
   },
   {
@@ -21583,9 +21191,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Hand of God Fully Heals Chen and His Creeps",
-      "description": [
-        "Initial Heal fully heals. Heal over time is still applied."
-      ]
+      "description": ["Initial Heal fully heals. Heal over time is still applied."]
     }
   },
   {
@@ -21594,9 +21200,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+20 Entangle Root Damage Per Second",
-      "description": [
-        "Also applies to Spirit Bear's Entangling Claws Root"
-      ]
+      "description": ["Also applies to Spirit Bear's Entangling Claws Root"]
     }
   },
   {
@@ -22675,9 +22279,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Focus Fire Kills Advance Cooldown by 18s",
-      "description": [
-        "Triggers if Focus Fired unit dies, regardless of killer."
-      ]
+      "description": ["Triggers if Focus Fired unit dies, regardless of killer."]
     }
   },
   {
@@ -22812,9 +22414,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Stop Rolling",
-      "description": [
-        "Halt!"
-      ]
+      "description": ["Halt!"]
     }
   },
   {
@@ -23472,9 +23072,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Move Astral Spirit",
-      "description": [
-        "Moves the Astral Spirit to target location."
-      ]
+      "description": ["Moves the Astral Spirit to target location."]
     }
   },
   {
@@ -23698,9 +23296,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Cinder Brew applies Fear when ignited",
-      "description": [
-        "Lasts {s:bonus_fear_duration} seconds."
-      ]
+      "description": ["Lasts {s:bonus_fear_duration} seconds."]
     }
   },
   {
@@ -24453,9 +24049,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Split Shot Uses Modifiers",
-      "description": [
-        "Allows on-hit effects to apply to the secondary attacks from Split Shot."
-      ]
+      "description": ["Allows on-hit effects to apply to the secondary attacks from Split Shot."]
     }
   },
   {
@@ -25268,9 +24862,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Refraction Dispels",
-      "description": [
-        "Applies a basic dispel to Templar Assassin."
-      ]
+      "description": ["Applies a basic dispel to Templar Assassin."]
     }
   },
   {
@@ -25326,9 +24918,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+{s:bonus_bonus_reduction_per_stack} Kraken Shell Damage Block per Anchor Smash Kill",
-      "description": [
-        "Retroactively counts any hero who died with Anchor Smash debuff."
-      ]
+      "description": ["Retroactively counts any hero who died with Anchor Smash debuff."]
     }
   },
   {
@@ -25427,9 +25017,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Battle Trance Strong Dispels",
-      "description": [
-        "Can be cast while stunned and applies a strong dispel to Troll Warlord."
-      ]
+      "description": ["Can be cast while stunned and applies a strong dispel to Troll Warlord."]
     }
   },
   {
@@ -25721,9 +25309,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Splinter Blast 1s Stun",
-      "description": [
-        "The slow is still applied for the same duration."
-      ]
+      "description": ["The slow is still applied for the same duration."]
     }
   },
   {
@@ -25786,9 +25372,7 @@
     "isTalent": true,
     "language": {
       "displayName": "+20% Backtrack Chance",
-      "description": [
-        "Grants a 20% chance to avoid damage entirely. Disabled by break."
-      ]
+      "description": ["Grants a 20% chance to avoid damage entirely. Disabled by break."]
     }
   },
   {
@@ -25806,9 +25390,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Toss Requires No Target",
-      "description": [
-        "Toss can target the ground as well as enemy units."
-      ]
+      "description": ["Toss can target the ground as well as enemy units."]
     }
   },
   {
@@ -26576,9 +26158,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Ink Explosion",
-      "description": [
-        "Triggers an existing Ink Swell."
-      ]
+      "description": ["Triggers an existing Ink Swell."]
     }
   },
   {
@@ -26724,9 +26304,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Burning Army",
-      "description": [
-        "Summons a row of Burning Skeleton Archers in the target location."
-      ]
+      "description": ["Summons a row of Burning Skeleton Archers in the target location."]
     }
   },
   {
@@ -27215,9 +26793,7 @@
     "isTalent": true,
     "language": {
       "displayName": "140% Astral Step Crit",
-      "description": [
-        "Attacks made with Astral Step deal a critical strike."
-      ]
+      "description": ["Attacks made with Astral Step deal a critical strike."]
     }
   },
   {
@@ -27291,9 +26867,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Throw Snowball",
-      "description": [
-        "Throw a snowball at an ally or enemy."
-      ]
+      "description": ["Throw a snowball at an ally or enemy."]
     }
   },
   {
@@ -27302,9 +26876,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Build Snowman",
-      "description": [
-        "Construct a jolly snowman."
-      ]
+      "description": ["Construct a jolly snowman."]
     }
   },
   {
@@ -27313,9 +26885,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Decorate Tree",
-      "description": [
-        "Give any tree a delightfully seasonal touch."
-      ]
+      "description": ["Give any tree a delightfully seasonal touch."]
     }
   },
   {
@@ -27324,9 +26894,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Festive Firework",
-      "description": [
-        "Shoot a firework into the air."
-      ]
+      "description": ["Shoot a firework into the air."]
     }
   },
   {
@@ -27490,9 +27058,7 @@
     "isTalent": false,
     "language": {
       "displayName": "+250 Gold",
-      "description": [
-        "Associated ability not drafted, have some gold!"
-      ]
+      "description": ["Associated ability not drafted, have some gold!"]
     }
   },
   {
@@ -27501,9 +27067,7 @@
     "isTalent": false,
     "language": {
       "displayName": "+500 Gold",
-      "description": [
-        "Associated ability not drafted, have some gold!"
-      ]
+      "description": ["Associated ability not drafted, have some gold!"]
     }
   },
   {
@@ -27512,9 +27076,7 @@
     "isTalent": false,
     "language": {
       "displayName": "+750 Gold",
-      "description": [
-        "Associated ability not drafted, have some gold!"
-      ]
+      "description": ["Associated ability not drafted, have some gold!"]
     }
   },
   {
@@ -27523,9 +27085,7 @@
     "isTalent": false,
     "language": {
       "displayName": "+1250 Gold",
-      "description": [
-        "Associated ability not drafted, have some gold!"
-      ]
+      "description": ["Associated ability not drafted, have some gold!"]
     }
   },
   {
@@ -27534,9 +27094,7 @@
     "isTalent": false,
     "language": {
       "displayName": "+250 Gold",
-      "description": [
-        "Associated ability not drafted, have some gold!"
-      ]
+      "description": ["Associated ability not drafted, have some gold!"]
     }
   },
   {
@@ -27545,9 +27103,7 @@
     "isTalent": false,
     "language": {
       "displayName": "+500 Gold",
-      "description": [
-        "Associated ability not drafted, have some gold!"
-      ]
+      "description": ["Associated ability not drafted, have some gold!"]
     }
   },
   {
@@ -27556,9 +27112,7 @@
     "isTalent": false,
     "language": {
       "displayName": "+750 Gold",
-      "description": [
-        "Associated ability not drafted, have some gold!"
-      ]
+      "description": ["Associated ability not drafted, have some gold!"]
     }
   },
   {
@@ -27567,9 +27121,7 @@
     "isTalent": false,
     "language": {
       "displayName": "+1250 Gold",
-      "description": [
-        "Associated ability not drafted, have some gold!"
-      ]
+      "description": ["Associated ability not drafted, have some gold!"]
     }
   },
   {
@@ -28368,9 +27920,7 @@
     "isTalent": false,
     "language": {
       "displayName": "End Roll Up",
-      "description": [
-        "Ends Pangolier's Roll Up early."
-      ]
+      "description": ["Ends Pangolier's Roll Up early."]
     }
   },
   {
@@ -28390,9 +27940,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Stop Freezing Field",
-      "description": [
-        "Immediately stops the Freezing Field"
-      ]
+      "description": ["Immediately stops the Freezing Field"]
     }
   },
   {
@@ -28410,9 +27958,7 @@
     "isTalent": false,
     "language": {
       "displayName": "High Five",
-      "description": [
-        "Throw your hand (or handy appendage) in the air!"
-      ]
+      "description": ["Throw your hand (or handy appendage) in the air!"]
     }
   },
   {
@@ -28421,9 +27967,7 @@
     "isTalent": false,
     "language": {
       "displayName": "Guild Banner",
-      "description": [
-        "Plant your guild's banner to mark this battleground for you all!"
-      ]
+      "description": ["Plant your guild's banner to mark this battleground for you all!"]
     }
   },
   {
@@ -28520,9 +28064,7 @@
     "isTalent": false,
     "language": {
       "displayName": "End Sharpshooter",
-      "description": [
-        "Release the charged up shot, regain ability to move and attack."
-      ]
+      "description": ["Release the charged up shot, regain ability to move and attack."]
     }
   },
   {
@@ -28617,9 +28159,7 @@
     "isTalent": true,
     "language": {
       "displayName": "{s:value}s Sidekick Debuff Immunity",
-      "description": [
-        "Also grants 50%% magic resistance."
-      ]
+      "description": ["Also grants 50%% magic resistance."]
     }
   },
   {
@@ -28709,9 +28249,7 @@
     "isTalent": true,
     "language": {
       "displayName": "100 Borrowed Time Immolation DPS",
-      "description": [
-        "Affects Abaddon and all enemies in a {s:bonus_immolate_aoe} AoE."
-      ]
+      "description": ["Affects Abaddon and all enemies in a {s:bonus_immolate_aoe} AoE."]
     }
   },
   {
@@ -28896,9 +28434,7 @@
     "isTalent": true,
     "language": {
       "displayName": "Pack Rat",
-      "description": [
-        "Can equip any item in the neutral item slot"
-      ]
+      "description": ["Can equip any item in the neutral item slot"]
     }
   },
   {

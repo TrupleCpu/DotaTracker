@@ -3,11 +3,7 @@
 </script>
 
 <div class="eye-container" style="width: {size}px; height: {size}px;">
-  <svg
-    viewBox="0 0 100 100"
-    class="eye-svg"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg viewBox="0 0 100 100" class="eye-svg" xmlns="http://www.w3.org/2000/svg">
     <!-- Outer concentric tracking ring (slow CCW rotation) -->
     <circle
       cx="50"
@@ -65,13 +61,7 @@
     />
 
     <!-- Core Glowing Iris (Pulsing center) -->
-    <circle
-      cx="50"
-      cy="50"
-      r="10"
-      fill="url(#irisGrad)"
-      class="eye-iris"
-    />
+    <circle cx="50" cy="50" r="10" fill="url(#irisGrad)" class="eye-iris" />
 
     <defs>
       <radialGradient id="irisGrad" cx="50%" cy="50%" r="50%">
@@ -113,11 +103,15 @@
     transform-origin: center;
     animation: breathe 3s ease-in-out infinite;
     filter: drop-shadow(0 0 4px var(--color-tx));
-    transition: filter 0.3s ease, fill 0.3s ease;
+    transition:
+      filter 0.3s ease,
+      fill 0.3s ease;
   }
 
   .eye-lid {
-    transition: stroke-width 0.3s ease, filter 0.3s ease;
+    transition:
+      stroke-width 0.3s ease,
+      filter 0.3s ease;
   }
 
   /* Hover interactive state */
@@ -158,7 +152,8 @@
   }
 
   @keyframes breathe {
-    0%, 100% {
+    0%,
+    100% {
       transform: scale(0.95);
       opacity: 0.8;
     }
@@ -169,8 +164,9 @@
   }
 
   @keyframes hyperBreathe {
-    0%, 100% {
-      transform: scale(1.0);
+    0%,
+    100% {
+      transform: scale(1);
       opacity: 0.9;
     }
     50% {

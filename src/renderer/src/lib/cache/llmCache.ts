@@ -47,11 +47,20 @@ export function setCachedSessionReview(matches: unknown[], data: unknown): void 
   set(`${PREFIX}sr_${hash(matches)}`, data)
 }
 
-export function getCachedCoaching(matchId: number | string, playerIndex: number, ctx: unknown): unknown | null {
+export function getCachedCoaching(
+  matchId: number | string,
+  playerIndex: number,
+  ctx: unknown
+): unknown | null {
   return get(`${PREFIX}mc_${matchId}_${playerIndex}_${hash(ctx)}`)
 }
 
-export function setCachedCoaching(matchId: number | string, playerIndex: number, ctx: unknown, data: unknown): void {
+export function setCachedCoaching(
+  matchId: number | string,
+  playerIndex: number,
+  ctx: unknown,
+  data: unknown
+): void {
   set(`${PREFIX}mc_${matchId}_${playerIndex}_${hash(ctx)}`, data)
 }
 

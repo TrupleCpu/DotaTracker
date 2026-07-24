@@ -11,7 +11,10 @@ function cacheKey(query: string, variables?: GraphQLVariables): string {
   return query + JSON.stringify(variables ?? {})
 }
 
-export async function fetchFromStratz(query: string, variables?: GraphQLVariables): Promise<unknown> {
+export async function fetchFromStratz(
+  query: string,
+  variables?: GraphQLVariables
+): Promise<unknown> {
   const key = cacheKey(query, variables)
 
   const existing = inflightMap.get(key)
@@ -27,7 +30,11 @@ export async function fetchFromStratz(query: string, variables?: GraphQLVariable
   }
 }
 
-async function executeQueryWithRetry(query: string, variables?: GraphQLVariables, attempt = 0): Promise<unknown> {
+async function executeQueryWithRetry(
+  query: string,
+  variables?: GraphQLVariables,
+  attempt = 0
+): Promise<unknown> {
   try {
     return await executeQuery(query, variables)
   } catch (err) {

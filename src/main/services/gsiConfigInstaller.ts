@@ -4,7 +4,15 @@ import path from 'path'
 import { execFileSync } from 'child_process'
 
 const CFG_FILENAME = 'gamestate_integration_myserver.cfg'
-const DOTA_RELATIVE = path.join('steamapps', 'common', 'dota 2 beta', 'game', 'dota', 'cfg', 'gamestate_integration')
+const DOTA_RELATIVE = path.join(
+  'steamapps',
+  'common',
+  'dota 2 beta',
+  'game',
+  'dota',
+  'cfg',
+  'gamestate_integration'
+)
 const REG_KEY = 'Software\\AncientEye'
 const REG_VALUE = 'InstallGsiConfig'
 
@@ -14,11 +22,14 @@ function log(msg: string): void {
 
 function readRegistryFlag(): boolean {
   try {
-    if (process.platform !== 'win32') { log('not Windows'); return false }
-    const output = execFileSync('reg', [
-      'query', `HKCU\\${REG_KEY}`,
-      '/v', REG_VALUE
-    ], { encoding: 'utf-8', timeout: 5000 })
+    if (process.platform !== 'win32') {
+      log('not Windows')
+      return false
+    }
+    const output = execFileSync('reg', ['query', `HKCU\\${REG_KEY}`, '/v', REG_VALUE], {
+      encoding: 'utf-8',
+      timeout: 5000
+    })
     log(`reg query raw output: ${output.slice(0, 200)}`)
     const match = output.match(/InstallGsiConfig\s+REG_SZ\s+(.+)/i)
     if (match) {
@@ -37,10 +48,11 @@ function readRegistryFlag(): boolean {
 function getSteamPath(): string | null {
   try {
     if (process.platform !== 'win32') return null
-    const output = execFileSync('reg', [
-      'query', 'HKCU\\Software\\Valve\\Steam',
-      '/v', 'SteamPath'
-    ], { encoding: 'utf-8', timeout: 5000 })
+    const output = execFileSync(
+      'reg',
+      ['query', 'HKCU\\Software\\Valve\\Steam', '/v', 'SteamPath'],
+      { encoding: 'utf-8', timeout: 5000 }
+    )
     const match = output.match(/SteamPath\s+REG_SZ\s+(.+)/i)
     const result = match ? match[1].trim().replace(/\\\\/g, '\\') : null
     log(`Steam path: ${result ?? 'not found'}`)
@@ -95,7 +107,10 @@ function cfgSourcePath(): string {
 export async function installGsiConfigIfNeeded(): Promise<void> {
   log('starting GSI config install check')
 
-  if (process.platform !== 'win32') { log('not Windows - skipping'); return }
+  if (process.platform !== 'win32') {
+    log('not Windows - skipping')
+    return
+  }
 
   const flag = readRegistryFlag()
   log(`registry install flag: ${flag}`)

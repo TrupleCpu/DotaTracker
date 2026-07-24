@@ -1,7 +1,7 @@
-import { ipcMain } from "electron"
-import { state } from "../state"
-import { saveConfig } from "../config"
-import { getStratzToken, saveStratzToken } from "../tokenStore"
+import { ipcMain } from 'electron'
+import { state } from '../state'
+import { saveConfig } from '../config'
+import { getStratzToken, saveStratzToken } from '../tokenStore'
 
 export function registerConfigHandlers(): void {
   ipcMain.handle('get-config', () => {

@@ -30,5 +30,7 @@ export function saveLlmConfig(config: LlmConfig): void {
 export function clearLlmConfig(): void {
   try {
     if (fs.existsSync(CONFIG_PATH)) fs.unlinkSync(CONFIG_PATH)
-  } catch {}
+  } catch {
+    /* file may not exist */
+  }
 }

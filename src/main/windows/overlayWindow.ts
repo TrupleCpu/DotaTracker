@@ -28,7 +28,7 @@ export function createOverlayWindow(): void {
   win.setIgnoreMouseEvents(true, { forward: true })
   win.setSkipTaskbar(true)
 
-  if(is.dev && process.env['ELECTRON_RENDERER_URL']) {
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     win.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     win.loadFile(join(__dirname, '../renderer/index.html'))
@@ -36,4 +36,3 @@ export function createOverlayWindow(): void {
 
   state.mainWindow = win
 }
-

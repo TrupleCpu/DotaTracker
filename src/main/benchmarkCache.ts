@@ -42,6 +42,7 @@ export async function getHeroBenchmarks(heroId: number): Promise<Record<string, 
       return JSON.parse(raw)
     }
   } catch {
+    /* cache miss */
   }
 
   try {

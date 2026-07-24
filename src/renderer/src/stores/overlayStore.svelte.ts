@@ -90,8 +90,8 @@ class OverlayStore {
     if (typeof data.clock === 'number') {
       const newClock = data.clock
       const isNewGame =
-        (this.lastClock > 60 && (newClock <= 5 || newClock < this.lastClock - 30))
-        || (this.prevInventoryIds.length > 0 && newClock === 0)
+        (this.lastClock > 60 && (newClock <= 5 || newClock < this.lastClock - 30)) ||
+        (this.prevInventoryIds.length > 0 && newClock === 0)
       if (isNewGame) {
         this.prevInventoryIds = []
         this.acquiredItems = new Map()
@@ -149,18 +149,27 @@ class OverlayStore {
 
   private calcPercentile(stat: string, value: number): string {
     if (!this.benchmarks) return '—'
-    const buckets = ((this.benchmarks as Record<string, unknown>)?.result as Record<string, Array<{ percentile: number; value: number }>> | undefined)?.[stat]
+    const buckets = (
+      (this.benchmarks as Record<string, unknown>)?.result as
+        | Record<string, Array<{ percentile: number; value: number }>>
+        | undefined
+    )?.[stat]
     if (!buckets || !buckets.length) return '—'
     let label = 'P0'
     for (const b of buckets) {
-      if (value >= b.value) label = `P${Math.round(b.percentile * 100)}`; else break
+      if (value >= b.value) label = `P${Math.round(b.percentile * 100)}`
+      else break
     }
     return label
   }
 
   private getMedian(stat: string): number {
     if (!this.benchmarks) return 0
-    const buckets = ((this.benchmarks as Record<string, unknown>)?.result as Record<string, Array<{ percentile: number; value: number }>> | undefined)?.[stat]
+    const buckets = (
+      (this.benchmarks as Record<string, unknown>)?.result as
+        | Record<string, Array<{ percentile: number; value: number }>>
+        | undefined
+    )?.[stat]
     return buckets?.find((b) => b.percentile === 0.5)?.value ?? 0
   }
 
@@ -177,7 +186,13 @@ class OverlayStore {
     return 'Low'
   }
 
-  private showNotification(_itemName: string, _targetMinute: number, _acquiredAtClock: number, _diffSeconds: number): void {
+  private showNotification(
+    _itemName: string,
+    _targetMinute: number,
+    _acquiredAtClock: number,
+    _diffSeconds: number
+  ): void {
+    /* placeholder — will wire to UI toast later */
   }
 
   isItemAcquired(itemId: number): boolean {

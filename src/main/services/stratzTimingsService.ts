@@ -36,7 +36,7 @@ export async function getHeroTimings(
     variables.positionIds = [position]
   }
 
-  const data = await fetchFromStratz(HERO_ITEM_PURCHASES_QUERY, variables) as {
+  const data = (await fetchFromStratz(HERO_ITEM_PURCHASES_QUERY, variables)) as {
     heroStats?: { itemFullPurchase?: PurchaseBucket[] }
   }
   const raw: PurchaseBucket[] = data?.heroStats?.itemFullPurchase || []

@@ -1,18 +1,26 @@
 <script lang="ts">
   import AppLogo from '../assets/logo/AppLogo.png'
 
-  let { handleSteamLogin, errorMessage, isLoading = false }: { handleSteamLogin: () => Promise<void>; errorMessage: string; isLoading?: boolean } = $props()
+  let {
+    handleSteamLogin,
+    errorMessage,
+    isLoading = false
+  }: { handleSteamLogin: () => Promise<void>; errorMessage: string; isLoading?: boolean } = $props()
 </script>
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-bg gap-5 select-none">
   <div class="relative">
-    <div class="w-20 h-20 rounded-2xl bg-s1 border border-bd flex items-center justify-center shadow-md">
+    <div
+      class="w-20 h-20 rounded-2xl bg-s1 border border-bd flex items-center justify-center shadow-md"
+    >
       <img src={AppLogo} alt="Ancient Eye Logo" class="w-14 h-14 object-contain" />
     </div>
   </div>
 
   <div class="text-center">
-    <h1 class="text-xl font-extrabold tracking-[0.5px] text-tx uppercase leading-none">Ancient Eye</h1>
+    <h1 class="text-xl font-extrabold tracking-[0.5px] text-tx uppercase leading-none">
+      Ancient Eye
+    </h1>
     <p class="text-[10px] text-tx3 font-semibold uppercase tracking-[0.8px] mt-2">
       Analyze &middot; Improve &middot; Win
     </p>
@@ -85,9 +93,7 @@
     </div>
   {/if}
 
-  <p class="text-[10px] text-tx3 tracking-wide opacity-40">
-    Not associated with Valve Corp.
-  </p>
+  <p class="text-[10px] text-tx3 tracking-wide opacity-40">Not associated with Valve Corp.</p>
 </div>
 
 <style>

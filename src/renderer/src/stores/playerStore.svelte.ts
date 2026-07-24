@@ -2,7 +2,14 @@ import heroesData from '../../../main/data/heroes.json'
 import { formatDuration, formatGameMode, formatTimeAgo } from '../utils/matchHelper'
 import { POSITION_LABELS } from '../utils/roleMap'
 import type { PlayerStats, Match, Teammate, HeroStat } from '../types'
-import type { HeroGroupByEntry, RawRecentMatch, PeerEntry, HeroPerformanceEntry, PlayerDashboardResponse } from '../types/api'
+import type {
+  HeroGroupByEntry,
+  RawRecentMatch,
+  PeerEntry,
+  HeroPerformanceEntry,
+  PlayerDashboardResponse
+} from '../types/api'
+import { SvelteMap } from 'svelte/reactivity'
 
 interface HeroData {
   id: number
@@ -11,7 +18,9 @@ interface HeroData {
   img: string
 }
 
-export const heroMap = new Map<number, HeroData>((heroesData as HeroData[]).map((h) => [h.id, h]))
+export const heroMap = new SvelteMap<number, HeroData>(
+  (heroesData as HeroData[]).map((h) => [h.id, h])
+)
 
 class PlayerStore {
   detailedMatches = $state<Match[]>([])
@@ -54,17 +63,26 @@ class PlayerStore {
     }
     const order = ['Core', 'Mid', 'Offlane', 'Support']
     const colors: Record<string, string> = {
-      Core: '#22C55E', Mid: '#3B82F6', Offlane: '#EAB308', Support: '#EC4899'
+      Core: '#22C55E',
+      Mid: '#3B82F6',
+      Offlane: '#EAB308',
+      Support: '#EC4899'
     }
     return order
       .filter((id) => groups[id] && groups[id].matches > 0)
       .map((id) => {
         const g = groups[id]
-        return { id, label: id, hex: colors[id], wr: Math.round((g.wins / g.matches) * 100), games: g.matches }
+        return {
+          id,
+          label: id,
+          hex: colors[id],
+          wr: Math.round((g.wins / g.matches) * 100),
+          games: g.matches
+        }
       })
   })
 
-  async loadProfile(forceRefersh = false) {
+  async loadProfile(forceRefersh = false): Promise<void> {
     if (this.hasLoaded && !forceRefersh) return
 
     this.isLoading = true
@@ -78,7 +96,10 @@ class PlayerStore {
         return
       }
 
-      const raw = await window.api.fetchPlayerData(res.steamId, forceRefersh) as PlayerDashboardResponse & { err?: string }
+      const raw = (await window.api.fetchPlayerData(
+        res.steamId,
+        forceRefersh
+      )) as PlayerDashboardResponse & { err?: string }
       if (raw?.err) {
         this.error = raw.err
         return
@@ -86,11 +107,17 @@ class PlayerStore {
 
       const heroStats = raw.player.heroesGroupBy ?? []
 
-      type AvgKey = 'avgKills' | 'avgDeaths' | 'avgAssists' | 'avgGoldPerMinute' | 'avgExperiencePerMinute'
-      const simpleAvg = (key: AvgKey) => {
+      type AvgKey =
+        | 'avgKills'
+        | 'avgDeaths'
+        | 'avgAssists'
+        | 'avgGoldPerMinute'
+        | 'avgExperiencePerMinute'
+      const simpleAvg = (key: AvgKey): number => {
         const val =
           heroStats.length > 0
-            ? heroStats.reduce((sum: number, h: HeroGroupByEntry) => sum + h[key], 0) / heroStats.length
+            ? heroStats.reduce((sum: number, h: HeroGroupByEntry) => sum + h[key], 0) /
+              heroStats.length
             : 0
         return Math.floor(val)
       }
@@ -163,7 +190,7 @@ class PlayerStore {
         if (!perfCounts[p.heroId]) perfCounts[p.heroId] = {}
         perfCounts[p.heroId][p.position] = (perfCounts[p.heroId][p.position] ?? 0) + p.matchCount
       }
-      const roleMap = new Map<number, string>()
+      const roleMap = new SvelteMap<number, string>()
       for (const [heroId, positions] of Object.entries(perfCounts)) {
         const bestPos = Object.entries(positions).sort((a, b) => b[1] - a[1])[0][0]
         roleMap.set(Number(heroId), POSITION_LABELS[bestPos] ?? bestPos)

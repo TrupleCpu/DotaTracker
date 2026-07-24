@@ -4,27 +4,35 @@
   import type { AbilityHeroEntry } from '../../types/matchDetail'
   import { SvelteSet } from 'svelte/reactivity'
 
-  let { abilities, heroId, level }: { abilities: AbilityHeroEntry[]; heroId: number; level?: number } = $props()
+  let {
+    abilities,
+    heroId,
+    level
+  }: { abilities: AbilityHeroEntry[]; heroId: number; level?: number } = $props()
 
   let _gid = 0
+  // svelte-ignore state_referenced_locally
   const uid = `tt-${++_gid}-${heroId}`
 
   const abilityNameMap = $derived(
     new Map(
       (allAbilities as { id: number; language: { displayName: string | null } }[])
-        .map(a => [a.id, a.language?.displayName])
+        .map((a) => [a.id, a.language?.displayName])
         .filter((kv): kv is [number, string] => kv[1] != null)
     )
   )
 
   const heroTalentData = $derived(
-    (talentSlots as { id: number; displayName: string; talents: { abilityId: number; slot: number }[] }[])
-      .find(h => h.id === heroId)
+    (
+      talentSlots as {
+        id: number
+        displayName: string
+        talents: { abilityId: number; slot: number }[]
+      }[]
+    ).find((h) => h.id === heroId)
   )
   const heroTalents = $derived(heroTalentData?.talents ?? [])
-  const talentSlotMap = $derived(
-    new Map(heroTalents.map(t => [t.abilityId, t.slot]))
-  )
+  const talentSlotMap = $derived(new Map(heroTalents.map((t) => [t.abilityId, t.slot])))
 
   const DOT_PATHS = [
     'M3.258 23.38c.295-.22.624-.303.992-.238.362.057.651.235.868.536.217.3.298.634.243 1.002-.05.376-.225.67-.52.891a1.24 1.24 0 01-1.002.244 1.275 1.275 0 01-.868-.535 1.315 1.315 0 01-.242-1.002c.05-.377.225-.671.529-.898z',
@@ -48,14 +56,46 @@
   const DOT_SLOTS = [0, 1, 2, 3, 4, 5, 6]
 
   const BRANCHES = [
-    { slot: 0, gradId: 'l-1', d: 'M0.013,44.716c0,0,6.586,6.584,9.823,6.805c3.236,0.224,7.033,0,7.033,0s7.024,1.732,7.024,7.368V63 l3.195-0.014c0,0,0-3.782,0-5.571c0-6.857-10.053-7.567-10.053-7.567S11.957,41.979,0.013,44.716z' },
-    { slot: 1, gradId: 'r-1', d: 'M51,44.716c0,0-6.586,6.584-9.823,6.805c-3.235,0.224-7.032,0-7.032,0s-7.024,1.732-7.024,7.368V63 l-3.195-0.014c0,0,0-3.782,0-5.571c0-6.857,10.052-7.567,10.052-7.567S39.057,41.979,51,44.716z' },
-    { slot: 2, gradId: 'l-2', d: 'M0,30.326c0,0,5.744,9.07,9.516,9.495c3.1,0.348,6.542,0.107,8.122,0.262 c3.068,0.301,6.256,1.351,6.256,5.667V63h3.181c0,0,0-17.488,0-18.454c0-0.964,0.006-5.235,7.093-6.584 c-1.207-0.232-3.687-0.281-4.913-0.281C15.068,37.681,10.547,29.951,0,30.326z' },
-    { slot: 3, gradId: 'r-2', d: 'M51,30.326c0,0-5.745,9.07-9.517,9.495c-3.1,0.348-6.542,0.107-8.12,0.262 c-3.069,0.301-6.257,1.351-6.257,5.667V63h-3.182c0,0,0-17.488,0-18.454c0-0.964,0.006-5.235,7.093-6.584 c1.208-0.232,3.688-0.281,4.913-0.281C35.931,37.681,40.451,29.951,51,30.326z' },
-    { slot: 4, gradId: 'l-3', d: 'M4.031,16.042c0,0,0.669,3.435,2.899,6.315c2.232,2.878,4.147,4.891,6.489,4.891 c2.344,0,6.208-0.01,7.68,0.868c1.837,1.095,2.803,3.213,2.803,5.373c0,0.976,0,29.511,0,29.511h3.173V33.489 c0,0-0.085-3.859-3.102-6.426c-1.651-1.405-2.911-2.141-5.294-2.141c-0.908,0-2.041-0.019-2.041-0.019s-1.785-4.153-5.188-6.203 C8.046,16.651,4.031,16.042,4.031,16.042z' },
-    { slot: 5, gradId: 'r-3', d: 'M46.969,16.042c0,0-0.669,3.435-2.898,6.315c-2.232,2.878-4.147,4.891-6.489,4.891 c-2.344,0-6.208-0.01-7.68,0.868c-1.837,1.095-2.803,3.213-2.803,5.373c0,0.976,0,29.511,0,29.511h-3.174V33.489 c0,0,0.086-3.859,3.103-6.426c1.651-1.405,2.911-2.141,5.295-2.141c0.907,0,2.041-0.019,2.041-0.019s1.785-4.153,5.187-6.203 C42.954,16.651,46.969,16.042,46.969,16.042z' },
-    { slot: 6, gradId: 'copper', d: 'M11.033,0c0,0-0.802,7.891,2.625,11.654c3.426,3.761,5.55,2.683,7.765,3.097 c1.969,0.369,2.479,1.772,2.479,3.984c0,2.212,0,44.209,0,44.209h3.101c0,0,0.072-43.305,0.072-44.209 c0-0.905-0.019-4.906-3.792-6.115c-1.592-0.509-2.334-0.376-2.918-2.293C19.782,8.408,17.96,1.99,11.033,0z' },
-    { slot: 7, gradId: 'r-4', d: 'M39.967,0c0,0,0.803,7.891-2.625,11.654c-3.426,3.761-5.551,2.683-7.765,3.097 c-1.969,0.369-2.479,1.772-2.479,3.984c0,2.212,0,44.209,0,44.209h-3.101c0,0-0.073-43.305-0.073-44.209 c0-0.905,0.02-4.906,3.793-6.115c1.592-0.509,2.335-0.376,2.917-2.293C31.218,8.408,33.04,1.99,39.967,0z' }
+    {
+      slot: 0,
+      gradId: 'l-1',
+      d: 'M0.013,44.716c0,0,6.586,6.584,9.823,6.805c3.236,0.224,7.033,0,7.033,0s7.024,1.732,7.024,7.368V63 l3.195-0.014c0,0,0-3.782,0-5.571c0-6.857-10.053-7.567-10.053-7.567S11.957,41.979,0.013,44.716z'
+    },
+    {
+      slot: 1,
+      gradId: 'r-1',
+      d: 'M51,44.716c0,0-6.586,6.584-9.823,6.805c-3.235,0.224-7.032,0-7.032,0s-7.024,1.732-7.024,7.368V63 l-3.195-0.014c0,0,0-3.782,0-5.571c0-6.857,10.052-7.567,10.052-7.567S39.057,41.979,51,44.716z'
+    },
+    {
+      slot: 2,
+      gradId: 'l-2',
+      d: 'M0,30.326c0,0,5.744,9.07,9.516,9.495c3.1,0.348,6.542,0.107,8.122,0.262 c3.068,0.301,6.256,1.351,6.256,5.667V63h3.181c0,0,0-17.488,0-18.454c0-0.964,0.006-5.235,7.093-6.584 c-1.207-0.232-3.687-0.281-4.913-0.281C15.068,37.681,10.547,29.951,0,30.326z'
+    },
+    {
+      slot: 3,
+      gradId: 'r-2',
+      d: 'M51,30.326c0,0-5.745,9.07-9.517,9.495c-3.1,0.348-6.542,0.107-8.12,0.262 c-3.069,0.301-6.257,1.351-6.257,5.667V63h-3.182c0,0,0-17.488,0-18.454c0-0.964,0.006-5.235,7.093-6.584 c1.208-0.232,3.688-0.281,4.913-0.281C35.931,37.681,40.451,29.951,51,30.326z'
+    },
+    {
+      slot: 4,
+      gradId: 'l-3',
+      d: 'M4.031,16.042c0,0,0.669,3.435,2.899,6.315c2.232,2.878,4.147,4.891,6.489,4.891 c2.344,0,6.208-0.01,7.68,0.868c1.837,1.095,2.803,3.213,2.803,5.373c0,0.976,0,29.511,0,29.511h3.173V33.489 c0,0-0.085-3.859-3.102-6.426c-1.651-1.405-2.911-2.141-5.294-2.141c-0.908,0-2.041-0.019-2.041-0.019s-1.785-4.153-5.188-6.203 C8.046,16.651,4.031,16.042,4.031,16.042z'
+    },
+    {
+      slot: 5,
+      gradId: 'r-3',
+      d: 'M46.969,16.042c0,0-0.669,3.435-2.898,6.315c-2.232,2.878-4.147,4.891-6.489,4.891 c-2.344,0-6.208-0.01-7.68,0.868c-1.837,1.095-2.803,3.213-2.803,5.373c0,0.976,0,29.511,0,29.511h-3.174V33.489 c0,0,0.086-3.859,3.103-6.426c1.651-1.405,2.911-2.141,5.295-2.141c0.907,0,2.041-0.019,2.041-0.019s1.785-4.153,5.187-6.203 C42.954,16.651,46.969,16.042,46.969,16.042z'
+    },
+    {
+      slot: 6,
+      gradId: 'copper',
+      d: 'M11.033,0c0,0-0.802,7.891,2.625,11.654c3.426,3.761,5.55,2.683,7.765,3.097 c1.969,0.369,2.479,1.772,2.479,3.984c0,2.212,0,44.209,0,44.209h3.101c0,0,0.072-43.305,0.072-44.209 c0-0.905-0.019-4.906-3.792-6.115c-1.592-0.509-2.334-0.376-2.918-2.293C19.782,8.408,17.96,1.99,11.033,0z'
+    },
+    {
+      slot: 7,
+      gradId: 'r-4',
+      d: 'M39.967,0c0,0,0.803,7.891-2.625,11.654c-3.426,3.761-5.551,2.683-7.765,3.097 c-1.969,0.369-2.479,1.772-2.479,3.984c0,2.212,0,44.209,0,44.209h-3.101c0,0-0.073-43.305-0.073-44.209 c0-0.905,0.02-4.906,3.793-6.115c1.592-0.509,2.335-0.376,2.917-2.293C31.218,8.408,33.04,1.99,39.967,0z'
+    }
   ]
 
   const selectedSlots = $derived.by(() => {
@@ -88,7 +128,7 @@
     const talentAbilityIds = allAbilitiesArr
       .filter((a) => a.isTalent ?? a.abilityType?.isTalent ?? false)
       .map((a) => a.abilityId)
-    const matchedIds = new Set<number>()
+    const matchedIds = new SvelteSet<number>()
     for (const aid of talentAbilityIds) {
       const slot = talentSlotMap.get(aid)
       if (slot !== undefined) matchedIds.add(aid)
@@ -107,11 +147,7 @@
 
   $effect(() => {
     if (diagnostic) {
-      console.debug(
-        '[TalentTree]',
-        heroTalentData?.displayName ?? 'hero-' + heroId,
-        diagnostic
-      )
+      console.debug('[TalentTree]', heroTalentData?.displayName ?? 'hero-' + heroId, diagnostic)
     }
   })
 
@@ -130,7 +166,12 @@
   }
 
   function cleanName(name: string): string {
-    return name.replace(/\{s:[^}]+}(s|%|x)?/g, '').replace(/[+]\s+/g, '+').replace(/-\s+/g, '-').replace(/\s+/g, ' ').trim()
+    return name
+      .replace(/\{s:[^}]+}(s|%|x)?/g, '')
+      .replace(/[+]\s+/g, '+')
+      .replace(/-\s+/g, '-')
+      .replace(/\s+/g, ' ')
+      .trim()
   }
 
   const LEVELS_CONFIG = [
@@ -142,8 +183,8 @@
 
   const levelRows = $derived(
     LEVELS_CONFIG.map(({ level, leftSlot, rightSlot }) => {
-      const leftTalent = heroTalents.find(t => t.slot === leftSlot)
-      const rightTalent = heroTalents.find(t => t.slot === rightSlot)
+      const leftTalent = heroTalents.find((t) => t.slot === leftSlot)
+      const rightTalent = heroTalents.find((t) => t.slot === rightSlot)
       return {
         level,
         leftName: leftTalent ? cleanName(abilityNameMap.get(leftTalent.abilityId) ?? '-') : '',
@@ -155,7 +196,7 @@
   )
 </script>
 
-<div class="relative inline-flex" onmouseenter={show} onmouseleave={hide}>
+<div class="relative inline-flex" onmouseenter={show} onmouseleave={hide} role="img">
   <svg viewBox="0 0 32 32" height="44" class="shrink-0 cursor-help">
     <defs>
       <linearGradient
@@ -315,7 +356,10 @@
 
     <svg viewBox="0 0 51 63" height="25" y="3.8" style="width: 100%; height: 100%;">
       {#each BRANCHES as b (b.slot)}
-        <path d={b.d} fill={selectedSlots.has(b.slot) ? `url(#${uid}-${b.gradId})` : 'hsl(0,0%,28%)'} />
+        <path
+          d={b.d}
+          fill={selectedSlots.has(b.slot) ? `url(#${uid}-${b.gradId})` : 'hsl(0,0%,28%)'}
+        />
       {/each}
     </svg>
 
@@ -332,8 +376,15 @@
   </svg>
 
   {#if isHovered}
-    <div class="absolute left-0 bottom-full mb-1 z-50" onmouseenter={show} onmouseleave={hide}>
-      <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-3 shadow-2xl min-w-[300px] shadow-black/50">
+    <div
+      class="absolute left-0 bottom-full mb-1 z-50"
+      onmouseenter={show}
+      onmouseleave={hide}
+      role="tooltip"
+    >
+      <div
+        class="bg-zinc-950 border border-zinc-800 rounded-lg p-3 shadow-2xl min-w-75 shadow-black/50"
+      >
         {#if heroTalentData}
           <div class="flex items-center justify-between mb-2 pb-2 border-b border-zinc-800">
             <span class="text-xs font-bold text-zinc-200">{heroTalentData.displayName}</span>
@@ -344,14 +395,14 @@
         {/if}
 
         <div class="space-y-1">
-          {#each levelRows as row}
+          {#each levelRows as row (row.level)}
             <div class="grid grid-cols-[1fr_auto_1fr] gap-x-3 items-center">
               <span
                 class="text-right text-xs leading-snug"
                 class:text-amber-400={row.leftPicked}
                 class:text-zinc-500={!row.leftPicked}
-                class:font-semibold={row.leftPicked}
-              >{row.leftName}</span>
+                class:font-semibold={row.leftPicked}>{row.leftName}</span
+              >
 
               <div class="flex items-center gap-0.5">
                 <div class="w-4 h-px bg-zinc-700"></div>
@@ -363,14 +414,16 @@
                 class="text-left text-xs leading-snug"
                 class:text-amber-400={row.rightPicked}
                 class:text-zinc-500={!row.rightPicked}
-                class:font-semibold={row.rightPicked}
-              >{row.rightName}</span>
+                class:font-semibold={row.rightPicked}>{row.rightName}</span
+              >
             </div>
           {/each}
         </div>
 
         {#if diagnostic && matchedTalentCount !== expectedTalentCount}
-          <div class="mt-2 pt-2 border-t border-zinc-800 flex items-center gap-1 text-amber-400 text-xxs">
+          <div
+            class="mt-2 pt-2 border-t border-zinc-800 flex items-center gap-1 text-amber-400 text-xxs"
+          >
             <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor" class="shrink-0">
               <path
                 d="M4 0C1.8 0 0 1.8 0 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm.5 6h-1V5h1v1zm0-2h-1V2h1v2z"

@@ -6,13 +6,15 @@ import { state } from '../state'
 let previousState = ''
 
 export function handleGsiStateChange(currentState: string, steamId: number): void {
-  if (previousState === 'DOTA_GAMERULES_STATE_GAME_IN_PROGRESS' && 
-      (currentState === 'DOTA_GAMERULES_STATE_POST_GAME' || currentState === 'DOTA_GAMERULES_STATE_DISCONNECT')) {
-      
-      // Match ended! Trigger sync after a 60-second delay to allow Stratz to parse the match
-      setTimeout(() => {
-        runSync(steamId)
-      }, 60 * 1000)
+  if (
+    previousState === 'DOTA_GAMERULES_STATE_GAME_IN_PROGRESS' &&
+    (currentState === 'DOTA_GAMERULES_STATE_POST_GAME' ||
+      currentState === 'DOTA_GAMERULES_STATE_DISCONNECT')
+  ) {
+    // Match ended! Trigger sync after a 60-second delay to allow Stratz to parse the match
+    setTimeout(() => {
+      runSync(steamId)
+    }, 60 * 1000)
   }
   previousState = currentState
 }
@@ -22,10 +24,12 @@ export async function runSync(steamId: number): Promise<void> {
     const config = loadConfig()
     if (!config.autoSyncMatches) return
 
-    const data = await fetchMatches(steamId, { take: 5 }) as { player?: { matches?: import('../../renderer/src/types/api').RawMatch[] } }
+    const data = (await fetchMatches(steamId, { take: 5 })) as {
+      player?: { matches?: import('../../renderer/src/types/api').RawMatch[] }
+    }
     const matches = data?.player?.matches || []
-    
-    matches.forEach(m => {
+
+    matches.forEach((m) => {
       insertMatch(m as Match, steamId)
     })
 
@@ -39,5 +43,3 @@ export async function runSync(steamId: number): Promise<void> {
     console.error('Error during auto-sync:', err)
   }
 }
-
-

@@ -1243,9 +1243,7 @@
   },
   "boots": {
     "abilities": [],
-    "hint": [
-      "Movement speed bonuses from multiple pairs of boots do not stack."
-    ],
+    "hint": ["Movement speed bonuses from multiple pairs of boots do not stack."],
     "id": 29,
     "img": "item-assets/images/29.png",
     "dname": "Boots of Speed",
@@ -2347,9 +2345,7 @@
         "description": "Upgrades your Town Portal Scroll, allowing it to target units, reduces cooldown and does not consume a charge on usage."
       }
     ],
-    "hint": [
-      "Movement speed bonuses from multiple pairs of boots do not stack."
-    ],
+    "hint": ["Movement speed bonuses from multiple pairs of boots do not stack."],
     "id": 48,
     "img": "item-assets/images/48.png",
     "dname": "Boots of Travel",
@@ -2394,9 +2390,7 @@
         "description": "Upgrades your Town Portal Scroll, allowing it to target units and heroes, reduces cooldown, channel time and does not consume a charge on usage."
       }
     ],
-    "hint": [
-      "Movement speed bonuses from multiple pairs of boots do not stack."
-    ],
+    "hint": ["Movement speed bonuses from multiple pairs of boots do not stack."],
     "id": 220,
     "img": "item-assets/images/220.png",
     "dname": "Boots of Travel 2",
@@ -2446,9 +2440,7 @@
         "description": "Gives 20% increased movement speed on melee heroes, and 10% on ranged heroes, and lets you move through units and turn more quickly for 3 seconds."
       }
     ],
-    "hint": [
-      "Movement speed bonuses from multiple pairs of boots do not stack."
-    ],
+    "hint": ["Movement speed bonuses from multiple pairs of boots do not stack."],
     "id": 50,
     "img": "item-assets/images/50.png",
     "dname": "Phase Boots",
@@ -2844,9 +2836,7 @@
         "description": "Switches between +10 Strength, +10 Agility, or +10 Intelligence."
       }
     ],
-    "hint": [
-      "Movement speed bonuses from multiple pairs of boots do not stack."
-    ],
+    "hint": ["Movement speed bonuses from multiple pairs of boots do not stack."],
     "id": 63,
     "img": "item-assets/images/63.png",
     "dname": "Power Treads",
@@ -3610,12 +3600,7 @@
     "hc": false,
     "cd": false,
     "lore": "An eerie mask that is haunted with the malice of a fallen vampire.",
-    "components": [
-      "buckler",
-      "ring_of_basilius",
-      "lifesteal",
-      "blades_of_attack"
-    ],
+    "components": ["buckler", "ring_of_basilius", "lifesteal", "blades_of_attack"],
     "created": true,
     "charges": false
   },
@@ -5447,12 +5432,7 @@
     "hc": false,
     "cd": false,
     "lore": "The scepter of a wizard with demigod-like powers.",
-    "components": [
-      "point_booster",
-      "staff_of_wizardry",
-      "ogre_axe",
-      "blade_of_alacrity"
-    ],
+    "components": ["point_booster", "staff_of_wizardry", "ogre_axe", "blade_of_alacrity"],
     "created": true,
     "charges": false
   },
@@ -9639,9 +9619,7 @@
         "description": "Grants 1 mana regeneration to allies. \n\nRadius: 1200"
       }
     ],
-    "hint": [
-      "Movement speed bonuses from multiple pairs of boots do not stack."
-    ],
+    "hint": ["Movement speed bonuses from multiple pairs of boots do not stack."],
     "id": 180,
     "img": "item-assets/images/180.png",
     "dname": "Arcane Boots",
@@ -10119,9 +10097,7 @@
         "description": "Grants 20 movement speed and 2.5 health regeneration to allies. \n\nRadius: 1200"
       }
     ],
-    "hint": [
-      "Movement speed bonuses from multiple pairs of boots do not stack."
-    ],
+    "hint": ["Movement speed bonuses from multiple pairs of boots do not stack."],
     "id": 931,
     "img": "item-assets/images/931.png",
     "dname": "Boots of Bearing",
@@ -10724,9 +10700,7 @@
         "description": "Grants 2.5 health regeneration and 1.5 mana regeneration to allied units. If the wearer's health falls below 25%, their health regeneration is increased to 14.5. \n\nRadius: 1200"
       }
     ],
-    "hint": [
-      "Movement speed bonuses from multiple pairs of boots do not stack."
-    ],
+    "hint": ["Movement speed bonuses from multiple pairs of boots do not stack."],
     "id": 231,
     "img": "item-assets/images/231.png",
     "dname": "Guardian Greaves",
@@ -11157,9 +11131,7 @@
         "description": "Whenever you attack a hero or are attacked by any unit, the bonus 14 HP regen is lost and the movement speed bonus is reduced to 40 for 13 seconds."
       }
     ],
-    "hint": [
-      "Movement speed bonuses from multiple pairs of boots do not stack."
-    ],
+    "hint": ["Movement speed bonuses from multiple pairs of boots do not stack."],
     "id": 214,
     "img": "item-assets/images/214.png",
     "dname": "Tranquil Boots",
@@ -11706,9 +11678,7 @@
         "description": "Completely removes the speed limit for the wearer"
       }
     ],
-    "hint": [
-      "Movement speed bonuses from multiple pairs of boots do not stack."
-    ],
+    "hint": ["Movement speed bonuses from multiple pairs of boots do not stack."],
     "id": 291,
     "img": "item-assets/images/291.png",
     "dname": "Force Boots",
@@ -12599,9 +12569,7 @@
   },
   "witless_shako": {
     "abilities": [],
-    "hint": [
-      "Increases the wearer's max health, while reducing their max mana."
-    ],
+    "hint": ["Increases the wearer's max health, while reducing their max mana."],
     "id": 330,
     "img": "item-assets/images/330.png",
     "dname": "Witless Shako",
@@ -13542,9 +13510,7 @@
         "description": "Removes movement speed limit and allows free pathing through trees."
       }
     ],
-    "hint": [
-      "Movement speed bonuses from multiple pairs of boots do not stack."
-    ],
+    "hint": ["Movement speed bonuses from multiple pairs of boots do not stack."],
     "id": 368,
     "img": "item-assets/images/368.png",
     "dname": "Woodland Striders",

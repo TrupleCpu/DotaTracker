@@ -14,7 +14,16 @@ export type ViewId =
   | 'hero-detail'
   | 'play-guide'
 
-const TAB_VIEWS: ViewId[] = ['dashboard', 'matches', 'heroes', 'analysis', 'roles', 'teammates', 'settings', 'play-guide']
+const TAB_VIEWS: ViewId[] = [
+  'dashboard',
+  'matches',
+  'heroes',
+  'analysis',
+  'roles',
+  'teammates',
+  'settings',
+  'play-guide'
+]
 
 class UiStore {
   currentView = $state<ViewId>('dashboard')
@@ -29,7 +38,7 @@ class UiStore {
 
   toast = $state({ show: false, msg: '', type: '' })
 
-  showToast(msg: string, type = 'ok') {
+  showToast(msg: string, type = 'ok'): void {
     this.toast = { show: true, msg, type }
     clearTimeout(toastTimer)
     toastTimer = setTimeout(() => {
@@ -37,7 +46,7 @@ class UiStore {
     }, 2600)
   }
 
-  gotoView(view: ViewId, settingsTab?: string) {
+  gotoView(view: ViewId, settingsTab?: string): void {
     this.prevView = this.currentView
     this.currentView = view
     if (TAB_VIEWS.includes(view)) this.activeTab = view
@@ -45,13 +54,13 @@ class UiStore {
     else this.settingsTab = 'sg'
   }
 
-  openMatchDetail(match: MatchSummary) {
+  openMatchDetail(match: MatchSummary): void {
     this.prevView = this.currentView
     this.selectedMatch = match
     this.currentView = 'match-detail'
   }
 
-  openHeroDetail(heroId: number) {
+  openHeroDetail(heroId: number): void {
     this.prevView = this.currentView
     this.selectedHeroId = heroId
     this.currentView = 'hero-detail'

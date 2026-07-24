@@ -10,18 +10,28 @@ export async function getMatchDetails(matchId: number | string): Promise<unknown
   if (config.autoSyncMatches) {
     const cached = getLocalMatchById(numId)
     if (cached && (cached.players?.length ?? 0) >= 10) {
-      const hasDetailFields = (cached.players as object[]).some(
+      const hasDetailFields = (cached.players as unknown as Record<string, unknown>[]).some(
         (p) => p != null && 'abilities' in p
       )
       if (hasDetailFields) {
-        return { match: cached }
+        const hasEventFields = (cached.players as unknown as Record<string, unknown>[]).some(
+          (p) => {
+            const stats = p?.stats as Record<string, unknown> | undefined
+            const deaths = stats?.deathEvents as Record<string, unknown>[] | undefined
+            if (!deaths || deaths.length === 0) return true
+            return deaths.some((d) => 'attacker' in d || 'killer' in d)
+          }
+        )
+        if (hasEventFields) {
+          return { match: cached }
+        }
       }
     }
   }
 
-  const data = await fetchFromStratz(MATCH_DETAILS_QUERY, {
+  const data = (await fetchFromStratz(MATCH_DETAILS_QUERY, {
     matchId
-  }) as { match?: import('../../../renderer/src/types/api').RawMatch }
+  })) as { match?: import('../../../renderer/src/types/api').RawMatch }
 
   if (config.autoSyncMatches && data?.match) {
     const match = data.match

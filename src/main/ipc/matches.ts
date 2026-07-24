@@ -1,10 +1,15 @@
 import { ipcMain } from 'electron'
 import { getMatchDetails } from '../stratz/services/matchDetails'
-import { fetchMatches, FetchMatchesOptions, fetchHeroMatches } from '../stratz/services/fetchMatches'
+import {
+  fetchMatches,
+  FetchMatchesOptions,
+  fetchHeroMatches
+} from '../stratz/services/fetchMatches'
 import { getPlayerData } from '../stratz/services/playerService'
 import { runSync } from '../services/syncManager'
 import { startFullSync } from '../services/fullSyncService'
 import { getHeroTimings } from '../services/stratzTimingsService'
+import { requestParseMatch } from '../services/requestParseService'
 import { getSyncState, getHeroItemFrequency } from '../db/matchesRepo'
 
 export function registerMatchHandlers(): void {
@@ -41,14 +46,17 @@ export function registerMatchHandlers(): void {
     }
   )
 
-  ipcMain.handle('fetch-player-data', async (_e, steamId: number | string, forceRefresh = false) => {
-    try {
-      return await getPlayerData(steamId, forceRefresh)
-    } catch (err) {
-      console.error('STRATZ get match details failed.', err)
-      return { err: err instanceof Error ? err.message : String(err) }
+  ipcMain.handle(
+    'fetch-player-data',
+    async (_e, steamId: number | string, forceRefresh = false) => {
+      try {
+        return await getPlayerData(steamId, forceRefresh)
+      } catch (err) {
+        console.error('STRATZ get match details failed.', err)
+        return { err: err instanceof Error ? err.message : String(err) }
+      }
     }
-  })
+  )
 
   ipcMain.handle('start-full-sync', async (_e, steamId: number) => {
     startFullSync(steamId)
@@ -86,5 +94,15 @@ export function registerMatchHandlers(): void {
 
   ipcMain.handle('trigger-startup-sync', async (_e, steamId: number) => {
     runSync(steamId)
+  })
+
+  ipcMain.handle('request-parse-match', async (_e, matchId: number) => {
+    try {
+      const ok = await requestParseMatch(matchId)
+      return { ok }
+    } catch (err) {
+      console.error('Failed to request parse:', err)
+      return { ok: false, err: err instanceof Error ? err.message : String(err) }
+    }
   })
 }

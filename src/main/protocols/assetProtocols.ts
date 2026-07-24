@@ -43,8 +43,8 @@ export function registerSchemesAsPrivileged(): void {
 }
 
 export function registerAssetProtocols(): void {
-    registerAssetProtocol('hero-asset', 'hero-assets')
-    registerAssetProtocol('item-asset', 'item-assets')
-    registerAssetProtocol('ability-asset', 'abilities', true)
-    registerAssetProtocol('hero-model', 'hero-models', true)
+  registerAssetProtocol('hero-asset', 'hero-assets')
+  registerAssetProtocol('item-asset', 'item-assets')
+  registerAssetProtocol('ability-asset', 'abilities', true)
+  registerAssetProtocol('hero-model', 'hero-models', true)
 }

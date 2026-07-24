@@ -38,7 +38,7 @@ export function startTracking(): void {
 
         if (bounds && state.mainWindow) {
           const overlayBounds = {
-            x: bounds.x ,
+            x: bounds.x,
             y: bounds.y + 125,
             width: WIDGET_WIDTH,
             height: WIDGET_HEIGHT
@@ -56,6 +56,7 @@ export function startTracking(): void {
         hideGuideNotification()
       }
     } catch {
+      /* ignore */
     }
   }, 250)
 }

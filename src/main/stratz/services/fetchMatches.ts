@@ -28,7 +28,8 @@ export async function fetchMatches(
     isParty
   } = options
 
-  const hasComplexFilters = gameModeIds || lobbyTypeIds || bracketIds || positionIds || isParty !== undefined
+  const hasComplexFilters =
+    gameModeIds || lobbyTypeIds || bracketIds || positionIds || isParty !== undefined
   const config = loadConfig()
   const numId = Number(steamAccountId)
 
@@ -46,10 +47,10 @@ export async function fetchMatches(
   if (positionIds) request.positionIds = positionIds
   if (isParty !== undefined) request.isParty = isParty
 
-  const data = await fetchFromStratz(FETCH_MATCH_QUERY, {
+  const data = (await fetchFromStratz(FETCH_MATCH_QUERY, {
     steamAccountId,
     request
-  }) as { player?: { matches?: import('../../../renderer/src/types/api').RawMatch[] } }
+  })) as { player?: { matches?: import('../../../renderer/src/types/api').RawMatch[] } }
 
   if (config.autoSyncMatches && !hasComplexFilters && data?.player?.matches) {
     insertMatchBatch(data.player.matches as Match[], numId)
@@ -78,10 +79,10 @@ export async function fetchHeroMatches(
 
   const request: Record<string, unknown> = { heroIds: [heroId], skip, take }
 
-  const data = await fetchFromStratz(FETCH_HERO_MATCHES_QUERY, {
+  const data = (await fetchFromStratz(FETCH_HERO_MATCHES_QUERY, {
     steamId: numId,
     request
-  }) as { player?: { matches?: import('../../../renderer/src/types/api').RawMatch[] } }
+  })) as { player?: { matches?: import('../../../renderer/src/types/api').RawMatch[] } }
 
   if (config.autoSyncMatches && data?.player?.matches) {
     insertMatchBatch(data.player.matches as Match[], numId)

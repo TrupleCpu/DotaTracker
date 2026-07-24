@@ -62,5 +62,3 @@ export function formatRole(role: string | null, lane?: string | null): string {
   }
   return 'Unknown'
 }
-
-

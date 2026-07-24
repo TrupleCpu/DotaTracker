@@ -35,11 +35,13 @@ function getProviderConfig(): ProviderConfig | null {
     case 'groq':
       headers['Authorization'] = `Bearer ${cfg.apiKey}`
       return {
-        baseUrl: base || (
-          cfg.provider === 'nvidia' ? 'https://integrate.api.nvidia.com/v1' :
-          cfg.provider === 'groq' ? 'https://api.groq.com/openai/v1' :
-          'https://api.openai.com/v1'
-        ),
+        baseUrl:
+          base ||
+          (cfg.provider === 'nvidia'
+            ? 'https://integrate.api.nvidia.com/v1'
+            : cfg.provider === 'groq'
+              ? 'https://api.groq.com/openai/v1'
+              : 'https://api.openai.com/v1'),
         headers,
         formatBody: (messages, model) => ({
           model,
@@ -56,7 +58,9 @@ function getProviderConfig(): ProviderConfig | null {
         headers: { ...headers, 'x-api-key': cfg.apiKey, 'anthropic-version': '2023-06-01' },
         formatBody: (messages, model) => {
           const system = messages.find((m) => m.role === 'system')?.content
-          const msgs = messages.filter((m) => m.role !== 'system').map((m) => ({ role: m.role, content: m.content }))
+          const msgs = messages
+            .filter((m) => m.role !== 'system')
+            .map((m) => ({ role: m.role, content: m.content }))
           return { model, messages: msgs, ...(system ? { system } : {}), max_tokens: 2048 }
         },
         parseResponse: (json) => json.content?.[0]?.text ?? ''
@@ -103,7 +107,12 @@ function extractJsonArray(text: string): string | null {
 function extractJson(text: string): string {
   const cleaned = stripCodeFences(text)
 
-  try { JSON.parse(cleaned); return cleaned } catch { /* fall through */ }
+  try {
+    JSON.parse(cleaned)
+    return cleaned
+  } catch {
+    /* fall through */
+  }
 
   let pos = 0
   while (true) {
@@ -116,7 +125,13 @@ function extractJson(text: string): string {
         depth--
         if (depth === 0) {
           const candidate = cleaned.substring(start, i + 1)
-          try { JSON.parse(candidate); return candidate } catch { pos = start + 1; break }
+          try {
+            JSON.parse(candidate)
+            return candidate
+          } catch {
+            pos = start + 1
+            break
+          }
         }
       }
     }
@@ -126,7 +141,12 @@ function extractJson(text: string): string {
 
   const asArray = extractJsonArray(cleaned)
   if (asArray) {
-    try { JSON.parse(asArray); return asArray } catch { /* fall through */ }
+    try {
+      JSON.parse(asArray)
+      return asArray
+    } catch {
+      /* fall through */
+    }
   }
 
   return cleaned
@@ -178,17 +198,17 @@ Example: [{"title":"Farming","desc":"At 480 GPM you're 15% below average for Ant
 }
 
 export interface SingleMatchContext {
-  h: string    // heroName
-  p: string    // position
-  k: number    // kills
-  d: number    // deaths
-  a: number    // assists
-  g: number    // gpm
-  nw: number   // networth
-  w: boolean   // isVictory
-  i: { n: number; t: number; c: number }[]  // items (id, time, cost)
-  td: number   // totalDamage
-  wp: number   // wardsPlaced
+  h: string // heroName
+  p: string // position
+  k: number // kills
+  d: number // deaths
+  a: number // assists
+  g: number // gpm
+  nw: number // networth
+  w: boolean // isVictory
+  i: { n: number; t: number; c: number }[] // items (id, time, cost)
+  td: number // totalDamage
+  wp: number // wardsPlaced
 }
 
 export interface CoachingPoint {
@@ -207,7 +227,11 @@ export async function generateMatchCoaching(ctx: SingleMatchContext): Promise<Co
     throw new Error('AI Coach returned invalid JSON. Try again or switch models.')
   }
   if (!Array.isArray(parsed)) {
-    if (parsed && typeof parsed === 'object' && 'coachingPoints' in (parsed as Record<string, unknown>)) {
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      'coachingPoints' in (parsed as Record<string, unknown>)
+    ) {
       const nested = (parsed as Record<string, unknown>).coachingPoints
       if (Array.isArray(nested)) return nested.slice(0, 5)
     }
@@ -240,13 +264,13 @@ Example:
 }
 
 export interface SessionMatchSummary {
-  h: string    // heroName
-  p: string    // position
-  k: number    // kills
-  d: number    // deaths
-  a: number    // assists
-  g: number    // gpm
-  o: string    // outcome ('win'|'loss')
+  h: string // heroName
+  p: string // position
+  k: number // kills
+  d: number // deaths
+  a: number // assists
+  g: number // gpm
+  o: string // outcome ('win'|'loss')
 }
 
 export interface SessionReview {
@@ -255,20 +279,26 @@ export interface SessionReview {
   recommendations: string[]
 }
 
-export async function generateSessionReview(matches: SessionMatchSummary[]): Promise<SessionReview> {
+export async function generateSessionReview(
+  matches: SessionMatchSummary[]
+): Promise<SessionReview> {
   const text = await llmChat(buildSessionPrompt(matches))
   const cleaned = extractJson(text)
   let parsed: unknown
   try {
     parsed = JSON.parse(cleaned)
   } catch {
-    throw new Error(`AI Coach returned invalid JSON. Try again or switch models. Raw: ${text.substring(0, 300)}`)
+    throw new Error(
+      `AI Coach returned invalid JSON. Try again or switch models. Raw: ${text.substring(0, 300)}`
+    )
   }
 
   const result = findSessionReview(parsed)
   if (result) return result
 
-  throw new Error(`AI Coach response was not in the expected format. Raw: ${text.substring(0, 300)}`)
+  throw new Error(
+    `AI Coach response was not in the expected format. Raw: ${text.substring(0, 300)}`
+  )
 }
 
 function findSessionReview(value: unknown): SessionReview | null {
@@ -284,7 +314,11 @@ function findSessionReview(value: unknown): SessionReview | null {
 
   const obj = value as Record<string, unknown>
 
-  if (typeof obj.summary === 'string' || typeof obj.patterns !== 'undefined' || typeof obj.recommendations !== 'undefined') {
+  if (
+    typeof obj.summary === 'string' ||
+    typeof obj.patterns !== 'undefined' ||
+    typeof obj.recommendations !== 'undefined'
+  ) {
     return normalizeSessionReview(obj)
   }
 
@@ -302,7 +336,9 @@ function normalizeSessionReview(raw: Record<string, unknown>): SessionReview {
   return {
     summary: typeof raw.summary === 'string' ? raw.summary : String(raw.summary ?? ''),
     patterns: coerceToStringArray(raw.patterns ?? raw.pattern ?? []),
-    recommendations: coerceToStringArray(raw.recommendations ?? raw.recommendation ?? raw.tips ?? []),
+    recommendations: coerceToStringArray(
+      raw.recommendations ?? raw.recommendation ?? raw.tips ?? []
+    )
   }
 }
 

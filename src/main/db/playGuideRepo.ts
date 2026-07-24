@@ -42,7 +42,9 @@ export function savePlayGuide(heroId: number, slots: PlayGuideSlot[]): void {
 
 export function getPlayGuide(heroId: number): PlayGuide | null {
   const stmt = db.prepare('SELECT * FROM play_guides WHERE hero_id = ?')
-  const row = stmt.get(heroId) as { hero_id: number; slots_json: string; updated_at: number } | undefined
+  const row = stmt.get(heroId) as
+    | { hero_id: number; slots_json: string; updated_at: number }
+    | undefined
   if (!row) return null
   return {
     heroId: row.hero_id,

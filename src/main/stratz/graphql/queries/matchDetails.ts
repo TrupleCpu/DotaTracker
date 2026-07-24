@@ -60,6 +60,13 @@ query MatchDetails($matchId: Long!) {
           xp
           positionX
           positionY
+          target
+          byAbility
+          byItem
+          assist
+          isSolo
+          isGank
+          isSmoke
         }
         deathEvents {
           time
@@ -67,6 +74,12 @@ query MatchDetails($matchId: Long!) {
           xpFed
           positionX
           positionY
+          attacker
+          target
+          byAbility
+          byItem
+          timeDead
+          assist
         }
         assistEvents {
           time
@@ -74,7 +87,7 @@ query MatchDetails($matchId: Long!) {
           xp
           positionX
           positionY
-				}
+        }
         heroDamagePerMinute
         heroDamageReceivedPerMinute
         campStack

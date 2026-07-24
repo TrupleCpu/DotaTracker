@@ -18,7 +18,7 @@ const BATCH_DELAY_MS = 3000
 
 let isSyncing = false
 
-function emit(channel: string, data: unknown) {
+function emit(channel: string, data: unknown): void {
   state.mainWindow?.webContents.send(channel, data)
 }
 

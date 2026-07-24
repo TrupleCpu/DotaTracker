@@ -1,5 +1,10 @@
 import { ipcMain } from 'electron'
-import { loadLlmConfig, saveLlmConfig, clearLlmConfig, type LlmConfig } from '../services/configService'
+import {
+  loadLlmConfig,
+  saveLlmConfig,
+  clearLlmConfig,
+  type LlmConfig
+} from '../services/configService'
 import { generateMatchCoaching, generateSessionReview } from '../services/llmService'
 import type { SingleMatchContext, SessionMatchSummary } from '../services/llmService'
 

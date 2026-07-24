@@ -21,6 +21,13 @@ export interface KillEvent {
   xp: number
   positionX: number
   positionY: number
+  target?: number
+  byAbility?: number
+  byItem?: number
+  assist?: number[]
+  isSolo?: boolean
+  isGank?: boolean
+  isSmoke?: boolean
 }
 
 export interface DeathEvent {
@@ -29,6 +36,12 @@ export interface DeathEvent {
   xpFed: number
   positionX: number
   positionY: number
+  attacker?: number
+  target?: number
+  byAbility?: number
+  byItem?: number
+  timeDead?: number
+  assist?: number[]
 }
 
 export interface AssistEvent {

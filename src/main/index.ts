@@ -12,10 +12,10 @@ import { createGSIServer } from './gsi-server'
 import { state } from './state'
 import { initDatabase } from './db'
 
-
 registerSchemesAsPrivileged()
 
-const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: hero-asset: hero-model: item-asset: ability-asset: https://avatars.steamstatic.com https://steamcdn-a.akamaihd.net; connect-src 'self'; font-src 'self' data:; object-src 'none'; media-src 'none';"
+const CSP =
+  "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: hero-asset: hero-model: item-asset: ability-asset: https://avatars.steamstatic.com https://steamcdn-a.akamaihd.net; connect-src 'self'; font-src 'self' data:; object-src 'none'; media-src 'none';"
 
 let gsiServer: http.Server | null = null
 

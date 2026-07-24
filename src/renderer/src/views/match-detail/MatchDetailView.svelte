@@ -132,6 +132,27 @@
     })
   })
 
+  // ── Parse request ────────────────────────────────────────────────────
+  let requestingParse = $state(false)
+  let parseRequested = $state(false)
+
+  async function requestParse(): Promise<void> {
+    if (requestingParse || !match?.id) return
+    requestingParse = true
+    try {
+      const result = await window.api.requestParseMatch(match.id)
+      if (result.ok) {
+        parseRequested = true
+      } else {
+        error = result.err ?? 'Failed to request parse'
+      }
+    } catch (e) {
+      error = e instanceof Error ? e.message : 'Failed to request parse'
+    } finally {
+      requestingParse = false
+    }
+  }
+
   $effect(() => {
     const player = focusedPlayer
     if (!player || !llmConfigured) {
@@ -493,10 +514,10 @@
   }
 
   function scaleCoordinateX(val: number): number {
-    return Math.max(0, Math.min(100, 0.65176 * val - 36.33))
+    return Math.max(0, Math.min(100, ((val - 64) / 128) * 100))
   }
   function scaleCoordinateY(val: number): number {
-    return Math.max(0, Math.min(100, 131.51 - 0.65176 * val))
+    return Math.max(0, Math.min(100, 100 - ((val - 64) / 128) * 100))
   }
 
   // Stratz path constants
@@ -909,6 +930,27 @@
     return bestDist < 22 ? `near ${best.name}` : `mid-lane area (near ${best.name})`
   }
 
+  function getKillerName(e: DeathEvent): string {
+    const heroId = e.attacker ?? (e as Record<string, unknown>).killer?.heroId ?? null
+    if (!heroId) return 'Environment'
+    const hero = getHero(heroId as number)
+    return hero?.localized_name ?? `Hero ${heroId}`
+  }
+
+  function getKillerIcon(e: DeathEvent): string | null {
+    const heroId = e.attacker ?? (e as Record<string, unknown>).killer?.heroId ?? null
+    if (!heroId) return null
+    const hero = getHero(heroId as number)
+    return hero ? getHeroImgUrl(hero.icon) : null
+  }
+
+  function getTargetName(e: KillEvent): string {
+    const heroId = e.target ?? (e as Record<string, unknown>).target?.heroId ?? null
+    if (!heroId) return 'Unknown'
+    const hero = getHero(heroId as number)
+    return hero?.localized_name ?? `Hero ${heroId}`
+  }
+
   const focusedPlayerEvents = $derived.by(() => {
     const list: MapEvent[] = []
     const p = focusedPlayer
@@ -919,6 +961,7 @@
     ;(p.stats.killEvents || []).forEach((e: KillEvent) => {
       const x = scaleCoordinateX(e.positionX)
       const y = scaleCoordinateY(e.positionY)
+      const targetName = getTargetName(e)
       list.push({
         type: 'kill',
         time: e.time,
@@ -926,7 +969,7 @@
         y,
         heroName: hName,
         heroIcon: hIcon,
-        details: `${hName} scored a kill`,
+        details: `Killed ${targetName}`,
         landmark: nearestLandmark(x, y),
         color: 'var(--color-gr)',
         char: '+'
@@ -935,6 +978,7 @@
     ;(p.stats.deathEvents || []).forEach((e: DeathEvent) => {
       const x = scaleCoordinateX(e.positionX)
       const y = scaleCoordinateY(e.positionY)
+      const killerName = getKillerName(e)
       list.push({
         type: 'death',
         time: e.time,
@@ -942,7 +986,7 @@
         y,
         heroName: hName,
         heroIcon: hIcon,
-        details: `${hName} died`,
+        details: `Killed by ${killerName}`,
         landmark: nearestLandmark(x, y),
         color: 'var(--color-rd)',
         char: '×'
@@ -1021,12 +1065,28 @@
   let tooltipEvent = $state<MapEvent | null>(null)
   let tooltipStyle = $state('')
 
+  function tooltipPos(pctX: number, pctY: number): string {
+    const cw = 300
+    const gap = 8
+    const left = (pctX / 100) * cw
+    const top = (pctY / 100) * cw
+
+    let tx = '-50%'
+    let ty = 'calc(-100% - 4px)'
+
+    if (pctX < 15) tx = '0'
+    else if (pctX > 85) tx = '-100%'
+
+    if (pctY > 80) ty = 'calc(-100% - 4px)'
+    else if (pctY < 15) ty = `${gap}px`
+
+    return `left:${left}px;top:${top}px;transform:translate(${tx},${ty})`
+  }
+
   function showTooltip(ev: MapEvent): void {
     tooltipEvent = ev
     cursorTime = ev.time
-    const left = (ev.x / 100) * 300
-    const top = (ev.y / 100) * 300 - 32
-    tooltipStyle = `left: ${left}px; top: ${top}px;`
+    tooltipStyle = tooltipPos(ev.x, ev.y)
   }
 
   function showStructureTooltip(struct: StaticStructure): void {
@@ -1042,9 +1102,7 @@
       color: struct.team === 'radiant' ? '#22c55e' : struct.team === 'dire' ? '#ef4444' : '#eab308',
       char: struct.type === 'tower' ? 'T' : 'B'
     }
-    const left = (struct.x / 100) * 300
-    const top = (struct.y / 100) * 300 - 32
-    tooltipStyle = `left: ${left}px; top: ${top}px;`
+    tooltipStyle = tooltipPos(struct.x, struct.y)
   }
 
   function hideTooltip(): void {
@@ -1059,7 +1117,8 @@
     return `${isNeg ? '-' : ''}${m}:${s.toString().padStart(2, '0')}`
   }
 
-  function formatPosition(pos: string): string {
+  function formatPosition(pos: string | null | undefined): string {
+    if (!pos) return 'Unknown'
     switch (pos) {
       case 'POSITION_1':
         return 'Carry (Pos 1)'
@@ -2158,16 +2217,37 @@
   <div
     class="flex-1 flex items-center justify-center bg-black text-zinc-400 text-sm font-semibold flex-col gap-3"
   >
-    <svg class="w-8 h-8 animate-spin text-zinc-600" viewBox="0 0 24 24" fill="none">
-      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-      <path
-        class="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-    <span>Parsing match…</span>
-    <span class="text-xxs text-zinc-600">STRATZ is still processing this replay</span>
+    {#if parseRequested}
+      <svg class="w-8 h-8 animate-spin text-zinc-600" viewBox="0 0 24 24" fill="none">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+        />
+      </svg>
+      <span>Parsing requested…</span>
+      <span class="text-xxs text-zinc-600">Check back in a few minutes</span>
+    {:else}
+      <svg
+        class="w-8 h-8 text-zinc-600"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+      >
+        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>Match not yet parsed</span>
+      <span class="text-xxs text-zinc-600">STRATZ has not processed this replay yet</span>
+      <button
+        class="mt-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-sm font-semibold transition-all disabled:opacity-50 cursor-pointer"
+        onclick={requestParse}
+        disabled={requestingParse}
+      >
+        {requestingParse ? 'Requesting…' : 'Request Parse'}
+      </button>
+    {/if}
   </div>
 {:else}
   <div class="flex-1 overflow-hidden flex flex-col select-none bg-black">
@@ -2405,7 +2485,11 @@
             <div class="text-xxs text-zinc-500 uppercase tracking-[0.4px] mt-0.5">Assists</div>
           </div>
           <div class="h-8 w-px bg-zinc-800/60 shrink-0"></div>
-          <TalentTree abilities={focusedPlayer.abilities ?? []} heroId={focusedPlayer.heroId} level={focusedPlayer.level} />
+          <TalentTree
+            abilities={focusedPlayer.abilities ?? []}
+            heroId={focusedPlayer.heroId}
+            level={focusedPlayer.level}
+          />
         </div>
 
         <!-- Item slots -->
@@ -2937,171 +3021,178 @@
               </div>
 
               <div
-                class="relative w-75 h-75 border border-bd rounded-lg overflow-hidden bg-sb/90 flex items-center justify-center select-none shadow-lg"
+                class="relative w-75 h-75 border border-bd rounded-lg bg-sb/90 flex items-center justify-center select-none shadow-lg"
                 role="region"
                 aria-label="Match minimap"
                 onmouseleave={hideTooltip}
               >
-                <img
-                  src={MinimapImage}
-                  alt="Dota 2 Calibrated Minimap"
-                  class="w-full h-full object-contain opacity-95"
-                />
+                <div class="absolute inset-0 overflow-hidden rounded-lg">
+                  <img
+                    src={MinimapImage}
+                    alt="Dota 2 Calibrated Minimap"
+                    class="w-full h-full object-contain opacity-95"
+                  />
 
-                <svg viewBox="0 0 255 255" class="absolute inset-0 w-full h-full">
-                  {#if heatmapMode}
-                    <defs>
+                  <svg viewBox="0 0 255 255" class="absolute inset-0 w-full h-full">
+                    {#if heatmapMode}
+                      <defs>
+                        {#each visibleEvents as ev, i (i)}
+                          <radialGradient id={`heat-${i}`}>
+                            <stop offset="0%" stop-color={ev.color} stop-opacity="0.55" />
+                            <stop offset="100%" stop-color={ev.color} stop-opacity="0" />
+                          </radialGradient>
+                        {/each}
+                      </defs>
                       {#each visibleEvents as ev, i (i)}
-                        <radialGradient id={`heat-${i}`}>
-                          <stop offset="0%" stop-color={ev.color} stop-opacity="0.55" />
-                          <stop offset="100%" stop-color={ev.color} stop-opacity="0" />
-                        </radialGradient>
-                      {/each}
-                    </defs>
-                    {#each visibleEvents as ev, i (i)}
-                      <circle
-                        cx={(ev.x / 100) * 255}
-                        cy={(ev.y / 100) * 255}
-                        r="16"
-                        fill={`url(#heat-${i})`}
-                      />
-                    {/each}
-                  {/if}
-
-                  {#if showStructures}
-                    {#each staticStructures as struct, id (id)}
-                      <svg
-                        x={struct.rawX}
-                        y={struct.rawY}
-                        width={struct.w}
-                        height={struct.h}
-                        viewBox="0 0 24 24"
-                        color={struct.team === 'radiant'
-                          ? '#22c55e'
-                          : struct.team === 'dire'
-                            ? '#ef4444'
-                            : '#eab308'}
-                        class="transition-all duration-100 hover:brightness-150 hover:scale-115 origin-center cursor-help z-0 **:pointer-events-none"
-                        onmouseenter={() => showStructureTooltip(struct)}
-                        role="img"
-                      >
-                        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        {@html struct.content}
-                      </svg>
-                    {/each}
-                  {/if}
-
-                  {#if !heatmapMode}
-                    {#each visibleEvents as ev, id (id)}
-                      {@const svgX = (ev.x / 100) * 255}
-                      {@const svgY = (ev.y / 100) * 255}
-                      {@const isCursor = cursorTime !== null && Math.abs(ev.time - cursorTime) < 15}
-
-                      {#if ev.type === 'death'}
-                        <rect
-                          x={svgX - 3.5}
-                          y={svgY - 3.5}
-                          width="7"
-                          height="7"
-                          fill={ev.color}
-                          stroke={isCursor ? '#fff' : 'black'}
-                          stroke-width={isCursor ? 1.5 : 0.75}
-                          class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
-                          role="graphics-symbol"
-                          aria-label="Death"
-                          onmouseenter={() => showTooltip(ev)}
-                        />
-                      {:else if ev.type === 'rune'}
-                        <polygon
-                          points="{svgX},{svgY - 4.5} {svgX + 4.5},{svgY} {svgX},{svgY +
-                            4.5} {svgX - 4.5},{svgY}"
-                          fill={ev.color}
-                          stroke={isCursor ? '#fff' : 'black'}
-                          stroke-width={isCursor ? 1.5 : 0.75}
-                          class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
-                          role="graphics-symbol"
-                          aria-label="Rune"
-                          onmouseenter={() => showTooltip(ev)}
-                        />
-                      {:else if ev.type === 'ward_obs'}
-                        <g
-                          transform="translate({svgX}, {svgY})"
-                          class="cursor-pointer transition-all duration-150 marker"
-                          role="graphics-symbol"
-                          aria-label="Observer ward"
-                          onmouseenter={() => showTooltip(ev)}
-                        >
-                          <circle
-                            r="12"
-                            cx="0"
-                            cy="0"
-                            stroke="hsl(144,52%,47%)"
-                            fill="hsl(144,52%,47%)"
-                            fill-opacity="0.4"
-                            opacity="0.7"
-                          />
-                          <g transform="translate(-7, -7)">
-                            <svg width="14" height="14" viewBox="0 0 24 24"
-                              ><path
-                                d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911z"
-                                fill="hsl(144,52%,47%)"
-                              /><path
-                                d="M2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
-                                fill="hsl(0,0%,0%)"
-                              /></svg
-                            >
-                          </g>
-                        </g>
-                      {:else if ev.type === 'ward_sent'}
-                        <g
-                          transform="translate({svgX}, {svgY})"
-                          class="cursor-pointer transition-all duration-150 marker"
-                          role="graphics-symbol"
-                          aria-label="Sentry ward"
-                          onmouseenter={() => showTooltip(ev)}
-                        >
-                          <g transform="translate(-7, -7)">
-                            <svg width="14" height="14" viewBox="0 0 24 24"
-                              ><path
-                                d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911z"
-                                fill="hsl(217,70%,55%)"
-                              /><path
-                                d="M2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
-                                fill="hsl(0,0%,0%)"
-                              /></svg
-                            >
-                          </g>
-                        </g>
-                      {:else}
                         <circle
-                          cx={svgX}
-                          cy={svgY}
-                          r="4"
-                          fill={ev.color}
-                          stroke={isCursor ? '#fff' : 'black'}
-                          stroke-width={isCursor ? 1.5 : 0.75}
-                          class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
-                          role="graphics-symbol"
-                          aria-label="Kill"
-                          onmouseenter={() => showTooltip(ev)}
+                          cx={(ev.x / 100) * 255}
+                          cy={(ev.y / 100) * 255}
+                          r="16"
+                          fill={`url(#heat-${i})`}
                         />
-                      {/if}
-                    {/each}
-                  {/if}
-                </svg>
+                      {/each}
+                    {/if}
+
+                    {#if showStructures}
+                      {#each staticStructures as struct, id (id)}
+                        <svg
+                          x={struct.rawX}
+                          y={struct.rawY}
+                          width={struct.w}
+                          height={struct.h}
+                          viewBox="0 0 24 24"
+                          color={struct.team === 'radiant'
+                            ? '#22c55e'
+                            : struct.team === 'dire'
+                              ? '#ef4444'
+                              : '#eab308'}
+                          class="transition-all duration-100 hover:brightness-150 hover:scale-115 origin-center cursor-help z-0 **:pointer-events-none"
+                          onmouseenter={() => showStructureTooltip(struct)}
+                          role="img"
+                        >
+                          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                          {@html struct.content}
+                        </svg>
+                      {/each}
+                    {/if}
+
+                    {#if !heatmapMode}
+                      {#each visibleEvents as ev, id (id)}
+                        {@const svgX = (ev.x / 100) * 255}
+                        {@const svgY = (ev.y / 100) * 255}
+                        {@const isCursor =
+                          cursorTime !== null && Math.abs(ev.time - cursorTime) < 15}
+
+                        {#if ev.type === 'death'}
+                          <rect
+                            x={svgX - 3.5}
+                            y={svgY - 3.5}
+                            width="7"
+                            height="7"
+                            fill={ev.color}
+                            stroke={isCursor ? '#fff' : 'black'}
+                            stroke-width={isCursor ? 1.5 : 0.75}
+                            class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
+                            role="graphics-symbol"
+                            aria-label="Death"
+                            onmouseenter={() => showTooltip(ev)}
+                          />
+                        {:else if ev.type === 'rune'}
+                          <polygon
+                            points="{svgX},{svgY - 4.5} {svgX + 4.5},{svgY} {svgX},{svgY +
+                              4.5} {svgX - 4.5},{svgY}"
+                            fill={ev.color}
+                            stroke={isCursor ? '#fff' : 'black'}
+                            stroke-width={isCursor ? 1.5 : 0.75}
+                            class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
+                            role="graphics-symbol"
+                            aria-label="Rune"
+                            onmouseenter={() => showTooltip(ev)}
+                          />
+                        {:else if ev.type === 'ward_obs'}
+                          <g
+                            transform="translate({svgX}, {svgY})"
+                            class="cursor-pointer transition-all duration-150 marker"
+                            role="graphics-symbol"
+                            aria-label="Observer ward"
+                            onmouseenter={() => showTooltip(ev)}
+                          >
+                            <circle
+                              r="12"
+                              cx="0"
+                              cy="0"
+                              stroke="hsl(144,52%,47%)"
+                              fill="hsl(144,52%,47%)"
+                              fill-opacity="0.4"
+                              opacity="0.7"
+                            />
+                            <g transform="translate(-7, -7)">
+                              <svg width="14" height="14" viewBox="0 0 24 24"
+                                ><path
+                                  d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911z"
+                                  fill="hsl(144,52%,47%)"
+                                /><path
+                                  d="M2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
+                                  fill="hsl(0,0%,0%)"
+                                /></svg
+                              >
+                            </g>
+                          </g>
+                        {:else if ev.type === 'ward_sent'}
+                          <g
+                            transform="translate({svgX}, {svgY})"
+                            class="cursor-pointer transition-all duration-150 marker"
+                            role="graphics-symbol"
+                            aria-label="Sentry ward"
+                            onmouseenter={() => showTooltip(ev)}
+                          >
+                            <g transform="translate(-7, -7)">
+                              <svg width="14" height="14" viewBox="0 0 24 24"
+                                ><path
+                                  d="M11.848 5.006c-3.191.025-6.411 1.905-9.604 5.828a.6.6 0 00-.135.379l.001.843c0 .132.043.26.123.364 3.24 4.254 6.515 6.488 9.752 6.572-3.238-.084-6.513-2.318-9.753-6.572a.603.603 0 01-.123-.364v-.843a.6.6 0 01.135-.379c3.193-3.923 6.413-5.803 9.604-5.828zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076zM2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911z"
+                                  fill="hsl(217,70%,55%)"
+                                /><path
+                                  d="M2.109 11.213a.6.6 0 01.135-.379c3.246-3.988 6.519-5.865 9.763-5.828 3.238.037 6.503 1.988 9.742 5.835a.595.595 0 01.142.386v.861a.606.606 0 01-.111.349c-3.253 4.571-6.546 6.638-9.795 6.555-3.237-.084-6.512-2.318-9.752-6.572a.596.596 0 01-.123-.364l-.001-.843zM6.296 9.54a19.948 19.948 0 00-2.97 2.334c2.906 3.77 5.779 5.843 8.69 5.918 2.906.075 5.771-1.86 8.673-5.894a21.08 21.08 0 00-2.994-2.306A5.8 5.8 0 0112 14.311 5.8 5.8 0 016.296 9.54zm8.097-1.496a8.61 8.61 0 00-2.426-.349 8.245 8.245 0 00-2.307.293L9.617 8A2.439 2.439 0 0012 10.955a2.44 2.44 0 002.393-2.911zm-2.386-3.038h-.076.076z"
+                                  fill="hsl(0,0%,0%)"
+                                /></svg
+                              >
+                            </g>
+                          </g>
+                        {:else}
+                          <circle
+                            cx={svgX}
+                            cy={svgY}
+                            r="4"
+                            fill={ev.color}
+                            stroke={isCursor ? '#fff' : 'black'}
+                            stroke-width={isCursor ? 1.5 : 0.75}
+                            class="cursor-pointer transition-all duration-150 hover:stroke-white hover:stroke-[1.5px] marker"
+                            role="graphics-symbol"
+                            aria-label="Kill"
+                            onmouseenter={() => showTooltip(ev)}
+                          />
+                        {/if}
+                      {/each}
+                    {/if}
+                  </svg>
+                </div>
 
                 {#if tooltipEvent}
                   <div
-                    class="absolute bg-s4 border border-bd2 text-tx p-[5px_8px] rounded shadow-lg text-xs pointer-events-none z-50 whitespace-nowrap -translate-x-1/2 flex items-center gap-1.5 font-sans animate-fade-in"
+                    class="absolute bg-s4 border border-bd2 text-tx p-[5px_8px] rounded shadow-lg text-xs pointer-events-none z-50 flex items-center gap-1.5 font-sans animate-fade-in max-w-44"
                     style={tooltipStyle}
                   >
                     {#if tooltipEvent.heroIcon}
-                      <img src={tooltipEvent.heroIcon} class="w-4 h-4 rounded-full" alt="" />
+                      <img
+                        src={tooltipEvent.heroIcon}
+                        class="w-4 h-4 rounded-full shrink-0"
+                        alt=""
+                      />
                     {/if}
-                    <div class="flex flex-col">
-                      <span class="font-bold">{tooltipEvent.details}</span>
+                    <div class="flex flex-col min-w-0">
+                      <span class="font-bold truncate">{tooltipEvent.details}</span>
                       {#if tooltipEvent.landmark}
-                        <span class="text-xxs text-tx2">{tooltipEvent.landmark}</span>
+                        <span class="text-xxs text-tx2 truncate">{tooltipEvent.landmark}</span>
                       {/if}
                       {#if tooltipEvent.time > 0}
                         <span class="text-xxs text-tx2 font-mono"
@@ -4109,19 +4200,36 @@
               </div>
               <div class="flex flex-col gap-2">
                 {#each focusedPlayer.stats.deathEvents as death, idx (idx)}
+                  {@const killerIcon = getKillerIcon(death)}
+                  {@const killerName = getKillerName(death)}
                   <div
-                    class="flex items-center justify-between text-[11.5px] p-2.5 px-3.5 bg-zinc-900 border border-zinc-800 rounded-lg"
+                    class="flex items-center gap-3 text-[11.5px] p-2.5 px-3.5 bg-zinc-900 border border-zinc-800 rounded-lg"
                   >
-                    <span class="font-mono text-zinc-400"
-                      >Death #{idx + 1} at {formatTime(death.time)}</span
-                    >
-                    {#if death.goldLost != null}
-                      <span class="text-rose-400 font-bold text-[11px]"
-                        >Gold lost: {death.goldLost.toLocaleString()}g</span
-                      >
-                    {:else}
-                      <span class="text-rose-400/60 font-bold text-[11px]">No gold data</span>
+                    {#if killerIcon}
+                      <img
+                        src={killerIcon}
+                        alt={killerName}
+                        class="w-5 h-5 rounded-full shrink-0"
+                      />
                     {/if}
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-rose-400 font-bold">Death #{idx + 1}</span>
+                        <span class="text-zinc-500">at</span>
+                        <span class="font-mono text-zinc-300">{formatTime(death.time)}</span>
+                      </div>
+                      <div class="text-xxs text-zinc-500 truncate mt-0.5">
+                        Killed by <span class="text-zinc-400 font-semibold">{killerName}</span>
+                      </div>
+                    </div>
+                    <div class="text-right shrink-0">
+                      <div class="text-rose-400 font-bold text-[11px] leading-tight">
+                        -{death.goldLost.toLocaleString()}g
+                      </div>
+                      <div class="text-zinc-500 text-xxs leading-tight mt-0.25">
+                        {death.xpFed.toLocaleString()} xp fed
+                      </div>
+                    </div>
                   </div>
                 {/each}
               </div>
@@ -4319,11 +4427,9 @@
   @keyframes fadeIn {
     from {
       opacity: 0;
-      transform: translate(-50%, 5px);
     }
     to {
       opacity: 1;
-      transform: translate(-50%, 0);
     }
   }
 
